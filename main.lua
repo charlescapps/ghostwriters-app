@@ -5,11 +5,11 @@
 -----------------------------------------------------------------------------------------
 
 -- Your code here
-require("title_screen_view")
+local composer = require( "composer" )
 
 
 print("Hello, World!!")
 
-setup_title_screen()
-
+local title_screen = composer.loadScene( "scenes.title_scene" )
+composer.gotoScene( "scenes.title_scene" , "fade" )
 
