@@ -1,61 +1,27 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
-local login_common = require( "login.login_common" )
+local common_ui = require("common.common_ui")
 local scene = composer.newScene()
 
-
-buttonSinglePlayer = nil
-buttonPlayOthers = nil
-buttonFacebook = nil
-
-local function create_title_button(text, id, y, onPress)
-	button = widget.newButton( {
-		id = id,
-		x = display.contentWidth / 2,
-		y = y,
-		emboss = true,
-		label = text,
-		fontSize = 44,
-		labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
-		width = 500,
-		height = 125,
-		shape = "roundedRect",
-		cornerRadius = 15,
-		fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
-		strokeColor = { 1, 0.2, 0.2 },
-		strokeRadius = 10,
-		onPress = onPress
-		} )
-	return button
+local function create_button_new_account()
+    return common_ui.create_button("Create a new user", "new_account_button", 350)
 end
 
-local click_single_player = function()
-	 print( "foo" )
-end
-
-local click_play_others = function()
-	 print( "Clicked play with rivals" )
-	 --composer.loadScene( "scenes.search_for_opponent_scene" )
-	 composer.gotoScene( "scenes.search_for_opponent_scene" , "fade" )
+local function create_button_sign_in()
+    return common_ui.create_button("Sign in", "sign_in_button", 550)
 end
 
 -- "scene:create()"
 function scene:create(event)
-	local isLoggedIn = login_common.checkCredentials()
-	if not isLoggedIn then
-		return
-	end
-
 	local sceneGroup = self.view
-	titleText = display.newText( "Words with Rivals", display.contentWidth / 2, 150, "Arial", 64 )
-	buttonSinglePlayer = create_title_button("Single Player", "single_player_button", 400)
-	buttonPlayOthers = create_title_button("Play with rivals", "multi_player_button", 700, click_play_others)
-	buttonFacebook = create_title_button("Find rivals on Facebook", "facebook_button", 1000)
+    local background = common_ui.create_background()
+    local title = common_ui.create_title("Words with Rivals", nil, { 0, 0, 0})
+    local button_new_account = create_button_new_account()
 
-	sceneGroup:insert( titleText )
-	sceneGroup:insert( buttonSinglePlayer )
-	sceneGroup:insert( buttonPlayOthers )
-	sceneGroup:insert( buttonFacebook )
+    sceneGroup:insert(background)
+    sceneGroup:insert(title)    
+    sceneGroup:insert(button_new_account)
+
 end
 
 -- "scene:show()"
@@ -110,4 +76,3 @@ scene:addEventListener( "destroy", scene )
 -- -------------------------------------------------------------------------------
 
 return scene
-
