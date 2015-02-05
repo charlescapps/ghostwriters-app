@@ -29,7 +29,7 @@ M.create_title = function(myTitleText, y, rgb)
 end 
 
 
-M.create_button = function(text, id, y, onPress)
+M.create_button = function(text, id, y, onEvent)
 	button = widget.newButton( {
 		id = id,
 		x = display.contentWidth / 2,
@@ -45,9 +45,18 @@ M.create_button = function(text, id, y, onPress)
 		fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
 		strokeColor = { 1, 0.2, 0.2 },
 		strokeRadius = 10,
-		onPress = onPress
+		onEvent = onEvent
 		} )
 	return button
+end
+
+M.find_by_id = function(group, id)
+	for i=1, #array do
+		if group[i] and group[i].id == id then
+			return group[i]
+		end
+	end
+	return nil
 end
 
 return M

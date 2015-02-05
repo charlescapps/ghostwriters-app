@@ -4,7 +4,10 @@ local common_ui = require("common.common_ui")
 local scene = composer.newScene()
 
 local function create_button_new_account()
-    return common_ui.create_button("Create a new user", "new_account_button", 350)
+    return common_ui.create_button("Create a new user", "new_account_button", 350, 
+        function() 
+            composer.gotoScene( "login.create_account_scene" , "fade" )
+        end )
 end
 
 local function create_button_sign_in()
@@ -17,10 +20,12 @@ function scene:create(event)
     local background = common_ui.create_background()
     local title = common_ui.create_title("Words with Rivals", nil, { 0, 0, 0})
     local button_new_account = create_button_new_account()
+    local button_sign_in = create_button_sign_in()
 
     sceneGroup:insert(background)
     sceneGroup:insert(title)    
     sceneGroup:insert(button_new_account)
+    sceneGroup:insert(button_sign_in)
 
 end
 

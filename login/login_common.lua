@@ -14,4 +14,9 @@ M.checkCredentials = function()
 	return true
 end
 
+
+M.createNewAccount = function(username, email, password)
+
+end
+
 return M
