@@ -7,6 +7,7 @@ local function create_button_new_account()
     return common_ui.create_button("Create a new user", "new_account_button", 350, 
         function() 
             composer.gotoScene( "login.create_account_scene" , "fade" )
+            scene:destroy()
         end )
 end
 

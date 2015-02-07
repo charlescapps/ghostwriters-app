@@ -1,6 +1,9 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
 local common_ui = require("common.common_ui")
+local common_api = require("common.common_api")
+local login_common = require("login.login_common")
+local json = require("json")
 local scene = composer.newScene()
 
 
@@ -113,15 +116,26 @@ function scene:sanity_check_details()
 
 end
 
+local function create_account_success(user)
+    print("Creating account was a success: " .. json.encode( user ))
+    scene:destroy()
+end
+
+local function create_account_fail()
+    -- do nothing, a popup will appear anyway.
+end
+
 
 local function create_done_button()
     local doneButton = common_ui.create_button("Go!", "create_account_done_button", 1050, function(event)
             if ( "ended" == event.phase ) then
                 print( "Button was pressed and released" )
-                validateResult = scene:sanity_check_details()
-                if validateResult["error"] ~= nil then
-                        native.showAlert( "Ooops...", validateResult["error"] )
+                result = scene:sanity_check_details()
+                if result["error"] ~= nil then
+                    native.showAlert( "Ooops...", result["error"] )
                 else
+                    common_api.createNewAccountAndLogin(result["username"], result["email"], result["password"], 
+                        create_account_success, create_account_fail)
                 end
             end
 
