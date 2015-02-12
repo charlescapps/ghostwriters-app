@@ -13,6 +13,14 @@ local function getBasicAuthHeader(username, password)
 	return "Basic " .. mime.b64(username .. ":" .. password)
 end
 
+local function escape (str)
+        str = string.gsub (str, "\n", "\r\n")
+        str = string.gsub (str, "([^0-9a-zA-Z ])", -- locale independent
+                function (c) return string.format ("%%%02X", string.byte(c)) end)
+        str = string.gsub (str, " ", "+")
+        return str
+end
+
 M.isValidUser = function(user)
 	return user ~= nil and user.id and user.username
 end
@@ -120,6 +128,71 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 		end
 	end
 	return network.request(M.usersURL(), "POST", listener, params)
+end
+
+M.isValidUsernameChars = function(text)
+	if not string.match( text, "[a-zA-Z0-9_ \\-]+" ) then
+		return {
+			["error"] = "Usernames can only contain alphanumeric characters, spaces, '-', and '_'"
+		}
+	end
+	return { ["success"] = "Username is valid" }
+end
+
+M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail)
+	
+	local usernameError = M.isValidUsernameChars(textEntered)
+
+	-- If the user enters invalid characters, don't bother doing a network request, return 0 results.
+	if (usernameError and usernameError.error) then
+		onSuccess({}) -- 0 results returned if the user enters bad characters
+		return
+	end
+
+	-- Sanitize input and construct URL with query params.
+	local url = M.usersURL() .. "?q=" .. escape(textEntered) .. "&maxResults=" .. maxResults
+
+	-- Use basic auth as the Initial User 
+	local cookie = login_common.getCookie()
+	local headers = { ["Cookie"] = cookie,
+					  ["Content-Type"] = "application/json" 
+					}
+	local params = { headers = headers,
+					 timeout = 30,
+					 body = body }
+	local listener = function(event)
+		if "ended" == event.phase then
+			if event.isError or not event.response then
+				native.showAlert( "Network error", "A network error occurred. Please try again." )
+				print ("Network error occurred searching for users with GET /users! Event = " .. json.encode(event));
+				onFail(event)
+				return
+			end
+			local userList = json.decode(event.response)
+			if userList == nil then
+				native.showAlert("Error searching for users", "Please try again")
+				print("An error occurred doing GET /users: " .. json.encode(event));
+				onFail(event)
+				return
+			end
+			if userList["errorMessage"] then
+				native.showAlert("Error searching for users", userList["errorMessage"])
+				print("An error occurred doing GET /users: " .. userList["errorMessage"]);
+				onFail(event)
+				return
+			end
+			if not userList["users"] then
+				native.showAlert( "Network error", "A network error occurred. Please try again." )
+				print ("Failed to GET /users! Response has no 'users' field. Event = " .. json.encode(event))
+				onFail(event)
+				return				
+			end
+			print("SUCCESS - GET /users returned: " .. json.encode(userList["users"]))
+			onSuccess(userList["users"])
+
+		end
+	end
+	return network.request(url, "GET", listener, params)
 end
 
 return M

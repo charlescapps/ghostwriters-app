@@ -1,6 +1,7 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
 local login_common = require( "login.login_common" )
+local common_ui = require("common.common_ui")
 local scene = composer.newScene()
 local json = require("json")
 
@@ -44,11 +45,13 @@ end
 function scene:create(event)
 
 	local sceneGroup = self.view
+	local background = common_ui.create_background()
 	titleText = display.newText( "Words with Rivals", display.contentWidth / 2, 150, "Arial", 64 )
 	buttonSinglePlayer = create_title_button("Single Player", "single_player_button", 400)
 	buttonPlayOthers = create_title_button("Play with rivals", "multi_player_button", 700, click_play_others)
 	buttonFacebook = create_title_button("Find rivals on Facebook", "facebook_button", 1000)
 
+	sceneGroup:insert(background)
 	sceneGroup:insert( titleText )
 	sceneGroup:insert( buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )

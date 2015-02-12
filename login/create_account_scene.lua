@@ -118,7 +118,9 @@ end
 
 local function create_account_success(user)
     print("Creating account was a success: " .. json.encode( user ))
-    scene:destroy()
+    local currentSceneName = composer.getSceneName( "current" )
+    composer.removeScene( currentSceneName, false )
+    composer.gotoScene( "scenes.title_scene", "fade" )
 end
 
 local function create_account_fail()
@@ -200,6 +202,9 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
+    sceneGroup.username_text:removeSelf( )
+    sceneGroup.email_text:removeSelf( )
+    sceneGroup.pass_fields:removeSelf( )
 
     -- Called prior to the removal of scene's view ("sceneGroup").
     -- Insert code here to clean up the scene.
