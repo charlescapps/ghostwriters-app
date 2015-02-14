@@ -9,6 +9,18 @@ local SERVER = "http://localhost:8080/api"
 local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
 
+-- Constants
+M.SMALL_SIZE = "TALL"
+M.MEDIUM_SIZE = "GRANDE"
+M.LARGE_SIZE = "VENTI"
+
+M.LOW_DENSITY = "SPARSE"
+M.MEDIUM_DENSITY = "REGULAR"
+M.HIGH_DENSITY = "WORD_JUNGLE"
+
+M.FIXED_BONUSES = "FIXED_BONUSES"
+M.RANDOM_BONUSES = "RANDOM_BONUSES"
+
 local function getBasicAuthHeader(username, password)
 	return "Basic " .. mime.b64(username .. ":" .. password)
 end
@@ -130,6 +142,43 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 	return network.request(M.usersURL(), "POST", listener, params)
 end
 
+M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
+
+	local cookie = login_common.getCookie()
+	local headers = { ["Cookie"] = cookie,
+					  ["Content-Type"] = "application/json" 
+					}
+	local params = { headers = headers,
+					 timeout = 30,
+					 body = body }
+	local listener = function(event)
+		if "ended" == event.phase then
+			if event.isError or not event.response then
+				native.showAlert( "Network error", "Please try again." )
+				print ("Network error with " .. method .. " to " .. url .. ": " .. json.encode(event));
+				return
+			end
+			local jsonResp = json.decode(event.response)
+			if jsonResp == nil then
+				native.showAlert("Network error", "Please try again.")
+				print("Error - no response returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
+				return
+			end
+			local code = event.status
+			if code ~= expectedCode then
+				print("Error - unexpected status code " .. code .. "returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
+				onFail(jsonResp)
+				return
+			end
+			
+			print("SUCCESS - " .. method .. " to" .. url .. " returned: " .. event.response)
+			onSuccess(jsonResp)
+
+		end
+	end
+	return network.request(url, method, listener, params)
+end
+
 M.isValidUsernameChars = function(text)
 	if not string.match( text, "[a-zA-Z0-9_ \\-]+" ) then
 		return {
@@ -152,47 +201,14 @@ M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail)
 	-- Sanitize input and construct URL with query params.
 	local url = M.usersURL() .. "?q=" .. escape(textEntered) .. "&maxResults=" .. maxResults
 
-	-- Use basic auth as the Initial User 
-	local cookie = login_common.getCookie()
-	local headers = { ["Cookie"] = cookie,
-					  ["Content-Type"] = "application/json" 
-					}
-	local params = { headers = headers,
-					 timeout = 30,
-					 body = body }
-	local listener = function(event)
-		if "ended" == event.phase then
-			if event.isError or not event.response then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
-				print ("Network error occurred searching for users with GET /users! Event = " .. json.encode(event));
-				onFail(event)
-				return
-			end
-			local userList = json.decode(event.response)
-			if userList == nil then
-				native.showAlert("Error searching for users", "Please try again")
-				print("An error occurred doing GET /users: " .. json.encode(event));
-				onFail(event)
-				return
-			end
-			if userList["errorMessage"] then
-				native.showAlert("Error searching for users", userList["errorMessage"])
-				print("An error occurred doing GET /users: " .. userList["errorMessage"]);
-				onFail(event)
-				return
-			end
-			if not userList["users"] then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
-				print ("Failed to GET /users! Response has no 'users' field. Event = " .. json.encode(event))
-				onFail(event)
-				return				
-			end
-			print("SUCCESS - GET /users returned: " .. json.encode(userList["users"]))
-			onSuccess(userList["users"])
+	M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail)
+end
 
-		end
-	end
-	return network.request(url, "GET", listener, params)
+M.createNewGame = function(rival, boardSize, bonusesType, gameDensity)
+
 end
 
 return M
+
+
+

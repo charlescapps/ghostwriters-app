@@ -50,6 +50,20 @@ M.create_button = function(text, id, y, onEvent)
 	return button
 end
 
+M.create_img_button = function(y, width, height, defaultFile, overFile, onPress, onRelease)
+
+	return widget.newButton({
+		x = display.contentWidth / 2,
+		y = y,
+		width = width,
+		height = height,
+		defaultFile = defaultFile, 
+		overFile = overFile,
+		onPress = onPress,
+		onRelease = onRelease
+	})
+end
+
 M.find_by_id = function(group, id)
 	for i=1, #array do
 		if group[i] and group[i].id == id then
@@ -57,6 +71,43 @@ M.find_by_id = function(group, id)
 		end
 	end
 	return nil
+end
+
+M.create_img_button_group = function(defaultFile, overFile, imgY, title, subtitle, onPress, onRelease)
+    local group = display.newGroup()
+    local imgButton = M.create_img_button(imgY, 300, 300, defaultFile, overFile,  onPress, onRelease)
+    imgButton.x = display.contentWidth / 2
+    imgButton.y = imgY
+    
+    local titleText = display.newText {
+    	parent = group, 
+    	text = title, 
+    	x = display.contentWidth / 2, 
+    	y = imgY + 175, 
+    	width = display.contentWidth, 
+    	height = 50, 
+    	font = native.systemFontBold, 
+    	fontSize = 40,
+    	align = "center"
+    	} 
+
+    titleText:setFillColor(0, 0, 0)
+
+    local subtitleText = display.newText {
+    	parent = group, 
+    	text = subtitle, 
+    	x = display.contentWidth / 2, 
+    	y = imgY + 220, 
+    	width = display.contentWidth, 
+    	height = 40, 
+    	font = native.systemFont, 
+    	fontSize = 30,
+    	align = "center" }
+    subtitleText:setFillColor(0, 0, 0)
+
+    group:insert(imgButton)
+
+    return group
 end
 
 return M

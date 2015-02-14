@@ -4,14 +4,15 @@ local scene = composer.newScene()
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local login_common = require("login.login_common")
+local new_game_data = require("globals.new_game_data")
 
 local MAX_RESULTS = 20
 
 local userResultRows = {}
+local nativeTextInput
 
-local function onSearchFail(event)
-    print "Error searching for users."
-end
+-- Callbacks after 
+
 
 local function createScrollViewForSearchResults()
     return widget.newScrollView
@@ -50,6 +51,16 @@ local function deselectAllUsers()
 
 end
 
+local function getSelectedResultRow()
+    for i = 1, #userResultRows do
+        local row = userResultRows[i]
+        if row.isSelected and row.user then
+            return row
+        end
+    end
+    return nil
+end
+
 local function createUserEntryView(i, user, scrollView)
     local y = (i - 1) * 45 + 25
     local userView =  display.newText({
@@ -64,6 +75,7 @@ local function createUserEntryView(i, user, scrollView)
     
     local backgroundRect = display.newRoundedRect( scrollView.width / 2, y, scrollView.width - 10, 45, 10 )
     backgroundRect.i = i
+    backgroundRect.user = user
     local bg = getBackgroundColor(i)
     backgroundRect:setFillColor( bg[1], bg[2], bg[3] )
 
@@ -90,20 +102,35 @@ local function createUserEntryView(i, user, scrollView)
 end
 
 -- Callback for successful API call to GET /users?q={query}&maxResults=20
-local function onSearchSuccess(users)
+local function onSearchSuccess(jsonResp)
+    if not jsonResp or not jsonResp["users"] then
+        print("Empty result returned from GET /users: " .. json)
+        return
+    end
+
+    local users = jsonResp["users"]
+
     local sceneGroup = scene.view
     local searchBarGroup = sceneGroup.searchBarGroup
 
     userResultRows = {}
-    local prevScrollView = searchBarGroup.scrollView
-    prevScrollView:removeSelf()
+    if scrollView then
+        scrollView:removeSelf( )
+        scrollView = nil
+    end
 
-    local scrollView = createScrollViewForSearchResults()
-    searchBarGroup.scrollView = scrollView
+    scrollView = createScrollViewForSearchResults()
 
     for i = 1, #users do
         local user = users[i]
         local userView = createUserEntryView(i, user, scrollView)
+    end
+end
+
+local function onSearchFail(jsonResp)
+    print ("Error searching for users: " .. json.encode(jsonResp))
+    if jsonResp["errorMessage"] then
+        native.showAlert("Error searching for rivals", jsonResp["errorMessage"])
     end
 end
 
@@ -153,6 +180,14 @@ local function scrollListener( event )
     return true
 end
 
+local function createSearchTextInput()
+    local input = native.newTextField( display.contentWidth / 2, 250, 600, 50 )
+    input:addEventListener( "userInput", userInputListener )
+    input.size = 18
+    input.placeholder = "Rival's username"
+    input.align = "center"
+    return input
+end
 
 local function createSearchBar() 
     local searchBarGroup = display.newGroup( )
@@ -165,23 +200,11 @@ local function createSearchBar()
         fontSize = 48
         } )
     title:setFillColor(0, 0, 0)
-    local input = native.newTextField( display.contentWidth / 2, 250, 600, 50 )
-    input:addEventListener( "userInput", userInputListener )
-    input.size = 18
-    input.placeholder = "Rival's username"
-    input.align = "center"
+
 
     local searchIcon = display.newImageRect( searchBarGroup, "images/search-icon.png", 50, 50 )
     searchIcon.x = display.contentWidth / 2 + 325
     searchIcon.y = 250
-
-    local scrollView = createScrollViewForSearchResults()
-
-    searchBarGroup:insert( input )
-    searchBarGroup:insert( scrollView )
-
-    searchBarGroup.input = input
-    searchBarGroup.scrollView = scrollView
 
     return searchBarGroup
 
@@ -192,11 +215,15 @@ local function createStartGameButton()
             if ( "ended" == event.phase ) then
                 print( "Button was pressed and released" )
 
-                local selectedUser = scene.selectedUser
-                if not selectedUser then
+                local selectedRow =  getSelectedResultRow()
+                if not selectedRow or not selectedRow.user then
                     print "No user selected, cannot start a game"
+                    native.showAlert( "No rival selected", "Please choose a rival." )
                     return
                 end
+
+                new_game_data.rival = selectedRow.user
+                composer.gotoScene( "scenes.choose_board_size_scene" ,"fade" )
 
             end
 
@@ -205,7 +232,7 @@ end
 
 -- "scene:create()"
 function scene:create(event)
-    userResultRows = {}
+    
 	local sceneGroup = self.view
     local background = common_ui.create_background()
     local searchBarGroup = createSearchBar()
@@ -219,25 +246,30 @@ end
 
 -- "scene:show()"
 function scene:show( event )
-
+    
     local sceneGroup = self.view
     local phase = event.phase
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
         scene.user = login_common.checkCredentials() -- Check if the current user is logged in.
+        userResultRows = {}
+        nativeTextInput = createSearchTextInput()
+        if not scrollView then
+            scrollView = createScrollViewForSearchResults()
+        end
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
         -- Example: start timers, begin animation, play audio, etc.
-        native.setKeyboardFocus(sceneGroup.searchBarGroup.input )
+        native.setKeyboardFocus(nativeTextInput)
     end
 end
 
 
 -- "scene:hide()"
 function scene:hide( event )
-
+    
     local sceneGroup = self.view
     local phase = event.phase
 
@@ -245,7 +277,15 @@ function scene:hide( event )
         -- Called when the scene is on screen (but is about to go off screen).
         -- Insert code here to "pause" the scene.
         -- Example: stop timers, stop animation, stop audio, etc.
+        userResultRows = nil
+
+        nativeTextInput:removeSelf( )
+        nativeTextInput = nil
+
+        scrollView:removeSelf()
+        scrollView = nil
     elseif ( phase == "did" ) then
+        
         -- Called immediately after scene goes off screen.
     end
 end
