@@ -18,7 +18,6 @@ M.create_image = function(imageFile, width, height, x, y)
     return img
 end
 
-
 M.create_title = function(myTitleText, y, rgb, fontSize)
 	local useFontSize = fontSize or 48
 	if not y then
@@ -37,7 +36,6 @@ M.create_title = function(myTitleText, y, rgb, fontSize)
     title:setFillColor(rgb[1], rgb[2], rgb[3])
     return title
 end 
-
 
 M.create_button = function(text, id, y, onEvent)
 	button = widget.newButton( {

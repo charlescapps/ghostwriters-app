@@ -18,19 +18,27 @@ function scene:create(event)
 
     local gameModel = current_game.currentGame
     board = board_class.new(gameModel)
-    board:printSquares()
+    local boardStr = board:toString()
+    print(boardStr)
 
     local background = common_ui.create_background()
-    local board = common_ui.create_image("images/wood-texture.jpg", display.contentWidth, display.contentWidth, 
-        display.contentWidth / 2, display.contentWidth / 2 + 200)
+    local boardCenterX = display.contentWidth / 2
+    local boardCenterY = display.contentWidth / 2 + 200
+    local boardTexture = common_ui.create_image("images/wood-texture.jpg", display.contentWidth, display.contentWidth, 
+        boardCenterX, boardCenterY)
 
     local player2Model = gameModel["player2Model"]
     local titleText = "Game with " .. player2Model["username"]
     local title = common_ui.create_title(titleText, 100, {0, 0, 0}, 50)
 
+    local squaresGroup = board:createSquaresGroup(display.contentWidth - 20)
+    squaresGroup.x = 10
+    squaresGroup.y = 210
+
     sceneGroup:insert(background)
-    sceneGroup:insert(board)
+    sceneGroup:insert(boardTexture)
     sceneGroup:insert(title)
+    sceneGroup:insert(squaresGroup)
 end
 
 -- "scene:show()"
