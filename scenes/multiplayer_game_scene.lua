@@ -3,8 +3,10 @@ local widget = require( "widget" )
 local json = require("json")
 local common_ui = require("common.common_ui")
 local current_game = require("globals.current_game")
+local board_class = require("classes.board_class")
 local scene = composer.newScene()
 
+local board
 
 -- "scene:create()"
 function scene:create(event)
@@ -15,6 +17,8 @@ function scene:create(event)
     end
 
     local gameModel = current_game.currentGame
+    board = board_class.new(gameModel)
+    board:printSquares()
 
     local background = common_ui.create_background()
     local board = common_ui.create_image("images/wood-texture.jpg", display.contentWidth, display.contentWidth, 
