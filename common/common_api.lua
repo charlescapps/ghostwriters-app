@@ -45,6 +45,10 @@ M.usersURL = function()
 	return SERVER .. "/users"
 end
 
+M.gamesURL = function()
+	return SERVER .. "/games"
+end
+
 M.login = function(username, password, onSuccess, onFail)
 	local basic = getBasicAuthHeader(username, password)
 	local headers = { ["Authorization"] = basic,
@@ -171,7 +175,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
 				return
 			end
 			
-			print("SUCCESS - " .. method .. " to" .. url .. " returned: " .. event.response)
+			print("SUCCESS - " .. method .. " to " .. url .. " returned: " .. event.response)
 			onSuccess(jsonResp)
 
 		end
@@ -204,8 +208,9 @@ M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail)
 	M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail)
 end
 
-M.createNewGame = function(rival, boardSize, bonusesType, gameDensity)
-
+M.createNewGame = function(newGameInput, onSuccess, onFail)
+	local url = M.gamesURL()
+	M.doApiRequest(url, "POST", json.encode(newGameInput), 201, onSuccess, onFail)
 end
 
 return M

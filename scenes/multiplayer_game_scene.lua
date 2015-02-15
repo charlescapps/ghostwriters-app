@@ -1,11 +1,32 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
+local json = require("json")
+local common_ui = require("common.common_ui")
+local current_game = require("globals.current_game")
 local scene = composer.newScene()
+
 
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
 
+    if not current_game.currentGame then
+        print ("Error - no current game is defined in the current_game module.")
+    end
+
+    local gameModel = current_game.currentGame
+
+    local background = common_ui.create_background()
+    local board = common_ui.create_image("images/wood-texture.jpg", display.contentWidth, display.contentWidth, 
+        display.contentWidth / 2, display.contentWidth / 2 + 200)
+
+    local player2Model = gameModel["player2Model"]
+    local titleText = "Game with " .. player2Model["username"]
+    local title = common_ui.create_title(titleText, 100, {0, 0, 0}, 50)
+
+    sceneGroup:insert(background)
+    sceneGroup:insert(board)
+    sceneGroup:insert(title)
 end
 
 -- "scene:show()"
@@ -17,6 +38,13 @@ function scene:show( event )
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
         scene.user = login_common.checkCredentials() -- Check if the current user is logged in.
+        if not scene.gameModel then
+            print ("Error - no game model present for multiplayer game!")
+        else
+            gameModel = scene.gameModel
+            print ("Game model: " .. json.encode(scene.gameModel))
+        end
+
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.

@@ -1,16 +1,26 @@
 local M = {}
 
 local widget = require("widget")
+local DEFAULT_BACKGROUND = "images/book_texture.png"
 
-M.create_background = function()
-    local background = display.newImageRect( "images/book_texture.png", 750, 1334 )
+M.create_background = function(imageFile)
+	local file = imageFile or DEFAULT_BACKGROUND
+    local background = display.newImageRect( file, 750, 1334 )
     background.x = display.contentWidth / 2
     background.y = display.contentHeight / 2
     return background
 end
 
+M.create_image = function(imageFile, width, height, x, y)
+    local img = display.newImageRect( imageFile, width, height )
+    img.x = x
+    img.y = y
+    return img
+end
 
-M.create_title = function(myTitleText, y, rgb)
+
+M.create_title = function(myTitleText, y, rgb, fontSize)
+	local useFontSize = fontSize or 48
 	if not y then
 		y = 150  -- default y position for titles.
 	end
@@ -22,7 +32,7 @@ M.create_title = function(myTitleText, y, rgb)
         x = display.contentWidth / 2, 
         y = y, 
         font = native.systemBoldFont, 
-        fontSize = 48
+        fontSize = useFontSize
         } )
     title:setFillColor(rgb[1], rgb[2], rgb[3])
     return title

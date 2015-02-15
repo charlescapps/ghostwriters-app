@@ -3,17 +3,29 @@ local widget = require( "widget" )
 local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
+local current_game = require("globals.current_game")
 local scene = composer.newScene()
 
-local function onPress()
-    print ("Pressed button")
+local function onCreateGameSuccess(gameModel)
+    new_game_data.clearAll()
+
+    current_game.currentGame = gameModel
+
+    composer.gotoScene( "scenes.multiplayer_game_scene", "fade" )
+end
+
+local function onCreateGameFail(jsonResp)
+    local msg = jsonResp["errorMessage"] or "Network error. Please try again"
+    native.showAlert( "Error creating game", msg )
 end
 
 local function getOnReleaseListener(bonusesType)
     return function(event)
         new_game_data.bonusesType = bonusesType
+        local newGameModel = new_game_data.getNewGameModel()
+
         -- Create a new game via the API
-        --composer.gotoScene( "scenes.choose_game_density_scene", "fade" )
+        common_api.createNewGame(newGameModel, onCreateGameSuccess, onCreateGameFail)
     end
 
 end
@@ -25,8 +37,8 @@ function scene:create(event)
     local background = common_ui.create_background()
     sceneGroup:insert(background)
 
-    local smallBoardGrp = common_ui.create_img_button_group("images/fixed_bonuses.jpg", "images/fixed_bonuses_dark.jpg", 300, "Standard bonuses", "(Same bonus squares every time)", onPress, getOnReleaseListener(common_api.FIXED_BONUSES))
-    local mediumBoardGrp = common_ui.create_img_button_group("images/random_bonuses.jpg", "images/random_bonuses_dark.jpg", 800, "Random bonuses", "(Unpredictable bonus squares)", onPress, getOnReleaseListener(common_api.RANDOM_BONUSES))
+    local smallBoardGrp = common_ui.create_img_button_group("images/fixed_bonuses.jpg", "images/fixed_bonuses_dark.jpg", 300, "Standard bonuses", "(Same bonus squares every time)", nil, getOnReleaseListener(common_api.FIXED_BONUSES))
+    local mediumBoardGrp = common_ui.create_img_button_group("images/random_bonuses.jpg", "images/random_bonuses_dark.jpg", 800, "Random bonuses", "(Unpredictable bonus squares)", nil, getOnReleaseListener(common_api.RANDOM_BONUSES))
 
     sceneGroup:insert(smallBoardGrp)
     sceneGroup:insert(mediumBoardGrp)
