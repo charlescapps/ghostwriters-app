@@ -8,6 +8,7 @@ local scene = composer.newScene()
 
 local board
 
+
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
@@ -18,8 +19,11 @@ function scene:create(event)
 
     local gameModel = current_game.currentGame
     board = board_class.new(gameModel)
-    local boardStr = board:toString()
-    print(boardStr)
+    local boardStr = board:getSquaresStr()
+    print("\n" .. boardStr)
+
+    local tilesStr = board:getTilesStr()
+    print("\n" .. tilesStr)
 
     local background = common_ui.create_background()
     local boardCenterX = display.contentWidth / 2
@@ -35,10 +39,15 @@ function scene:create(event)
     squaresGroup.x = 10
     squaresGroup.y = 210
 
+    local tilesGroup = board:createTilesGroup(display.contentWidth - 20)
+    tilesGroup.x = 10
+    tilesGroup.y = 210
+
     sceneGroup:insert(background)
     sceneGroup:insert(boardTexture)
     sceneGroup:insert(title)
     sceneGroup:insert(squaresGroup)
+    sceneGroup:insert(tilesGroup)
 end
 
 -- "scene:show()"

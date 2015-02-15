@@ -2,6 +2,7 @@ local board_class = {}
 local board_class_mt = { __index = board_class }
 
 local square = require("common.square")
+local tile = require("common.tile")
 local math = require("math")
 local display = require("display")
 local common_ui = require("common.common_ui")
@@ -79,7 +80,7 @@ end
 
 -- Board class Methods --
 
-function board_class:toString()
+function board_class:getSquaresStr()
 	local N = self.N
 	local squares = self.squares
 	local str = ""
@@ -92,25 +93,60 @@ function board_class:toString()
 	return str
 end
 
+function board_class:getTilesStr()
+	local N = self.N
+	local tiles = self.tiles
+	local str = ""
+	for i = 1, N do
+		for j = 1, N do
+			str = str .. tiles[i][j] .. " "
+		end
+		str = str .. "\n"
+	end
+	return str
+end
+
 function board_class:createSquaresGroup(width)
 	local squaresGroup = display.newGroup()
 	local N = self.N
 	local squares = self.squares
-	local pxPerSquare = math.floor(width / N)
+	local pxPerSquare = width / N
+	local pxPerSquareInt = math.floor(pxPerSquare)
 	print("px per square=" .. pxPerSquare)
 
 	for i = 1, N do
 		for j = 1, N do
 			local s = squares[i][j]
-			local x = (j - 1) * pxPerSquare + math.floor(pxPerSquare / 2)
-			local y = (i - 1) * pxPerSquare + math.floor(pxPerSquare / 2)
-			local squareGroup = square.draw(s, x, y, pxPerSquare)
+			local x = math.floor((j - 1) * pxPerSquare + pxPerSquare / 2)
+			local y = math.floor((i - 1) * pxPerSquare + pxPerSquare / 2)
+			local squareGroup = square.draw(s, x, y, pxPerSquareInt)
 			squaresGroup:insert(squareGroup)
 		end
 	end
 
 	self.squaresGroup = squaresGroup
 	return squaresGroup
+end
+
+function board_class:createTilesGroup(width)
+	local tilesGroup = display.newGroup()
+	local N = self.N
+	local tiles = self.tiles
+	local pxPerSquare = width / N
+	local pxPerSquareInt = math.floor(pxPerSquare)
+
+	for i = 1, N do
+		for j = 1, N do
+			local t = tiles[i][j]
+			local x = math.floor((j - 1) * pxPerSquare + pxPerSquare / 2)
+			local y = math.floor((i - 1) * pxPerSquare + pxPerSquare / 2)
+			local img = tile.draw(t, x, y, pxPerSquareInt)
+			if img then
+				tilesGroup:insert(img)
+			end
+		end
+	end
+	return tilesGroup
 
 end
 
