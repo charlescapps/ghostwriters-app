@@ -12,6 +12,9 @@ local createOriginalTile
 local createPlayedTile
 local buildTileTable
 
+-- Constants
+M.emptyTile = "_"
+
 -- Public functions
 M.getTileInfo = function(letter)
 	return tileTable[letter]

@@ -61,7 +61,7 @@ function scene:create(event)
     local boardGroup = board:createBoardGroup()
 
     rack = rack_class.new(gameModel, 100, display.contentWidth + 220, 7, 25)
-    local rackGroup = rack:createRackDisplayGroup()
+    local rackGroup = rack.displayGroup
 
     local optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentWidth + 470, 100)
 
@@ -209,6 +209,7 @@ end
 
 onGrabTiles = function(tiles)
     print("Tiles grabbed!")
+    return rack:addTiles(tiles)
 end
 
 -- Listener setup

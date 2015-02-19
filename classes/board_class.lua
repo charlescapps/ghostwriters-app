@@ -257,11 +257,14 @@ function board_class:cancel_grab()
 end
 
 function board_class:complete_grab()
-	for i = 1, #(self.grabbed) do
-		local tile = self.grabbed[i]
-		tile:removeSelf( )
+	local success = self.onGrabTiles(self.grabbed)
+	if success then
+		for i = 1, #(self.grabbed) do
+			local t = self.grabbed[i]
+			self.tiles[t.row][t.col] = tile.emptyTile
+			t:removeSelf( )
+		end
 	end
-	self.onGrabTiles(self.grabbed)
 	self:cancel_grab()
 end
 
