@@ -11,7 +11,9 @@ M.checkCredentials = function()
 
 	if serverCreds == nil or serverCreds["user"] == nil or serverCreds["cookie"] == nil then
 		print("No wordsWithRivalsCreds.json file found. Opening loggout_out_scene")
+		local currentScene = composer.getSceneName( "current" )
 		composer.gotoScene( "login.logged_out_scene" )
+		composer.removeScene( currentScene, false )
 		return nil
 	end
 	return serverCreds["user"]

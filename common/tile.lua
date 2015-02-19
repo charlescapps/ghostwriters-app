@@ -3,11 +3,13 @@ local M = {}
 local image_sheets = require("globals.image_sheets")
 local display = require("display")
 
-local tilesImageSheet = image_sheets.getTilesImageSheet()
+local originalTilesImageSheet = image_sheets.getOriginalTilesImageSheet()
+local playedTilesImageSheet = image_sheets.getPlayedTilesImageSheet()
 local tileTable
 
 -- Function pre-declarations
 local createOriginalTile
+local createPlayedTile
 local buildTileTable
 
 -- Public functions
@@ -30,7 +32,15 @@ end
 createOriginalTile = function(letter, frameIndex)
 	return {
 		letter = letter,
-		imageSheet = tilesImageSheet,
+		imageSheet = originalTilesImageSheet,
+		frameIndex = frameIndex
+	}
+end
+
+createPlayedTile = function(letter, frameIndex)
+	return {
+		letter = letter,
+		imageSheet = playedTilesImageSheet,
 		frameIndex = frameIndex
 	}
 end
@@ -41,6 +51,11 @@ buildTileTable = function()
 	for i = 1, 26 do
 		local letter = string.char(96 + i)
 		tileTable[letter] = createOriginalTile(letter, i)
+	end
+	-- Build uppercase letters, which represent tiles that were placed, or tiles in the rack
+	for i = 1, 26 do
+		local letter = string.char(64 + i)
+		tileTable[letter] = createPlayedTile(letter, i)
 	end
 	return tileTable
 end
