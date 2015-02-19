@@ -21,6 +21,7 @@ local player2PointsText
 local createTitleAreaDiplayGroup
 local drawOptionsButton
 local onReleaseOptionsButton
+local onGrabTiles
 
 -- "scene:create()"
 function scene:create(event)
@@ -41,7 +42,7 @@ function scene:create(event)
     local boardCenterX = display.contentWidth / 2
     local boardCenterY = display.contentWidth / 2 + 200
 
-    board = board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth)
+    board = board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, onGrabTiles)
     local boardStr = board:getSquaresStr()
     print("\n" .. boardStr)
 
@@ -185,6 +186,8 @@ createTitleAreaDiplayGroup = function(player1Username, player2Username, player1P
     group:insert(player1PointsText)
     group:insert(player2PointsText)
 
+    return group
+
 end
 
 drawOptionsButton = function(x, y, width)
@@ -202,6 +205,10 @@ end
 
 onReleaseOptionsButton = function(event)
     print ("Options button pressed!")
+end
+
+onGrabTiles = function(tiles)
+    print("Tiles grabbed!")
 end
 
 -- Listener setup

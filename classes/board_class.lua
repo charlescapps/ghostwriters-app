@@ -16,8 +16,11 @@ local transition = require("transition")
 local boardSizeToN
 local parseSquares
 local parseTiles
+local tileTouchListener
+local isConnected
+local isUnitVector
 
-function board_class.new(gameModel, startX, startY, width)
+function board_class.new(gameModel, startX, startY, width, onGrabTiles)
 	local N = boardSizeToN(gameModel["boardSize"])
 	local squares = parseSquares(gameModel["squares"], N)
 	local tiles = parseTiles(gameModel["tiles"], N)
@@ -30,7 +33,8 @@ function board_class.new(gameModel, startX, startY, width)
 		tiles = tiles,
 		startX = startX,
 		startY = startY,
-		width = width
+		width = width,
+		onGrabTiles = onGrabTiles
 	}
 
 	return setmetatable( newBoard, board_class_mt )
@@ -150,6 +154,11 @@ function board_class:createTilesGroup(width)
 			local y = math.floor((i - 1) * pxPerSquare + pxPerSquare / 2 - width / 2)
 			local img = tile.draw(t, x, y, pxPerSquareInt)
 			if img then
+				img.board = self
+				img.row = i
+				img.col = j
+				img.letter = t
+				img:addEventListener( "touch", tileTouchListener )
 				tilesGroup:insert(img)
 			end
 		end
@@ -229,7 +238,6 @@ function board_class:createBoardGroup()
 	return boardContainer
 end
 
--- Local functions
 function board_class:restrictX(x)
 	local width = self.width
 	local MIN_X = - width / 2
@@ -241,6 +249,85 @@ function board_class:restrictX(x)
 	else
 		return x
 	end
+end
+
+function board_class:cancel_grab()
+	self.grabbed = nil
+	self.isGrabbing = false
+end
+
+function board_class:complete_grab()
+	for i = 1, #(self.grabbed) do
+		local tile = self.grabbed[i]
+		tile:removeSelf( )
+	end
+	self.onGrabTiles(self.grabbed)
+	self:cancel_grab()
+end
+
+-- Local functions
+tileTouchListener = function(event)
+	local tile = event.target
+	local board = tile.board
+	if event.phase == "began" then
+		print("Tile touch listener began!")
+		board:cancel_grab() -- Clear all grab data 
+		board.isGrabbing = true
+		board.grabbed = {}
+		board.grabbed[1] = tile
+		return true
+	elseif event.phase == "moved" then
+		-- If this is another moved event on the same tile, then just return.
+		local lastTile = board.grabbed and board.grabbed[#(board.grabbed)]
+		if lastTile and lastTile.row == tile.row and lastTile.col == tile.col then
+			return true 
+		end
+		print("Tile touch listener: moved for tile " .. tile.letter)
+		if not board.isGrabbing then
+			board:cancel_grab()
+			return true
+		end
+		board.grabbed[#(board.grabbed) + 1] = tile
+
+	elseif event.phase == "ended" then
+		print("Tile touch listener: ended for tile " .. tile.letter)
+		if not board.isGrabbing or not isConnected(board.grabbed) then
+			board:cancel_grab()
+			return true
+		end
+		board:complete_grab()
+	elseif event.phase == "cancelled" then
+		board:cancel_grab()
+	end
+	return true
+end
+
+isConnected = function(tiles)
+	if #tiles <= 1 then
+		return true
+	end
+
+	local t1 = tiles[1] 
+	local t2 = tiles[2]
+	local vec = { t2.row - t1.row, t2.col - t1.col }
+
+	if not isUnitVector(vec) then
+		return false
+	end
+
+	for i = 2, #tiles do
+		local tile = tiles[i]
+		local prev = tiles[i-1]
+		if tile.row ~= prev.row + vec[1] or tile.col ~= prev.col + vec[2] then
+			return false
+		end
+	end
+
+	return true
+end
+
+isUnitVector = function(vec)
+	return vec[1] * vec[1] + vec[2] * vec[2] == 1
 end
 
 return board_class
