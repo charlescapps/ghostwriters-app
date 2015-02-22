@@ -11,7 +11,11 @@ local function onCreateGameSuccess(gameModel)
 
     current_game.currentGame = gameModel
 
-    composer.gotoScene( "scenes.multiplayer_game_scene", "fade" )
+    if gameModel.gameType == M.MULTI_PLAYER then
+        composer.gotoScene( "scenes.multiplayer_game_scene", "fade" )
+    else
+        composer.gotoScene( "scenes.single_player_scene", "fade" )
+    end
 end
 
 local function onCreateGameFail(jsonResp)

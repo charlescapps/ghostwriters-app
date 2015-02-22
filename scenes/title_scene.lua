@@ -1,16 +1,18 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
 local login_common = require( "login.login_common" )
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local scene = composer.newScene()
 local json = require("json")
+local new_game_data = require("globals.new_game_data")
 
 
 buttonSinglePlayer = nil
 buttonPlayOthers = nil
 buttonFacebook = nil
 
-local function create_title_button(text, id, y, onPress)
+local function create_title_button(text, id, y, onRelease)
 	button = widget.newButton( {
 		id = id,
 		x = display.contentWidth / 2,
@@ -26,19 +28,23 @@ local function create_title_button(text, id, y, onPress)
 		fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
 		strokeColor = { 1, 0.2, 0.2 },
 		strokeRadius = 10,
-		onPress = onPress
+		onRelease = onRelease
 		} )
 	return button
 end
 
 local click_single_player = function()
-	 print( "foo" )
+	print("Clicked single player")
+	new_game_data.clearAll()
+	new_game_data.gameType = common_api.SINGLE_PLAYER
+	composer.gotoScene( "scenes.choose_ai_scene", "fade" )
 end
 
 local click_play_others = function()
 	 print( "Clicked play with rivals" )
-	 --composer.loadScene( "scenes.search_for_opponent_scene" )
-	 composer.gotoScene( "scenes.search_for_opponent_scene" , "fade" )
+	 new_game_data.clearAll()
+	 new_game_data.gameType = common_api.TWO_PLAYER
+	 composer.gotoScene( "scenes.search_for_opponent_scene", "fade" )
 end
 
 -- "scene:create()"
@@ -47,7 +53,7 @@ function scene:create(event)
 	local sceneGroup = self.view
 	local background = common_ui.create_background()
 	titleText = display.newText( "Words with Rivals", display.contentWidth / 2, 150, "Arial", 64 )
-	buttonSinglePlayer = create_title_button("Single Player", "single_player_button", 400)
+	buttonSinglePlayer = create_title_button("Single Player", "single_player_button", 400, click_single_player)
 	buttonPlayOthers = create_title_button("Play with rivals", "multi_player_button", 700, click_play_others)
 	buttonFacebook = create_title_button("Find rivals on Facebook", "facebook_button", 1000)
 

@@ -16,6 +16,8 @@ M.getNewGameModel = function()
 	local user = login_common.checkCredentials()
 
 	return {
+		gameType = M.gameType,
+		aiType = M.aiType,
 		player1 = user.id,
 		player2 = M.rival.id,
 		boardSize = M.boardSize,
@@ -29,6 +31,8 @@ M.clearAll = function()
 	M.boardSize = nil
 	M.bonusesType = nil
 	M.gameDensity = nil
+	M.gameType = nil
+	M.aiType = nil
 end
 
 return M

@@ -10,6 +10,9 @@ local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
 
 -- Constants
+M.SINGLE_PLAYER = "SINGLE_PLAYER"
+M.TWO_PLAYER = "TWO_PLAYER"
+
 M.SMALL_SIZE = "TALL"
 M.MEDIUM_SIZE = "GRANDE"
 M.LARGE_SIZE = "VENTI"
@@ -20,6 +23,10 @@ M.HIGH_DENSITY = "WORD_JUNGLE"
 
 M.FIXED_BONUSES = "FIXED_BONUSES"
 M.RANDOM_BONUSES = "RANDOM_BONUSES"
+
+M.RANDOM_AI = "RANDOM_AI"
+M.BOOKWORM_AI = "BOOKWORM_AI"
+M.PROFESSOR_AI = "PROFESSOR_AI"
 
 local function getBasicAuthHeader(username, password)
 	return "Basic " .. mime.b64(username .. ":" .. password)

@@ -1,17 +1,32 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
-local login_common = require("login.login_common")
+local common_api = require( "common.common_api" )
+local common_ui = require( "common.common_ui" )
+local new_game_data = require("globals.new_game_data")
 local scene = composer.newScene()
+
+local function getOnReleaseListener(aiType)
+    return function(event)
+        new_game_data.aiType = aiType
+        composer.gotoScene( "scenes.choose_board_size_scene", "fade" )
+    end
+
+end
+
 
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
+    local background = common_ui.create_background()
+    sceneGroup:insert(background)
 
-    local user = login_common.checkCredentials()
-    if user == nil then
-        
-    end
+    local randomAiGrp = common_ui.create_img_button_group("images/monkey-typing.jpg", "images/monkey-typing-dark.jpg", 200, "Monkey", "(Random opponent)", nil, getOnReleaseListener(common_api.RANDOM_AI))
+    local bookwormAiGrp = common_ui.create_img_button_group("images/bookworm.jpg", "images/bookworm-dark.jpg", 600, "Bookworm", "(Normal opponent)", nil, getOnReleaseListener(common_api.BOOKWORM_AI))
+    local professorAiGrp = common_ui.create_img_button_group("images/professor.jpeg", "images/professor-dark.jpeg", 1000, "Professor", "(Difficult opponent)", nil, getOnReleaseListener(common_api.PROFESSOR_AI))
 
+    sceneGroup:insert(randomAiGrp)
+    sceneGroup:insert(bookwormAiGrp)
+    sceneGroup:insert(professorAiGrp)
 end
 
 -- "scene:show()"
