@@ -59,20 +59,20 @@ function rack_class:createRackDisplayGroup()
 end
 
 -- Returns true on success, false if there aren't enough open slots
-function rack_class:addTiles(tiles)
-	if #tiles + #(self.tileImages) > MAX_TILES then
-		native.showAlert( "Too many tiles", "You have too many tiles" )
+function rack_class:addTiles(tilesStr)
+	if tilesStr:len() + #(self.tileImages) > MAX_TILES then
+		native.showAlert( "Too many tiles", "You have too many tiles", {"Try again"} )
 		return false
 	end
-	for i = 1, #tiles do
-		local grabTile = tiles[i]
+	for i = 1, tilesStr:len() do
+		local grabTile = tilesStr:sub(i, i)
 		
-		self.letters[#(self.letters) + 1] = grabTile.letter
+		self.letters[#(self.letters) + 1] = grabTile
 		local tileNum = #(self.letters)
 		local x = self:computeTileX(tileNum)
 		local y = self:computeTileY(tileNum)
 
-		local newTileImg = tile.draw(grabTile.letter, x, y, self.tileWidth)
+		local newTileImg = tile.draw(grabTile, x, y, self.tileWidth)
 		self.tileImages[#(self.tileImages) + 1] = newTileImg
 
 		self.displayGroup:insert(newTileImg)

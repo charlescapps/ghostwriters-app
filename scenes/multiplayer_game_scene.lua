@@ -1,6 +1,7 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
 local json = require("json")
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local current_game = require("globals.current_game")
 local board_class = require("classes.board_class")
@@ -22,6 +23,11 @@ local createTitleAreaDiplayGroup
 local drawOptionsButton
 local onReleaseOptionsButton
 local onGrabTiles
+local tilesToStr
+local createGrabMoveJson
+
+local onSendMoveSuccess
+local onSendMoveFail
 
 -- "scene:create()"
 function scene:create(event)
@@ -207,9 +213,80 @@ onReleaseOptionsButton = function(event)
     print ("Options button pressed!")
 end
 
+tilesToStr = function(tiles, sep)
+    local str = ""
+    for i = 1, #tiles do
+        local t = tiles[i]
+        if i == 1 then
+            str = str .. t.letter:upper()
+        else
+            str = str .. sep .. t.letter:upper()
+        end
+    end
+    return str
+end
+
+createGrabMoveJson = function(tiles)
+    local gameModel = current_game.currentGame
+    local letters = tilesToStr(tiles, "")
+    local dir 
+    if #tiles == 1 then
+        dir = "E" -- direction doesn't matter for a single tile grab.
+    elseif tiles[1].row == tiles[2].row then
+        if tiles[2].col > tiles[1].col then
+            dir = "E"
+        else
+            dir = "W"
+        end
+    else
+        if tiles[2].row > tiles[1].row then
+            dir = "S"
+        else 
+            dir = "N"
+        end
+    end
+    return {
+        gameId = gameModel.id,
+        letters = letters,
+        tiles = letters,
+        moveType = "GRAB_TILES",
+        start = { r = tiles[1].row - 1, c = tiles[1].col - 1 },
+        dir = dir
+     }
+
+end
+
+onSendMoveSucces = function(updatedGameModel)
+    rack:addTiles(updatedGameModel.lastMove.tiles)
+    board:complete_grab()
+    current_game.currentGame = updatedGameModel
+end
+
+onSendMoveFail = function(json)
+    if json and json["errorMessage"] then
+        native.showAlert( "Oops...", "Invalid move: " .. json["errorMessage"], { "Try again" })
+    else
+        native.showAlert("Oops...", "Network error, please try again", { "OK" })
+    end
+    board:cancel_grab()
+end
+
+
 onGrabTiles = function(tiles)
     print("Tiles grabbed!")
-    return rack:addTiles(tiles)
+    local lettersStr = tilesToStr(tiles, ", ")
+    native.showAlert("Grab tiles?", "Grab tiles: " .. lettersStr .. "?", {"OK", "Nope"}, 
+        function(event)
+            if event.action == "clicked" then
+                local i = event.index
+                if i == 1 then
+                    local moveJson = createGrabMoveJson(tiles)
+                    common_api.sendMultiplayerMove(moveJson, onSendMoveSucces, onSendMoveFail)
+                elseif i == 2 then
+                    -- Do nothing, user clicked "Nope"
+                end
+            end
+        end)
 end
 
 -- Listener setup

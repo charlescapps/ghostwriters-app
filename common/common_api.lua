@@ -49,6 +49,10 @@ M.gamesURL = function()
 	return SERVER .. "/games"
 end
 
+M.movesURL = function()
+	return SERVER .. "/moves"
+end
+
 M.login = function(username, password, onSuccess, onFail)
 	local basic = getBasicAuthHeader(username, password)
 	local headers = { ["Authorization"] = basic,
@@ -211,6 +215,11 @@ end
 M.createNewGame = function(newGameInput, onSuccess, onFail)
 	local url = M.gamesURL()
 	M.doApiRequest(url, "POST", json.encode(newGameInput), 201, onSuccess, onFail)
+end
+
+M.sendMultiplayerMove = function(moveInput, onSuccess, onFail)
+	local url = M.movesURL(gameId)
+	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail)
 end
 
 return M

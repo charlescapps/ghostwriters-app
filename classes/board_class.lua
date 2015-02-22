@@ -257,15 +257,13 @@ function board_class:cancel_grab()
 end
 
 function board_class:complete_grab()
-	local success = self.onGrabTiles(self.grabbed)
-	if success then
-		for i = 1, #(self.grabbed) do
-			local t = self.grabbed[i]
-			self.tiles[t.row][t.col] = tile.emptyTile
-			t:removeSelf( )
-		end
+	for i = 1, #(self.grabbed) do
+		local t = self.grabbed[i]
+		self.tiles[t.row][t.col] = tile.emptyTile
+		t:removeSelf( )
 	end
-	self:cancel_grab()
+	self.grabbed = nil
+	self.isGrabbing = false
 end
 
 -- Local functions
@@ -290,6 +288,11 @@ tileTouchListener = function(event)
 			board:cancel_grab()
 			return true
 		end
+		if tile.letter == tile.letter:upper( ) then
+			print ("User grabbed uppercase letter, cancelling grab: " .. tile.letter)
+			board:cancel_grab()
+			return true
+		end
 		board.grabbed[#(board.grabbed) + 1] = tile
 
 	elseif event.phase == "ended" then
@@ -298,7 +301,7 @@ tileTouchListener = function(event)
 			board:cancel_grab()
 			return true
 		end
-		board:complete_grab()
+		board.onGrabTiles(board.grabbed)
 	elseif event.phase == "cancelled" then
 		board:cancel_grab()
 	end
