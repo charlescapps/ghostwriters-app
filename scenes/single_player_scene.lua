@@ -79,6 +79,8 @@ function scene:create(event)
     sceneGroup:insert(boardGroup)
     sceneGroup:insert(rackGroup)
     sceneGroup:insert(optionsButton)
+
+    board:printTileCoordinates()
 end
 
 -- "scene:show()"
@@ -269,7 +271,7 @@ completeMove = function(move)
     end
 end
 
-getSendMoveSuccesCallback = function(move)
+getSendMoveSuccessCallback = function(move)
     return function(updatedGameModel)
         current_game.currentGame = updatedGameModel
         completeMove(move)
@@ -295,7 +297,8 @@ onGrabTiles = function(tiles)
                 local i = event.index
                 if i == 1 then
                     local moveJson = createGrabMoveJson(tiles)
-                    common_api.sendMultiplayerMove(moveJson, onSendMoveSucces, onSendMoveFail)
+                    local onSendMoveSuccess = getSendMoveSuccessCallback(moveJson)
+                    common_api.sendMultiplayerMove(moveJson, onSendMoveSuccess, onSendMoveFail)
                 elseif i == 2 then
                     -- Do nothing, user clicked "Nope"
                 end

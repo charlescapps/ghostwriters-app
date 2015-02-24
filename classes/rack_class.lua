@@ -7,6 +7,8 @@ local math = require("math")
 local display = require("display")
 local common_ui = require("common.common_ui")
 local transition = require("transition")
+local lists = require("common.lists")
+local table = require("table")
 local MAX_TILES = 20
 
 local getTouchListener
@@ -76,6 +78,7 @@ function rack_class:addTiles(tilesStr)
 		local y = self:computeTileY(tileNum)
 
 		local newTileImg = tile.draw(grabTile, x, y, self.tileWidth)
+		newTileImg.letter = grabTile
 		self.tileImages[#(self.tileImages) + 1] = newTileImg
 
 		self.displayGroup:insert(newTileImg)
@@ -96,22 +99,11 @@ function rack_class:computeTileY(i)
 	return math.floor(self.startY + row * width + width / 2)
 end
 
-function rack_class:clearDraggedTile()
-	self.draggedTile.x = self.draggedTileX
-	self.draggedTile.y = self.draggedTileY
-	self.draggedTile = nil
-	self.draggedTileX = nil
-	self.draggedTileY = nil
-end
-
 -- Local functions
-local getTouchListener = function(rack)
+getTouchListener = function(rack)
 	return function(event)
 		if ( event.phase == "began" ) then
 	        --code executed when the rack tile is first touched
-	        rack.draggedTileX = event.target.x
-	        rack.draggedTileY = event.target.y
-	        rack.draggedTile = event.target
 	        return true
 	    elseif ( event.phase == "moved" ) then
 	        --code executed when the touch is moved over the object
@@ -121,9 +113,26 @@ local getTouchListener = function(rack)
 	        return true
 	    elseif ( event.phase == "ended" ) then
 	        --code executed when the touch lifts off the object
+	        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target.letter)
+	        local index = lists.indexOf(rack.tileImages, event.target)
+	        if isPlaced then
+	        	local letter = event.target.letter
+	        	if index < 0 then
+	        		print("Error - grabbed tile wasn't in rack's list of tile images")
+	        		return
+	        	end
+	        	table.remove(rack.tileImages, index)
+	        	table.remove(rack.letters, index)
+	        	event.target:removeSelf( )
+	        else
+	        	event.target.x = rack:computeTileX(index)
+	        	event.target.y = rack:computeTileY(index)
+	        end
+
 	        print( "touch ended on object "..tostring(event.target) )
 	    elseif (event.phase == "cancelled") then
-	    	rack:clearDraggedTile()
+	    	event.target.x = event.xStart
+	    	event.target.y = event.yStart
 	    end
 	    return true  --prevents touch propagation to underlying objects
 	end

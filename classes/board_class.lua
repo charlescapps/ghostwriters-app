@@ -139,6 +139,13 @@ function board_class:createSquaresGroup(width)
 	return squaresGroup
 end
 
+function board_class:computeTileCoords(row, col)
+	local pxPerSquare = self.width / self.N
+	local x = math.floor((col - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
+	local y = math.floor((row - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
+	return x, y
+end
+
 function board_class:createTilesGroup(width)
 	local tilesGroup = display.newGroup()
 	local N = self.N
@@ -147,11 +154,15 @@ function board_class:createTilesGroup(width)
 	local pxPerSquare = width / N
 	local pxPerSquareInt = math.floor(pxPerSquare)
 
+	local tileImages = {}
+	for i = 1, N do
+		tileImages[#tileImages + 1] = {}
+	end
+
 	for i = 1, N do
 		for j = 1, N do
 			local t = tiles[i][j]
-			local x = math.floor((j - 1) * pxPerSquare + pxPerSquare / 2 - width / 2)
-			local y = math.floor((i - 1) * pxPerSquare + pxPerSquare / 2 - width / 2)
+			local x, y = self:computeTileCoords(i, j)
 			local img = tile.draw(t, x, y, pxPerSquareInt)
 			if img then
 				img.board = self
@@ -161,8 +172,11 @@ function board_class:createTilesGroup(width)
 				img:addEventListener( "touch", tileTouchListener )
 				tilesGroup:insert(img)
 			end
+			tileImages[i][j] = img
 		end
 	end
+	self.tileImages = tileImages
+	self.tilesGroup = tilesGroup
 	return tilesGroup
 
 end
@@ -201,6 +215,20 @@ function board_class:toggleZoom(scale, x, y)
 		self:zoomOut()
 	else
 		self:zoomIn(scale, x, y)
+	end
+end
+
+function board_class:printTileCoordinates()
+	local N = self.N
+	for i = 1, N do
+		for j = 1, N do
+			local tileImg = self.tileImages[i][j]
+			if tileImg then
+				local x = self.tileImages[i][j].x
+				local y = self.tileImages[i][j].y
+				print("Tile " .. tileImg.letter .. " at position (" .. i .. "," .. j .. ") has coords x = " .. x .. ", y = " .. y)
+			end
+		end
 	end
 end
 
@@ -266,11 +294,29 @@ function board_class:complete_grab()
 	self.isGrabbing = false
 end
 
-function board_class:addTileFromRack(x, y, letter)
-	if x < 0 or y < 0 or x > self.width or y > self.width then
+function board_class:addTileFromRack(contentX, contentY, letter)
+	local x, y = self.tilesGroup:contentToLocal( contentX, contentY )
+	if x < 0 or y < 0 or x > self.width or y > self.width or not letter then
+		print("Not adding letter " .. tostring(letter) .. " to board at x = " .. x .. ", y = " .. y)
 		return false
 	end
-	
+	local width = self.width
+	local N = self.N
+	local xPrime = x + width / 2
+	local yPrime = y + width / 2
+	local pxPerSquare = width / N
+	local col = math.floor(xPrime / pxPerSquare) + 1
+	local row = math.floor(yPrime / pxPerSquare) + 1
+	local tileImage = self.tileImages[row][col]
+	if tileImage ~= nil then
+		return false
+	end
+	local tileX, tileY = self:computeTileCoords(row, col)
+	local newTileImage = tile.draw(letter, tileX, tileY, math.floor(pxPerSquare))
+	self.tileImages[row][col] = newTileImage
+	self.tilesGroup:insert(newTileImage)
+	return true
+
 end
 
 -- Local functions
