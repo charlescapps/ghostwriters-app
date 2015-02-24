@@ -11,7 +11,7 @@ local function onCreateGameSuccess(gameModel)
 
     current_game.currentGame = gameModel
 
-    if gameModel.gameType == M.MULTI_PLAYER then
+    if gameModel.gameType == common_api.MULTI_PLAYER then
         composer.gotoScene( "scenes.multiplayer_game_scene", "fade" )
     else
         composer.gotoScene( "scenes.single_player_scene", "fade" )
@@ -27,6 +27,13 @@ local function getOnReleaseListener(bonusesType)
     return function(event)
         new_game_data.bonusesType = bonusesType
         local newGameModel = new_game_data.getNewGameModel()
+
+        if not newGameModel then
+            print ("Error creating new game model from new_game_data module")
+            native.showAlert( "Error", "Error creating a new game, try again", { "Ok" } )
+            composer.gotoScene( "scenes.title_scene")
+            return
+        end
 
         -- Create a new game via the API
         common_api.createNewGame(newGameModel, onCreateGameSuccess, onCreateGameFail)

@@ -266,6 +266,13 @@ function board_class:complete_grab()
 	self.isGrabbing = false
 end
 
+function board_class:addTileFromRack(x, y, letter)
+	if x < 0 or y < 0 or x > self.width or y > self.width then
+		return false
+	end
+	
+end
+
 -- Local functions
 tileTouchListener = function(event)
 	local tile = event.target

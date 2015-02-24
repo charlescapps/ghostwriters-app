@@ -9,8 +9,10 @@ local common_ui = require("common.common_ui")
 local transition = require("transition")
 local MAX_TILES = 20
 
+local getTouchListener
 
-function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding)
+
+function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board)
 	local rack = gameModel.player1Rack
 	local letters = { }
 
@@ -26,7 +28,8 @@ function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding)
 		tileWidth = tileWidth,
 		startY = startY,
 		numPerRow = numPerRow, 
-		padding = padding
+		padding = padding,
+		board = board
 	}
 
 	newRack = setmetatable( newRack, rack_class_mt )
@@ -76,11 +79,11 @@ function rack_class:addTiles(tilesStr)
 		self.tileImages[#(self.tileImages) + 1] = newTileImg
 
 		self.displayGroup:insert(newTileImg)
+		newTileImg:addEventListener( "touch", getTouchListener(self) )
 	end
 	return true
 end
 
--- Local functions
 function rack_class:computeTileX(i)
 	local width = self.tileWidth
 	local col = (i - 1) % self.numPerRow
@@ -91,6 +94,39 @@ function rack_class:computeTileY(i)
 	local width = self.tileWidth
 	local row = math.floor( (i - 1) / self.numPerRow)
 	return math.floor(self.startY + row * width + width / 2)
+end
+
+function rack_class:clearDraggedTile()
+	self.draggedTile.x = self.draggedTileX
+	self.draggedTile.y = self.draggedTileY
+	self.draggedTile = nil
+	self.draggedTileX = nil
+	self.draggedTileY = nil
+end
+
+-- Local functions
+local getTouchListener = function(rack)
+	return function(event)
+		if ( event.phase == "began" ) then
+	        --code executed when the rack tile is first touched
+	        rack.draggedTileX = event.target.x
+	        rack.draggedTileY = event.target.y
+	        rack.draggedTile = event.target
+	        return true
+	    elseif ( event.phase == "moved" ) then
+	        --code executed when the touch is moved over the object
+	        print("moved to x = " .. event.x .. ", y = " .. event.y)
+	        event.target.x = event.x
+	        event.target.y = event.y
+	        return true
+	    elseif ( event.phase == "ended" ) then
+	        --code executed when the touch lifts off the object
+	        print( "touch ended on object "..tostring(event.target) )
+	    elseif (event.phase == "cancelled") then
+	    	rack:clearDraggedTile()
+	    end
+	    return true  --prevents touch propagation to underlying objects
+	end
 end
 
 return rack_class

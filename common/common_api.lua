@@ -28,6 +28,10 @@ M.RANDOM_AI = "RANDOM_AI"
 M.BOOKWORM_AI = "BOOKWORM_AI"
 M.PROFESSOR_AI = "PROFESSOR_AI"
 
+M.GRAB_TILES = "GRAB_TILES"
+M.PLAY_TILES = "PLAY_TILES"
+M.PASS = "PASS"
+
 local function getBasicAuthHeader(username, password)
 	return "Basic " .. mime.b64(username .. ":" .. password)
 end
@@ -127,6 +131,12 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 				return
 			end
 			local user = json.decode(event.response)
+			if not user then
+				native.showAlert( "Network error", "A network error occurred. Please try again." )
+				print("Invalid JSON returned from server: " .. json.encode(event))
+				onFail()
+				return
+			end
 			if user["errorMessage"] then
 				native.showAlert("Error creating new user", user["errorMessage"])
 				print("An error occurred logging in: " .. user["errorMessage"]);
