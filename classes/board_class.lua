@@ -24,6 +24,10 @@ function board_class.new(gameModel, startX, startY, width, onGrabTiles)
 	local N = boardSizeToN(gameModel["boardSize"])
 	local squares = parseSquares(gameModel["squares"], N)
 	local tiles = parseTiles(gameModel["tiles"], N)
+	local rackTileImages = {}
+	for i = 1, N do
+		rackTileImages[i] = {}
+	end
 
 	print ("Creating new board with width=" .. width)
 
@@ -34,7 +38,8 @@ function board_class.new(gameModel, startX, startY, width, onGrabTiles)
 		startX = startX,
 		startY = startY,
 		width = width,
-		onGrabTiles = onGrabTiles
+		onGrabTiles = onGrabTiles,
+		rackTileImages = rackTileImages
 	}
 
 	return setmetatable( newBoard, board_class_mt )
@@ -123,6 +128,10 @@ function board_class:createSquaresGroup(width)
 	local width = self.width
 	local pxPerSquare = width / N
 	local pxPerSquareInt = math.floor(pxPerSquare)
+	local squareImages = {}
+	for i = 1, N do
+		squareImages[i] = {}
+	end
 	print("px per square=" .. pxPerSquare)
 
 	for i = 1, N do
@@ -132,11 +141,40 @@ function board_class:createSquaresGroup(width)
 			local y = math.floor((i - 1) * pxPerSquare + pxPerSquare / 2 - width / 2)
 			local squareGroup = square.draw(s, x, y, pxPerSquareInt)
 			squaresGroup:insert(squareGroup)
+			squareImages[i][j] = squareGroup
+			squareGroup.row = i
+			squareGroup.col = j
 		end
 	end
 
 	self.squaresGroup = squaresGroup
+	self.squareImages = squareImages
 	return squaresGroup
+end
+
+function board_class:getSquareContainingPoint(contentX, contentY)
+	local squareImages = self.squareImages
+	local N = self.N
+	local containerBounds = self.boardContainer.contentBounds
+	for i = 1, N do
+		for j = 1, N do
+			local tile = self.tileImages[i][j]
+			if not tile then
+				local squareBg = squareImages[i][j].squareBg
+				local bounds = squareBg.contentBounds
+				if bounds.xMax <= containerBounds.xMax and
+				   bounds.xMin >= containerBounds.xMin and
+				   bounds.yMax <= containerBounds.yMax and
+				   bounds.yMin >= containerBounds.yMin and
+				   contentX > bounds.xMin and contentX < bounds.xMax and
+				   contentY > bounds.yMin and contentY < bounds.yMax then
+				   return squareImages[i][j]
+				end
+			end
+		end
+	end
+	return nil
+
 end
 
 function board_class:computeTileCoords(row, col)
@@ -218,20 +256,6 @@ function board_class:toggleZoom(scale, x, y)
 	end
 end
 
-function board_class:printTileCoordinates()
-	local N = self.N
-	for i = 1, N do
-		for j = 1, N do
-			local tileImg = self.tileImages[i][j]
-			if tileImg then
-				local x = self.tileImages[i][j].x
-				local y = self.tileImages[i][j].y
-				print("Tile " .. tileImg.letter .. " at position (" .. i .. "," .. j .. ") has coords x = " .. x .. ", y = " .. y)
-			end
-		end
-	end
-end
-
 function getBoardTapListener(board)
 	return function(event)
 		if not board.boardGroup then
@@ -254,10 +278,13 @@ function board_class:createBoardGroup()
 	local boardGroup = display.newGroup()
 	local squaresGroup = self:createSquaresGroup(width)
 	local tilesGroup = self:createTilesGroup(width)
+	local rackTilesGroup = display.newGroup()
 	boardGroup:insert(squaresGroup)
 	boardGroup:insert(tilesGroup)
+	boardGroup:insert(rackTilesGroup)
 	boardGroup:addEventListener( "tap", getBoardTapListener(self) )
 	self.boardGroup = boardGroup
+	self.rackTilesGroup = rackTilesGroup
 
 	boardContainer:insert(boardGroup)
 	self.boardContainer = boardContainer
@@ -288,33 +315,39 @@ function board_class:complete_grab()
 	for i = 1, #(self.grabbed) do
 		local t = self.grabbed[i]
 		self.tiles[t.row][t.col] = tile.emptyTile
+		self.tileImages[t.row][t.col] = nil
 		t:removeSelf( )
 	end
 	self.grabbed = nil
 	self.isGrabbing = false
 end
 
-function board_class:addTileFromRack(contentX, contentY, letter)
-	local x, y = self.tilesGroup:contentToLocal( contentX, contentY )
-	if x < 0 or y < 0 or x > self.width or y > self.width or not letter then
-		print("Not adding letter " .. tostring(letter) .. " to board at x = " .. x .. ", y = " .. y)
+function board_class:addTileFromRack(contentX, contentY, tileImage)
+	local letter = tileImage.letter
+	local squareImage = self:getSquareContainingPoint(contentX, contentY)
+	if not squareImage or not letter then
+		print("Not adding letter " .. tostring(letter) .. " to board at x = " .. contentX .. ", y = " .. contentY)
 		return false
 	end
-	local width = self.width
-	local N = self.N
-	local xPrime = x + width / 2
-	local yPrime = y + width / 2
-	local pxPerSquare = width / N
-	local col = math.floor(xPrime / pxPerSquare) + 1
-	local row = math.floor(yPrime / pxPerSquare) + 1
-	local tileImage = self.tileImages[row][col]
-	if tileImage ~= nil then
-		return false
-	end
-	local tileX, tileY = self:computeTileCoords(row, col)
-	local newTileImage = tile.draw(letter, tileX, tileY, math.floor(pxPerSquare))
-	self.tileImages[row][col] = newTileImage
-	self.tilesGroup:insert(newTileImage)
+	local row, col = squareImage.row, squareImage.col
+	print ("Inserting tile at row = " .. row .. ", col = " .. col)
+	print ("Inserting tile at x = " .. squareImage.x .. ", y = " .. squareImage.y)
+	self.rackTilesGroup:insert(tileImage)
+	-- modify width to account for scale
+	local scale = self.boardGroup.xScale
+	tileImage.width = tileImage.width / scale
+	tileImage.height = tileImage.height / scale
+	tileImage.x = squareImage.x
+	tileImage.y = squareImage.y
+	self.rackTileImages[row][col] = tileImage
+	transition.to(tileImage, {
+		width = squareImage.squareBg.width,
+		height = squareImage.squareBg.height,
+		onComplete = function(event)
+			print("Finished adding letter " .. letter .. " to the board")
+		end
+		})
+	
 	return true
 
 end

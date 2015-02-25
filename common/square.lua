@@ -31,12 +31,16 @@ end
 
 M.draw = function(sqType, x, y, width)
 	local group = display.newGroup()
-	local bg = createSquareBackground(x, y, width)
+	group.x = x
+	group.y = y
+	local bg = createSquareBackground(0, 0, width)
 	group:insert(bg)
 	if sqType.img then
-		local img = common_ui.create_image(sqType.img, width, width, x, y)
+		local img = common_ui.create_image(sqType.img, width, width, 0, 0)
 		group:insert(img)
 	end
+
+	group.squareBg = bg
 
 	return group
 end

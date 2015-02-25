@@ -80,7 +80,6 @@ function scene:create(event)
     sceneGroup:insert(rackGroup)
     sceneGroup:insert(optionsButton)
 
-    board:printTileCoordinates()
 end
 
 -- "scene:show()"

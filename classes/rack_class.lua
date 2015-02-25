@@ -99,40 +99,54 @@ function rack_class:computeTileY(i)
 	return math.floor(self.startY + row * width + width / 2)
 end
 
+function rack_class:returnTileImage(tileImage)
+	self.displayGroup:insert(tileImage)
+	local index = lists.indexOf(self.tileImages, tileImage)
+	local x = self:computeTileX(index)
+	local y = self:computeTileY(index)
+	tileImage.x = x
+	tileImage.y = y
+end
+
 -- Local functions
 getTouchListener = function(rack)
 	return function(event)
 		if ( event.phase == "began" ) then
-	        --code executed when the rack tile is first touched
+	        --Insert tile into the root display group so it can move freely.
+	        local wasOnBoard = event.target.parent == rack.board.rackTilesGroup
+	        display.currentStage:insert(event.target)
+	        -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
+	        if wasOnBoard then
+	        	local scale = rack.board.boardGroup.xScale
+	        	event.target.width = event.target.width * scale
+	        	event.target.height = event.target.height * scale
+	        end
+	        event.target.x = event.x
+        	event.target.y = event.y	
+        	transition.to(event.target, {
+        		width = rack.tileWidth,
+        		height = rack.tileWidth
+        		})
 	        return true
 	    elseif ( event.phase == "moved" ) then
 	        --code executed when the touch is moved over the object
-	        print("moved to x = " .. event.x .. ", y = " .. event.y)
-	        event.target.x = event.x
-	        event.target.y = event.y
+	        if event.target.parent then
+	        	event.target.x, event.target.y = event.target.parent:contentToLocal( event.x, event.y )
+	        else
+	        	event.target.x = event.x
+	        	event.target.y = event.y
+	        end
+
 	        return true
 	    elseif ( event.phase == "ended" ) then
 	        --code executed when the touch lifts off the object
-	        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target.letter)
-	        local index = lists.indexOf(rack.tileImages, event.target)
-	        if isPlaced then
-	        	local letter = event.target.letter
-	        	if index < 0 then
-	        		print("Error - grabbed tile wasn't in rack's list of tile images")
-	        		return
-	        	end
-	        	table.remove(rack.tileImages, index)
-	        	table.remove(rack.letters, index)
-	        	event.target:removeSelf( )
-	        else
-	        	event.target.x = rack:computeTileX(index)
-	        	event.target.y = rack:computeTileY(index)
+	        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target)
+	        if not isPlaced then
+	        	rack:returnTileImage(event.target)
 	        end
 
-	        print( "touch ended on object "..tostring(event.target) )
-	    elseif (event.phase == "cancelled") then
-	    	event.target.x = event.xStart
-	    	event.target.y = event.yStart
+	    else
+	        rack:returnTileImage(event.target)
 	    end
 	    return true  --prevents touch propagation to underlying objects
 	end
