@@ -5,9 +5,11 @@ local square = require("common.square")
 local tile = require("common.tile")
 local math = require("math")
 local display = require("display")
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local transition = require("transition")
 
+local lists = require("common.lists")
 -- Constants
 
 
@@ -42,7 +44,9 @@ function board_class.new(gameModel, startX, startY, width, onGrabTiles)
 		rackTileImages = rackTileImages
 	}
 
-	return setmetatable( newBoard, board_class_mt )
+	newBoard = setmetatable( newBoard, board_class_mt )
+    newBoard:createBoardContainer()
+    return newBoard
 end
 
 -- Local helpers --
@@ -272,13 +276,15 @@ function getBoardTapListener(board)
 	end
 end
 
-function board_class:createBoardGroup()
+function board_class:createBoardContainer()
 	local width = self.width
 	local boardContainer = display.newContainer(width, width)
 	local boardGroup = display.newGroup()
 	local squaresGroup = self:createSquaresGroup(width)
 	local tilesGroup = self:createTilesGroup(width)
 	local rackTilesGroup = display.newGroup()
+    local boardTexture = common_ui.create_image("images/wood-texture.jpg", display.contentWidth, display.contentWidth, 0, 0)
+    boardGroup:insert(boardTexture)
 	boardGroup:insert(squaresGroup)
 	boardGroup:insert(tilesGroup)
 	boardGroup:insert(rackTilesGroup)
@@ -339,6 +345,8 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 	tileImage.height = tileImage.height / scale
 	tileImage.x = squareImage.x
 	tileImage.y = squareImage.y
+	tileImage.row = row
+	tileImage.col = col
 	self.rackTileImages[row][col] = tileImage
 	transition.to(tileImage, {
 		width = squareImage.squareBg.width,
@@ -350,6 +358,219 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 	
 	return true
 
+end
+
+function board_class:removeRackTileFromBoard(tileImage)
+	if tileImage.row and tileImage.col then
+		self.rackTileImages[row][col] = nil
+	end
+	tileImage.row = nil
+    tileImage.col = nil
+
+end
+
+function board_class:getCurrentPlayTilesMove()
+	local orderedTiles = self:getOrderedRackTiles()
+	if orderedTiles["errorMsg"] then
+		return orderedTiles
+	end
+	-- Construct the actual word being played
+	local letters, startR, startC, dir = self:getWordForPlayTilesMove(orderedTiles)
+	if letters["errorMsg"] then
+		return letters
+	end
+
+	local rackTileLetters = self:getLettersFromTiles(orderedTiles)
+
+	-- Construct the move
+	return {
+		letters = letters:upper(),
+		start = { r = startR - 1, c = startC - 1 },
+		dir = dir,
+		tiles = rackTileLetters,
+		moveType = common_api.PLAY_TILES
+	}
+end
+
+function board_class:getLettersFromTiles(tileImages)
+	local letters = ""
+	for i = 1, #tileImages do
+		letters = letters .. tileImages[i].letter
+	end
+	return letters:upper()
+end
+
+function board_class:getWordForPlayTilesMove(orderedTiles)
+	local N = self.N
+	local tileImages = self.tileImages
+
+	local row = orderedTiles[1].row
+	local col = orderedTiles[1].col
+
+	if (#orderedTiles == 1 and (tileImages[row][col - 1] or tileImages[row][col + 1])) or 
+		#orderedTiles > 1 and orderedTiles[1].col < orderedTiles[2].col then -- East direction
+		local startR, startC = self:getLastOccupied(row, col, {0, -1})
+		local endR, endC = self:getLastOccupied(row, col, {0, 1})
+		return self:getLettersInRange(startR, startC, endR, endC), startR, startC, "E"
+	elseif (#orderedTiles == 1 and (tileImages[row - 1][col] or tileImages[row + 1][col])) or 
+			#orderedTiles > 1 and orderedTiles[1].row < orderedTiles[2].row then -- South direction
+		local startR, startC = self:getLastOccupied(row, col, {-1, 0})
+		local endR, endC = self:getLastOccupied(row, col, {1, 0})
+		return self:getLettersInRange(startR, startC, endR, endC), startR, startC, "S"
+	else 
+		return {errorMsg = "Invalid play"}
+	end
+
+end
+
+function board_class:getLettersInRange(startR, startC, endR, endC)
+	local tileImages = self.tileImages
+	local rackTileImages = self.rackTileImages
+	local letters = ""
+	if startC < endC then
+		local r = startR
+		for j = startC, endC do
+			if tileImages[r][j] and rackTileImages[r][j] then
+				return {errorMsg = "Tiles from the rack can't be on top of tiles on the board!"}
+			elseif tileImages[r][j] then
+				letters = letters .. tileImages[r][j].letter
+			elseif rackTileImages[r][j] then
+				letters = letters .. rackTileImages[r][j].letter
+			end
+		end
+		return letters
+	elseif startR < endR then
+		local c = startC
+		for i = startR, endR do
+			if tileImages[i][c] and rackTileImages[i][c] then
+				return {errorMsg = "Tiles from the rack can't be on top of tiles on the board!"}
+			elseif tileImages[i][c] then
+				letters = letters .. tileImages[i][c].letter
+			elseif rackTileImages[i][c] then
+				letters = letters .. rackTileImages[i][c].letter
+			end
+		end
+		return letters
+	else
+		if tileImages[startR][startC] then
+			return tileImages[startR][startC].letter
+		else
+			return rackTileImages[startR][startC].letter
+		end
+	end
+
+end
+
+function board_class:getLastOccupied(row, col, dir)
+	local r = row + dir[1]
+	local c = col + dir[2]
+	local tileImages = self.tileImages
+	local rackTileImages = self.rackTileImages
+	local N = self.N
+
+	while r >= 1 and r <= N and c >= 1 and c <= N and 
+		(tileImages[r][c] or rackTileImages[r][c]) do
+		r = r + dir[1]
+		c = c + dir[2]
+	end
+	return r - dir[1], c - dir[2]
+end
+
+function board_class:getOrderedRackTiles()
+	local N = self.N
+	local rackTileImages = self.rackTileImages
+	local tileImages = self.tileImages
+	local row, col
+	-- Find the first rack tile on the board, traversing in row-major order
+	local found = false
+	for i = 1, N do
+		if found then
+			break
+		end
+		for j = 1, N do
+			if found then
+				break
+			end
+			if rackTileImages[i][j] then
+				row = i
+				col = j
+				found = true
+				break
+			end
+		end
+	end
+	if not row or not col then
+		return {errorMsg = "You must place tiles on the board to play a move."}   --- we didn't find any rack tile images
+	end
+
+	local orderedTiles = { }
+	local tileToEast
+	local tileToSouth
+
+	for j = col + 1, N do
+		if rackTileImages[row][j] then
+			tileToEast = rackTileImages[row][j]
+			break
+		end
+	end
+
+	for i = row + 1, N do
+		if rackTileImages[i][col] then
+			tileToSouth = rackTileImages[i][col]
+			break
+		end
+	end
+
+	if tileToEast and tileToSouth then
+        print("Found tile to E at (" .. tileToEast.row .. "," .. tileToEast.col .. "): " .. tileToEast.letter)
+        print("Found tile to S at (" .. tileToSouth.row .. "," .. tileToSouth.col .. "): " .. tileToSouth.letter)
+		return {errorMsg = "You must place tiles in the same row or column with no empty spaces in between"}
+	end
+
+	-- Build the tiles for the play in order
+	if tileToEast then
+		for j = col, N do
+			if rackTileImages[row][j] then
+				if tileImages[row][j] then
+					return {errorMsg = "Cannot place a tile from the rack on top of a tile on the board!"}
+				end
+				orderedTiles[#orderedTiles + 1] = rackTileImages[row][j]
+			elseif not tileImages[row][j] then
+				break
+			end
+		end
+	elseif tileToSouth then 
+		for i = row, N do
+			if rackTileImages[i][col] then
+				if tileImages[i][col] then
+					return {errorMsg = "Cannot place a tile from the rack on top of a tile on the board!"}
+				end
+				orderedTiles[#orderedTiles + 1] = rackTileImages[i][col]
+			elseif not tileImages[i][col] then
+				break
+			end
+		end
+	else
+		orderedTiles[1] = rackTileImages[row][col]
+	end
+
+	-- Finally verify there aren't any additional tiles on the board that aren't included in the play
+	for i = row, N do
+		for j = 1, N do
+			if rackTileImages[i][j] and lists.indexOf(orderedTiles, rackTileImages[i][j]) == 0 then
+				return {errorMsg = "You must place tiles in the same row or column with no empty spaces in between"}
+			end
+		end
+	end
+
+	return orderedTiles
+
+end
+
+function board_class:destroy()
+    self.boardContainer:removeSelf()
+    self.boardContainer = nil
+    self.boardGroup = nil
 end
 
 -- Local functions
@@ -369,7 +590,6 @@ tileTouchListener = function(event)
 		if lastTile and lastTile.row == tile.row and lastTile.col == tile.col then
 			return true 
 		end
-		print("Tile touch listener: moved for tile " .. tile.letter)
 		if not board.isGrabbing then
 			board:cancel_grab()
 			return true

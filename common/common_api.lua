@@ -29,7 +29,7 @@ M.BOOKWORM_AI = "BOOKWORM_AI"
 M.PROFESSOR_AI = "PROFESSOR_AI"
 
 M.GRAB_TILES = "GRAB_TILES"
-M.PLAY_TILES = "PLAY_TILES"
+M.PLAY_TILES = "PLAY_WORD"
 M.PASS = "PASS"
 
 local function getBasicAuthHeader(username, password)
@@ -234,7 +234,7 @@ M.createNewGame = function(newGameInput, onSuccess, onFail)
 	M.doApiRequest(url, "POST", json.encode(newGameInput), 201, onSuccess, onFail)
 end
 
-M.sendMultiplayerMove = function(moveInput, onSuccess, onFail)
+M.sendMove = function(moveInput, onSuccess, onFail)
 	local url = M.movesURL(gameId)
 	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail)
 end

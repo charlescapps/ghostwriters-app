@@ -72,6 +72,20 @@ M.create_img_button = function(y, width, height, defaultFile, overFile, onPress,
 	})
 end
 
+M.create_img_button2 = function(x, y, width, height, defaultFile, overFile, onPress, onRelease)
+
+    return widget.newButton({
+        x = x,
+        y = y,
+        width = width,
+        height = height,
+        defaultFile = defaultFile,
+        overFile = overFile,
+        onPress = onPress,
+        onRelease = onRelease
+    })
+end
+
 M.find_by_id = function(group, id)
 	for i=1, #array do
 		if group[i] and group[i].id == id then

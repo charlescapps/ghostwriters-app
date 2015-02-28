@@ -281,7 +281,7 @@ onGrabTiles = function(tiles)
                 local i = event.index
                 if i == 1 then
                     local moveJson = createGrabMoveJson(tiles)
-                    common_api.sendMultiplayerMove(moveJson, onSendMoveSucces, onSendMoveFail)
+                    common_api.sendMove(moveJson, onSendMoveSucces, onSendMoveFail)
                 elseif i == 2 then
                     -- Do nothing, user clicked "Nope"
                 end

@@ -42,10 +42,7 @@ end
 function rack_class:createRackDisplayGroup()
 	local group = display.newGroup( )
 	local letters = self.letters
-	local startY = self.startY
 	local width = self.tileWidth
-	local numPerRow = self.numPerRow
-	local padding = self.padding
 	local tileImages = {}
 
 	for i = 1, #letters do
@@ -56,6 +53,7 @@ function rack_class:createRackDisplayGroup()
 		img.letter = letter
 		print("Letter: " .. letter .. ", img: " .. tostring(img))
 		tileImages[#tileImages + 1] = img
+		img:addEventListener( "touch", getTouchListener(self) )
 		group:insert(img)
 	end
 	self.displayGroup = group
@@ -106,6 +104,14 @@ function rack_class:returnTileImage(tileImage)
 	local y = self:computeTileY(index)
 	tileImage.x = x
 	tileImage.y = y
+	self.board:removeRackTileFromBoard(tileImage)
+
+end
+
+function rack_class:destroy()
+    self.displayGroup:removeSelf()
+    self.displayGroup = nil
+    self.tileImages = nil
 end
 
 -- Local functions
