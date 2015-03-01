@@ -76,6 +76,15 @@ function scene:create(event)
     sceneGroup:insert(optionsButton)
     sceneGroup:insert(actionButtonsGroup)
 
+    display.currentStage:addEventListener( "touch", function(event)
+        if event.phase == "ended" or event.phase == "cancelled" then
+            if rack then
+                rack:returnFloatingTiles()
+            end
+        end
+        return true
+    end )
+
 end
 
 createBoard = function(gameModel)

@@ -336,6 +336,10 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 		return false
 	end
 	local row, col = squareImage.row, squareImage.col
+    if self.tileImages[row][col] or self.rackTileImages[row][col] then
+        print("Tile already present at (" .. row .. ", " .. col .. ")")
+        return false
+    end
 	print ("Inserting tile at row = " .. row .. ", col = " .. col)
 	print ("Inserting tile at x = " .. squareImage.x .. ", y = " .. squareImage.y)
 	self.rackTilesGroup:insert(tileImage)
@@ -477,34 +481,32 @@ function board_class:getLastOccupied(row, col, dir)
 	return r - dir[1], c - dir[2]
 end
 
+function board_class:findFirstRackTile()
+    local N = self.N
+    local rackTileImages = self.rackTileImages
+    -- Find the first rack tile on the board, traversing in row-major order
+    for i = 1, N do
+        for j = 1, N do
+            if rackTileImages[i][j] then
+                return rackTileImages[i][j]
+            end
+        end
+    end
+    return nil
+end
+
 function board_class:getOrderedRackTiles()
 	local N = self.N
 	local rackTileImages = self.rackTileImages
 	local tileImages = self.tileImages
-	local row, col
 	-- Find the first rack tile on the board, traversing in row-major order
-	local found = false
-	for i = 1, N do
-		if found then
-			break
-		end
-		for j = 1, N do
-			if found then
-				break
-			end
-			if rackTileImages[i][j] then
-				row = i
-				col = j
-				found = true
-				break
-			end
-		end
-	end
-	if not row or not col then
+	local firstRackTile = self:findFirstRackTile()
+	if not firstRackTile then
 		return {errorMsg = "You must place tiles on the board to play a move."}   --- we didn't find any rack tile images
-	end
+    end
+    local row, col = firstRackTile.row, firstRackTile.col
 
-	local orderedTiles = { }
+    local orderedTiles = { }
 	local tileToEast
 	local tileToSouth
 
@@ -578,6 +580,9 @@ end
 tileTouchListener = function(event)
 	local tile = event.target
 	local board = tile.board
+    if board:findFirstRackTile() then
+       return false
+    end
 	if event.phase == "began" then
 		print("Tile touch listener began!")
 		board:cancel_grab() -- Clear all grab data 

@@ -116,9 +116,22 @@ function rack_class:returnAllTiles()
 	end
 end
 
+function rack_class:returnFloatingTiles()
+	if not self.floatingTiles then
+		return
+	end
+	local tileImages = self.tileImages
+	for i = 1, #tileImages do
+		if tileImages[i].parent == self.floatingTiles then
+			self:returnTileImage(tileImages[i])
+		end
+	end
+end
+
 function rack_class:destroy()
     if self.floatingTiles then
         self.floatingTiles:removeSelf()
+        self.floatingTiles = nil
     end
     self.displayGroup:removeSelf()
     self.displayGroup = nil
@@ -129,6 +142,9 @@ end
 getTouchListener = function(rack)
 	return function(event)
 		if ( event.phase == "began" ) then
+			display.getCurrentStage( ):setFocus( event.target )
+			event.target.isFocus = true
+
 	        --Insert tile into the root display group so it can move freely.
 	        local wasOnBoard = event.target.parent == rack.board.rackTilesGroup
 
@@ -153,25 +169,29 @@ getTouchListener = function(rack)
         		height = rack.tileWidth
         		})
 	        return true
-	    elseif ( event.phase == "moved" ) then
-	        --code executed when the touch is moved over the object
-	        if event.target.parent then
-	        	event.target.x, event.target.y = event.target.parent:contentToLocal( event.x, event.y )
-	        else
-	        	event.target.x = event.x
-	        	event.target.y = event.y
-	        end
+	    elseif event.target.isFocus then
+	     	if ( event.phase == "moved" ) then
+		        --code executed when the touch is moved over the object
+		        if event.target.parent then
+		        	event.target.x, event.target.y = event.target.parent:contentToLocal( event.x, event.y )
+		        else
+		        	event.target.x = event.x
+		        	event.target.y = event.y
+		        end
 
-	        return true
-	    elseif ( event.phase == "ended" ) then
-	        --code executed when the touch lifts off the object
-	        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target)
-	        if not isPlaced then
-	        	rack:returnTileImage(event.target)
-            end
-	    else
-	        rack:returnTileImage(event.target)
-	    end
+		        return true
+		    elseif  event.phase == "ended" or event.phase == "cancelled" then
+			    -- reset touch focus
+	            display.getCurrentStage():setFocus( nil )
+	            event.target.isFocus = nil
+
+		        --code executed when the touch lifts off the object
+		        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target)
+		        if not isPlaced then
+		        	rack:returnTileImage(event.target)
+	            end
+		    end
+		end
 	    return true  --prevents touch propagation to underlying objects
 	end
 end
