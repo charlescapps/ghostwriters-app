@@ -49,7 +49,7 @@ function rack_class:createRackDisplayGroup()
 		local letter = letters[i]
 		local x = self:computeTileX(i)
 		local y = self:computeTileY(i)
-		local img = tile.draw(letter, x, y, width)
+		local img = tile.draw(letter, x, y, width, true)
 		img.letter = letter
 		print("Letter: " .. letter .. ", img: " .. tostring(img))
 		tileImages[#tileImages + 1] = img
@@ -75,7 +75,7 @@ function rack_class:addTiles(tilesStr)
 		local x = self:computeTileX(tileNum)
 		local y = self:computeTileY(tileNum)
 
-		local newTileImg = tile.draw(grabTile, x, y, self.tileWidth)
+		local newTileImg = tile.draw(grabTile, x, y, self.tileWidth, true)
 		newTileImg.letter = grabTile
 		self.tileImages[#(self.tileImages) + 1] = newTileImg
 
@@ -104,11 +104,22 @@ function rack_class:returnTileImage(tileImage)
 	local y = self:computeTileY(index)
 	tileImage.x = x
 	tileImage.y = y
+    tileImage.width, tileImage.height = self.tileWidth, self.tileWidth
 	self.board:removeRackTileFromBoard(tileImage)
 
 end
 
+function rack_class:returnAllTiles()
+	local tileImages = self.tileImages
+	for i = 1, #tileImages do
+		self:returnTileImage(tileImages[i])
+	end
+end
+
 function rack_class:destroy()
+    if self.floatingTiles then
+        self.floatingTiles:removeSelf()
+    end
     self.displayGroup:removeSelf()
     self.displayGroup = nil
     self.tileImages = nil
@@ -120,12 +131,20 @@ getTouchListener = function(rack)
 		if ( event.phase == "began" ) then
 	        --Insert tile into the root display group so it can move freely.
 	        local wasOnBoard = event.target.parent == rack.board.rackTilesGroup
-	        display.currentStage:insert(event.target)
+
+	        -- Create a display group to house the floating tiles
+            if not rack.floatingTiles then
+            	rack.floatingTiles = display.newGroup()
+            	display.currentStage:insert(rack.floatingTiles)
+            end
+        	rack.floatingTiles:insert(event.target)
+
 	        -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
 	        if wasOnBoard then
 	        	local scale = rack.board.boardGroup.xScale
 	        	event.target.width = event.target.width * scale
 	        	event.target.height = event.target.height * scale
+                rack.board:removeRackTileFromBoard(event.target)
 	        end
 	        event.target.x = event.x
         	event.target.y = event.y	
@@ -149,8 +168,7 @@ getTouchListener = function(rack)
 	        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target)
 	        if not isPlaced then
 	        	rack:returnTileImage(event.target)
-	        end
-
+            end
 	    else
 	        rack:returnTileImage(event.target)
 	    end

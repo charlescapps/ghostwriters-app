@@ -361,7 +361,8 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 end
 
 function board_class:removeRackTileFromBoard(tileImage)
-	if tileImage.row and tileImage.col then
+    local row, col = tileImage.row, tileImage.col
+	if row and col then
 		self.rackTileImages[row][col] = nil
 	end
 	tileImage.row = nil

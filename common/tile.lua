@@ -4,24 +4,32 @@ local image_sheets = require("globals.image_sheets")
 local display = require("display")
 
 local originalTilesImageSheet = image_sheets.getOriginalTilesImageSheet()
+local rackTilesImageSheet = image_sheets.getRackTilesImageSheet()
 local playedTilesImageSheet = image_sheets.getPlayedTilesImageSheet()
 local tileTable
+local rackTileTable
 
 -- Function pre-declarations
 local createOriginalTile
+local createRackTile
 local createPlayedTile
 local buildTileTable
+local buildRackTileTable
 
 -- Constants
 M.emptyTile = "_"
 
 -- Public functions
-M.getTileInfo = function(letter)
-	return tileTable[letter]
+M.getTileInfo = function(letter, isRackTile)
+    if isRackTile then
+        return rackTileTable[letter]
+    else
+	    return tileTable[letter]
+    end
 end
 
-M.draw = function(letter, x, y, width)
-	local tileInfo = M.getTileInfo(letter)
+M.draw = function(letter, x, y, width, isRackTile)
+	local tileInfo = M.getTileInfo(letter, isRackTile)
 	if not tileInfo then
 		return nil
 	end
@@ -38,6 +46,14 @@ createOriginalTile = function(letter, frameIndex)
 		imageSheet = originalTilesImageSheet,
 		frameIndex = frameIndex
 	}
+end
+
+createRackTile = function(letter, frameIndex)
+    return {
+        letter = letter,
+        imageSheet = rackTilesImageSheet,
+        frameIndex = frameIndex
+    }
 end
 
 createPlayedTile = function(letter, frameIndex)
@@ -63,8 +79,19 @@ buildTileTable = function()
 	return tileTable
 end
 
+buildRackTileTable = function()
+    local tileTable = {}
+    -- Rack tiles are always uppercase
+    for i = 1, 26 do
+        local letter = string.char(64 + i)
+        tileTable[letter] = createRackTile(letter, i)
+    end
+    return tileTable
+end
+
 
 -- Build the tile table
 tileTable = buildTileTable()
+rackTileTable = buildRackTileTable()
 
 return M

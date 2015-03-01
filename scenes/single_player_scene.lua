@@ -35,6 +35,8 @@ local getSendMoveSuccessCallback
 local onSendMoveSuccess
 local onSendMoveFail
 
+local reset
+
 -- "scene:create()"
 function scene:create(event)
     local sceneGroup = self.view
@@ -318,21 +320,29 @@ createGrabMoveJson = function(tiles)
 
 end
 
+reset = function()
+    local gameModel = current_game.currentGame
+    if not gameModel then
+        print("Error - current_game.currentGame wasn't defined when reset() was called in single player scene")
+        composer.gotoScene("scenes.title_scene")
+        return
+    end
 
-onSendMoveSuccess = function(updatedGameModel)
-    current_game.currentGame = updatedGameModel
     local authUser = login_common.checkCredentials()
-    -- Re-draw the board / rack with updated Game JSON
+    if not authUser then
+        return
+    end
+
     local oldTitleArea = titleAreaDisplayGroup
     local oldBoard = board
     local oldRack = rack
 
-    titleAreaDisplayGroup = createTitleAreaDiplayGroup(updatedGameModel, authUser)
+    titleAreaDisplayGroup = createTitleAreaDiplayGroup(gameModel, authUser)
     if not titleAreaDisplayGroup then
         return
     end
-    board = createBoard(updatedGameModel)
-    rack = createRack(updatedGameModel, board)
+    board = createBoard(gameModel)
+    rack = createRack(gameModel, board)
 
     local viewGroup = scene.view
     viewGroup:insert(board.boardContainer)
@@ -341,6 +351,13 @@ onSendMoveSuccess = function(updatedGameModel)
     oldBoard:destroy()
     oldRack:destroy()
     oldTitleArea:removeSelf()
+
+end
+
+
+onSendMoveSuccess = function(updatedGameModel)
+    current_game.currentGame = updatedGameModel
+    reset()
 
     -- TODO: display the previous move played by the AI in some manner
 end
@@ -393,6 +410,10 @@ onReleasePlayButton = function(event)
             print("User clicked 'Nope'")
         end
     end)
+end
+
+onReleaseResetButton = function(event)
+    rack:returnAllTiles()
 end
 
 -- Listener setup
