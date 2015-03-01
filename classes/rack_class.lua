@@ -178,7 +178,6 @@ getTouchListener = function(rack)
 		        	event.target.x = event.x
 		        	event.target.y = event.y
 		        end
-
 		        return true
 		    elseif  event.phase == "ended" or event.phase == "cancelled" then
 			    -- reset touch focus
@@ -189,7 +188,8 @@ getTouchListener = function(rack)
 		        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target)
 		        if not isPlaced then
 		        	rack:returnTileImage(event.target)
-	            end
+                end
+                return true
 		    end
 		end
 	    return true  --prevents touch propagation to underlying objects

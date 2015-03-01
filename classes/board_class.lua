@@ -211,7 +211,10 @@ function board_class:createTilesGroup(width)
 				img.row = i
 				img.col = j
 				img.letter = t
-				img:addEventListener( "touch", tileTouchListener )
+                -- Lowercase tiles indicate tiles originally on the board
+                if t ~= tile.emptyTile and t:lower() == t then
+				    img:addEventListener( "touch", tileTouchListener )
+                end
 				tilesGroup:insert(img)
 			end
 			tileImages[i][j] = img
@@ -581,7 +584,7 @@ tileTouchListener = function(event)
 	local tile = event.target
 	local board = tile.board
     if board:findFirstRackTile() then
-       return false
+       return true
     end
 	if event.phase == "began" then
 		print("Tile touch listener began!")
