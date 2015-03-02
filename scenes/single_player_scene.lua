@@ -18,6 +18,8 @@ local rack
 local titleAreaDisplayGroup
 
 -- Local helpers pre-declaration
+local checkGameModelIsDefined
+local doesAuthUserMatchGame
 local createTitleAreaDiplayGroup
 local createBoard
 local createRack
@@ -41,28 +43,25 @@ local reset
 function scene:create(event)
     local sceneGroup = self.view
 
-    local gameModel = current_game.currentGame
+    local gameModel = checkGameModelIsDefined()
 
     if not gameModel then
-        print ("Error - no current game is defined in the current_game module.")
-        composer.gotoScene( "scenes.title_scene" )
-        local currentScene = composer.getSceneName( "current" )
-        composer.removeScene( currentScene, false )
         return
     end
 
     local authUser = login_common.checkCredentials()
 
-    board = createBoard(gameModel)
-
-    rack = createRack(gameModel, board)
+    if not doesAuthUserMatchGame(gameModel, authUser) then
+        return
+    end
 
     local background = common_ui.create_background()
 
     titleAreaDisplayGroup = createTitleAreaDiplayGroup(gameModel, authUser)
-    if not titleAreaDisplayGroup then
-        return
-    end
+
+    board = createBoard(gameModel)
+
+    rack = createRack(gameModel, board)
 
     local actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 220, 200, 70, onReleasePlayButton, onReleaseResetButton)
 
@@ -135,20 +134,39 @@ function scene:destroy( event )
 end
 
 -- Local helpers
+checkGameModelIsDefined = function()
+    local gameModel = current_game.currentGame
+
+    if not gameModel then
+        print ("Error - no current game is defined in the current_game module.")
+        composer.gotoScene( "scenes.title_scene" )
+        local currentScene = composer.getSceneName( "current" )
+        composer.removeScene( currentScene, false )
+    end
+
+    return gameModel
+end
+
+doesAuthUserMatchGame = function(gameModel, authUser)
+    if authUser.id ~= gameModel.player1 then
+        print("Error - player1 must be the authenticated user for Single Player games!")
+        print("Auth user = " .. json.encode(authUser))
+        print("Player 1 = " .. json.encode(gameModel.player1Model))
+        composer.gotoScene("scenes.title_scene")
+        return false
+    end
+    return true
+end
+
 createTitleAreaDiplayGroup = function(gameModel, authUser)
     local player1 = gameModel.player1Model
     local player2 = gameModel.player2Model
     local player1Username, player2Username, player1Points, player2Points
-    if authUser.id == player1.id then
-        player1Username = player1.username
-        player2Username = player2.username
-        player1Points = gameModel.player1Points
-        player2Points = gameModel.player2Points
-    else
-        print("Error - player1 must be the authenticated user for Single Player games!")
-        composer.gotoScene("scenes.title_scene")
-        return nil
-    end
+    player1Username = player1.username
+    player2Username = player2.username
+    player1Points = gameModel.player1Points
+    player2Points = gameModel.player2Points
+
 
     local group = display.newGroup( )
 

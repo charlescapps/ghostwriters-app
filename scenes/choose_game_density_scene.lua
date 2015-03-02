@@ -1,33 +1,30 @@
 local composer = require( "composer" )
-local widget = require( "widget" )
 local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local scene = composer.newScene()
-
-local function onPress()
-    print ("Pressed button")
-end
 
 local function getOnReleaseListener(gameDensity)
     return function(event)
         new_game_data.gameDensity = gameDensity
         composer.gotoScene( "scenes.choose_bonuses_type_scene", "fade" )
     end
-
 end
-
 
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.create_background()
+    local backButton = common_ui.create_back_button(100, 100, "scenes.choose_board_size_scene", function()
+        new_game_data.gameDensity, new_game_data.boardSize = nil, nil
+    end)
+
+    local smallBoardGrp = common_ui.create_img_button_group("images/sparse.jpg", "images/sparse_dark.jpg", 200, "Sparse", "(9-15 words)", getOnReleaseListener(common_api.LOW_DENSITY))
+    local mediumBoardGrp = common_ui.create_img_button_group("images/regular_density.jpg", "images/regular_density_dark.jpg", 600, "Regular", "(12-18 words)", getOnReleaseListener(common_api.MEDIUM_DENSITY))
+    local largeBoardGrp = common_ui.create_img_button_group("images/word_jungle.jpg", "images/word_jungle_dark.jpg", 1000, "Word Jungle", "(15-21 words)", getOnReleaseListener(common_api.HIGH_DENSITY))
+
     sceneGroup:insert(background)
-
-    local smallBoardGrp = common_ui.create_img_button_group("images/sparse.jpg", "images/sparse_dark.jpg", 200, "Sparse", "(9-15 words)", onPress, getOnReleaseListener(common_api.LOW_DENSITY))
-    local mediumBoardGrp = common_ui.create_img_button_group("images/regular_density.jpg", "images/regular_density_dark.jpg", 600, "Regular", "(12-18 words)", onPress, getOnReleaseListener(common_api.MEDIUM_DENSITY))
-    local largeBoardGrp = common_ui.create_img_button_group("images/word_jungle.jpg", "images/word_jungle_dark.jpg", 1000, "Word Jungle", "(15-21 words)", onPress, getOnReleaseListener(common_api.HIGH_DENSITY))
-
+    sceneGroup:insert(backButton)
     sceneGroup:insert(smallBoardGrp)
     sceneGroup:insert(mediumBoardGrp)
     sceneGroup:insert(largeBoardGrp)
@@ -41,6 +38,7 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
+        new_game_data.gameDensity = nil
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.

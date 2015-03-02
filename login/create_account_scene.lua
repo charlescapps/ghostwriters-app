@@ -149,12 +149,14 @@ end
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.create_background()
+    local backButton = common_ui.create_back_button(100, 100)
     local username_text = create_username_text_field()
     local email_text = create_email_text_field()
     local pass_fields = create_password_fields()
     local done_button = create_done_button()
 
     sceneGroup:insert(background)
+    sceneGroup:insert(backButton)
     sceneGroup:insert(username_text)
     sceneGroup:insert(email_text)
     sceneGroup:insert(pass_fields)

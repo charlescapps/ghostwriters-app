@@ -235,9 +235,11 @@ function scene:create(event)
     
 	local sceneGroup = self.view
     local background = common_ui.create_background()
+    local backButton = common_ui.create_back_button(100, 100, "scenes.title_scene")
     local searchBarGroup = createSearchBar()
     local startGameButton = createStartGameButton()
     sceneGroup:insert( background )
+    sceneGroup:insert(backButton)
     sceneGroup:insert( searchBarGroup )
     sceneGroup:insert( startGameButton )
 

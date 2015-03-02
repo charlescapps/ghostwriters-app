@@ -1,5 +1,4 @@
 local composer = require( "composer" )
-local widget = require( "widget" )
 local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
@@ -11,7 +10,7 @@ local function onCreateGameSuccess(gameModel)
 
     current_game.currentGame = gameModel
 
-    if gameModel.gameType == common_api.MULTI_PLAYER then
+    if gameModel.gameType == common_api.TWO_PLAYER then
         composer.gotoScene( "scenes.multiplayer_game_scene", "fade" )
     else
         composer.gotoScene( "scenes.single_player_scene", "fade" )
@@ -41,16 +40,19 @@ local function getOnReleaseListener(bonusesType)
 
 end
 
-
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.create_background()
+    local backButton = common_ui.create_back_button(100, 100, "scenes.choose_game_density_scene", function()
+        new_game_data.bonusesType, new_game_data.gameDensity = nil, nil
+    end)
+
+    local smallBoardGrp = common_ui.create_img_button_group("images/fixed_bonuses.jpg", "images/fixed_bonuses_dark.jpg", 300, "Standard bonuses", "(Same bonus squares every time)", getOnReleaseListener(common_api.FIXED_BONUSES))
+    local mediumBoardGrp = common_ui.create_img_button_group("images/random_bonuses.jpg", "images/random_bonuses_dark.jpg", 800, "Random bonuses", "(Unpredictable bonus squares)", getOnReleaseListener(common_api.RANDOM_BONUSES))
+
     sceneGroup:insert(background)
-
-    local smallBoardGrp = common_ui.create_img_button_group("images/fixed_bonuses.jpg", "images/fixed_bonuses_dark.jpg", 300, "Standard bonuses", "(Same bonus squares every time)", nil, getOnReleaseListener(common_api.FIXED_BONUSES))
-    local mediumBoardGrp = common_ui.create_img_button_group("images/random_bonuses.jpg", "images/random_bonuses_dark.jpg", 800, "Random bonuses", "(Unpredictable bonus squares)", nil, getOnReleaseListener(common_api.RANDOM_BONUSES))
-
+    sceneGroup:insert(backButton)
     sceneGroup:insert(smallBoardGrp)
     sceneGroup:insert(mediumBoardGrp)
 end
@@ -58,11 +60,11 @@ end
 -- "scene:show()"
 function scene:show( event )
 
-    local sceneGroup = self.view
     local phase = event.phases
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
+        new_game_data.bonusesType = nil
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.

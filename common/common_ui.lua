@@ -1,7 +1,13 @@
 local M = {}
 
 local widget = require("widget")
+local composer = require("composer")
+
 local DEFAULT_BACKGROUND = "images/book_texture.png"
+local DEFAULT_BACK_BUTTON = "images/back-button.png"
+local PRESSED_BACK_BUTTON = "images/back-button-pressed.png"
+local BACK_BTN_WIDTH = 75
+local BACK_BTN_HEIGHT = 75
 
 M.create_background = function(imageFile)
 	local file = imageFile or DEFAULT_BACKGROUND
@@ -58,7 +64,7 @@ M.create_button = function(text, id, y, onEvent)
 	return button
 end
 
-M.create_img_button = function(y, width, height, defaultFile, overFile, onPress, onRelease)
+M.create_img_button = function(y, width, height, defaultFile, overFile, onRelease)
 
 	return widget.newButton({
 		x = display.contentWidth / 2,
@@ -67,14 +73,13 @@ M.create_img_button = function(y, width, height, defaultFile, overFile, onPress,
 		height = height,
 		defaultFile = defaultFile, 
 		overFile = overFile,
-		onPress = onPress,
 		onRelease = onRelease
 	})
 end
 
 M.create_img_button2 = function(x, y, width, height, defaultFile, overFile, onPress, onRelease)
 
-    return widget.newButton({
+    return widget.newButton {
         x = x,
         y = y,
         width = width,
@@ -83,7 +88,35 @@ M.create_img_button2 = function(x, y, width, height, defaultFile, overFile, onPr
         overFile = overFile,
         onPress = onPress,
         onRelease = onRelease
-    })
+    }
+end
+
+M.create_back_button = function(x, y, sceneName, beforeTransition, afterTransition)
+    -- Helper to call "beforeTransition", then go to the previous or specified scene, then call "afterTransition"
+    local onRelease = function(event)
+        if beforeTransition then
+            beforeTransition()
+        end
+
+        if not sceneName then
+            sceneName = composer.getSceneName("previous")
+        end
+
+        composer.gotoScene(sceneName)
+
+        if afterTransition then
+            afterTransition()
+        end
+    end
+    return widget.newButton {
+        x = x,
+        y = y,
+        width = BACK_BTN_WIDTH,
+        height = BACK_BTN_HEIGHT,
+        defaultFile = DEFAULT_BACK_BUTTON,
+        overFile = PRESSED_BACK_BUTTON,
+        onRelease = onRelease
+    }
 end
 
 M.find_by_id = function(group, id)
@@ -95,9 +128,9 @@ M.find_by_id = function(group, id)
 	return nil
 end
 
-M.create_img_button_group = function(defaultFile, overFile, imgY, title, subtitle, onPress, onRelease)
+M.create_img_button_group = function(defaultFile, overFile, imgY, title, subtitle, onRelease)
     local group = display.newGroup()
-    local imgButton = M.create_img_button(imgY, 300, 300, defaultFile, overFile,  onPress, onRelease)
+    local imgButton = M.create_img_button(imgY, 300, 300, defaultFile, overFile, onRelease)
     imgButton.x = display.contentWidth / 2
     imgButton.y = imgY
     
