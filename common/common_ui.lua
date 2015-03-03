@@ -2,12 +2,17 @@ local M = {}
 
 local widget = require("widget")
 local composer = require("composer")
+local transition = require("transition")
+local display = require("display")
 
 local DEFAULT_BACKGROUND = "images/book_texture.png"
+
 local DEFAULT_BACK_BUTTON = "images/back-button.png"
 local PRESSED_BACK_BUTTON = "images/back-button-pressed.png"
 local BACK_BTN_WIDTH = 75
 local BACK_BTN_HEIGHT = 75
+
+local MODAL_IMAGE = "images/book_modal.png"
 
 M.create_background = function(imageFile)
 	local file = imageFile or DEFAULT_BACKGROUND
@@ -161,6 +166,71 @@ M.create_img_button_group = function(defaultFile, overFile, imgY, title, subtitl
     subtitleText:setFillColor(0, 0, 0)
 
     group:insert(imgButton)
+
+    return group
+end
+
+M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
+    if not x then
+        x = display.contentWidth / 2
+    end
+    if not y then
+        y = display.contentHeight / 2
+    end
+    if not fontSize then
+        fontSize = 50
+    end
+
+    local group = display.newGroup()
+    group.x, group.y = x, y
+
+    local modalImage = display.newImageRect(group, MODAL_IMAGE, 650, 484)
+
+    local modalTitle = display.newText {
+        parent = group,
+        x = 0,
+        y = -100,
+        text = titleText,
+        width = 600,
+        height = 125,
+        font = native.systemBoldFont,
+        fontSize = 60,
+        align = "center"
+    }
+    modalTitle:setFillColor(0, 0, 0)
+
+    local modalText = display.newText {
+        parent = group,
+        x = 0,
+        y = 75,
+        text = text,
+        width = 600,
+        height = 250,
+        font = native.systemBoldFont,
+        fontSize = 40,
+        align = "center"
+    }
+    modalText:setFillColor(0, 0, 0)
+
+    local onComplete = function()
+        group:removeSelf()
+        if onClose then
+            onClose()
+        end
+    end
+
+    modalImage:addEventListener("touch", function(event)
+        if event.phase == "ended" then
+            transition.fadeOut(group, {
+                onComplete = onComplete
+            })
+            return true
+        end
+    end)
+
+    group:insert(modalImage)
+    group:insert(modalTitle)
+    group:insert(modalText)
 
     return group
 end

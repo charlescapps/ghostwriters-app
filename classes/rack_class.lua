@@ -1,11 +1,10 @@
 local rack_class = {}
 local rack_class_mt = { __index = rack_class }
 
-local square = require("common.square")
+local common_api = require("common.common_api")
 local tile = require("common.tile")
 local math = require("math")
 local display = require("display")
-local common_ui = require("common.common_ui")
 local transition = require("transition")
 local lists = require("common.lists")
 local table = require("table")
@@ -31,12 +30,17 @@ function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board)
 		startY = startY,
 		numPerRow = numPerRow, 
 		padding = padding,
-		board = board
+		board = board,
+        gameModel = gameModel
 	}
 
 	newRack = setmetatable( newRack, rack_class_mt )
 	newRack:createRackDisplayGroup()
 	return newRack
+end
+
+function rack_class:isGameFinished()
+    return self.gameModel.gameResult ~= common_api.IN_PROGRESS
 end
 
 function rack_class:createRackDisplayGroup()
@@ -53,7 +57,9 @@ function rack_class:createRackDisplayGroup()
 		img.letter = letter
 		print("Letter: " .. letter .. ", img: " .. tostring(img))
 		tileImages[#tileImages + 1] = img
-		img:addEventListener( "touch", getTouchListener(self) )
+        if not self:isGameFinished() then
+		    img:addEventListener( "touch", getTouchListener(self) )
+        end
 		group:insert(img)
 	end
 	self.displayGroup = group

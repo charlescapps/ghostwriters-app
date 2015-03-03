@@ -16,6 +16,9 @@ local rack
 
 -- Display objects
 local titleAreaDisplayGroup
+local actionButtonsGroup
+local playMoveButton
+local resetButton
 
 -- Local helpers pre-declaration
 local checkGameModelIsDefined
@@ -38,6 +41,8 @@ local onSendMoveSuccess
 local onSendMoveFail
 
 local reset
+local showGameOverModal
+local showNoMovesModal
 
 -- "scene:create()"
 function scene:create(event)
@@ -63,7 +68,7 @@ function scene:create(event)
 
     rack = createRack(gameModel, board)
 
-    local actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 220, 200, 70, onReleasePlayButton, onReleaseResetButton)
+    actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 220, 200, 70, onReleasePlayButton, onReleaseResetButton)
 
     local optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentWidth + 470, 100)
 
@@ -92,8 +97,7 @@ end
 -- "scene:show()"
 function scene:show( event )
 
-    local sceneGroup = self.view
-    local phase = event.phases
+    local phase = event.phase
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
@@ -101,8 +105,8 @@ function scene:show( event )
 
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+        showGameOverModal()
+        showNoMovesModal()
     end
 end
 
@@ -237,12 +241,12 @@ createActionButtonsGroup = function(startY, width, height, onPlayButtonRelease, 
     -- Create the Play Word button
     local x1 = display.contentWidth / 2 - width / 2 - 5
     local y = startY + height / 2
-    local playMoveButton = widget.newButton {
+    playMoveButton = widget.newButton {
         x = x1,
         y = y,
         emboss = true,
         label = "Play word",
-        fontSize = 30,
+        fontSize = 32,
         labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
         width = width,
         height = height,
@@ -256,12 +260,12 @@ createActionButtonsGroup = function(startY, width, height, onPlayButtonRelease, 
 
     -- Create the Reset button
     local x2 = display.contentWidth / 2 + width / 2 + 5
-    local resetButton = widget.newButton {
+    resetButton = widget.newButton {
         x = x2,
         y = y,
         emboss = true,
         label = "Reset",
-        fontSize = 30,
+        fontSize = 32,
         labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
         width = width,
         height = height,
@@ -376,6 +380,8 @@ end
 onSendMoveSuccess = function(updatedGameModel)
     current_game.currentGame = updatedGameModel
     reset()
+    showGameOverModal()
+    showNoMovesModal()
 
     -- TODO: display the previous move played by the AI in some manner
 end
@@ -432,6 +438,64 @@ end
 
 onReleaseResetButton = function(event)
     rack:returnAllTiles()
+end
+
+showGameOverModal = function()
+    local gameModel = current_game.currentGame
+    if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS then
+        print("Not displaying Game Over modal, game result is " .. tostring(gameModel and gameModel.gameResult) )
+        return
+    end
+
+    playMoveButton:setEnabled(false)
+    resetButton:setEnabled(false)
+
+    local gameResult = gameModel.gameResult
+
+    local modalMessage
+    if gameResult == common_api.PLAYER1_WIN then
+        modalMessage = gameModel.player1Model.username .. " wins!"
+    elseif gameResult == common_api.PLAYER2_WIN then
+        modalMessage = gameModel.player2Model.username .. " wins!"
+    elseif gameResult == common_api.PLAYER1_TIMEOUT then
+        modalMessage = gameModel.player1Model.username .. " timed out."
+    elseif gameResult == common_api.PLAYER2_TIMEOUT then
+        modalMessage = gameModel.player2Model.username .. " timed out."
+    else
+        print("Invalid game result: " .. tostring(gameResult))
+        return
+    end
+
+    local modal = common_ui.create_info_modal("Game Over", modalMessage, nil, nil, nil)
+    scene.view:insert(modal)
+
+end
+
+showNoMovesModal = function()
+    local gameModel = current_game.currentGame
+    if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS or not board then
+        print("Game is over, not showing No Moves Modal")
+        return
+    end
+
+    if gameModel.player1Rack:len() > 0 or gameModel.tiles:upper() ~= gameModel.tiles then
+       print("Player 1 rack is non-empty, or game still has tiles to grab. Not showing No Moves Modal")
+        return
+    end
+
+    local modalMessage = "You must pass.\nTouch to continue..."
+    local onClose = function()
+        local passMove = {
+            gameId = gameModel.id,
+            moveType = common_api.PASS,
+            player1 = gameModel.player1,
+            player2 = gameModel.player2
+        }
+        common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail)
+    end
+
+    common_ui.create_info_modal("No Moves!", modalMessage, onClose)
+
 end
 
 -- Listener setup

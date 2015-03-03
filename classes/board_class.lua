@@ -41,7 +41,8 @@ function board_class.new(gameModel, startX, startY, width, onGrabTiles)
 		startY = startY,
 		width = width,
 		onGrabTiles = onGrabTiles,
-		rackTileImages = rackTileImages
+		rackTileImages = rackTileImages,
+        gameModel = gameModel
 	}
 
 	newBoard = setmetatable( newBoard, board_class_mt )
@@ -98,6 +99,10 @@ parseTiles = function(str, N)
 end
 
 -- Board class Methods --
+
+function board_class:isGameFinished()
+    return self.gameModel.gameResult ~= common_api.IN_PROGRESS
+end
 
 function board_class:getSquaresStr()
 	local N = self.N
@@ -160,16 +165,17 @@ function board_class:getSquareContainingPoint(contentX, contentY)
 	local squareImages = self.squareImages
 	local N = self.N
 	local containerBounds = self.boardContainer.contentBounds
+    local pad = 10
 	for i = 1, N do
 		for j = 1, N do
 			local tile = self.tileImages[i][j]
 			if not tile then
 				local squareBg = squareImages[i][j].squareBg
 				local bounds = squareBg.contentBounds
-				if bounds.xMax <= containerBounds.xMax and
-				   bounds.xMin >= containerBounds.xMin and
-				   bounds.yMax <= containerBounds.yMax and
-				   bounds.yMin >= containerBounds.yMin and
+				if bounds.xMax <= containerBounds.xMax + pad and
+				   bounds.xMin >= containerBounds.xMin - pad and
+				   bounds.yMax <= containerBounds.yMax + pad and
+				   bounds.yMin >= containerBounds.yMin - pad and
 				   contentX > bounds.xMin and contentX < bounds.xMax and
 				   contentY > bounds.yMin and contentY < bounds.yMax then
 				   return squareImages[i][j]
@@ -212,7 +218,7 @@ function board_class:createTilesGroup(width)
 				img.col = j
 				img.letter = t
                 -- Lowercase tiles indicate tiles originally on the board
-                if t ~= tile.emptyTile and t:lower() == t then
+                if t ~= tile.emptyTile and t:lower() == t and not self:isGameFinished() then
 				    img:addEventListener( "touch", tileTouchListener )
                 end
 				tilesGroup:insert(img)

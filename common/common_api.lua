@@ -10,27 +10,41 @@ local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
 
 -- Constants
+-- Game types
 M.SINGLE_PLAYER = "SINGLE_PLAYER"
 M.TWO_PLAYER = "TWO_PLAYER"
 
+-- Board sizes
 M.SMALL_SIZE = "TALL"
 M.MEDIUM_SIZE = "GRANDE"
 M.LARGE_SIZE = "VENTI"
 
+-- Game densities
 M.LOW_DENSITY = "SPARSE"
 M.MEDIUM_DENSITY = "REGULAR"
 M.HIGH_DENSITY = "WORD_JUNGLE"
 
+-- Bonuses types
 M.FIXED_BONUSES = "FIXED_BONUSES"
 M.RANDOM_BONUSES = "RANDOM_BONUSES"
 
+-- AI types
 M.RANDOM_AI = "RANDOM_AI"
 M.BOOKWORM_AI = "BOOKWORM_AI"
 M.PROFESSOR_AI = "PROFESSOR_AI"
 
+-- Move types
 M.GRAB_TILES = "GRAB_TILES"
 M.PLAY_TILES = "PLAY_WORD"
 M.PASS = "PASS"
+
+-- Game results
+M.IN_PROGRESS = "IN_PROGRESS"
+M.PLAYER1_WIN = "PLAYER1_WIN"
+M.PLAYER2_WIN = "PLAYER2_WIN"
+M.DRAW = "DRAW"
+M.PLAYER1_TIMEOUT = "PLAYER1_TIMEOUT"
+M.PLAYER2_TIMEOUT = "PLAYER2_TIMEOUT"
 
 local function getBasicAuthHeader(username, password)
 	return "Basic " .. mime.b64(username .. ":" .. password)
