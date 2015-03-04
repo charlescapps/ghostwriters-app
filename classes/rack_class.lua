@@ -7,7 +7,6 @@ local math = require("math")
 local display = require("display")
 local transition = require("transition")
 local lists = require("common.lists")
-local table = require("table")
 local MAX_TILES = 20
 
 local getTouchListener

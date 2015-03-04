@@ -38,6 +38,19 @@ M.GRAB_TILES = "GRAB_TILES"
 M.PLAY_TILES = "PLAY_WORD"
 M.PASS = "PASS"
 
+M.getPassMove = function(gameModel)
+    return {
+        gameId = gameModel.id,
+        moveType = M.PASS,
+        player1 = gameModel.player1,
+        player2 = gameModel.player2,
+        start = {r = 0, c = 0},
+        dir = "E",
+        letters = "",
+        tiles = ""
+    }
+end
+
 -- Game results
 M.IN_PROGRESS = "IN_PROGRESS"
 M.PLAYER1_WIN = "PLAYER1_WIN"

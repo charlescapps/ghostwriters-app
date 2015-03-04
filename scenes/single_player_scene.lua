@@ -7,12 +7,15 @@ local current_game = require("globals.current_game")
 local board_class = require("classes.board_class")
 local rack_class = require("classes.rack_class")
 local login_common = require("login.login_common")
+local game_menu_class = require("classes.game_menu_class")
 local scene = composer.newScene()
 
 -- The board object
 local board
 -- The rack object
 local rack
+-- The options menu
+local gameMenu
 
 -- Display objects
 local titleAreaDisplayGroup
@@ -40,6 +43,8 @@ local getSendMoveSuccessCallback
 local onSendMoveSuccess
 local onSendMoveFail
 
+local showPassModal
+local pass
 local reset
 local showGameOverModal
 local showNoMovesModal
@@ -68,7 +73,12 @@ function scene:create(event)
 
     rack = createRack(gameModel, board)
 
-    actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 220, 200, 70, onReleasePlayButton, onReleaseResetButton)
+    gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50, function()
+        gameMenu:close()
+        showPassModal()
+    end)
+
+    actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 200, 200, 70, onReleasePlayButton, onReleaseResetButton)
 
     local optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentWidth + 470, 100)
 
@@ -79,6 +89,7 @@ function scene:create(event)
     sceneGroup:insert(rack.displayGroup)
     sceneGroup:insert(optionsButton)
     sceneGroup:insert(actionButtonsGroup)
+    sceneGroup:insert(gameMenu.displayGroup)
 
 end
 
@@ -162,7 +173,7 @@ doesAuthUserMatchGame = function(gameModel, authUser)
     return true
 end
 
-createTitleAreaDiplayGroup = function(gameModel, authUser)
+createTitleAreaDiplayGroup = function(gameModel)
     local player1 = gameModel.player1Model
     local player2 = gameModel.player2Model
     local player1Username, player2Username, player1Points, player2Points
@@ -171,51 +182,43 @@ createTitleAreaDiplayGroup = function(gameModel, authUser)
     player1Points = gameModel.player1Points
     player2Points = gameModel.player2Points
 
+    local player1Font, player2Font
+    if gameModel.player1Turn then
+        player1Font = native.systemFontBold
+        player2Font = native.systemFont
+    else
+        player1Font = native.systemFont
+        player2Font = native.systemFontBold
+    end
 
     local group = display.newGroup( )
 
     -- Create player name displays
-    local player1Scroll = widget.newScrollView {
-        x = 175, y = 100,
-        width = 250, height = 50,
-        verticalScrollDisabled = true,
-        hideBackground = true
-    }
-    if player1Username:len() < 10 then
-        local pads = string.rep( " ", 10 - player1Username:len() )
-        player1Username = pads .. player1Username
+    if player1Username:len() > 11 then
+        player1Username = player1Username:sub(1, 11) .. ".."
     end
+
     local player1Text = display.newText( {
         text = player1Username, 
-        x = 200, y = 25, 
-        font = native.systemFont, 
+        x = 175, y = 100,
+        font = player1Font,
         fontSize = 40,
         width = 400,
         height = 50,
-        align = "left" 
+        align = "center"
         })
     player1Text:setFillColor( 0, 0, 0 )
-    player1Scroll:insert(player1Text)
 
-    local player2Scroll = widget.newScrollView {
-        x = 575, y = 100,
-        width = 250, height = 50,
-        verticalScrollDisabled = true,
-        hideBackground = true,
-        friction = 2.0
-    }
     local player2Text = display.newText( {
         text = player2Username, 
-        x = 200, y = 25, 
-        font = native.systemFont, 
+        x = 575, y = 100,
+        font = player2Font,
         fontSize = 40,
         width = 400, height = 50,
-        align = "left" })
+        align = "center" })
     player2Text:setFillColor( 0, 0, 0 )
-    player2Scroll:insert(player2Text)
 
     -- Create vs. text
-
     local versusText = display.newText("vs.", 375, 100, native.systemFontBold, 50 )
     versusText:setFillColor( 0, 0, 0 )
 
@@ -225,9 +228,8 @@ createTitleAreaDiplayGroup = function(gameModel, authUser)
     local player2PointsText = display.newText( "( " .. player2Points .. " points )", 575, 150, native.systemFontBold, 30 )
     player2PointsText:setFillColor( 0, 0, 0 )
 
-
-    group:insert(player1Scroll)
-    group:insert(player2Scroll)
+    group:insert(player1Text)
+    group:insert(player2Text)
     group:insert(versusText)
     group:insert(player1PointsText)
     group:insert(player2PointsText)
@@ -297,6 +299,7 @@ end
 
 onReleaseOptionsButton = function(event)
     print ("Options button pressed!")
+    gameMenu:toggle()
 end
 
 tilesToStr = function(tiles, sep)
@@ -369,13 +372,13 @@ reset = function()
     local viewGroup = scene.view
     viewGroup:insert(board.boardContainer)
     viewGroup:insert(rack.displayGroup)
+    gameMenu.displayGroup:toFront() -- Put the game menu in front
 
     oldBoard:destroy()
     oldRack:destroy()
     oldTitleArea:removeSelf()
 
 end
-
 
 onSendMoveSuccess = function(updatedGameModel)
     current_game.currentGame = updatedGameModel
@@ -394,7 +397,6 @@ onSendMoveFail = function(json)
     end
     board:cancel_grab()
 end
-
 
 onGrabTiles = function(tiles)
     print("Tiles grabbed!")
@@ -484,19 +486,26 @@ showNoMovesModal = function()
     end
 
     local modalMessage = "You must pass.\nTouch to continue..."
-    local onClose = function()
-        local passMove = {
-            gameId = gameModel.id,
-            moveType = common_api.PASS,
-            player1 = gameModel.player1,
-            player2 = gameModel.player2
-        }
-        common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail)
-    end
 
-    common_ui.create_info_modal("No Moves!", modalMessage, onClose)
-
+    common_ui.create_info_modal("No Moves!", modalMessage, pass)
 end
+
+pass = function()
+    local passMove = common_api.getPassMove(current_game.currentGame)
+    common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail)
+end
+
+showPassModal = function()
+    native.showAlert( "Pass?", "Are you sure you want to pass?" , { "Yes", "Nope" }, function(event)
+        if event.action == "clicked" then
+            if event.index == 1 then
+                pass()
+            end
+        end
+    end )
+end
+
+
 
 -- Listener setup
 scene:addEventListener( "create", scene )
