@@ -93,7 +93,9 @@ end
 
 function game_menu_class:createBackToMenuButton()
     local backToMenuButton = self:createMenuButton("Back to Main Menu", function()
+        local currentScene = composer.getSceneName("current")
         composer.gotoScene("scenes.title_scene", "fade")
+        composer.removeScene(currentScene, false)
     end)
 
     self.displayGroup:insert(backToMenuButton)

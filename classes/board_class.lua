@@ -52,7 +52,9 @@ end
 
 -- Local helpers --
 boardSizeToN = function(boardSize)
-	if boardSize == "TALL" then
+	if boardSize == "TINY" then
+		return 5
+	elseif boardSize == "TALL" then
 		return 9
 	elseif 
 		boardSize == "GRANDE" then
@@ -426,7 +428,7 @@ function board_class:getWordForPlayTilesMove(orderedTiles)
 		local startR, startC = self:getLastOccupied(row, col, {0, -1})
 		local endR, endC = self:getLastOccupied(row, col, {0, 1})
 		return self:getLettersInRange(startR, startC, endR, endC), startR, startC, "E"
-	elseif (#orderedTiles == 1 and (tileImages[row - 1][col] or tileImages[row + 1][col])) or 
+	elseif (#orderedTiles == 1 and (row > 1 and tileImages[row - 1][col] or row < N and tileImages[row + 1][col])) or 
 			#orderedTiles > 1 and orderedTiles[1].row < orderedTiles[2].row then -- South direction
 		local startR, startC = self:getLastOccupied(row, col, {-1, 0})
 		local endR, endC = self:getLastOccupied(row, col, {1, 0})

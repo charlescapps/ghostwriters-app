@@ -26,7 +26,7 @@ local resetButton
 -- Local helpers pre-declaration
 local checkGameModelIsDefined
 local doesAuthUserMatchGame
-local createTitleAreaDiplayGroup
+local createTitleAreaDisplayGroup
 local createBoard
 local createRack
 local createActionButtonsGroup
@@ -67,7 +67,7 @@ function scene:create(event)
 
     local background = common_ui.create_background()
 
-    titleAreaDisplayGroup = createTitleAreaDiplayGroup(gameModel, authUser)
+    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, authUser)
 
     board = createBoard(gameModel)
 
@@ -154,9 +154,9 @@ checkGameModelIsDefined = function()
 
     if not gameModel then
         print ("Error - no current game is defined in the current_game module.")
+        local currentScene = composer.getSceneName("current")
         composer.gotoScene( "scenes.title_scene" )
-        local currentScene = composer.getSceneName( "current" )
-        composer.removeScene( currentScene, false )
+        composer.removeScene(currentScene, false)
     end
 
     return gameModel
@@ -167,13 +167,15 @@ doesAuthUserMatchGame = function(gameModel, authUser)
         print("Error - player1 must be the authenticated user for Single Player games!")
         print("Auth user = " .. json.encode(authUser))
         print("Player 1 = " .. json.encode(gameModel.player1Model))
+        local currentScene = composer.getSceneName("current")
         composer.gotoScene("scenes.title_scene")
+        composer.removeScene(currentScene, false)
         return false
     end
     return true
 end
 
-createTitleAreaDiplayGroup = function(gameModel)
+createTitleAreaDisplayGroup = function(gameModel)
     local player1 = gameModel.player1Model
     local player2 = gameModel.player2Model
     local player1Username, player2Username, player1Points, player2Points
@@ -349,7 +351,9 @@ reset = function()
     local gameModel = current_game.currentGame
     if not gameModel then
         print("Error - current_game.currentGame wasn't defined when reset() was called in single player scene")
+        local currentScene = composer.getSceneName("current")
         composer.gotoScene("scenes.title_scene")
+        composer.removeScene(currentScene, false)
         return
     end
 
@@ -362,16 +366,15 @@ reset = function()
     local oldBoard = board
     local oldRack = rack
 
-    titleAreaDisplayGroup = createTitleAreaDiplayGroup(gameModel, authUser)
-    if not titleAreaDisplayGroup then
-        return
-    end
+    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, authUser)
+
     board = createBoard(gameModel)
     rack = createRack(gameModel, board)
 
     local viewGroup = scene.view
     viewGroup:insert(board.boardContainer)
     viewGroup:insert(rack.displayGroup)
+    viewGroup:insert(titleAreaDisplayGroup)
     gameMenu.displayGroup:toFront() -- Put the game menu in front
 
     oldBoard:destroy()
