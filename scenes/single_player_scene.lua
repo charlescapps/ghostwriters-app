@@ -412,6 +412,7 @@ onGrabTiles = function(tiles)
                     local moveJson = createGrabMoveJson(tiles)
                     common_api.sendMove(moveJson, onSendMoveSuccess, onSendMoveFail)
                 elseif i == 2 then
+                    board:cancel_grab()
                     -- Do nothing, user clicked "Nope"
                 end
             end

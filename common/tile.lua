@@ -19,6 +19,12 @@ local buildRackTileTable
 -- Constants
 M.emptyTile = "_"
 
+-- Tile types
+M.ORIGINAL_TILE = "ORIGINAL_TILE"
+M.PLAYED_TILE = "PLAYED_TILE"
+M.EMPTY_TILE = "EMPTY_TILE"
+M.RACK_TILE = "RACK_TILE"
+
 -- Public functions
 M.getTileInfo = function(letter, isRackTile)
     if isRackTile then
@@ -36,6 +42,7 @@ M.draw = function(letter, x, y, width, isRackTile)
 	local img = display.newImageRect( tileInfo.imageSheet, tileInfo.frameIndex, width, width )
 	img.x = x
 	img.y = y
+    img.tileType = tileInfo.tileType
 	return img
 end
 
@@ -44,7 +51,8 @@ createOriginalTile = function(letter, frameIndex)
 	return {
 		letter = letter,
 		imageSheet = originalTilesImageSheet,
-		frameIndex = frameIndex
+		frameIndex = frameIndex,
+        tileType = M.ORIGINAL_TILE
 	}
 end
 
@@ -52,7 +60,8 @@ createRackTile = function(letter, frameIndex)
     return {
         letter = letter,
         imageSheet = rackTilesImageSheet,
-        frameIndex = frameIndex
+        frameIndex = frameIndex,
+        tileType = M.RACK_TILE
     }
 end
 
@@ -60,7 +69,8 @@ createPlayedTile = function(letter, frameIndex)
 	return {
 		letter = letter,
 		imageSheet = playedTilesImageSheet,
-		frameIndex = frameIndex
+		frameIndex = frameIndex,
+        tileType = M.PLAYED_TILE
 	}
 end
 

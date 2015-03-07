@@ -18,7 +18,6 @@ local lists = require("common.lists")
 local boardSizeToN
 local parseSquares
 local parseTiles
-local tileTouchListener
 local isConnected
 local isUnitVector
 
@@ -132,6 +131,13 @@ function board_class:getTilesStr()
 	return str
 end
 
+function board_class:computeTileCoords(r, c)
+    local pxPerSquare = self.width / self.N
+    local x = math.floor((c - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
+    local y = math.floor((r - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
+    return x, y
+end
+
 function board_class:createSquaresGroup(width)
 	local squaresGroup = display.newGroup()
 	local N = self.N
@@ -148,8 +154,7 @@ function board_class:createSquaresGroup(width)
 	for i = 1, N do
 		for j = 1, N do
 			local s = squares[i][j]
-			local x = math.floor((j - 1) * pxPerSquare + pxPerSquare / 2 - width / 2)
-			local y = math.floor((i - 1) * pxPerSquare + pxPerSquare / 2 - width / 2)
+			local x, y = self:computeTileCoords(i, j)
 			local squareGroup = square.draw(s, x, y, pxPerSquareInt)
 			squaresGroup:insert(squareGroup)
 			squareImages[i][j] = squareGroup
@@ -163,31 +168,6 @@ function board_class:createSquaresGroup(width)
 	return squaresGroup
 end
 
-function board_class:getSquareContainingPoint(contentX, contentY)
-	local squareImages = self.squareImages
-	local N = self.N
-	local containerBounds = self.boardContainer.contentBounds
-    local pad = 10
-	for i = 1, N do
-		for j = 1, N do
-			local tile = self.tileImages[i][j]
-			if not tile then
-				local squareBg = squareImages[i][j].squareBg
-				local bounds = squareBg.contentBounds
-				if bounds.xMax <= containerBounds.xMax + pad and
-				   bounds.xMin >= containerBounds.xMin - pad and
-				   bounds.yMax <= containerBounds.yMax + pad and
-				   bounds.yMin >= containerBounds.yMin - pad and
-				   contentX > bounds.xMin and contentX < bounds.xMax and
-				   contentY > bounds.yMin and contentY < bounds.yMax then
-				   return squareImages[i][j]
-				end
-			end
-		end
-	end
-	return nil
-
-end
 
 function board_class:computeTileCoords(row, col)
 	local pxPerSquare = self.width / self.N
@@ -219,19 +199,100 @@ function board_class:createTilesGroup(width)
 				img.row = i
 				img.col = j
 				img.letter = t
-                -- Lowercase tiles indicate tiles originally on the board
-                if t ~= tile.emptyTile and t:lower() == t and not self:isGameFinished() then
-				    img:addEventListener( "touch", tileTouchListener )
-                end
+
 				tilesGroup:insert(img)
 			end
 			tileImages[i][j] = img
 		end
-	end
+    end
+    if not self:isGameFinished() then
+        tilesGroup:addEventListener("touch", self:getTilesGroupTouchListener())
+    end
 	self.tileImages = tileImages
 	self.tilesGroup = tilesGroup
 	return tilesGroup
 
+end
+
+function board_class:getTilesGroupTouchListener()
+    return function(event)
+        if event.phase == "began" then
+            print("Tiles group touch listener: began")
+            if self:findFirstRackTile() then
+                print ("Tiles from rack on board, not grabbing tiles.")
+                return true
+            end
+            local myTile = self:tileForCoords(event.x, event.y)
+            -- If the touch event isn't over a grabbable tile
+            if myTile == nil or myTile.tileType ~= tile.ORIGINAL_TILE then
+                print("Cannot grab tile: " .. json.encode(myTile))
+                return true
+            end
+            display.getCurrentStage():setFocus(event.target)
+            self.isGrabbing = true
+            self.grabbed = { myTile }
+            self:addGrabEffect(myTile)
+            return true
+        elseif event.phase == "moved" then
+            -- If we aren't grabbing, then just return.
+            if not self.isGrabbing then
+                print("isGrabbing not true, return from 'moved' phase")
+                return true
+            end
+
+            local myTile = self:tileForCoords(event.x, event.y)
+            -- If this is another moved event on the same tile, then just return.
+            local lastTile = self.grabbed and self.grabbed[#(self.grabbed)]
+            if lastTile and lastTile.row == myTile.row and lastTile.col == myTile.col then
+                return true
+            end
+            if myTile.tileType ~= tile.ORIGINAL_TILE then
+                print ("User grabbed a non-grabbable tile, cancelling grab: " .. myTile.letter)
+                self:cancel_grab()
+                return true
+            end
+            self:addGrabEffect(myTile)
+            self.grabbed[#(self.grabbed) + 1] = myTile
+
+        elseif event.phase == "ended" or event.phase == "cancelled" then
+            print("Tiles Group touch listener: " .. event.phase)
+            display.getCurrentStage():setFocus(nil)
+            if not self.isGrabbing or not isConnected(self.grabbed) then
+                self:cancel_grab()
+                return true
+            end
+            self.onGrabTiles(self.grabbed)
+        end
+        return true
+    end
+end
+
+function board_class:rowColForCoords(xContent, yContent)
+    local x, y = self.tilesGroup:contentToLocal(xContent, yContent)
+    local N, width = self.N, self.width
+    local pxPerSquare = width / N
+    print("tileForCoords Content: " .. xContent .. ", " .. yContent)
+    print("tileForCoords Local: " .. x .. ", " .. y)
+    local c = math.floor((x + self.width / 2) / pxPerSquare + 1)
+    local r = math.floor((y + self.width / 2) / pxPerSquare + 1)
+    print("Computed r, c = " .. r .. ", " .. c)
+    return r, c
+end
+
+function board_class:tileForCoords(xContent, yContent)
+    local r, c = self:rowColForCoords(xContent, yContent)
+    if r < 1 or r > self.N or c < 1 or c > self.N then
+        return nil
+    end
+    return self.tileImages[r][c]
+end
+
+function board_class:squareForCoords(xContent, yContent)
+    local r, c = self:rowColForCoords(xContent, yContent)
+    if r < 1 or r > self.N or c < 1 or c > self.N then
+        return nil
+    end
+    return self.squareImages[r][c]
 end
 
 function board_class:zoomIn(scale, x, y)
@@ -324,24 +385,22 @@ function board_class:restrictX(x)
 end
 
 function board_class:cancel_grab()
-	self.grabbed = nil
-	self.isGrabbing = false
-end
-
-function board_class:complete_grab()
-	for i = 1, #(self.grabbed) do
-		local t = self.grabbed[i]
-		self.tiles[t.row][t.col] = tile.emptyTile
-		self.tileImages[t.row][t.col] = nil
-		t:removeSelf( )
-	end
+    print("Cancelling grab")
+    if self.grabbed then
+        for i = 1, #(self.grabbed) do
+            local grabbedTileImage = self.grabbed[i]
+            if grabbedTileImage then
+                self:removeGrabEffect(grabbedTileImage)
+            end
+        end
+    end
 	self.grabbed = nil
 	self.isGrabbing = false
 end
 
 function board_class:addTileFromRack(contentX, contentY, tileImage)
 	local letter = tileImage.letter
-	local squareImage = self:getSquareContainingPoint(contentX, contentY)
+	local squareImage = self:squareForCoords(contentX, contentY)
 	if not squareImage or not letter then
 		print("Not adding letter " .. tostring(letter) .. " to board at x = " .. contentX .. ", y = " .. contentY)
 		return false
@@ -581,6 +640,47 @@ function board_class:getOrderedRackTiles()
 
 end
 
+function board_class:addGrabEffect(tileImage)
+    local r, c = tileImage.row, tileImage.col
+    local offset = tileImage.width * 0.1
+
+    local squareGroup = self.squareImages[r][c]
+    local sqType = self.squares[r][c]
+
+    local shadedSquareGroup = square.drawShadedSquare(sqType, squareGroup.x, squareGroup.y, squareGroup.width, true)
+    squareGroup.shadedSquareGroup = shadedSquareGroup
+
+    self.squaresGroup:insert(shadedSquareGroup)
+    shadedSquareGroup:toFront()
+
+    tileImage:toFront()
+    transition.to(tileImage, {x = tileImage.x + offset, y = tileImage.y - offset, time = 100})
+    --transition.dissolve(squareGroup, shadedSquareGroup, 250)
+end
+
+function board_class:removeGrabEffect(tileImage)
+    transition.cancel(tileImage)
+    local r, c = tileImage.row, tileImage.col
+    local x, y = self:computeTileCoords(r, c)
+    print ("Removing grab for r, c = " .. r .. ", " .. c)
+    print ("Computed x, y = " .. x .. ", " .. y)
+
+    local squareImage = self.squareImages[r][c]
+    local shadedSquareGroup = squareImage.shadedSquareGroup
+    if shadedSquareGroup then
+        transition.cancel(shadedSquareGroup)
+        print("Fading out shadedSquare")
+        transition.fadeOut(shadedSquareGroup, {onComplete = function()
+            shadedSquareGroup:removeSelf()
+        end
+        })
+        squareImage.shadedSquareGroup = nil
+    end
+
+    print("Transitioning tileImage from: " .. tileImage.x .. "," .. tileImage.y .. " to " .. x .. ", " .. y)
+    transition.to(tileImage, {x = x, y = y, time = 100})
+end
+
 function board_class:destroy()
     self.boardContainer:removeSelf()
     self.boardContainer = nil
@@ -588,48 +688,6 @@ function board_class:destroy()
 end
 
 -- Local functions
-tileTouchListener = function(event)
-	local tile = event.target
-	local board = tile.board
-    if board:findFirstRackTile() then
-       return true
-    end
-	if event.phase == "began" then
-		print("Tile touch listener began!")
-		board:cancel_grab() -- Clear all grab data 
-		board.isGrabbing = true
-		board.grabbed = {}
-		board.grabbed[1] = tile
-		return true
-	elseif event.phase == "moved" then
-		-- If this is another moved event on the same tile, then just return.
-		local lastTile = board.grabbed and board.grabbed[#(board.grabbed)]
-		if lastTile and lastTile.row == tile.row and lastTile.col == tile.col then
-			return true 
-		end
-		if not board.isGrabbing then
-			board:cancel_grab()
-			return true
-		end
-		if tile.letter == tile.letter:upper( ) then
-			print ("User grabbed uppercase letter, cancelling grab: " .. tile.letter)
-			board:cancel_grab()
-			return true
-		end
-		board.grabbed[#(board.grabbed) + 1] = tile
-
-	elseif event.phase == "ended" then
-		print("Tile touch listener: ended for tile " .. tile.letter)
-		if not board.isGrabbing or not isConnected(board.grabbed) then
-			board:cancel_grab()
-			return true
-		end
-		board.onGrabTiles(board.grabbed)
-	elseif event.phase == "cancelled" then
-		board:cancel_grab()
-	end
-	return true
-end
 
 isConnected = function(tiles)
 	if #tiles <= 1 then

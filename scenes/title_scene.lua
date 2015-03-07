@@ -53,6 +53,7 @@ function scene:create(event)
 	local sceneGroup = self.view
 	local background = common_ui.create_background()
 	titleText = display.newText( "Words with Rivals", display.contentWidth / 2, 150, "Arial", 64 )
+    titleText:setFillColor(0, 0, 0)
 	buttonSinglePlayer = create_title_button("Single Player", "single_player_button", 400, click_single_player)
 	buttonPlayOthers = create_title_button("Play with rivals", "multi_player_button", 700, click_play_others)
 	buttonFacebook = create_title_button("Find rivals on Facebook", "facebook_button", 1000)

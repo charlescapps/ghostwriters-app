@@ -8,8 +8,11 @@ M.TL = {num = "2", letterMult = 3, wordMult = 1, img = "images/triple_letter_9x9
 M.DW = {num = "3", letterMult = 1, wordMult = 2, img = "images/double_word_9x9.png"}
 M.TW = {num = "4", letterMult = 1, wordMult = 3, img = "images/triple_word_9x9.png"}
 
-local borderRgb = {151/256, 99/256, 54/256}
-local backgroundRgb = {225/256, 189/256, 47/256}
+local borderRgb = {0, 99/256, 54/256}
+local backgroundRgb = {0, 189/256, 47/256}
+
+local darkBorderRgb = {0, 29/256, 4/256}
+local darkBackgroundRgb = {0, 99/256, 1/256}
 
 local createSquareBackground
 
@@ -45,12 +48,33 @@ M.draw = function(sqType, x, y, width)
 	return group
 end
 
+M.drawShadedSquare = function(sqType, x, y, width)
+    local group = display.newGroup()
+    group.x = x
+    group.y = y
+    local bg = createSquareBackground(0, 0, width, true)
+    group:insert(bg)
+    if sqType.img then
+        local img = common_ui.create_image(sqType.img, width, width, 0, 0)
+        group:insert(img)
+    end
 
-createSquareBackground = function(x, y, width)
+    group.squareBg = bg
+
+    return group
+end
+
+
+createSquareBackground = function(x, y, width, isShaded)
 	local myRoundedRect = display.newRoundedRect( x, y, width, width, 12 )
 	myRoundedRect.strokeWidth = 5
-	myRoundedRect:setFillColor( backgroundRgb[0], backgroundRgb[1], backgroundRgb[2] )
-	myRoundedRect:setStrokeColor( borderRgb[0], borderRgb[1], borderRgb[2] )
+    if isShaded then
+        myRoundedRect:setFillColor( darkBackgroundRgb[1], darkBackgroundRgb[2], darkBackgroundRgb[3] )
+        myRoundedRect:setStrokeColor( darkBorderRgb[1], darkBorderRgb[2], darkBorderRgb[3] )
+    else
+	    myRoundedRect:setFillColor( backgroundRgb[1], backgroundRgb[2], backgroundRgb[3] )
+	    myRoundedRect:setStrokeColor( borderRgb[1], borderRgb[2], borderRgb[3] )
+    end
 	return myRoundedRect
 end
 
