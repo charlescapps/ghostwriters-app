@@ -643,6 +643,7 @@ end
 function board_class:addGrabEffect(tileImage)
     local r, c = tileImage.row, tileImage.col
     local offset = tileImage.width * 0.1
+    local randomAngle = math.random(21) - 11
 
     local squareGroup = self.squareImages[r][c]
     local sqType = self.squares[r][c]
@@ -654,7 +655,7 @@ function board_class:addGrabEffect(tileImage)
     shadedSquareGroup:toFront()
 
     tileImage:toFront()
-    transition.to(tileImage, {x = tileImage.x + offset, y = tileImage.y - offset, time = 100})
+    transition.to(tileImage, {x = tileImage.x + offset, y = tileImage.y - offset, rotation = randomAngle, time = 100})
     --transition.dissolve(squareGroup, shadedSquareGroup, 250)
 end
 
@@ -678,7 +679,7 @@ function board_class:removeGrabEffect(tileImage)
     end
 
     print("Transitioning tileImage from: " .. tileImage.x .. "," .. tileImage.y .. " to " .. x .. ", " .. y)
-    transition.to(tileImage, {x = x, y = y, time = 100})
+    transition.to(tileImage, {x = x, y = y, rotation = 0, time = 100})
 end
 
 function board_class:destroy()
