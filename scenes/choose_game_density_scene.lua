@@ -19,9 +19,9 @@ function scene:create(event)
         new_game_data.gameDensity, new_game_data.boardSize = nil, nil
     end)
 
-    local smallBoardGrp = common_ui.create_img_button_group("images/sparse.jpg", "images/sparse_dark.jpg", 200, "Sparse", "(9-15 words)", getOnReleaseListener(common_api.LOW_DENSITY))
-    local mediumBoardGrp = common_ui.create_img_button_group("images/regular_density.jpg", "images/regular_density_dark.jpg", 600, "Regular", "(12-18 words)", getOnReleaseListener(common_api.MEDIUM_DENSITY))
-    local largeBoardGrp = common_ui.create_img_button_group("images/word_jungle.jpg", "images/word_jungle_dark.jpg", 1000, "Word Jungle", "(15-21 words)", getOnReleaseListener(common_api.HIGH_DENSITY))
+    local smallBoardGrp = common_ui.create_img_button_group("images/sparse.jpg", "images/sparse_dark.jpg", 200, "Sparse", "(6-15 words)", getOnReleaseListener(common_api.LOW_DENSITY))
+    local mediumBoardGrp = common_ui.create_img_button_group("images/regular_density.jpg", "images/regular_density_dark.jpg", 600, "Regular", "(7-18 words)", getOnReleaseListener(common_api.MEDIUM_DENSITY))
+    local largeBoardGrp = common_ui.create_img_button_group("images/word_jungle.jpg", "images/word_jungle_dark.jpg", 1000, "Word Jungle", "(8-21 words)", getOnReleaseListener(common_api.HIGH_DENSITY))
 
     sceneGroup:insert(background)
     sceneGroup:insert(backButton)

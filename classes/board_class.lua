@@ -51,16 +51,14 @@ end
 
 -- Local helpers --
 boardSizeToN = function(boardSize)
-	if boardSize == "TINY" then
+	if boardSize == common_api.SMALL_SIZE then
 		return 5
-	elseif boardSize == "TALL" then
+	elseif 
+		boardSize == common_api.MEDIUM_SIZE then
 		return 9
 	elseif 
-		boardSize == "GRANDE" then
+		boardSize == common_api.LARGE_SIZE then
 		return 13
-	elseif 
-		boardSize == "VENTI" then
-		return 15
 	end
 	error("Invalid board size: " .. boardSize)
 
