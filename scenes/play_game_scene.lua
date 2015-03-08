@@ -10,6 +10,9 @@ local login_common = require("login.login_common")
 local game_menu_class = require("classes.game_menu_class")
 local scene = composer.newScene()
 
+-- The authenticated user
+local authUser
+
 -- The board object
 local board
 -- The rack object
@@ -46,8 +49,10 @@ local onSendMoveFail
 local showPassModal
 local pass
 local reset
+local resetBoardAndShowModals
 local showGameOverModal
 local showNoMovesModal
+local getMoveDescription
 
 -- "scene:create()"
 function scene:create(event)
@@ -59,7 +64,7 @@ function scene:create(event)
         return
     end
 
-    local authUser = login_common.checkCredentials()
+    authUser = login_common.checkCredentials()
 
     if not doesAuthUserMatchGame(gameModel, authUser) then
         return
@@ -142,6 +147,8 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
+    authUser = nil
+    board, rack, gameMenu, titleAreaDisplayGroup, actionButtonsGroup, playMoveButton, resetButton = nil, nil, nil, nil, nil, nil, nil
 
     -- Called prior to the removal of scene's view ("sceneGroup").
     -- Insert code here to clean up the scene.
@@ -163,10 +170,12 @@ checkGameModelIsDefined = function()
 end
 
 doesAuthUserMatchGame = function(gameModel, authUser)
-    if authUser.id ~= gameModel.player1 then
-        print("Error - player1 must be the authenticated user for Single Player games!")
+    if authUser.id ~= gameModel.player1 and authUser.id ~= gameModel.player2 then
+        print("Error - incorrect authenticated user for game! User doesn't match either player.")
         print("Auth user = " .. json.encode(authUser))
         print("Player 1 = " .. json.encode(gameModel.player1Model))
+        print("Player 2 = " .. json.encode(gameModel.player2Model))
+        login_common.logout()
         local currentScene = composer.getSceneName("current")
         composer.gotoScene("scenes.title_scene")
         composer.removeScene(currentScene, false)
@@ -176,68 +185,101 @@ doesAuthUserMatchGame = function(gameModel, authUser)
 end
 
 createTitleAreaDisplayGroup = function(gameModel)
+    local authUserIsPlayer1 = gameModel.player1 == authUser.id
+    local isAuthUserTurn = gameModel.player1Turn and authUserIsPlayer1 or not gameModel.player1Turn and not authUserIsPlayer1
     local player1 = gameModel.player1Model
     local player2 = gameModel.player2Model
-    local player1Username, player2Username, player1Points, player2Points
-    player1Username = player1.username
-    player2Username = player2.username
-    player1Points = gameModel.player1Points
-    player2Points = gameModel.player2Points
-
-    local player1Font, player2Font
-    if gameModel.player1Turn then
-        player1Font = native.systemFontBold
-        player2Font = native.systemFont
+    local leftUsername, rightUsername, leftPoints, rightPoints, leftFont, rightFont
+    if authUserIsPlayer1 then
+        leftUsername, rightUsername = player1.username, player2.username
+        leftPoints, rightPoints = gameModel.player1Points, gameModel.player2Points
     else
-        player1Font = native.systemFont
-        player2Font = native.systemFontBold
+        leftUsername, rightUsername = player2.username, player1.username
+        leftPoints, rightPoints = gameModel.player2Points, gameModel.player1Points
+    end
+
+    if isAuthUserTurn then
+        leftFont = native.systemFontBold
+        rightFont = native.systemFont
+    else
+        leftFont = native.systemFont
+        rightFont = native.systemFontBold
     end
 
     local group = display.newGroup( )
 
-    -- Create player name displays
-    if player1Username:len() > 11 then
-        player1Username = player1Username:sub(1, 11) .. ".."
+    -- The actual displayed username text
+    if leftUsername:len() > 11 then
+        leftUsername = leftUsername:sub(1, 11) .. ".."
+    end
+    if rightUsername:len() > 11 then
+        rightUsername = rightUsername:sub(1, 11) .. ".."
     end
 
-    local player1Text = display.newText( {
-        text = player1Username, 
+    -- Create the username texts
+    local leftPlayerText = display.newText( {
+        text = leftUsername,
         x = 175, y = 100,
-        font = player1Font,
+        font = leftFont,
         fontSize = 40,
         width = 400,
         height = 50,
         align = "center"
         })
-    player1Text:setFillColor( 0, 0, 0 )
+    leftPlayerText:setFillColor( 0, 0, 0 )
 
-    local player2Text = display.newText( {
-        text = player2Username, 
+    local rightPlayerText = display.newText( {
+        text = rightUsername,
         x = 575, y = 100,
-        font = player2Font,
+        font = rightFont,
         fontSize = 40,
         width = 400, height = 50,
         align = "center" })
-    player2Text:setFillColor( 0, 0, 0 )
+    rightPlayerText:setFillColor( 0, 0, 0 )
+
+    -- Create sparkles
+    local leftSparkles = display.newImageRect("images/pencil-circled.png", 325, 75)
+    leftSparkles.x, leftSparkles.y, leftSparkles.alpha = 175, 100, 0
+
+    local rightSparkles = display.newImageRect("images/pencil-circled.png", 325, 75)
+    rightSparkles.x, rightSparkles.y, rightSparkles.alpha = 575, 100, 0
 
     -- Create vs. text
     local versusText = display.newText("vs.", 375, 100, native.systemFontBold, 50 )
     versusText:setFillColor( 0, 0, 0 )
 
     -- Create point displays
-    local player1PointsText = display.newText( "( " .. player1Points .. " points )", 175, 150, native.systemFontBold, 30 )
-    player1PointsText:setFillColor( 0, 0, 0 )
-    local player2PointsText = display.newText( "( " .. player2Points .. " points )", 575, 150, native.systemFontBold, 30 )
-    player2PointsText:setFillColor( 0, 0, 0 )
+    local leftPointsText = display.newText( "( " .. leftPoints .. " points )", 175, 150, native.systemFontBold, 30 )
+    leftPointsText:setFillColor( 0, 0, 0 )
+    function leftPointsText:setPoints(points)
+        self.text = "( " .. points .. " points )"
+    end
 
-    group:insert(player1Text)
-    group:insert(player2Text)
+    local rightPointsText = display.newText( "( " .. rightPoints .. " points )", 575, 150, native.systemFontBold, 30 )
+    rightPointsText:setFillColor( 0, 0, 0 )
+    function rightPointsText:setPoints(points)
+        self.text = "( " .. points .. " points )"
+    end
+
+    group:insert(leftPlayerText)
+    group:insert(rightPlayerText)
     group:insert(versusText)
-    group:insert(player1PointsText)
-    group:insert(player2PointsText)
+    group:insert(leftPointsText)
+    group:insert(rightPointsText)
+    group:insert(leftSparkles)
+    group:insert(rightSparkles)
+
+    -- Store sparkles in group object for later use
+    group.leftSparkles, group.rightSparkles = leftSparkles, rightSparkles
+    group.leftPointsText, group.rightPointsText = leftPointsText, rightPointsText
+
+    if isAuthUserTurn then
+        leftSparkles.alpha = 1
+    else
+        rightSparkles.alpha = 1
+    end
 
     return group
-
 end
 
 createActionButtonsGroup = function(startY, width, height, onPlayButtonRelease, onResetButtonRelease)
@@ -383,11 +425,47 @@ reset = function()
 
 end
 
-onSendMoveSuccess = function(updatedGameModel)
-    current_game.currentGame = updatedGameModel
+getMoveDescription = function(moveJson)
+    if moveJson.moveType == common_api.GRAB_TILES then
+        return "grabbed the tiles \"" .. moveJson.letters .. "\"!"
+    elseif moveJson.moveType == common_api.PLAY_TILES then
+       return "played the word, \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
+    elseif moveJson.moveType == common_api.PASS then
+        return "passed."
+    end
+end
+
+resetBoardAndShowModals = function()
     reset()
     showGameOverModal()
     showNoMovesModal()
+end
+
+onSendMoveSuccess = function(updatedGameModel)
+    current_game.currentGame = updatedGameModel
+    local sceneGroup = scene.view
+    local FADE_TIME = 1500
+    if updatedGameModel.gameType == common_api.SINGLE_PLAYER and updatedGameModel.player1Turn then
+        -- If it's the human player's turn again, then the AI just played a move.
+        local onFadeInComplete = function()
+            common_ui.create_info_modal(updatedGameModel.player2Model.username,
+                                                      getMoveDescription(updatedGameModel.lastMove),
+                                                      function()
+                titleAreaDisplayGroup.rightPointsText:setPoints( updatedGameModel.player2Points )
+                transition.fadeIn(titleAreaDisplayGroup.leftSparkles, {time = FADE_TIME })
+                transition.fadeOut(titleAreaDisplayGroup.rightSparkles, {time = FADE_TIME, onComplete = resetBoardAndShowModals})
+
+            end)
+        end
+        titleAreaDisplayGroup.leftPointsText:setPoints( updatedGameModel.player1Points )
+        transition.fadeOut(titleAreaDisplayGroup.leftSparkles, {time = FADE_TIME })
+        transition.fadeIn(titleAreaDisplayGroup.rightSparkles, {time = FADE_TIME, onComplete = onFadeInComplete })
+
+    else
+        transition.fadeOut(titleAreaDisplayGroup.leftSparkles, {time = FADE_TIME, onComplete = resetBoardAndShowModals })
+        transition.fadeIn(titleAreaDisplayGroup.rightSparkles, {time = FADE_TIME})
+    end
+
 
     -- TODO: display the previous move played by the AI in some manner
 end
@@ -403,7 +481,14 @@ end
 
 onGrabTiles = function(tiles)
     print("Tiles grabbed!")
+    if not current_game.isUsersTurn(authUser) then
+       common_ui.create_info_modal("Oops...", "It's not your turn")
+       board:cancel_grab()
+       return
+    end
+
     local lettersStr = tilesToStr(tiles, ", ")
+
     native.showAlert("Grab tiles?", "Grab tiles: " .. lettersStr .. "?", {"OK", "Nope"}, 
         function(event)
             if event.action == "clicked" then
@@ -420,6 +505,11 @@ onGrabTiles = function(tiles)
 end
 
 onReleasePlayButton = function(event)
+    if not current_game.isUsersTurn(authUser) then
+        common_ui.create_info_modal("Oops...", "It's not your turn")
+        return
+    end
+
     local move = board:getCurrentPlayTilesMove()
     if move["errorMsg"] then
         native.showAlert("Try Again", "Please try again, " .. move["errorMsg"] )

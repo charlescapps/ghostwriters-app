@@ -219,18 +219,26 @@ M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
         end
     end
 
-    modalImage:addEventListener("touch", function(event)
-        if event.phase == "ended" then
-            transition.fadeOut(group, {
-                onComplete = onComplete
-            })
-            return true
-        end
-    end)
-
     group:insert(modalImage)
     group:insert(modalTitle)
     group:insert(modalText)
+
+    group:addEventListener("touch", function(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(event.target)
+        elseif event.phase == "ended" or event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+            transition.fadeOut(group, {
+                onComplete = function()
+                    group:removeSelf()
+                    if onClose then
+                        onClose()
+                    end
+                end
+            })
+        end
+        return true
+    end)
 
     return group
 end

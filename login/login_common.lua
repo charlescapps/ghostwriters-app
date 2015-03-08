@@ -50,4 +50,8 @@ M.getCookie = function()
 	return serverCreds["cookie"]
 end
 
+M.logout = function()
+    loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
+end
+
 return M
