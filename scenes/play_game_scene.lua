@@ -85,7 +85,7 @@ function scene:create(event)
 
     actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 200, 200, 70, onReleasePlayButton, onReleaseResetButton)
 
-    local optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentWidth + 470, 100)
+    local optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
 
     sceneGroup:insert(background)
     sceneGroup:insert(titleAreaDisplayGroup)
@@ -103,11 +103,11 @@ createBoard = function(gameModel)
     local boardCenterX = display.contentWidth / 2
     local boardCenterY = display.contentWidth / 2 + 200
 
-    return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, onGrabTiles)
+    return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, 20, onGrabTiles)
 end
 
 createRack = function(gameModel, board)
-    return rack_class.new(gameModel, 75, display.contentWidth + 295, 7, 25, board)
+    return rack_class.new(gameModel, 100, display.contentWidth + 274, 7, 25, board)
 end
 
 -- "scene:show()"
@@ -472,7 +472,14 @@ end
 
 onSendMoveFail = function(json)
     if json and json["errorMessage"] then
-        native.showAlert( "Oops...", "Invalid move: " .. json["errorMessage"], { "Try again" })
+        local message
+        local messageFromServer = json["errorMessage"]
+        if messageFromServer and messageFromServer:len() > 0 then
+            message = messageFromServer
+        else
+            message = "Invalid move!"
+        end
+        native.showAlert( "Oops...", message, { "Try again" })
     else
         native.showAlert("Oops...", "Network error, please try again", { "OK" })
     end

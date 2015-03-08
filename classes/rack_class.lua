@@ -44,6 +44,9 @@ end
 
 function rack_class:createRackDisplayGroup()
 	local group = display.newGroup( )
+    group.y = self.startY
+    group.x = self.padding
+
 	local letters = self.letters
 	local width = self.tileWidth
 	local tileImages = {}
@@ -93,13 +96,13 @@ end
 function rack_class:computeTileX(i)
 	local width = self.tileWidth
 	local col = (i - 1) % self.numPerRow
-	return math.floor(self.padding + col * width + width / 2)
+	return math.floor(col * width + width / 2)
 end
 
 function rack_class:computeTileY(i)
 	local width = self.tileWidth
 	local row = math.floor( (i - 1) / self.numPerRow)
-	return math.floor(self.startY + row * width + width / 2)
+	return math.floor(row * width + width / 2)
 end
 
 function rack_class:returnTileImage(tileImage)

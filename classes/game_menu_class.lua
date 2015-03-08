@@ -47,16 +47,16 @@ end
 function game_menu_class:close()
 	local that = self
     transition.fadeOut(that.displayGroup, {
-        time = 1000,
-        transition = easing.inExpo
+        time = 1000
+        --transition = easing.inExpo
     })
 end
 
 function game_menu_class:open()
 	local that = self
     transition.fadeIn(that.displayGroup, {
-        time = 1000,
-        transition = easing.inExpo
+        time = 1000
+        --transition = easing.inExpo
     })
 end
 

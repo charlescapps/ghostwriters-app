@@ -21,7 +21,7 @@ local parseTiles
 local isConnected
 local isUnitVector
 
-function board_class.new(gameModel, startX, startY, width, onGrabTiles)
+function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
 	local N = boardSizeToN(gameModel["boardSize"])
 	local squares = parseSquares(gameModel["squares"], N)
 	local tiles = parseTiles(gameModel["tiles"], N)
@@ -39,6 +39,7 @@ function board_class.new(gameModel, startX, startY, width, onGrabTiles)
 		startX = startX,
 		startY = startY,
 		width = width,
+        padding = padding,
 		onGrabTiles = onGrabTiles,
 		rackTileImages = rackTileImages,
         gameModel = gameModel
@@ -347,25 +348,30 @@ function getBoardTapListener(board)
 end
 
 function board_class:createBoardContainer()
-	local width = self.width
-	local boardContainer = display.newContainer(width, width)
+	local width, padding = self.width, self.padding
+    local startX, startY = self.startX, self.startY
+	local boardContainer = display.newContainer(width + padding, width + padding)
+    boardContainer.x, boardContainer.y = startX, startY
+
 	local boardGroup = display.newGroup()
 	local squaresGroup = self:createSquaresGroup(width)
 	local tilesGroup = self:createTilesGroup(width)
 	local rackTilesGroup = display.newGroup()
-    local boardTexture = common_ui.create_image("images/wood-texture.jpg", display.contentWidth, display.contentWidth, 0, 0)
-    boardGroup:insert(boardTexture)
-	boardGroup:insert(squaresGroup)
-	boardGroup:insert(tilesGroup)
-	boardGroup:insert(rackTilesGroup)
-	boardGroup:addEventListener( "tap", getBoardTapListener(self) )
+    local boardTexture = common_ui.create_image("images/wood_texture_rounded.png", width + padding, width + padding, 0, 0)
+
 	self.boardGroup = boardGroup
 	self.rackTilesGroup = rackTilesGroup
+    self.boardContainer = boardContainer
+    self.boardTexture = boardTexture
+
+    boardGroup:insert(boardTexture)
+    boardGroup:insert(squaresGroup)
+    boardGroup:insert(tilesGroup)
+    boardGroup:insert(rackTilesGroup)
+    boardGroup:addEventListener( "tap", getBoardTapListener(self) )
 
 	boardContainer:insert(boardGroup)
-	self.boardContainer = boardContainer
-	boardContainer.x = self.startX
-	boardContainer.y = self.startY
+
 	return boardContainer
 end
 
