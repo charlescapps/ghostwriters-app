@@ -357,7 +357,7 @@ function board_class:createBoardContainer()
 	local squaresGroup = self:createSquaresGroup(width)
 	local tilesGroup = self:createTilesGroup(width)
 	local rackTilesGroup = display.newGroup()
-    local boardTexture = common_ui.create_image("images/wood_texture_rounded.png", width + padding, width + padding, 0, 0)
+    local boardTexture = common_ui.create_image("images/board_bg_texture.png", width + padding, width + padding, 0, 0)
 
 	self.boardGroup = boardGroup
 	self.rackTilesGroup = rackTilesGroup

@@ -51,6 +51,12 @@ function rack_class:createRackDisplayGroup()
 	local width = self.tileWidth
 	local tileImages = {}
 
+    -- Create background texture
+    local rackBackground = display.newImageRect("images/rack_bg_texture.png", display.contentWidth, 320)
+    rackBackground.x = display.contentWidth / 2 - self.padding
+    rackBackground.y = 150
+    group:insert(rackBackground)
+
 	for i = 1, #letters do
 		local letter = letters[i]
 		local x = self:computeTileX(i)
@@ -63,7 +69,8 @@ function rack_class:createRackDisplayGroup()
 		    img:addEventListener( "touch", getTouchListener(self) )
         end
 		group:insert(img)
-	end
+    end
+
 	self.displayGroup = group
 	self.tileImages = tileImages
 	return group

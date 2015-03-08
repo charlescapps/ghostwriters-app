@@ -27,6 +27,7 @@ function game_menu_class.new(x, y, doPass)
     displayGroup.alpha = 0.0 -- start invisible
 
     gameMenu.displayGroup = displayGroup
+    gameMenu.screen = gameMenu:createScreen()
     gameMenu.menuBackground = gameMenu:createMenuBackground()
     gameMenu.backToMenuButton = gameMenu:createBackToMenuButton()
     gameMenu.dictionaryButton = gameMenu:createDictionaryButton()
@@ -53,8 +54,7 @@ function game_menu_class:close()
 end
 
 function game_menu_class:open()
-	local that = self
-    transition.fadeIn(that.displayGroup, {
+    transition.fadeIn(self.displayGroup, {
         time = 1000
         --transition = easing.inExpo
     })
@@ -66,6 +66,23 @@ function game_menu_class:toggle()
     else
         self:open()
     end
+end
+
+function game_menu_class:createScreen()
+    local screen = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+    screen:setFillColor(0, 0, 0)
+    screen.alpha = 0.5
+    self.displayGroup:insert(screen)
+    local x, y = self.displayGroup:contentToLocal(display.contentWidth / 2, display.contentHeight / 2)
+    screen.x, screen.y = x, y
+
+    local gameMenu = self
+
+    screen:addEventListener("touch", function(event)
+        gameMenu:close()
+        return true -- Don't allow touches propagating to underneath the menu
+    end)
+    return screen
 end
 
 function game_menu_class:createMenuButton(text, onRelease)

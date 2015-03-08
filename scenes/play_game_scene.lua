@@ -19,6 +19,8 @@ local board
 local rack
 -- The options menu
 local gameMenu
+-- The options button
+local optionsButton
 
 -- Display objects
 local titleAreaDisplayGroup
@@ -83,9 +85,9 @@ function scene:create(event)
         showPassModal()
     end)
 
-    actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 200, 200, 70, onReleasePlayButton, onReleaseResetButton)
+    actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 195, 200, 64, onReleasePlayButton, onReleaseResetButton)
 
-    local optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
+    optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
 
     sceneGroup:insert(background)
     sceneGroup:insert(titleAreaDisplayGroup)
@@ -101,7 +103,7 @@ end
 createBoard = function(gameModel)
     local boardWidth = display.contentWidth - 20
     local boardCenterX = display.contentWidth / 2
-    local boardCenterY = display.contentWidth / 2 + 200
+    local boardCenterY = display.contentWidth / 2 + 180
 
     return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, 20, onGrabTiles)
 end
@@ -417,6 +419,8 @@ reset = function()
     viewGroup:insert(board.boardContainer)
     viewGroup:insert(rack.displayGroup)
     viewGroup:insert(titleAreaDisplayGroup)
+
+    optionsButton:toFront() -- Put the options button on top of the new rack.
     gameMenu.displayGroup:toFront() -- Put the game menu in front
 
     oldBoard:destroy()
