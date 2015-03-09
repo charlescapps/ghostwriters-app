@@ -154,7 +154,7 @@ function board_class:createSquaresGroup(width)
 		for j = 1, N do
 			local s = squares[i][j]
 			local x, y = self:computeTileCoords(i, j)
-			local squareGroup = square.draw(s, x, y, pxPerSquareInt)
+			local squareGroup = square.draw(s, x, y, pxPerSquareInt, self.gameModel.boardSize)
 			squaresGroup:insert(squareGroup)
 			squareImages[i][j] = squareGroup
 			squareGroup.row = i
@@ -648,7 +648,7 @@ function board_class:addGrabEffect(tileImage)
     local squareGroup = self.squareImages[r][c]
     local sqType = self.squares[r][c]
 
-    local shadedSquareGroup = square.drawShadedSquare(sqType, squareGroup.x, squareGroup.y, squareGroup.width, true)
+    local shadedSquareGroup = square.drawShadedSquare(sqType, squareGroup.x, squareGroup.y, squareGroup.width, self.gameModel.boardSize)
     squareGroup.shadedSquareGroup = shadedSquareGroup
 
     self.squaresGroup:insert(shadedSquareGroup)

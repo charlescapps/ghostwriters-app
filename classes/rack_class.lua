@@ -170,7 +170,7 @@ end
 
 function rack_class:returnAllTiles()
 	local tileImages = self.tileImages
-	for i = 1, #tileImages do
+	for i = 1, MAX_TILES do
 		self:returnTileImage(tileImages[i])
 	end
 end

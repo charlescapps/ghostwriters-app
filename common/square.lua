@@ -1,12 +1,18 @@
 local M = {}
 local display = require("display")
 local common_ui = require("common.common_ui")
+local common_api = require("common.common_api")
 
-M.NORMAL = { num = "0", letterMult = 1, wordMult = 1, img = nil }
-M.DL = {num = "1", letterMult = 2, wordMult = 1, img = "images/double_letter_9x9.png"}
-M.TL = {num = "2", letterMult = 3, wordMult = 1, img = "images/triple_letter_9x9.png"}
-M.DW = {num = "3", letterMult = 1, wordMult = 2, img = "images/double_word_9x9.png"}
-M.TW = {num = "4", letterMult = 1, wordMult = 3, img = "images/triple_word_9x9.png"}
+M.NORMAL = { num = "1", letterMult = 1, images = nil }
+M.DL = {num = "2", letterMult = 2, images =
+{ [common_api.SMALL_SIZE] = "images/x2_tall.png", [common_api.MEDIUM_SIZE] = "images/x2_grande.png", [common_api.LARGE_SIZE] = "images/x2_venti.png" }}
+M.TL = {num = "3", letterMult = 3, images =
+{ [common_api.SMALL_SIZE] = "images/x3_tall.png", [common_api.MEDIUM_SIZE] = "images/x3_grande.png", [common_api.LARGE_SIZE] = "images/x3_venti.png" }}
+M.QL = {num = "4", letterMult = 1, images =
+{ [common_api.SMALL_SIZE] = "images/x4_tall.png", [common_api.MEDIUM_SIZE] = "images/x4_grande.png", [common_api.LARGE_SIZE] = "images/x4_venti.png" }}
+
+M.MINE = {num = "0", letterMult = 0, images =
+{ [common_api.SMALL_SIZE] = "images/mine_tall.png", [common_api.MEDIUM_SIZE] = "images/mine_grande.png", [common_api.LARGE_SIZE] = "images/mine_venti.png" }}
 
 local borderRgb = {0, 99/256, 54/256}
 local backgroundRgb = {0, 189/256, 47/256}
@@ -23,23 +29,23 @@ M.valueOf = function(str)
 		return M.DL
 	elseif str == M.TL.num then
 		return M.TL
-	elseif str == M.DW.num then
-		return M.DW
-	elseif str == M.TW.num then
-		return M.TW
+	elseif str == M.QL.num then
+		return M.QL
+	elseif str == M.MINE.num then
+		return M.MINE
 	else
 		error("Invalid character for a Square: " .. str)
 	end
 end
 
-M.draw = function(sqType, x, y, width)
+M.draw = function(sqType, x, y, width, boardSize)
 	local group = display.newGroup()
 	group.x = x
 	group.y = y
 	local bg = createSquareBackground(0, 0, width)
 	group:insert(bg)
-	if sqType.img then
-		local img = common_ui.create_image(sqType.img, width, width, 0, 0)
+	if sqType.images then
+		local img = common_ui.create_image(sqType.images[boardSize], width, width, 0, 0)
 		group:insert(img)
 	end
 
@@ -48,14 +54,14 @@ M.draw = function(sqType, x, y, width)
 	return group
 end
 
-M.drawShadedSquare = function(sqType, x, y, width)
+M.drawShadedSquare = function(sqType, x, y, width, boardSize)
     local group = display.newGroup()
     group.x = x
     group.y = y
     local bg = createSquareBackground(0, 0, width, true)
     group:insert(bg)
-    if sqType.img then
-        local img = common_ui.create_image(sqType.img, width, width, 0, 0)
+    if sqType.images then
+        local img = common_ui.create_image(sqType.images[boardSize], width, width, 0, 0)
         group:insert(img)
     end
 
