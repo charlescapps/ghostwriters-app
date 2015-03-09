@@ -217,14 +217,10 @@ function board_class:getTilesGroupTouchListener()
     return function(event)
         if event.phase == "began" then
             print("Tiles group touch listener: began")
-            if self:findFirstRackTile() then
-                print ("Tiles from rack on board, not grabbing tiles.")
-                return true
-            end
             local myTile = self:tileForCoords(event.x, event.y)
             -- If the touch event isn't over a grabbable tile
             if myTile == nil or myTile.tileType ~= tile.ORIGINAL_TILE then
-                print("Cannot grab tile: " .. json.encode(myTile))
+                print("Cannot grab tile: " .. myTile.letter)
                 return true
             end
             display.getCurrentStage():setFocus(event.target)

@@ -505,6 +505,7 @@ onGrabTiles = function(tiles)
             if event.action == "clicked" then
                 local i = event.index
                 if i == 1 then
+                    rack:returnAllTiles()
                     local moveJson = createGrabMoveJson(tiles)
                     common_api.sendMove(moveJson, onSendMoveSuccess, onSendMoveFail)
                 elseif i == 2 then
@@ -513,6 +514,7 @@ onGrabTiles = function(tiles)
                 end
             end
         end)
+
 end
 
 onReleasePlayButton = function(event)

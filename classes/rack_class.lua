@@ -6,8 +6,10 @@ local tile = require("common.tile")
 local math = require("math")
 local display = require("display")
 local transition = require("transition")
+local easing = require("easing")
 local lists = require("common.lists")
 local MAX_TILES = 20
+local NUM_ROWS = 3
 
 local getTouchListener
 
@@ -112,14 +114,56 @@ function rack_class:computeTileY(i)
 	return math.floor(row * width + width / 2)
 end
 
+function rack_class:computeRowColFromContentCoords(xContent, yContent)
+    local x, y = self.displayGroup:contentToLocal(xContent, yContent)
+    local width = self.tileWidth
+    local r = math.floor( y / width ) + 1
+    local c = math.floor( x / width ) + 1
+    return r, c
+end
+
+function rack_class:computeIndexFromContentCoords(xContent, yContent)
+    local r, c = self:computeRowColFromContentCoords(xContent, yContent)
+    print("Computed r, c = " .. r .. ", " .. c .. ", for content coords " .. xContent .. ", " .. yContent)
+    if c < 1 or c > self.numPerRow or r < 1 or r > NUM_ROWS then
+        return nil
+    end
+
+    local index = (r - 1) * self.numPerRow + c
+
+    if index < 1 or index > MAX_TILES then
+        return nil
+    end
+
+    return index
+
+end
+
 function rack_class:returnTileImage(tileImage)
+    if not tileImage then
+        return
+    end
+
+    local index = lists.indexOf(self.tileImages, tileImage, MAX_TILES)
+    if index <= 0 then
+        print("Cannot return tile to rack, index is: " .. tostring(index))
+        return
+    end
+
+    local SPEED = 0.5 -- pixels per millisecond
+
+    local xContent, yContent = tileImage.parent:localToContent(tileImage.x, tileImage.y)
+    local xRack, yRack = self.displayGroup:contentToLocal(xContent, yContent)
+    tileImage.x, tileImage.y = xRack, yRack
+
 	self.displayGroup:insert(tileImage)
-	local index = lists.indexOf(self.tileImages, tileImage)
-	local x = self:computeTileX(index)
-	local y = self:computeTileY(index)
-	tileImage.x = x
-	tileImage.y = y
-    tileImage.width, tileImage.height = self.tileWidth, self.tileWidth
+
+	local x, y = self:computeTileX(index), self:computeTileY(index)
+    local dist = math.sqrt((x - xRack)*(x - xRack) + (y - yRack)*(y - yRack))
+    local duration = math.floor(dist / SPEED)
+    transition.to(tileImage, {x = x, y = y, width = self.tileWidth, height = self.tileWidth,
+        time = duration, transition = easing.inOutBack})
+
 	self.board:removeRackTileFromBoard(tileImage)
 
 end
@@ -194,14 +238,26 @@ getTouchListener = function(rack)
 		        	event.target.y = event.y
 		        end
 		        return true
-		    elseif  event.phase == "ended" or event.phase == "cancelled" then
+		    elseif event.phase == "ended" or event.phase == "cancelled" then
 			    -- reset touch focus
 	            display.getCurrentStage():setFocus( nil )
 	            event.target.isFocus = nil
 
-		        --code executed when the touch lifts off the object
-		        local isPlaced = rack.board:addTileFromRack(event.x, event.y, event.target)
-		        if not isPlaced then
+		        -- See if tile is above an empty tile on the board, and try to place it there
+		        local wasPlacedOnBoard = rack.board:addTileFromRack(event.x, event.y, event.target)
+                if wasPlacedOnBoard then
+                    return true
+                end
+
+                -- See if tile is above a tile in the rack, and try to swap tiles
+                local swapIndex = rack:computeIndexFromContentCoords(event.x, event.y)
+                local originalIndex = lists.indexOf(rack.tileImages, event.target, MAX_TILES)
+
+                print("swapIndex = " .. tostring(swapIndex) .. ", originalIndex = " .. tostring(originalIndex))
+
+                if swapIndex and originalIndex then
+                    rack:swap(originalIndex, swapIndex)
+                else
 		        	rack:returnTileImage(event.target)
                 end
                 return true
@@ -209,6 +265,22 @@ getTouchListener = function(rack)
 		end
 	    return true  --prevents touch propagation to underlying objects
 	end
+end
+
+function rack_class:swap(originalIndex, swapIndex)
+    local originalTile = self.tileImages[originalIndex]
+    self.tileImages[originalIndex] = self.tileImages[swapIndex]
+    self.tileImages[swapIndex] = originalTile
+
+    local swappedTile = self.tileImages[originalIndex]
+    if swappedTile then
+       local xContent, yContent = swappedTile.parent:localToContent(swappedTile.x, swappedTile.y)
+       local index = self:computeIndexFromContentCoords(xContent, yContent)
+       if index then
+          self:returnTileImage(swappedTile)
+       end
+    end
+    self:returnTileImage(originalTile)
 end
 
 return rack_class

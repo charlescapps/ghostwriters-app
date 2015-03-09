@@ -1,14 +1,17 @@
 local table = require("table")
 local M = {}
 
-M.indexOf = function(list, item)
-	for i = 1, #list do
+M.indexOf = function(list, item, maxIndex)
+    if not maxIndex then
+        maxIndex = #list
+    end
+	for i = 1, maxIndex do
 		local obj = list[i]
 		if obj == item then
 			return i
 		end
 	end
-	return -1
+	return 0
 end
 
 M.removeFromList = function(list, item)
