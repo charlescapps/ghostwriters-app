@@ -4,7 +4,7 @@ local login_common = require("login.login_common")
 local json = require("json")
 local M = {}
 
-local SERVER = "http://localhost:8080/api"
+local SERVER = "https://words-with-rivals-beta.herokuapp.com/api"
 
 local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
@@ -211,14 +211,20 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
 				return
 			end
 			local jsonResp = json.decode(event.response)
-			if jsonResp == nil then
+            local code = event.status
+            if code == 401 then
+                print("Error - 401 (Unauthorized) code for current user. Deleting local cookies and returning to title scene")
+                native.showAlert("Authorization error", "Your device doesn't have valid credentials stored. Logging out...")
+                login_common.logoutAndGoToTitle()
+                return
+			elseif jsonResp == nil then
 				native.showAlert("Network error", "Please try again.")
 				print("Error - no response returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				return
 			end
-			local code = event.status
+
 			if code ~= expectedCode then
-				print("Error - unexpected status code " .. code .. "returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
+				print("Error - unexpected status code (" .. code .. ") returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				onFail(jsonResp)
 				return
 			end
