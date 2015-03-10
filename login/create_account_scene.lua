@@ -28,7 +28,7 @@ local function create_password_fields()
     local passLabel = display.newText( "Enter a password", display.contentWidth / 2, 650, native.systemBoldFont, 40 )
     passLabel:setFillColor( 0, 0, 0 )
     
-    local passField = native.newTextField( display.contentWidth / 2, 725, 600, 80 )
+    local passField = native.newTextField( display.contentWidth / 2, 725, 400, 80 )
     passField.size = 20
     passField.placeholder = "Enter your password"
     passField.isSecure = true
@@ -38,7 +38,7 @@ local function create_password_fields()
     local passConfirmLabel = display.newText( "Re-enter your password", display.contentWidth / 2, 825, native.systemBoldFont, 40 )
     passConfirmLabel:setFillColor( 0, 0, 0 )
     
-    local passConfirmField = native.newTextField( display.contentWidth / 2, 900, 600, 80 )
+    local passConfirmField = native.newTextField( display.contentWidth / 2, 900, 400, 80 )
     passConfirmField.size = 20
     passConfirmField.placeholder = "Re-enter your password"
     passConfirmField.isSecure = true
@@ -134,7 +134,7 @@ local function create_done_button()
                 print( "Button was pressed and released" )
                 result = scene:sanity_check_details()
                 if result["error"] ~= nil then
-                    native.showAlert( "Ooops...", result["error"] )
+                    native.showAlert( "Oops...", result["error"], { "Try again" } )
                 else
                     common_api.createNewAccountAndLogin(result["username"], result["email"], result["password"], 
                         create_account_success, create_account_fail)

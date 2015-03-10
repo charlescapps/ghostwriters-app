@@ -59,6 +59,11 @@ M.DRAW = "DRAW"
 M.PLAYER1_TIMEOUT = "PLAYER1_TIMEOUT"
 M.PLAYER2_TIMEOUT = "PLAYER2_TIMEOUT"
 
+-- Predeclared functions
+M.showNetworkError = function()
+    native.showAlert( "Network error", "A network error occurred. Please try again.", {"OK"} )
+end
+
 local function getBasicAuthHeader(username, password)
 	return "Basic " .. mime.b64(username .. ":" .. password)
 end
@@ -101,20 +106,20 @@ M.login = function(username, password, onSuccess, onFail)
 	local listener = function(event)
 		if "ended" == event.phase then
 			if event.isError or not event.response then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
+				M.showNetworkError()
 				print ("Network error occurred logging in as " .. username .. ":" .. password .. "! Event = " .. json.encode(event))
 				onFail()
 				return
 			end
 			local user = json.decode(event.response)
 			if user["errorMessage"] then
-				native.showAlert("Error logging in", user["errorMessage"])
+				native.showAlert("Error logging in", user["errorMessage"], {"OK"})
 				print("An error occurred logging in: " .. user["errorMessage"]);
 				onFail()
 				return
 			end
 			if not M.isValidUser(user) then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
+                M.showNetworkError()
 				print ("Failed to get valid user back with username and id when logging in as " .. username .. ":" .. password .. "! Event = " .. json.encode(event))
 				onFail()
 				return				
@@ -122,7 +127,7 @@ M.login = function(username, password, onSuccess, onFail)
 			local headers = event.responseHeaders
 			local cookie = headers["Set-Cookie"]
 			if cookie == nil or cookie:len() <= 0 then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
+                M.showNetworkError()
 				print ("Failed to get a cookie from the login response: " .. json.encode(event))
 				onFail()
 			end
@@ -151,7 +156,7 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 	local listener = function(event)
 		if "ended" == event.phase then
 			if event.isError or not event.response then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
+                M.showNetworkError()
 				print ("Network error occurred creating a new user '" .. username .. "' with pass '" .. password .. "'" 
 					.. "! Event = " .. json.encode(event));
 				onFail()
@@ -159,19 +164,19 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 			end
 			local user = json.decode(event.response)
 			if not user then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
+                M.showNetworkError()
 				print("Invalid JSON returned from server: " .. json.encode(event))
 				onFail()
 				return
 			end
 			if user["errorMessage"] then
-				native.showAlert("Error creating new user", user["errorMessage"])
+				native.showAlert("Error creating new user", user["errorMessage"], {"OK"})
 				print("An error occurred logging in: " .. user["errorMessage"]);
 				onFail()
 				return
 			end
 			if not M.isValidUser(user) then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
+                M.showNetworkError()
 				print ("Failed to create a new user with username '" .. username .. "' and pass " .. password 
 					.. "! Event = " .. json.encode(event))
 				onFail()
@@ -180,7 +185,7 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 			local headers = event.responseHeaders
 			local cookie = headers["Set-Cookie"]
 			if cookie == nil or cookie:len() <= 0 then
-				native.showAlert( "Network error", "A network error occurred. Please try again." )
+                M.showNetworkError()
 				print ("Failed to get a cookie from the login response: " .. json.encode(event))
 				onFail()
 			end
@@ -206,7 +211,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
 	local listener = function(event)
 		if "ended" == event.phase then
 			if event.isError or not event.response then
-				native.showAlert( "Network error", "Please try again." )
+                M.showNetworkError()
 				print ("Network error with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				return
 			end
@@ -214,11 +219,11 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
             local code = event.status
             if code == 401 then
                 print("Error - 401 (Unauthorized) code for current user. Deleting local cookies and returning to title scene")
-                native.showAlert("Authorization error", "Your device doesn't have valid credentials stored. Logging out...")
+                native.showAlert("Authorization error", "Your device doesn't have valid credentials stored. Logging out...", {"OK"})
                 login_common.logoutAndGoToTitle()
                 return
 			elseif jsonResp == nil then
-				native.showAlert("Network error", "Please try again.")
+                M.showNetworkError()
 				print("Error - no response returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				return
 			end

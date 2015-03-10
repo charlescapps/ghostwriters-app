@@ -15,7 +15,7 @@ end
 
 local function onCreateGameFail(jsonResp)
     local msg = jsonResp["errorMessage"] or "Network error. Please try again"
-    native.showAlert( "Error creating game", msg )
+    native.showAlert( "Error creating game", msg, { "OK" } )
 end
 
 local function getOnReleaseListener(bonusesType)
@@ -25,7 +25,7 @@ local function getOnReleaseListener(bonusesType)
 
         if not newGameModel then
             print ("Error creating new game model from new_game_data module")
-            native.showAlert( "Error", "Error creating a new game, try again", { "Ok" } )
+            native.showAlert( "Error", "Error creating a new game, please try again", { "OK" } )
             composer.gotoScene( "scenes.title_scene")
             return
         end

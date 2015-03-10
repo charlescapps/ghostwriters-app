@@ -433,7 +433,7 @@ getMoveDescription = function(moveJson)
     if moveJson.moveType == common_api.GRAB_TILES then
         return "grabbed the tiles \"" .. moveJson.letters .. "\"!"
     elseif moveJson.moveType == common_api.PLAY_TILES then
-       return "played the word, \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
+       return "played \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
     elseif moveJson.moveType == common_api.PASS then
         return "passed."
     end
@@ -485,7 +485,7 @@ onSendMoveFail = function(json)
         end
         native.showAlert( "Oops...", message, { "Try again" })
     else
-        native.showAlert("Oops...", "Network error, please try again", { "OK" })
+        native.showAlert("Network Error", "Network error, please try again", { "OK" })
     end
     board:cancel_grab()
 end
@@ -525,7 +525,7 @@ onReleasePlayButton = function(event)
 
     local move = board:getCurrentPlayTilesMove()
     if move["errorMsg"] then
-        native.showAlert("Try Again", "Please try again, " .. move["errorMsg"] )
+        native.showAlert("Oops...", move["errorMsg"], {"Try again"} )
         return
     end
     local gameModel = current_game.currentGame
@@ -611,8 +611,6 @@ showPassModal = function()
         end
     end )
 end
-
-
 
 -- Listener setup
 scene:addEventListener( "create", scene )

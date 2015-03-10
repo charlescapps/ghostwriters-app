@@ -214,6 +214,9 @@ getTouchListener = function(rack)
             end
         	rack.floatingTiles:insert(event.target)
 
+            -- The floating tiles should be at the front
+            rack.floatingTiles:toFront()
+
 	        -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
 	        if wasOnBoard then
 	        	local scale = rack.board.boardGroup.xScale

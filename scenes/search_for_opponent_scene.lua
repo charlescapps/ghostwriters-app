@@ -130,7 +130,7 @@ end
 local function onSearchFail(jsonResp)
     print ("Error searching for users: " .. json.encode(jsonResp))
     if jsonResp["errorMessage"] then
-        native.showAlert("Error searching for rivals", jsonResp["errorMessage"])
+        native.showAlert("Error searching for rivals", jsonResp["errorMessage"], { "Try again" })
     end
 end
 
@@ -218,7 +218,7 @@ local function createStartGameButton()
                 local selectedRow =  getSelectedResultRow()
                 if not selectedRow or not selectedRow.user then
                     print "No user selected, cannot start a game"
-                    native.showAlert( "No rival selected", "Please choose a rival." )
+                    native.showAlert( "No rival selected", "Please choose a rival.", { "OK" } )
                     return
                 end
 

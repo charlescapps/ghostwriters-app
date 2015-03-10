@@ -236,6 +236,9 @@ function board_class:getTilesGroupTouchListener()
             end
 
             local myTile = self:tileForCoords(event.x, event.y)
+            if not myTile then
+                return true
+            end
             -- If this is another moved event on the same tile, then just return.
             local lastTile = self.grabbed and self.grabbed[#(self.grabbed)]
             if lastTile and lastTile.row == myTile.row and lastTile.col == myTile.col then
