@@ -492,6 +492,7 @@ onSendMoveFail = function(json)
         end
         native.showAlert( "Oops...", message, { "Try again" }, function(event)
             if event.phase == "clicked" then
+               rack:enableInteraction()
                board:enableInteraction()
             end
         end)
@@ -502,6 +503,7 @@ end
 onSendMoveNetworkFail = function(event)
     native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
         if event.phase == "clicked" then
+           rack:enableInteraction()
            board:enableInteraction()
         end
     end)
@@ -525,6 +527,7 @@ onGrabTiles = function(tiles)
                 if i == 1 then
                     rack:returnAllTiles()
                     board:disableInteraction()
+                    rack:disableInteraction()
                     local moveJson = createGrabMoveJson(tiles)
                     common_api.sendMove(moveJson, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
                 elseif i == 2 then
@@ -559,6 +562,7 @@ onReleasePlayButton = function(event)
             -- Disable interaction until the move is complete
             print("Sending move: " .. json.encode(move))
             board:disableInteraction()
+            rack:disableInteraction()
             common_api.sendMove(move, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
         else
             print("User clicked 'Nope'")

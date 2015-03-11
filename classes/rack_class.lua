@@ -40,6 +40,14 @@ function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board)
 	return newRack
 end
 
+function rack_class:disableInteraction()
+    self.interactionDisabled = true
+end
+
+function rack_class:enableInteraction()
+    self.interactionDisabled = nil
+end
+
 function rack_class:isGameFinished()
     return self.gameModel.gameResult ~= common_api.IN_PROGRESS
 end
@@ -200,6 +208,9 @@ end
 -- Local functions
 getTouchListener = function(rack)
 	return function(event)
+        if rack.interactionDisabled then
+            return true
+        end
 		if ( event.phase == "began" ) then
 			display.getCurrentStage( ):setFocus( event.target )
 			event.target.isFocus = true
