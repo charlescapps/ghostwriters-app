@@ -1,7 +1,6 @@
 
 local loadsave = require("lib.loadsave")
 local composer = require("composer")
-local json = require("json")
 local M = {}
 
 local CREDS_FILE = "wordsWithRivalsCreds.json"

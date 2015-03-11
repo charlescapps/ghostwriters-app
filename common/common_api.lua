@@ -98,6 +98,9 @@ M.movesURL = function()
 end
 
 M.login = function(username, password, onSuccess, onFail)
+    local spinner = word_spinner_class.new()
+    spinner:start()
+
 	local basic = getBasicAuthHeader(username, password)
 	local headers = { ["Authorization"] = basic,
 					  ["Content-Type"] = "application/json" 
@@ -106,6 +109,7 @@ M.login = function(username, password, onSuccess, onFail)
 					 timeout = 20 }
 	local listener = function(event)
 		if "ended" == event.phase then
+            spinner:stop()
 			if event.isError or not event.response then
 				M.showNetworkError()
 				print ("Network error occurred logging in as " .. username .. ":" .. password .. "! Event = " .. json.encode(event))
