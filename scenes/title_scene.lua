@@ -6,7 +6,10 @@ local common_ui = require("common.common_ui")
 local scene = composer.newScene()
 local json = require("json")
 local new_game_data = require("globals.new_game_data")
+local nav = require("common.nav")
 
+-- Constants
+scene.sceneName = "scenes.title_scene"
 
 buttonSinglePlayer = nil
 buttonPlayOthers = nil
@@ -37,14 +40,14 @@ local click_single_player = function()
 	print("Clicked single player")
 	new_game_data.clearAll()
 	new_game_data.gameType = common_api.SINGLE_PLAYER
-	composer.gotoScene( "scenes.choose_ai_scene", "fade" )
+    nav.goToSceneFrom(scene.sceneName, "scenes.choose_ai_scene", "fade")
 end
 
 local click_play_others = function()
 	 print( "Clicked play with rivals" )
 	 new_game_data.clearAll()
 	 new_game_data.gameType = common_api.TWO_PLAYER
-	 composer.gotoScene( "scenes.search_for_opponent_scene", "fade" )
+     nav.goToSceneFrom(scene.sceneName, "scenes.search_for_opponent_scene", "fade")
 end
 
 -- "scene:create()"

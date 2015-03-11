@@ -2,14 +2,17 @@ local composer = require( "composer" )
 local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
+local nav = require("common.nav")
 local scene = composer.newScene()
+
+scene.sceneName = "scenes.choose_board_size_scene"
 
 local createBackButton
 
 local function getOnReleaseListener(sizeName)
     return function(event)
         new_game_data.boardSize = sizeName
-        composer.gotoScene( "scenes.choose_game_density_scene", "fade" )
+        nav.goToSceneFrom(scene.sceneName, "scenes.choose_game_density_scene", "fade" )
     end
 
 end

@@ -4,10 +4,15 @@ local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local scene = composer.newScene()
 
+scene.sceneName = "scenes.choose_game_density_scene"
+
 local function getOnReleaseListener(gameDensity)
     return function(event)
-        new_game_data.gameDensity = gameDensity
-        composer.gotoScene( "scenes.choose_bonuses_type_scene", "fade" )
+        local currentScene = composer.getSceneName("current")
+        if currentScene == scene.sceneName then
+            new_game_data.gameDensity = gameDensity
+            composer.gotoScene( "scenes.choose_bonuses_type_scene", "fade" )
+        end
     end
 end
 

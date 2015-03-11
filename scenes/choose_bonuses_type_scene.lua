@@ -3,14 +3,23 @@ local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local current_game = require("globals.current_game")
+local nav = require("common.nav")
 local scene = composer.newScene()
 
+scene.sceneName = "scenes.choose_bonuses_type_scene"
+
 local function onCreateGameSuccess(gameModel)
-    new_game_data.clearAll()
 
-    current_game.currentGame = gameModel
+    local currentScene = composer.getSceneName("current")
 
-    composer.gotoScene( "scenes.play_game_scene", "fade" )
+    if currentScene == scene.sceneName then
+        new_game_data.clearAll()
+        current_game.currentGame = gameModel
+        composer.gotoScene( "scenes.play_game_scene", "fade" )
+    else
+        print("ERROR - Attempt to start a new game from choose_bonuses_type_scene, but current scene is now: " .. currentScene)
+    end
+
 end
 
 local function onCreateGameFail(jsonResp)
@@ -26,7 +35,7 @@ local function getOnReleaseListener(bonusesType)
         if not newGameModel then
             print ("Error creating new game model from new_game_data module")
             native.showAlert( "Error", "Error creating a new game, please try again", { "OK" } )
-            composer.gotoScene( "scenes.title_scene")
+            nav.goToSceneFrom(scene.sceneName, "scenes.title_scene")
             return
         end
 

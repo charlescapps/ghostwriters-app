@@ -4,18 +4,14 @@ local game_menu_class_mt = { __index = game_menu_class }
 local composer = require("composer")
 local display = require("display")
 local widget = require("widget")
-local common_ui = require("common.common_ui")
 local transition = require("transition")
-local easing = require("easing")
+local nav = require("common.nav")
 
 -- Constants
+local MY_SCENE = "scenes.play_game_scene";
 local GAME_MENU_IMG = "images/game_menu_book.jpg"
 local GAME_MENU_WIDTH = 750
 local GAME_MENU_HEIGHT = 895
-
-local CLOSE_X_IMG = "images/close_x.png"
-local CLOSE_X_OVER_IMG = "images/close_x_dark.png"
-local CLOSE_X_WIDTH = 100
 
 
 function game_menu_class.new(x, y, doPass)
@@ -111,7 +107,7 @@ end
 function game_menu_class:createBackToMenuButton()
     local backToMenuButton = self:createMenuButton("Back to Main Menu", function()
         local currentScene = composer.getSceneName("current")
-        composer.gotoScene("scenes.title_scene", "fade")
+        nav.goToSceneFrom(MY_SCENE, "scenes.title_scene", "fade")
         composer.removeScene(currentScene, false)
     end)
 

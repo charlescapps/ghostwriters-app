@@ -1,10 +1,13 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
-local scene = composer.newScene()
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local login_common = require("login.login_common")
 local new_game_data = require("globals.new_game_data")
+local nav = require("common.nav")
+local scene = composer.newScene()
+
+scene.sceneName = "scenes.search_for_opponent_scene"
 
 local MAX_RESULTS = 20
 
@@ -222,8 +225,12 @@ local function createStartGameButton()
                     return
                 end
 
-                new_game_data.rival = selectedRow.user
-                composer.gotoScene( "scenes.choose_board_size_scene" ,"fade" )
+                local currentScene = composer.getSceneName("current")
+
+                if currentScene == scene.sceneName then
+                    new_game_data.rival = selectedRow.user
+                    composer.gotoScene( "scenes.choose_board_size_scene" ,"fade" )
+                end
 
             end
 

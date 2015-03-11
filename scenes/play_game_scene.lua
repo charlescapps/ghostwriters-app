@@ -56,6 +56,8 @@ local showGameOverModal
 local showNoMovesModal
 local getMoveDescription
 
+scene.sceneName = "scenes.play_game_scene"
+
 -- "scene:create()"
 function scene:create(event)
     local sceneGroup = self.view
@@ -164,8 +166,10 @@ checkGameModelIsDefined = function()
     if not gameModel then
         print ("Error - no current game is defined in the current_game module.")
         local currentScene = composer.getSceneName("current")
-        composer.gotoScene( "scenes.title_scene" )
-        composer.removeScene(currentScene, false)
+        if currentScene == scene.sceneName then
+            composer.gotoScene( "scenes.title_scene" )
+            composer.removeScene(currentScene, false)
+        end
     end
 
     return gameModel
@@ -396,8 +400,10 @@ reset = function()
     if not gameModel then
         print("Error - current_game.currentGame wasn't defined when reset() was called in single player scene")
         local currentScene = composer.getSceneName("current")
-        composer.gotoScene("scenes.title_scene")
-        composer.removeScene(currentScene, false)
+        if currentScene == scene.sceneName then
+            composer.gotoScene("scenes.title_scene")
+            composer.removeScene(currentScene, false)
+        end
         return
     end
 
