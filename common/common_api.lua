@@ -2,6 +2,7 @@ local network = require("network")
 local mime = require("mime")
 local login_common = require("login.login_common")
 local json = require("json")
+local word_spinner_class = require("classes.word_spinner_class")
 local M = {}
 
 local SERVER = "https://words-with-rivals-beta.herokuapp.com/api"
@@ -199,7 +200,7 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 	return network.request(M.usersURL(), "POST", listener, params)
 end
 
-M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
+M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, onNetworkFail, spinner)
 
 	local cookie = login_common.getCookie()
 	local headers = { ["Cookie"] = cookie,
@@ -210,8 +211,12 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
 					 body = body }
 	local listener = function(event)
 		if "ended" == event.phase then
+            -- If we have a spinner, then stop it when the request is finished.
+            if spinner then
+                spinner:stop()
+            end
 			if event.isError or not event.response then
-                M.showNetworkError()
+                onNetworkFail(event)
 				print ("Network error with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				return
 			end
@@ -223,7 +228,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail)
                 login_common.logoutAndGoToTitle()
                 return
 			elseif jsonResp == nil then
-                M.showNetworkError()
+                onNetworkFail()
 				print("Error - no response returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				return
 			end
@@ -251,7 +256,7 @@ M.isValidUsernameChars = function(text)
 	return { ["success"] = "Username is valid" }
 end
 
-M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail)
+M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail, onNetworkFail)
 	
 	local usernameError = M.isValidUsernameChars(textEntered)
 
@@ -264,17 +269,27 @@ M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail)
 	-- Sanitize input and construct URL with query params.
 	local url = M.usersURL() .. "?q=" .. escape(textEntered) .. "&maxResults=" .. maxResults
 
-	M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail)
+	M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail or M.showNetworkError)
 end
 
-M.createNewGame = function(newGameInput, onSuccess, onFail)
+M.createNewGame = function(newGameInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 	local url = M.gamesURL()
-	M.doApiRequest(url, "POST", json.encode(newGameInput), 201, onSuccess, onFail)
+    local spinner
+    if doMakeSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+	M.doApiRequest(url, "POST", json.encode(newGameInput), 201, onSuccess, onFail, onNetworkFail or M.showNetworkError, spinner)
 end
 
-M.sendMove = function(moveInput, onSuccess, onFail)
+M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 	local url = M.movesURL(gameId)
-	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail)
+    local spinner
+    if doMakeSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, spinner)
 end
 
 return M

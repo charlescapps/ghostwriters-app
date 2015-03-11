@@ -3,7 +3,6 @@ local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local current_game = require("globals.current_game")
-local nav = require("common.nav")
 local scene = composer.newScene()
 
 scene.sceneName = "scenes.choose_bonuses_type_scene"
@@ -29,18 +28,22 @@ end
 
 local function getOnReleaseListener(bonusesType)
     return function(event)
-        new_game_data.bonusesType = bonusesType
-        local newGameModel = new_game_data.getNewGameModel()
+        -- Only perform action if we are still on the choose bonuses scene.
+        local currentScene = composer.getSceneName("current")
+        if currentScene == scene.sceneName then
+            new_game_data.bonusesType = bonusesType
+            local newGameModel = new_game_data.getNewGameModel()
 
-        if not newGameModel then
-            print ("Error creating new game model from new_game_data module")
-            native.showAlert( "Error", "Error creating a new game, please try again", { "OK" } )
-            nav.goToSceneFrom(scene.sceneName, "scenes.title_scene")
-            return
+            if not newGameModel then
+                print ("Error creating new game model from new_game_data module")
+                native.showAlert( "Error", "Error creating a new game, please try again", { "OK" } )
+                composer.gotoScene("scenes.title_scene")
+                return
+            end
+
+            -- Create a new game via the API
+            common_api.createNewGame(newGameModel, onCreateGameSuccess, onCreateGameFail, nil, true)
         end
-
-        -- Create a new game via the API
-        common_api.createNewGame(newGameModel, onCreateGameSuccess, onCreateGameFail)
     end
 
 end

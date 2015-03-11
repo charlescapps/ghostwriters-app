@@ -47,6 +47,7 @@ local completeMove
 local getSendMoveSuccessCallback
 local onSendMoveSuccess
 local onSendMoveFail
+local onSendMoveNetworkFail
 
 local showPassModal
 local pass
@@ -489,10 +490,21 @@ onSendMoveFail = function(json)
         else
             message = "Invalid move!"
         end
-        native.showAlert( "Oops...", message, { "Try again" })
-    else
-        native.showAlert("Network Error", "Network error, please try again", { "OK" })
+        native.showAlert( "Oops...", message, { "Try again" }, function(event)
+            if event.phase == "clicked" then
+               board:enableInteraction()
+            end
+        end)
     end
+    board:cancel_grab()
+end
+
+onSendMoveNetworkFail = function(event)
+    native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
+        if event.phase == "clicked" then
+           board:enableInteraction()
+        end
+    end)
     board:cancel_grab()
 end
 
@@ -512,8 +524,9 @@ onGrabTiles = function(tiles)
                 local i = event.index
                 if i == 1 then
                     rack:returnAllTiles()
+                    board:disableInteraction()
                     local moveJson = createGrabMoveJson(tiles)
-                    common_api.sendMove(moveJson, onSendMoveSuccess, onSendMoveFail)
+                    common_api.sendMove(moveJson, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
                 elseif i == 2 then
                     board:cancel_grab()
                     -- Do nothing, user clicked "Nope"
@@ -540,11 +553,13 @@ onReleasePlayButton = function(event)
         return
     end
     move.gameId = gameModel.id
-    print("Sending move: " .. json.encode(move))
     native.showAlert("Send move?", "Play word " .. move.letters .. " ?", { "Yes", "Nope" }, function(event)
         local index = event.index
         if index == 1 then
-            common_api.sendMove(move, onSendMoveSuccess, onSendMoveFail)
+            -- Disable interaction until the move is complete
+            print("Sending move: " .. json.encode(move))
+            board:disableInteraction()
+            common_api.sendMove(move, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
         else
             print("User clicked 'Nope'")
         end
@@ -605,7 +620,7 @@ end
 
 pass = function()
     local passMove = common_api.getPassMove(current_game.currentGame)
-    common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail)
+    common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
 end
 
 showPassModal = function()

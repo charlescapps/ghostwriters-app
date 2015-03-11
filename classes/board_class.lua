@@ -50,6 +50,16 @@ function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
     return newBoard
 end
 
+function board_class:disableInteraction()
+    print("board: disabling interaction")
+    self.interactionDisabled = true
+end
+
+function board_class:enableInteraction()
+    print("board: enabling interaction")
+    self.interactionDisabled = nil
+end
+
 -- Local helpers --
 boardSizeToN = function(boardSize)
 	if boardSize == common_api.SMALL_SIZE then
@@ -64,6 +74,7 @@ boardSizeToN = function(boardSize)
 	error("Invalid board size: " .. boardSize)
 
 end
+
 
 parseSquares = function(str, N)
 	local squares = {}
@@ -215,6 +226,9 @@ end
 
 function board_class:getTilesGroupTouchListener()
     return function(event)
+        if self.interactionDisabled then
+            return true
+        end
         if event.phase == "began" then
             print("Tiles group touch listener: began")
             local myTile = self:tileForCoords(event.x, event.y)
@@ -269,11 +283,8 @@ function board_class:rowColForCoords(xContent, yContent)
     local x, y = self.tilesGroup:contentToLocal(xContent, yContent)
     local N, width = self.N, self.width
     local pxPerSquare = width / N
-    print("tileForCoords Content: " .. xContent .. ", " .. yContent)
-    print("tileForCoords Local: " .. x .. ", " .. y)
     local c = math.floor((x + self.width / 2) / pxPerSquare + 1)
     local r = math.floor((y + self.width / 2) / pxPerSquare + 1)
-    print("Computed r, c = " .. r .. ", " .. c)
     return r, c
 end
 
@@ -332,6 +343,9 @@ end
 
 function getBoardTapListener(board)
 	return function(event)
+        if board.interactionDisabled then
+            return true
+        end
 		if not board.boardGroup then
 			print("Board has no self.boardGroup. Cannot process tap event.")
 			return true
@@ -666,14 +680,11 @@ function board_class:removeGrabEffect(tileImage)
     transition.cancel(tileImage)
     local r, c = tileImage.row, tileImage.col
     local x, y = self:computeTileCoords(r, c)
-    print ("Removing grab for r, c = " .. r .. ", " .. c)
-    print ("Computed x, y = " .. x .. ", " .. y)
 
     local squareImage = self.squareImages[r][c]
     local shadedSquareGroup = squareImage.shadedSquareGroup
     if shadedSquareGroup then
         transition.cancel(shadedSquareGroup)
-        print("Fading out shadedSquare")
         transition.fadeOut(shadedSquareGroup, {onComplete = function()
             shadedSquareGroup:removeSelf()
         end
@@ -681,7 +692,6 @@ function board_class:removeGrabEffect(tileImage)
         squareImage.shadedSquareGroup = nil
     end
 
-    print("Transitioning tileImage from: " .. tileImage.x .. "," .. tileImage.y .. " to " .. x .. ", " .. y)
     transition.to(tileImage, {x = x, y = y, rotation = 0, time = 100})
 end
 
