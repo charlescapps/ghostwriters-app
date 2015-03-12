@@ -1,4 +1,5 @@
 local composer = require( "composer" )
+local display = require("display")
 local widget = require( "widget" )
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
@@ -122,7 +123,7 @@ local function onSearchSuccess(jsonResp)
         scrollView = nil
     end
 
-    scrollView = createScrollViewForSearchResults()
+    local scrollView = createScrollViewForSearchResults()
 
     for i = 1, #users do
         local user = users[i]
@@ -214,26 +215,22 @@ local function createSearchBar()
 end
 
 local function createStartGameButton()
-    return common_ui.create_button("Start a game", "start_game_button", 900, function(event)
-            if ( "ended" == event.phase ) then
-                print( "Button was pressed and released" )
+    return common_ui.create_button("Start a game", 900, function(event)
+            print( "Button was pressed and released" )
 
-                local selectedRow =  getSelectedResultRow()
-                if not selectedRow or not selectedRow.user then
-                    print "No user selected, cannot start a game"
-                    native.showAlert( "No rival selected", "Please choose a rival.", { "OK" } )
-                    return
-                end
-
-                local currentScene = composer.getSceneName("current")
-
-                if currentScene == scene.sceneName then
-                    new_game_data.rival = selectedRow.user
-                    composer.gotoScene( "scenes.choose_board_size_scene" ,"fade" )
-                end
-
+            local selectedRow =  getSelectedResultRow()
+            if not selectedRow or not selectedRow.user then
+                print "No user selected, cannot start a game"
+                native.showAlert( "No rival selected", "Please choose a rival.", { "OK" } )
+                return
             end
 
+            local currentScene = composer.getSceneName("current")
+
+            if currentScene == scene.sceneName then
+                new_game_data.rival = selectedRow.user
+                composer.gotoScene( "scenes.choose_board_size_scene" ,"fade" )
+            end
         end)
 end
 
@@ -261,7 +258,11 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
-        scene.user = login_common.checkCredentials() -- Check if the current user is logged in.
+        scene.creds = login_common.fetchCredentials() -- Check if the current user is logged in.
+        if not scene.creds then
+            login_common.dumpToLoggedOutScene(self.sceneName)
+            return
+        end
         userResultRows = {}
         nativeTextInput = createSearchTextInput()
         if not scrollView then

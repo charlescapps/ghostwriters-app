@@ -4,6 +4,8 @@ local display = require("display")
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local nav = require("common.nav")
+local text_progress_class = require("classes.text_progress_class")
+
 local scene = composer.newScene()
 
 scene.sceneName = "login.logged_out_scene"
@@ -15,26 +17,38 @@ local MIN_USERNAME_LEN = 4
 -- Display objects
 local usernameTextField
 local passwordTextField
+local textProgress
 
 local function create_button_new_account()
-    return common_ui.create_button("Create a new user", "new_account_button", 300,
-        function() 
-            composer.gotoScene( "login.create_account_scene" , "fade" )
-            scene:destroy()
+    return common_ui.create_button("Create a new user", 300,
+        function()
+            nav.goToSceneFrom(scene.sceneName, "login.create_account_scene", "fade")
         end )
 end
 
 
-local function create_native_inputs()
-    usernameTextField = native.newTextField(display.contentWidth / 2, 750, 3 * display.contentWidth / 4, 60)
-    passwordTextField = native.newTextField(display.contentWidth / 2, 950, 3 * display.contentWidth / 4, 60)
+local function createNativeInputs()
+
+    usernameTextField = native.newTextField(display.contentWidth / 2, 750, 3 * display.contentWidth / 4, 80)
+    passwordTextField = native.newTextField(display.contentWidth / 2, 950, 3 * display.contentWidth / 4, 80)
 
     usernameTextField.placeholder = "Username or email"
     passwordTextField.placeholder = "Password"
 
-    usernameTextField.size, passwordTextField.size = 14, 14
+    usernameTextField.size, passwordTextField.size = 12, 12
     usernameTextField.align, passwordTextField.align = "center", "center"
     passwordTextField.isSecure = true
+end
+
+local function removeNativeInputs()
+    if usernameTextField then
+        usernameTextField:removeSelf()
+        usernameTextField = nil
+    end
+    if passwordTextField then
+        passwordTextField:removeSelf()
+        passwordTextField = nil
+    end
 end
 
 local function create_sign_in_texts()
@@ -85,27 +99,39 @@ local function create_sign_in_texts()
     return group
 end
 
+local function createTextProgress()
+    return text_progress_class.new(scene.view, display.contentWidth / 2, display.contentHeight / 2,
+        "Signing in...", 80, 0.8)
+end
+
 local function onLoginSuccess()
+    textProgress:stop()
     nav.goToSceneFrom(scene.sceneName, "scenes.title_scene", "fade")
 end
 
 local function onLoginFail()
     print("Login failed...")
+    textProgress:stop(function()
+        createNativeInputs()
+    end)
 end
 
 local function create_button_sign_in()
-    return common_ui.create_button("Sign in", "sign_in_button", 1150, function(event)
+    return common_ui.create_button("Sign in", 1150, function(event)
         local username = usernameTextField.text
         local password = passwordTextField.text
         if not username or not password or username:len() <= 0 or password:len() <= 0 then
             native.showAlert("Oops...", "Please enter a username and password", {"OK"})
         elseif username:len() < MIN_USERNAME_LEN then
-            native.showAlert("Oops...", "Usernames are at least " .. MIN_USERNAME_LEN .. " characters.", {"OK"})
+            native.showAlert("Oops...", "Usernames must be at least " .. MIN_USERNAME_LEN .. " characters long.", {"OK"})
         elseif password:len() < MIN_PASSWORD_LEN then
-            native.showAlert("Oops...", "Passwords are at least " .. MIN_PASSWORD_LEN .. " characters.", {"OK"})
+            native.showAlert("Oops...", "Passwords must be at least " .. MIN_PASSWORD_LEN .. " characters long.", {"OK"})
         else
             local currentScene = composer.getSceneName("current")
             if currentScene == scene.sceneName then
+                removeNativeInputs()
+                textProgress = createTextProgress()
+                textProgress:start()
                 common_api.login(username, password, onLoginSuccess, onLoginFail)
             end
         end
@@ -137,9 +163,7 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
-        create_native_inputs()
-        sceneGroup:insert(usernameTextField)
-        sceneGroup:insert(passwordTextField)
+        createNativeInputs()
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
@@ -160,8 +184,7 @@ function scene:hide( event )
         -- Example: stop timers, stop animation, stop audio, etc.
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
-        usernameTextField:removeSelf()
-        passwordTextField:removeSelf()
+        removeNativeInputs()
     end
 end
 

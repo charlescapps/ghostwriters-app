@@ -1,8 +1,7 @@
 local composer = require( "composer" )
-local widget = require( "widget" )
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
-local login_common = require("login.login_common")
+local native = require("native")
 local json = require("json")
 local scene = composer.newScene()
 
@@ -129,16 +128,13 @@ end
 
 
 local function create_done_button()
-    local doneButton = common_ui.create_button("Go!", "create_account_done_button", 1050, function(event)
-            if ( "ended" == event.phase ) then
-                print( "Button was pressed and released" )
-                result = scene:sanity_check_details()
-                if result["error"] ~= nil then
-                    native.showAlert( "Oops...", result["error"], { "Try again" } )
-                else
-                    common_api.createNewAccountAndLogin(result["username"], result["email"], result["password"], 
-                        create_account_success, create_account_fail)
-                end
+    local doneButton = common_ui.create_button("Go!", 1050, function(event)
+            local result = scene:sanity_check_details()
+            if result["error"] ~= nil then
+                native.showAlert( "Oops...", result["error"], { "Try again" } )
+            else
+                common_api.createNewAccountAndLogin(result["username"], result["email"], result["password"],
+                    create_account_success, create_account_fail)
             end
 
         end)

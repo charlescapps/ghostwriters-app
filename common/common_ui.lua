@@ -48,7 +48,7 @@ M.create_title = function(myTitleText, y, rgb, fontSize)
     return title
 end 
 
-M.create_button = function(text, id, y, onEvent)
+M.create_button = function(text, y, onRelease)
 	button = widget.newButton( {
 		id = id,
 		x = display.contentWidth / 2,
@@ -64,7 +64,7 @@ M.create_button = function(text, id, y, onEvent)
 		fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
 		strokeColor = { 1, 0.2, 0.2 },
 		strokeRadius = 10,
-		onEvent = onEvent
+		onRelease = onRelease
 		} )
 	return button
 end

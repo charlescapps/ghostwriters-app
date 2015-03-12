@@ -10,9 +10,6 @@ local login_common = require("login.login_common")
 local game_menu_class = require("classes.game_menu_class")
 local scene = composer.newScene()
 
--- The authenticated user
-local authUser
-
 -- The board object
 local board
 -- The rack object
@@ -69,15 +66,19 @@ function scene:create(event)
         return
     end
 
-    authUser = login_common.checkCredentials()
+    scene.creds = login_common.fetchCredentials()
 
-    if not doesAuthUserMatchGame(gameModel, authUser) then
+    if not scene.creds then
+        login_common.dumpToLoggedOutScene(self.sceneName)
+    end
+
+    if not doesAuthUserMatchGame(gameModel, scene.creds.user) then
         return
     end
 
     local background = common_ui.create_background()
 
-    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, authUser)
+    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, scene.creds.user)
 
     board = createBoard(gameModel)
 
@@ -122,7 +123,10 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
-        scene.user = login_common.checkCredentials() -- Check if the current user is logged in.
+        scene.creds = login_common.fetchCredentials() -- Check if the current user is logged in.
+        if not scene.creds then
+            login_common.dumpToLoggedOutScene(self.sceneName)
+        end
 
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
@@ -152,7 +156,7 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
-    authUser = nil
+    scene.creds = nil
     board, rack, gameMenu, titleAreaDisplayGroup, actionButtonsGroup, playMoveButton, resetButton = nil, nil, nil, nil, nil, nil, nil
 
     -- Called prior to the removal of scene's view ("sceneGroup").
@@ -192,7 +196,7 @@ doesAuthUserMatchGame = function(gameModel, authUser)
 end
 
 createTitleAreaDisplayGroup = function(gameModel)
-    local authUserIsPlayer1 = gameModel.player1 == authUser.id
+    local authUserIsPlayer1 = gameModel.player1 == scene.creds.user.id
     local isAuthUserTurn = gameModel.player1Turn and authUserIsPlayer1 or not gameModel.player1Turn and not authUserIsPlayer1
     local player1 = gameModel.player1Model
     local player2 = gameModel.player2Model
@@ -408,16 +412,11 @@ reset = function()
         return
     end
 
-    local authUser = login_common.checkCredentials()
-    if not authUser then
-        return
-    end
-
     local oldTitleArea = titleAreaDisplayGroup
     local oldBoard = board
     local oldRack = rack
 
-    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, authUser)
+    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, scene.creds.user)
 
     board = createBoard(gameModel)
     rack = createRack(gameModel, board)
@@ -512,7 +511,7 @@ end
 
 onGrabTiles = function(tiles)
     print("Tiles grabbed!")
-    if not current_game.isUsersTurn(authUser) then
+    if not current_game.isUsersTurn(scene.creds.user) then
        common_ui.create_info_modal("Oops...", "It's not your turn")
        board:cancel_grab()
        return
@@ -540,7 +539,7 @@ onGrabTiles = function(tiles)
 end
 
 onReleasePlayButton = function(event)
-    if not current_game.isUsersTurn(authUser) then
+    if not current_game.isUsersTurn(scene.creds.user) then
         common_ui.create_info_modal("Oops...", "It's not your turn")
         return
     end

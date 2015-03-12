@@ -1,21 +1,35 @@
 
 local loadsave = require("lib.loadsave")
 local composer = require("composer")
+local nav = require("common.nav")
+local json = require("json")
 local M = {}
 
-local CREDS_FILE = "wordsWithRivalsCreds.json"
+local CREDS_FILE = "ghostWritersUserCreds.json"
 
-M.checkCredentials = function()
-	local serverCreds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
+local CREDS_KEY = "USER_CREDENTIALS_KEY"
+M.CREDS_KEY = CREDS_KEY
 
-	if serverCreds == nil or serverCreds["user"] == nil or serverCreds["cookie"] == nil then
-		print("No wordsWithRivalsCreds.json file found. Opening loggout_out_scene")
-		local currentScene = composer.getSceneName( "current" )
-		composer.gotoScene( "login.logged_out_scene" )
-		composer.removeScene( currentScene, false )
+M.fetchCredentials = function()
+    local serverCreds = composer.getVariable(CREDS_KEY)
+
+    if not serverCreds or not serverCreds["user"] or not serverCreds["cookie"] then
+        print ("Server creds not found in composer variable or missing data. Falling back to loading from file...")
+	    serverCreds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
+        composer.setVariable(CREDS_KEY, serverCreds)
+    end
+
+	if not serverCreds or not serverCreds["user"] or not serverCreds["cookie"] then
+		print("No ghostWritersUserCreds.json file found, or data is corrupt.")
+        print("Data found = " .. json.encode(serverCreds))
 		return nil
-	end
-	return serverCreds["user"]
+    end
+
+	return serverCreds
+end
+
+M.dumpToLoggedOutScene = function(fromScene)
+    nav.goToSceneFrom(fromScene, "login.logged_out_scene")
 end
 
 M.saveUser = function(user)
@@ -50,6 +64,7 @@ M.getCookie = function()
 end
 
 M.logout = function()
+    composer.setVariable(CREDS_KEY, nil)
     loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
 end
 

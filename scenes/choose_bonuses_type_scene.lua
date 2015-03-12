@@ -1,4 +1,6 @@
 local composer = require( "composer" )
+local nav = require("common.nav")
+local login_common = require("login.login_common")
 local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
@@ -32,7 +34,7 @@ local function getOnReleaseListener(bonusesType)
         local currentScene = composer.getSceneName("current")
         if currentScene == scene.sceneName then
             new_game_data.bonusesType = bonusesType
-            local newGameModel = new_game_data.getNewGameModel()
+            local newGameModel = new_game_data.getNewGameModel(scene.creds.user)
 
             if not newGameModel then
                 print ("Error creating new game model from new_game_data module")
@@ -68,11 +70,18 @@ end
 -- "scene:show()"
 function scene:show( event )
 
-    local phase = event.phases
+    local phase = event.phase
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
         new_game_data.bonusesType = nil
+
+        self.creds = login_common.fetchCredentials()
+        if not self.creds then
+            login_common.dumpToLoggedOutScene(self.sceneName)
+            return
+        end
+
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
