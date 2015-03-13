@@ -3,7 +3,65 @@ local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local native = require("native")
 local json = require("json")
+local text_progress_class = require("classes.text_progress_class")
 local scene = composer.newScene()
+
+scene.sceneName = "login.create_account_scene"
+
+-- Store username / email
+local enteredUsername
+local enteredEmail
+
+-- Pre-declared functions
+local createUsernameTextField
+local createEmailTextField
+local createPassTextField
+local createPassConfirmTextField
+local createNativeFields
+local removeNativeFields
+local createAccountSuccess
+local createAccountFail
+local submit
+local createTextProgress
+
+-- Native display objects
+local usernameInput
+local emailInput
+local passwordInput
+local passwordConfirmInput
+local textProgress
+
+createNativeFields = function()
+    usernameInput = createUsernameTextField()
+    if enteredUsername then
+        usernameInput.text = enteredUsername
+    end
+    emailInput = createEmailTextField()
+    if enteredEmail then
+        emailInput.text = enteredEmail
+    end
+    passwordInput = createPassTextField()
+    passwordConfirmInput = createPassConfirmTextField()
+end
+
+removeNativeFields = function()
+    if usernameInput then
+        usernameInput:removeSelf()
+        usernameInput = nil
+    end
+    if emailInput then
+        emailInput:removeSelf()
+        emailInput = nil
+    end
+    if passwordInput then
+        passwordInput:removeSelf()
+        passwordInput = nil
+    end
+    if passwordConfirmInput then
+        passwordConfirmInput:removeSelf()
+        passwordConfirmInput = nil
+    end
+end
 
 local function create_username_label_and_desc()
     local group = display.newGroup()
@@ -18,7 +76,7 @@ local function create_username_label_and_desc()
     return group
 end
 
-local function create_username_text_field()
+createUsernameTextField = function()
     local textField = native.newTextField( display.contentWidth / 2, 300, 600, 80 )
     textField.size = 14
     textField.placeholder = "e.g. Ghosty McFee"
@@ -48,7 +106,7 @@ local function create_email_label_and_desc()
     return group
 end
 
-local function create_email_text_field()
+createEmailTextField = function()
     local textField = native.newTextField( display.contentWidth / 2, 575, 600, 80 )
     textField.size = 14
     textField.placeholder = "e.g. bob@example.com"
@@ -56,58 +114,80 @@ local function create_email_text_field()
     return textField
 end
 
-local function create_password_fields()
-    local group = display.newGroup( )
-    local passLabel = display.newText( "Enter a password", display.contentWidth / 2, 650, native.systemBoldFont, 40 )
-    passLabel:setFillColor( 0, 0, 0 )
-    
+submit = function()
+    if composer.getSceneName("current") ~= scene.sceneName then
+        return
+    end
+
+    local result = scene:sanityCheckDetails()
+    if result["error"] ~= nil then
+        native.showAlert( "Oops...", result["error"], { "Try again" } )
+    else
+        enteredUsername = usernameInput.text
+        enteredEmail = emailInput.text
+
+        removeNativeFields()
+        textProgress = createTextProgress()
+        textProgress:start()
+        common_api.createNewAccountAndLogin(result["username"], result["email"], result["password"],
+            createAccountSuccess, createAccountFail)
+    end
+end
+
+createPassTextField = function()
     local passField = native.newTextField( display.contentWidth / 2, 725, 400, 80 )
     passField.size = 20
     passField.placeholder = "Enter your password"
     passField.isSecure = true
     passField:setReturnKey("next")
+    return passField
+end
 
-
-    local passConfirmLabel = display.newText( "Re-enter your password", display.contentWidth / 2, 825, native.systemBoldFont, 40 )
-    passConfirmLabel:setFillColor( 0, 0, 0 )
-    
+createPassConfirmTextField = function()
     local passConfirmField = native.newTextField( display.contentWidth / 2, 900, 400, 80 )
     passConfirmField.size = 20
     passConfirmField.placeholder = "Re-enter your password"
     passConfirmField.isSecure = true
     passConfirmField:setReturnKey("done")
+    passConfirmField:addEventListener( "userInput", function(event)
+        if event.phase == "submitted" then
+            submit()
+        end
+    end )
+    return passConfirmField
+end
+
+local function createPasswordLabels()
+    local group = display.newGroup( )
+    local passLabel = display.newText( "Enter a password", display.contentWidth / 2, 650, native.systemBoldFont, 40 )
+    passLabel:setFillColor( 0, 0, 0 )
+    
+    local passConfirmLabel = display.newText( "Re-enter your password", display.contentWidth / 2, 825, native.systemBoldFont, 40 )
+    passConfirmLabel:setFillColor( 0, 0, 0 )
 
     group:insert(passLabel)
-    group:insert(passField)
     group:insert(passConfirmLabel)
-    group:insert(passConfirmField)
-
-    group.passField = passField
-    group.passConfirmField = passConfirmField
 
     return group
 end
 
-function scene:sanity_check_details()
+createTextProgress = function()
+    return text_progress_class.new(scene.view, display.contentWidth / 2, display.contentHeight / 2,
+        "Creating your account...", 40, 0.8)
+end
+
+function scene:sanityCheckDetails()
     local group = self.view
-    local username_text = group.username_text
-    local username = username_text.text
+    local username = usernameInput.text
     print ("Username entered = " .. username)
 
-    local email_text = group.email_text
-    local email = email_text.text
+    local email = emailInput.text
     print ("Email entered = " .. email) 
 
-    local pass_fields = group.pass_fields
-    local passField = pass_fields.passField
-    local passConfirmField = pass_fields.passConfirmField
-
-    local pass = passField.text
-    local passConfirm = passConfirmField.text
+    local pass = passwordInput.text
+    local passConfirm = passwordConfirmInput.text
     print ("Password entered = " .. pass)
     print ("Password confirm = " .. passConfirm)
-
-    local errorMsg = nil;
 
     if not username then
         return { error = "Please enter a username" }
@@ -149,29 +229,29 @@ function scene:sanity_check_details()
 
 end
 
-local function create_account_success(user)
+createAccountSuccess = function(user)
+    if textProgress then
+        textProgress:stop()
+    end
+
+    if composer.getSceneName("current") ~= scene.sceneName then
+        return
+    end
+
     print("Creating account was a success: " .. json.encode( user ))
     local currentSceneName = composer.getSceneName( "current" )
     composer.removeScene( currentSceneName, false )
     composer.gotoScene( "scenes.title_scene", "fade" )
 end
 
-local function create_account_fail()
-    -- do nothing, a popup will appear anyway.
+createAccountFail = function()
+    textProgress:stop(function()
+        createNativeFields()
+    end)
 end
 
-
 local function create_done_button()
-    local doneButton = common_ui.create_button("Go!", 1050, function(event)
-            local result = scene:sanity_check_details()
-            if result["error"] ~= nil then
-                native.showAlert( "Oops...", result["error"], { "Try again" } )
-            else
-                common_api.createNewAccountAndLogin(result["username"], result["email"], result["password"],
-                    create_account_success, create_account_fail)
-            end
-
-        end)
+    local doneButton = common_ui.create_button("Go!", 1050, submit)
     return doneButton
 end
 
@@ -181,25 +261,16 @@ function scene:create(event)
     local background = common_ui.create_background()
     local backButton = common_ui.create_back_button(100, 100)
     local usernameLabelGrp = create_username_label_and_desc()
-    local username_text = create_username_text_field()
     local emailLabelGrp = create_email_label_and_desc()
-    local email_text = create_email_text_field()
-    local pass_fields = create_password_fields()
+    local passwordLabels = createPasswordLabels()
     local done_button = create_done_button()
 
     sceneGroup:insert(background)
     sceneGroup:insert(backButton)
-    sceneGroup:insert(username_text)
     sceneGroup:insert(usernameLabelGrp)
-    sceneGroup:insert(email_text)
     sceneGroup:insert(emailLabelGrp)
-    sceneGroup:insert(pass_fields)
+    sceneGroup:insert(passwordLabels)
     sceneGroup:insert(done_button)
-
-    sceneGroup.username_text = username_text
-    sceneGroup.email_text = email_text
-    sceneGroup.pass_fields = pass_fields
-
 end
 
 -- "scene:show()"
@@ -210,6 +281,7 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
+        createNativeFields()
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
@@ -225,6 +297,7 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
+        removeNativeFields()
         -- Called when the scene is on screen (but is about to go off screen).
         -- Insert code here to "pause" the scene.
         -- Example: stop timers, stop animation, stop audio, etc.
@@ -238,9 +311,11 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
-    sceneGroup.username_text:removeSelf( )
-    sceneGroup.email_text:removeSelf( )
-    sceneGroup.pass_fields:removeSelf( )
+    removeNativeFields()
+    if textProgress then
+        textProgress:stop()
+    end
+    textProgress, enteredUsername, enteredEmail = nil, nil, nil
 
     -- Called prior to the removal of scene's view ("sceneGroup").
     -- Insert code here to clean up the scene.
