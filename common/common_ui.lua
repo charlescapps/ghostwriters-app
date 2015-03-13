@@ -6,6 +6,7 @@ local transition = require("transition")
 local display = require("display")
 
 local DEFAULT_BACKGROUND = "images/book_texture.png"
+local DEFAULT_LONG_BACKGROUND = "images/book_texture_long.png"
 
 local DEFAULT_BACK_BUTTON = "images/back-button.png"
 local PRESSED_BACK_BUTTON = "images/back-button-pressed.png"
@@ -19,6 +20,14 @@ M.create_background = function(imageFile)
     local background = display.newImageRect( file, 750, 1334 )
     background.x = display.contentWidth / 2
     background.y = display.contentHeight / 2
+    return background
+end
+
+M.create_background_long = function(imageFile)
+    local file = imageFile or DEFAULT_LONG_BACKGROUND
+    local background = display.newImageRect( file, 750, 2016 )
+    background.x = display.contentWidth / 2
+    background.y = 3 * display.contentHeight / 4
     return background
 end
 

@@ -2,6 +2,8 @@ local composer = require( "composer" )
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local native = require("native")
+local display = require("display")
+local widget = require("widget")
 local json = require("json")
 local text_progress_class = require("classes.text_progress_class")
 local scene = composer.newScene()
@@ -13,6 +15,7 @@ local enteredUsername
 local enteredEmail
 
 -- Pre-declared functions
+local createScrollView
 local createUsernameTextField
 local createEmailTextField
 local createPassTextField
@@ -24,12 +27,29 @@ local createAccountFail
 local submit
 local createTextProgress
 
--- Native display objects
+-- Display objects
+local scrollView
+local textProgress
+
+-- Native
 local usernameInput
 local emailInput
 local passwordInput
 local passwordConfirmInput
-local textProgress
+
+createScrollView = function()
+    return widget.newScrollView {
+        x = display.contentWidth / 2,
+        y = display.contentHeight / 2,
+        width = display.contentWidth,
+        height = display.contentHeight,
+        scrollWidth = display.contentWidth,
+        scrollHeight = 3 * display.contentHeight / 2,
+        horizontalScrollDisabled = true,
+        hideBackground = true,
+        hideScrollBar = true
+    }
+end
 
 createNativeFields = function()
     usernameInput = createUsernameTextField()
@@ -42,6 +62,11 @@ createNativeFields = function()
     end
     passwordInput = createPassTextField()
     passwordConfirmInput = createPassConfirmTextField()
+
+    scrollView:insert(usernameInput)
+    scrollView:insert(emailInput)
+    scrollView:insert(passwordInput)
+    scrollView:insert(passwordConfirmInput)
 end
 
 removeNativeFields = function()
@@ -77,14 +102,15 @@ local function create_username_label_and_desc()
 end
 
 createUsernameTextField = function()
-    local textField = native.newTextField( display.contentWidth / 2, 300, 600, 80 )
-    textField.size = 14
+    local textField = native.newTextField( display.contentWidth / 2, 300, 2 * display.contentWidth / 3, 80 )
+    textField.size = 16
     textField.placeholder = "e.g. Ghosty McFee"
     textField:setReturnKey("next")
+    textField.align = "center"
     return textField
 end
 
-local function create_email_label_and_desc()
+local function createEmailLabelGroup()
     local group = display.newGroup()
 
     local emailLabel = display.newText( "Enter a valid email", display.contentWidth / 2, 400, native.systemFontBold, 40 )
@@ -107,10 +133,25 @@ local function create_email_label_and_desc()
 end
 
 createEmailTextField = function()
-    local textField = native.newTextField( display.contentWidth / 2, 575, 600, 80 )
-    textField.size = 14
+    local textField = native.newTextField( display.contentWidth / 2, 575, 2 * display.contentWidth / 3, 80 )
+    textField.size = 16
     textField.placeholder = "e.g. bob@example.com"
     textField:setReturnKey("next")
+    textField.align = "center"
+    textField.inputType = "email"
+    textField:addEventListener("userInput", function(event)
+        if event.phase == "began" then
+            scrollView:scrollToPosition {
+                y = -100,
+                time = 500
+            }
+        elseif event.phase == "ended" then
+            scrollView:scrollToPosition {
+                y = 0,
+                time = 500
+            }
+        end
+    end)
     return textField
 end
 
@@ -135,23 +176,46 @@ submit = function()
 end
 
 createPassTextField = function()
-    local passField = native.newTextField( display.contentWidth / 2, 725, 400, 80 )
-    passField.size = 20
+    local passField = native.newTextField( display.contentWidth / 2, 725, 2 * display.contentWidth / 3, 80 )
+    passField.size = 16
     passField.placeholder = "Enter your password"
     passField.isSecure = true
     passField:setReturnKey("next")
+    passField:addEventListener("userInput", function(event)
+        if event.phase == "began" then
+            scrollView:scrollToPosition {
+                y = -200,
+                time = 500
+            }
+        elseif event.phase == "ended" then
+            scrollView:scrollToPosition {
+                y = 0,
+                time = 500
+            }
+        end
+    end)
     return passField
 end
 
 createPassConfirmTextField = function()
-    local passConfirmField = native.newTextField( display.contentWidth / 2, 900, 400, 80 )
-    passConfirmField.size = 20
+    local passConfirmField = native.newTextField( display.contentWidth / 2, 900, 2 * display.contentWidth / 3, 80 )
+    passConfirmField.size = 16
     passConfirmField.placeholder = "Re-enter your password"
     passConfirmField.isSecure = true
     passConfirmField:setReturnKey("done")
     passConfirmField:addEventListener( "userInput", function(event)
-        if event.phase == "submitted" then
+        if event.phase == "began" then
+            scrollView:scrollToPosition {
+                y = -300,
+                time = 500
+            }
+        elseif event.phase == "submitted" then
             submit()
+        elseif event.phase == "ended" then
+            scrollView:scrollToPosition {
+                y = 0,
+                time = 500
+            }
         end
     end )
     return passConfirmField
@@ -173,7 +237,7 @@ end
 
 createTextProgress = function()
     return text_progress_class.new(scene.view, display.contentWidth / 2, display.contentHeight / 2,
-        "Creating your account...", 40, 0.8)
+        "Creating your account...", 50, 0.8)
 end
 
 function scene:sanityCheckDetails()
@@ -261,16 +325,18 @@ function scene:create(event)
     local background = common_ui.create_background()
     local backButton = common_ui.create_back_button(100, 100)
     local usernameLabelGrp = create_username_label_and_desc()
-    local emailLabelGrp = create_email_label_and_desc()
+    local emailLabelGrp = createEmailLabelGroup()
     local passwordLabels = createPasswordLabels()
     local done_button = create_done_button()
+    scrollView = createScrollView()
 
     sceneGroup:insert(background)
-    sceneGroup:insert(backButton)
-    sceneGroup:insert(usernameLabelGrp)
-    sceneGroup:insert(emailLabelGrp)
-    sceneGroup:insert(passwordLabels)
-    sceneGroup:insert(done_button)
+    sceneGroup:insert(scrollView)
+    scrollView:insert(backButton)
+    scrollView:insert(usernameLabelGrp)
+    scrollView:insert(emailLabelGrp)
+    scrollView:insert(passwordLabels)
+    scrollView:insert(done_button)
 end
 
 -- "scene:show()"
@@ -315,7 +381,7 @@ function scene:destroy( event )
     if textProgress then
         textProgress:stop()
     end
-    textProgress, enteredUsername, enteredEmail = nil, nil, nil
+    scrollView, textProgress, enteredUsername, enteredEmail = nil, nil, nil
 
     -- Called prior to the removal of scene's view ("sceneGroup").
     -- Insert code here to clean up the scene.

@@ -1,6 +1,7 @@
 local composer = require("composer")
 local native = require("native")
 local display = require("display")
+local widget = require("widget")
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local nav = require("common.nav")
@@ -15,11 +16,13 @@ local MIN_PASSWORD_LEN = 4
 local MIN_USERNAME_LEN = 4
 
 -- Display objects
+local scrollView
 local usernameTextField
 local passwordTextField
 local textProgress
 
 -- Pre-declated functions
+local createScrollView
 local createNativeInputs
 local removeNativeInputs
 local signIn
@@ -27,7 +30,11 @@ local createTextProgress
 local onLoginSuccess
 local onLoginFail
 
-local function create_button_new_account()
+-- Stored values
+local storedUsername
+local storedPassword
+
+local function createNewAccountButton()
     return common_ui.create_button("Create a new user", 300,
         function()
             nav.goToSceneFrom(scene.sceneName, "login.create_account_scene", "fade")
@@ -44,6 +51,8 @@ signIn = function()
     elseif password:len() < MIN_PASSWORD_LEN then
         native.showAlert("Oops...", "Passwords must be at least " .. MIN_PASSWORD_LEN .. " characters long.", {"OK"})
     else
+        storedUsername = username
+        storedPassword = password
         local currentScene = composer.getSceneName("current")
         if currentScene == scene.sceneName then
             removeNativeInputs()
@@ -54,23 +63,73 @@ signIn = function()
     end
 end
 
+createScrollView = function()
+    return widget.newScrollView {
+        x = display.contentWidth / 2,
+        y = display.contentHeight / 2,
+        width = display.contentWidth,
+        height = display.contentHeight,
+        scrollWidth = display.contentWidth,
+        scrollHeight = 3 * display.contentHeight / 2,
+        horizontalScrollDisabled = true,
+        hideBackground = true,
+        hideScrollBar = true
+    }
+end
+
 createNativeInputs = function()
 
     usernameTextField = native.newTextField(display.contentWidth / 2, 750, 3 * display.contentWidth / 4, 80)
     passwordTextField = native.newTextField(display.contentWidth / 2, 950, 3 * display.contentWidth / 4, 80)
 
+    usernameTextField.isFontSizeScaled = true
     usernameTextField.placeholder = "Username or email"
     usernameTextField:setReturnKey("next")
+    if storedUsername then
+        usernameTextField.text = storedUsername
+    end
 
+    passwordTextField.isFontSizeScaled = true
     passwordTextField.placeholder = "Password"
     passwordTextField:setReturnKey("done")
+    if storedPassword then
+        passwordTextField.text = storedPassword
+    end
 
-    usernameTextField.size, passwordTextField.size = 12, 12
+    usernameTextField.size, passwordTextField.size = 16, 16
     usernameTextField.align, passwordTextField.align = "center", "center"
     passwordTextField.isSecure = true
-    passwordTextField:addEventListener("userInput", function(event)
-        if event.phase == "submitted" then
 
+    scrollView:insert(usernameTextField)
+    scrollView:insert(passwordTextField)
+
+    usernameTextField:addEventListener("userInput", function(event)
+        if event.phase == "began" then
+            scrollView:scrollToPosition{
+                y = - 100,
+                time = 500
+            }
+        elseif event.phase == "ended" then
+            scrollView:scrollToPosition{
+                y = 0,
+                time = 500
+            }
+        end
+    end)
+
+    passwordTextField:addEventListener("userInput", function(event)
+        if event.phase == "began" then
+            scrollView:scrollToPosition{
+                y = - 300,
+                time = 500
+            }
+        elseif event.phase == "submitted" then
+            signIn()
+        elseif event.phase == "ended" then
+            scrollView:scrollToPosition{
+                y = 0,
+                time = 500
+            }
         end
     end)
 end
@@ -86,7 +145,7 @@ removeNativeInputs = function()
     end
 end
 
-local function create_sign_in_texts()
+local function createSignInTexts()
     local group = display.newGroup()
 
     local orText = display.newText {
@@ -151,7 +210,7 @@ onLoginFail = function()
     end)
 end
 
-local function create_button_sign_in()
+local function createSignInButton()
     return common_ui.create_button("Sign in", 1150, signIn)
 end
 
@@ -159,16 +218,18 @@ end
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.create_background()
-    local title = common_ui.create_title("Words with Rivals", nil, { 0, 0, 0})
-    local button_new_account = create_button_new_account()
-    local signInTexts = create_sign_in_texts()
-    local signInButton = create_button_sign_in()
+    local title = common_ui.create_title("Words with Rivals", nil, { 0, 0, 0 })
+    local newAccountButton = createNewAccountButton()
+    local signInTexts = createSignInTexts()
+    local signInButton = createSignInButton()
+    scrollView = createScrollView()
 
     sceneGroup:insert(background)
-    sceneGroup:insert(title)    
-    sceneGroup:insert(button_new_account)
-    sceneGroup:insert(signInTexts)
-    sceneGroup:insert(signInButton)
+    sceneGroup:insert(scrollView)
+    scrollView:insert(title)
+    scrollView:insert(newAccountButton)
+    scrollView:insert(signInTexts)
+    scrollView:insert(signInButton)
 
 end
 
@@ -211,6 +272,7 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
     removeNativeInputs()
+    storedUsername, storedPassword = nil, nil
     -- Called prior to the removal of scene's view ("sceneGroup").
     -- Insert code here to clean up the scene.
     -- Example: remove display objects, save state, etc.
