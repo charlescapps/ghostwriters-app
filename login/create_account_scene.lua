@@ -5,19 +5,53 @@ local native = require("native")
 local json = require("json")
 local scene = composer.newScene()
 
+local function create_username_label_and_desc()
+    local group = display.newGroup()
+    local usernameLabel = display.newText( "Choose your username", display.contentWidth / 2, 175, native.systemFontBold, 40 )
+    usernameLabel:setFillColor( 0, 0, 0 )
+
+    local usernameDesc = display.newText( "(This is what other players will see.)", display.contentWidth / 2, 225, native.systemFont, 30 )
+    usernameDesc:setFillColor( 0, 0, 0 )
+
+    group:insert(usernameLabel)
+    group:insert(usernameDesc)
+    return group
+end
 
 local function create_username_text_field()
     local textField = native.newTextField( display.contentWidth / 2, 300, 600, 80 )
-    textField.size = 20
-    textField.placeholder = "Choose your username"
+    textField.size = 14
+    textField.placeholder = "e.g. Ghosty McFee"
     textField:setReturnKey("next")
     return textField
 end
 
+local function create_email_label_and_desc()
+    local group = display.newGroup()
+
+    local emailLabel = display.newText( "Enter a valid email", display.contentWidth / 2, 400, native.systemFontBold, 40 )
+    emailLabel:setFillColor( 0, 0, 0 )
+
+    local emailDesc = display.newText {
+        text = "(Optional: this is required to recover your password and verify your account.)",
+        x = display.contentWidth / 2,
+        y = 475,
+        font = native.systemFont,
+        fontSize = 30,
+        width = 7 * display.contentWidth / 8,
+        align = "center"}
+    emailDesc:setFillColor( 0, 0, 0 )
+
+    group:insert(emailLabel)
+    group:insert(emailDesc)
+
+    return group
+end
+
 local function create_email_text_field()
-    local textField = native.newTextField( display.contentWidth / 2, 450, 600, 80 )
-    textField.size = 20
-    textField.placeholder = "Enter a valid email"
+    local textField = native.newTextField( display.contentWidth / 2, 575, 600, 80 )
+    textField.size = 14
+    textField.placeholder = "e.g. bob@example.com"
     textField:setReturnKey("next")
     return textField
 end
@@ -146,7 +180,9 @@ function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.create_background()
     local backButton = common_ui.create_back_button(100, 100)
+    local usernameLabelGrp = create_username_label_and_desc()
     local username_text = create_username_text_field()
+    local emailLabelGrp = create_email_label_and_desc()
     local email_text = create_email_text_field()
     local pass_fields = create_password_fields()
     local done_button = create_done_button()
@@ -154,7 +190,9 @@ function scene:create(event)
     sceneGroup:insert(background)
     sceneGroup:insert(backButton)
     sceneGroup:insert(username_text)
+    sceneGroup:insert(usernameLabelGrp)
     sceneGroup:insert(email_text)
+    sceneGroup:insert(emailLabelGrp)
     sceneGroup:insert(pass_fields)
     sceneGroup:insert(done_button)
 
