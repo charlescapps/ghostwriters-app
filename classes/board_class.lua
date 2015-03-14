@@ -50,6 +50,10 @@ function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
     return newBoard
 end
 
+function board_class:getZoomScale()
+    return self.N / 5
+end
+
 function board_class:disableInteraction()
     print("board: disabling interaction")
     self.interactionDisabled = true
@@ -175,6 +179,7 @@ function board_class:createSquaresGroup(width)
 
 	self.squaresGroup = squaresGroup
 	self.squareImages = squareImages
+    squaresGroup:addEventListener("touch", self:getSquaresGroupTouchListener())
 	return squaresGroup
 end
 
@@ -222,6 +227,29 @@ function board_class:createTilesGroup(width)
 	self.tilesGroup = tilesGroup
 	return tilesGroup
 
+end
+
+function board_class:getSquaresGroupTouchListener()
+    return function(event)
+        if self.interactionDisabled or not self.isZoomed then
+            return true
+        end
+        if event.phase == "began" then
+           print("Sqaures touch listener: began")
+           display.getCurrentStage():setFocus(event.target)
+           self.boardGroupStartX, self.boardGroupStartY = self.boardGroup.x, self.boardGroup.y
+        elseif event.phase == "moved" then
+            local xLocal, yLocal = self.boardContainer:contentToLocal(event.x, event.y)
+            local xStartLocal, yStartLocal = self.boardContainer:contentToLocal(event.xStart, event.yStart)
+            local scale = self:getZoomScale()
+            local xDelta, yDelta = xLocal - xStartLocal, yLocal - yStartLocal
+            self.boardGroup.x = self:restrictX(self.boardGroupStartX + xDelta, scale)
+            self.boardGroup.y = self:restrictX(self.boardGroupStartY + yDelta, scale)
+        elseif event.phase == "ended" or event.phase == "cancelled" then
+            self.boardGroupStartX, self.boardGroupStartY = nil, nil
+            display.getCurrentStage():setFocus(nil)
+        end
+    end
 end
 
 function board_class:getTilesGroupTouchListener()
@@ -309,13 +337,17 @@ function board_class:zoomIn(scale, x, y)
 		print("Error - board has no self.boardGroup display group. Cannot zoom in.")
 		return 
 	end
+	-- Do not zoom in the tiny board.
+	if self.gameModel.boardSize == common_api.SMALL_SIZE then
+		return
+	end
 	self.isZoomed = true
 	local params = {
 		tag = "board_zoom_in",
 		xScale = scale,
 		yScale = scale,
-		x = self:restrictX(2*self.startX - 2*x),
-		y = self:restrictX(2*self.startY - 2*y)
+		x = self:restrictX(scale * (self.startX - x), scale),
+		y = self:restrictX(scale * (self.startY - y), scale)
 	}
 	transition.to(self.boardGroup, params)
 end
@@ -352,7 +384,8 @@ function getBoardTapListener(board)
 		end
 
 		if event.numTaps == 2 then
-			board:toggleZoom(2, event.x - board.boardGroup.x, event.y - board.boardGroup.y)
+            local zoomScale = board:getZoomScale()
+			board:toggleZoom(zoomScale, event.x - board.boardGroup.x, event.y - board.boardGroup.y)
 		else
 
 		end
@@ -388,10 +421,11 @@ function board_class:createBoardContainer()
 	return boardContainer
 end
 
-function board_class:restrictX(x)
+function board_class:restrictX(x, scale)
 	local width = self.width
-	local MIN_X = - width / 2
-	local MAX_X = width / 2
+    local scaledWidth = scale * width
+	local MIN_X = -scaledWidth / 2 + width / 2
+	local MAX_X = scaledWidth / 2 - width / 2
 	if x < MIN_X then
 		return MIN_X
 	elseif x > MAX_X then
