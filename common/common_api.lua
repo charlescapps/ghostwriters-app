@@ -6,9 +6,12 @@ local word_spinner_class = require("classes.word_spinner_class")
 local M = {}
 
 local SERVER = "https://words-with-rivals-beta.herokuapp.com/api"
+--local SERVER = "http://localhost:8080/api"
 
 local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
+
+local DEFAULT_TIMEOUT = 30
 
 -- Constants
 -- Game types
@@ -89,6 +92,15 @@ M.usersURL = function()
 	return SERVER .. "/users"
 end
 
+M.nextUsernameURL = function(deviceId)
+    local url =  M.usersURL() .. "/nextUsername"
+    if deviceId then
+        return url .. "?deviceId=" .. escape(deviceId)
+    else
+        return url
+    end
+end
+
 M.gamesURL = function()
 	return SERVER .. "/games"
 end
@@ -104,7 +116,7 @@ M.login = function(username, password, onSuccess, onFail)
 					  ["Content-Type"] = "application/json" 
 					}
 	local params = { headers = headers,
-					 timeout = 20 }
+					 timeout = DEFAULT_TIMEOUT }
 	local listener = function(event)
 		if "ended" == event.phase then
 			if event.isError or not event.response then
@@ -144,22 +156,62 @@ M.login = function(username, password, onSuccess, onFail)
 	return network.request(M.loginURL(), "POST", listener, params)
 end
 
-M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFail)
+M.getNextUsername = function(deviceId, onSuccess, onFail)
+    -- Use basic auth as the Initial User
+    local basic = getBasicAuthHeader(INITIAL_USER, INITIAL_PASS)
+    local headers = {
+        ["Authorization"] = basic,
+        ["Content-Type"] = "application/json"
+    }
+    local params = { headers = headers,
+        timeout = 5, -- shorter timeout.
+        body = nil }
+
+    local listener = function(event)
+        if "ended" == event.phase then
+            if event.isError or not event.response then
+                print ("Network error occurred: " .. json.encode(event))
+                onFail()
+                return
+            end
+            local nextUsername = json.decode(event.response)
+            if not nextUsername then
+                print("Invalid JSON returned from server: " .. json.encode(event))
+                onFail()
+                return
+            elseif nextUsername["errorMessage"] then
+                print("An error occurred getting next username: " .. nextUsername["errorMessage"]);
+                onFail()
+                return
+            elseif not nextUsername.nextUsername then
+                print("No username returned from nextUsername endpoint: " .. json.encode(event))
+                onFail()
+                return
+            end
+            print("SUCCESS - got next username: " .. json.encode(nextUsername))
+            onSuccess(nextUsername)
+
+        end
+    end
+    return network.request(M.nextUsernameURL(deviceId), "GET", listener, params)
+end
+
+M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFail)
 
 	-- Use basic auth as the Initial User 
 	local basic = getBasicAuthHeader(INITIAL_USER, INITIAL_PASS)
-	local body = json.encode({username = username, email = email, password = password});
+	local body = json.encode({username = username, email = email, deviceId = deviceId });
 	local headers = { ["Authorization"] = basic,
 					  ["Content-Type"] = "application/json" 
 					}
 	local params = { headers = headers,
-					 timeout = 20,
+					 timeout = DEFAULT_TIMEOUT,
 					 body = body }
 	local listener = function(event)
 		if "ended" == event.phase then
 			if event.isError or not event.response then
                 M.showNetworkError()
-				print ("Network error occurred creating a new user '" .. username .. "' with pass '" .. password .. "'" 
+				print ("Network error occurred creating a new user '" .. username .. "' with pass '" .. deviceId .. "'"
 					.. "! Event = " .. json.encode(event));
 				onFail()
 				return
@@ -179,7 +231,7 @@ M.createNewAccountAndLogin = function(username, email, password, onSuccess, onFa
 			end
 			if not M.isValidUser(user) then
                 M.showNetworkError()
-				print ("Failed to create a new user with username '" .. username .. "' and pass " .. password 
+				print ("Failed to create a new user with username '" .. username .. "' and pass " .. deviceId
 					.. "! Event = " .. json.encode(event))
 				onFail()
 				return				

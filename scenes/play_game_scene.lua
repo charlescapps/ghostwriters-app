@@ -490,7 +490,7 @@ onSendMoveFail = function(json)
             message = "Invalid move!"
         end
         native.showAlert( "Oops...", message, { "Try again" }, function(event)
-            if event.phase == "clicked" then
+            if event.action == "clicked" then
                rack:enableInteraction()
                board:enableInteraction()
             end
@@ -501,7 +501,7 @@ end
 
 onSendMoveNetworkFail = function(event)
     native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
-        if event.phase == "clicked" then
+        if event.action == "clicked" then
            rack:enableInteraction()
            board:enableInteraction()
         end

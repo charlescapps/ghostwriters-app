@@ -112,6 +112,7 @@ settings =
 		usesPermissions =
 		{
 			"android.permission.INTERNET",
+			"android.permission.READ\_PHONE\_STATE"
 		},
 	},
 }

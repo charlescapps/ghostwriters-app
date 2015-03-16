@@ -1,10 +1,12 @@
 local composer = require("composer")
 local native = require("native")
-local display = require("display")
 local widget = require("widget")
+local display = require("display")
+local word_spinner_class = require("classes.word_spinner_class")
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local nav = require("common.nav")
+local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
 
 local scene = composer.newScene()
@@ -12,126 +14,119 @@ local scene = composer.newScene()
 scene.sceneName = "login.logged_out_scene"
 
 -- Constants
-local MIN_PASSWORD_LEN = 4
 local MIN_USERNAME_LEN = 4
+local MAX_USERNAME_LEN = 16
 
 -- Display objects
-local scrollView
 local usernameTextField
 local passwordTextField
 local textProgress
+local wordSpinner
 
 -- Pre-declated functions
-local createScrollView
-local createNativeInputs
+local createUsernameInput
+local createGetNextUsernameButton
 local removeNativeInputs
-local signIn
+local createAccountAndGo
+local getNextUsername
 local createTextProgress
-local onLoginSuccess
-local onLoginFail
+
+-- Callbacks
+local onCreateAccountSuccess
+local onCreateAccountFail
+
+local onGetNextUsernameSuccess
+local onGetNextUsernameFail
 
 -- Stored values
 local storedUsername
-local storedPassword
 
-local function createNewAccountButton()
-    return common_ui.create_button("Create a new user", 300,
-        function()
-            nav.goToSceneFrom(scene.sceneName, "login.create_account_scene", "fade")
-        end )
+local function createSecondaryDeviceLink()
+    local LINK_COLOR = {0, 0.43, 1 }
+    local LINK_OVER_COLOR = { 0, 0.2, 0.6 }
+    local link = display.newText {
+        text = "Sign in as existing user?",
+        font = native.systemFont,
+        fontSize = 36,
+        x = display.contentWidth / 2,
+        y = 900,
+        align = "center"
+    }
+    link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
+    link:addEventListener("touch", function(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(link)
+            link:setFillColor(LINK_OVER_COLOR[1], LINK_OVER_COLOR[2], LINK_OVER_COLOR[3])
+        elseif event.phase == "ended" then
+            display.getCurrentStage():setFocus(nil)
+            link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
+           nav.goToSceneFrom(scene.sceneName, "login.login_existing_user_scene")
+        elseif event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+            link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
+        end
+    end)
+    
+    return link
 end
 
-signIn = function()
+createAccountAndGo = function()
     local username = usernameTextField.text
-    local password = passwordTextField.text
-    if not username or not password or username:len() <= 0 or password:len() <= 0 then
-        native.showAlert("Oops...", "Please enter a username and password", {"OK"})
+    local deviceId = system.getInfo("deviceID")
+    if not username or username:len() <= 0 then
+        native.showAlert("Oops...", "Please enter a username", {"OK"})
     elseif username:len() < MIN_USERNAME_LEN then
         native.showAlert("Oops...", "Usernames must be at least " .. MIN_USERNAME_LEN .. " characters long.", {"OK"})
-    elseif password:len() < MIN_PASSWORD_LEN then
-        native.showAlert("Oops...", "Passwords must be at least " .. MIN_PASSWORD_LEN .. " characters long.", {"OK"})
+    elseif username:len() > MAX_USERNAME_LEN then
+        native.showAlert("Oops...", "Usernames can't be longer than " .. MAX_USERNAME_LEN .. " characters long.", {"OK"})
     else
         storedUsername = username
-        storedPassword = password
         local currentScene = composer.getSceneName("current")
         if currentScene == scene.sceneName then
             removeNativeInputs()
             textProgress = createTextProgress()
             textProgress:start()
-            common_api.login(username, password, onLoginSuccess, onLoginFail)
+            common_api.createNewAccountAndLogin(username, nil, deviceId,
+                onCreateAccountSuccess, onCreateAccountFail)
         end
     end
 end
 
-createScrollView = function()
-    return widget.newScrollView {
-        x = display.contentWidth / 2,
-        y = display.contentHeight / 2,
-        width = display.contentWidth,
-        height = display.contentHeight,
-        scrollWidth = display.contentWidth,
-        scrollHeight = 3 * display.contentHeight / 2,
-        horizontalScrollDisabled = true,
-        hideBackground = true,
-        hideScrollBar = true
-    }
-end
+createUsernameInput = function()
 
-createNativeInputs = function()
-
-    usernameTextField = native.newTextField(display.contentWidth / 2, 750, 3 * display.contentWidth / 4, 80)
-    passwordTextField = native.newTextField(display.contentWidth / 2, 950, 3 * display.contentWidth / 4, 80)
+    usernameTextField = native.newTextField(375, 400, 475, 80)
 
     usernameTextField.isFontSizeScaled = true
-    usernameTextField.placeholder = "Username or email"
-    usernameTextField:setReturnKey("next")
+    usernameTextField.placeholder = "e.g. Ghosty McFee"
+    usernameTextField:setReturnKey("done")
     if storedUsername then
         usernameTextField.text = storedUsername
     end
 
-    passwordTextField.isFontSizeScaled = true
-    passwordTextField.placeholder = "Password"
-    passwordTextField:setReturnKey("done")
-    if storedPassword then
-        passwordTextField.text = storedPassword
-    end
-
-    usernameTextField.size, passwordTextField.size = 16, 16
-    usernameTextField.align, passwordTextField.align = "center", "center"
-    passwordTextField.isSecure = true
-
-    scrollView:insert(usernameTextField)
-    scrollView:insert(passwordTextField)
+    usernameTextField.size = 16
+    usernameTextField.align = "center"
 
     usernameTextField:addEventListener("userInput", function(event)
-        if event.phase == "began" then
-            scrollView:scrollToPosition{
-                y = - 100,
-                time = 500
-            }
-        elseif event.phase == "ended" then
-            scrollView:scrollToPosition{
-                y = 0,
-                time = 500
-            }
-        end
-    end)
-
-    passwordTextField:addEventListener("userInput", function(event)
-        if event.phase == "began" then
-            scrollView:scrollToPosition{
-                y = - 300,
-                time = 500
-            }
+        if event.phase == "editing" then
+            if event.text and event.text:len() > MAX_USERNAME_LEN then
+               usernameTextField.text = event.text:sub(1, MAX_USERNAME_LEN)
+            end
         elseif event.phase == "submitted" then
-            signIn()
-        elseif event.phase == "ended" then
-            scrollView:scrollToPosition{
-                y = 0,
-                time = 500
-            }
+            createAccountAndGo()
         end
     end)
+end
+
+createGetNextUsernameButton = function()
+    return widget.newButton {
+        x = 675,
+        y = 400,
+        onRelease = getNextUsername,
+        width = 80,
+        height = 80,
+        defaultFile = "images/refresh_username_icon.png",
+        overFile = "images/refresh_username_icon_dark.png"
+    }
 end
 
 removeNativeInputs = function()
@@ -139,97 +134,86 @@ removeNativeInputs = function()
         usernameTextField:removeSelf()
         usernameTextField = nil
     end
-    if passwordTextField then
-        passwordTextField:removeSelf()
-        passwordTextField = nil
-    end
 end
 
-local function createSignInTexts()
-    local group = display.newGroup()
-
-    local orText = display.newText {
-        x = display.contentWidth / 2,
-        y = 450,
-        font = native.systemFontBold,
-        fontSize = 75,
-        text = "~ or ~"
-    }
-
-    local signInText = display.newText {
-        x = display.contentWidth / 2,
-        y = 550,
-        font = native.systemFont,
-        fontSize = 60,
-        text = "Sign in"
-    }
+local function createUsernameInputLabel()
 
     local usernameLabel = display.newText {
         x = display.contentWidth / 2,
-        y = 675,
+        y = 300,
         font = native.systemFont,
         fontSize = 50,
-        text = "Enter Username"
+        text = "Choose your name!"
     }
 
-    local passwordLabel = display.newText {
-        x = display.contentWidth / 2,
-        y = 875,
-        font = native.systemFont,
-        fontSize = 50,
-        text = "Enter password"
-    }
-
-    orText:setFillColor(0, 0, 0)
-    signInText:setFillColor(0, 0, 0)
     usernameLabel:setFillColor(0, 0, 0)
-    passwordLabel:setFillColor(0, 0, 0)
 
-    group:insert(orText)
-    group:insert(signInText)
-    group:insert(usernameLabel)
-    group:insert(passwordLabel)
-
-    return group
+    return usernameLabel
 end
 
 createTextProgress = function()
     return text_progress_class.new(scene.view, display.contentWidth / 2, display.contentHeight / 2,
-        "Signing in...", 80, 0.8)
+        "Signing in...", 75, 0.8)
 end
 
-onLoginSuccess = function()
+onCreateAccountSuccess = function()
     textProgress:stop()
     nav.goToSceneFrom(scene.sceneName, "scenes.title_scene", "fade")
 end
 
-onLoginFail = function()
+onCreateAccountFail = function()
     print("Login failed...")
     textProgress:stop(function()
-        createNativeInputs()
+        createUsernameInput()
     end)
 end
 
-local function createSignInButton()
-    return common_ui.create_button("Sign in", 1150, signIn)
+onGetNextUsernameSuccess = function(nextUsername)
+    wordSpinner:stop()
+    local username = nextUsername.nextUsername
+    local required = nextUsername.required
+    usernameTextField.text = username
+    if required then
+       usernameTextField.isDisabled = true
+    end
 end
+
+onGetNextUsernameFail = function()
+    wordSpinner:stop()
+end
+
+local function createGoButton()
+    return common_ui.create_button("Go!", 550, createAccountAndGo)
+end
+
+getNextUsername = function()
+    wordSpinner = word_spinner_class.new()
+    wordSpinner:start()
+
+    local deviceId = system.getInfo("deviceID")
+
+    common_api.getNextUsername(deviceId, onGetNextUsernameSuccess, onGetNextUsernameFail)
+end
+
 
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.create_background()
-    local title = common_ui.create_title("Words with Rivals", nil, { 0, 0, 0 })
-    local newAccountButton = createNewAccountButton()
-    local signInTexts = createSignInTexts()
-    local signInButton = createSignInButton()
-    scrollView = createScrollView()
+    local title = common_ui.create_title("Ghost Writers", nil, { 0, 0, 0 }, 55)
+    local usernameInputLabel = createUsernameInputLabel()
+    local getNextUsernameButton = createGetNextUsernameButton()
+    local createAccountAndGoButton = createGoButton()
+    local secondDeviceButton = createSecondaryDeviceLink()
 
     sceneGroup:insert(background)
-    sceneGroup:insert(scrollView)
-    scrollView:insert(title)
-    scrollView:insert(newAccountButton)
-    scrollView:insert(signInTexts)
-    scrollView:insert(signInButton)
+    sceneGroup:insert(title)
+    sceneGroup:insert(usernameInputLabel)
+    sceneGroup:insert(getNextUsernameButton)
+    sceneGroup:insert(createAccountAndGoButton)
+    sceneGroup:insert(secondDeviceButton)
+
+    getNextUsername()
 
 end
 
@@ -241,7 +225,7 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
-        createNativeInputs()
+        createUsernameInput()
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
@@ -272,7 +256,15 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
     removeNativeInputs()
-    storedUsername, storedPassword = nil, nil
+    storedUsername = nil
+    if textProgress then
+        textProgress:stop()
+        textProgress = nil
+    end
+    if wordSpinner then
+        wordSpinner:stop()
+        wordSpinner = nil
+    end
     -- Called prior to the removal of scene's view ("sceneGroup").
     -- Insert code here to clean up the scene.
     -- Example: remove display objects, save state, etc.
