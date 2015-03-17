@@ -3,6 +3,7 @@ local board_class_mt = { __index = board_class }
 
 local square = require("common.square")
 local tile = require("common.tile")
+local points_bubble_class = require("classes.points_bubble_class")
 local math = require("math")
 local display = require("display")
 local common_api = require("common.common_api")
@@ -43,9 +44,12 @@ function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
 		onGrabTiles = onGrabTiles,
 		rackTileImages = rackTileImages,
         gameModel = gameModel
-	}
+    }
 
 	newBoard = setmetatable( newBoard, board_class_mt )
+
+    newBoard.pointsBubble = points_bubble_class.new(newBoard)
+
     newBoard:createBoardContainer()
     return newBoard
 end
@@ -478,6 +482,7 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 		height = squareImage.squareBg.height,
 		onComplete = function(event)
 			print("Finished adding letter " .. letter .. " to the board")
+            self.pointsBubble:drawPointsBubble()
 		end
 		})
 	
@@ -492,7 +497,7 @@ function board_class:removeRackTileFromBoard(tileImage)
 	end
 	tileImage.row = nil
     tileImage.col = nil
-
+    self.pointsBubble:drawPointsBubble()
 end
 
 function board_class:getCurrentPlayTilesMove()
