@@ -493,11 +493,14 @@ end
 function board_class:removeRackTileFromBoard(tileImage)
     local row, col = tileImage.row, tileImage.col
 	if row and col then
+        local wasRackTile = self.rackTileImages[row][col] ~= nil
 		self.rackTileImages[row][col] = nil
+        if wasRackTile then
+            self.pointsBubble:drawPointsBubble()
+        end
 	end
 	tileImage.row = nil
     tileImage.col = nil
-    self.pointsBubble:drawPointsBubble()
 end
 
 function board_class:getCurrentPlayTilesMove()

@@ -107,13 +107,13 @@ function points_bubble_class:drawPointsBubble()
 
     self.bubbleDisplayGroup = self:drawBubble(points, x, y)
     board.boardGroup:insert(self.bubbleDisplayGroup)
-    transition.to(self.bubbleDisplayGroup, { scale = 1, time = 1000 })
+    transition.to(self.bubbleDisplayGroup, { xScale = 1, yScale = 1, time = 500 })
 end
 
 function points_bubble_class:removePointsBubble()
     local currentBubble = self.bubbleDisplayGroup
     if currentBubble then
-        transition.to(currentBubble, {time = 500, scale = 0.1, onComplete = function()
+        transition.to(currentBubble, {time = 500, xScale = 0.1, yScale = 0.1, onComplete = function()
             currentBubble:removeSelf()
         end})
     end
@@ -121,7 +121,7 @@ end
 
 function points_bubble_class:drawBubble(points, x, y)
     local group = display.newGroup()
-    group.scale = 0.1 --initial scale very small
+    group.xScale, group.yScale = 0.1, 0.1 --initial scale very small!
 
     -- Draw the rounded rect
     local roundedRect = display.newRoundedRect(0, 0, BUBBLE_WIDTH, BUBBLE_HEIGHT, 60)
@@ -139,6 +139,7 @@ function points_bubble_class:drawBubble(points, x, y)
         fontSize = 30,
         align = "center"
     }
+    pointsText:setFillColor(.9, .9, .9)
 
     group:insert(roundedRect)
     group:insert(pointsText)
