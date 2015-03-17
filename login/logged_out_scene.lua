@@ -19,12 +19,14 @@ local MAX_USERNAME_LEN = 16
 
 -- Display objects
 local usernameTextField
+local deviceUsernameText
 local passwordTextField
 local textProgress
 local wordSpinner
 
 -- Pre-declated functions
 local createUsernameInput
+local createDeviceUsernameText
 local createGetNextUsernameButton
 local removeNativeInputs
 local createAccountAndGo
@@ -71,7 +73,7 @@ local function createSecondaryDeviceLink()
 end
 
 createAccountAndGo = function()
-    local username = usernameTextField.text
+    local username = deviceUsernameText and deviceUsernameText.text or usernameTextField.text
     local deviceId = system.getInfo("deviceID")
     if not username or username:len() <= 0 then
         native.showAlert("Oops...", "Please enter a username", {"OK"})
@@ -94,16 +96,16 @@ end
 
 createUsernameInput = function()
 
-    usernameTextField = native.newTextField(375, 400, 475, 80)
+    usernameTextField = native.newTextField(display.contentWidth / 2, 400, 475, 80)
 
     usernameTextField.isFontSizeScaled = true
+    usernameTextField.size = 16
     usernameTextField.placeholder = "e.g. Ghosty McFee"
     usernameTextField:setReturnKey("done")
     if storedUsername then
         usernameTextField.text = storedUsername
     end
 
-    usernameTextField.size = 16
     usernameTextField.align = "center"
 
     usernameTextField:addEventListener("userInput", function(event)
@@ -115,6 +117,19 @@ createUsernameInput = function()
             createAccountAndGo()
         end
     end)
+end
+
+createDeviceUsernameText = function(deviceUsername)
+    deviceUsernameText = display.newText {
+        x = display.contentWidth / 2,
+        y = 400,
+        text = deviceUsername,
+        align = "center",
+        font = native.systemFontBold,
+        fontSize = 40
+    }
+    deviceUsernameText:setFillColor(0, 0, 0)
+    return deviceUsernameText
 end
 
 createGetNextUsernameButton = function()
@@ -172,9 +187,13 @@ onGetNextUsernameSuccess = function(nextUsername)
     wordSpinner:stop()
     local username = nextUsername.nextUsername
     local required = nextUsername.required
-    usernameTextField.text = username
-    if required then
-       usernameTextField.isDisabled = true
+    if usernameTextField then
+        usernameTextField.text = username
+    end
+    if username and required then
+       deviceUsernameText = createDeviceUsernameText(username)
+       scene.view:insert(deviceUsernameText)
+       removeNativeInputs()
     end
 end
 
