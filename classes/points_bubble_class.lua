@@ -153,7 +153,7 @@ function points_bubble_class:drawPointsBubble()
     self.bubbleDisplayGroup = bubbleDiplayGroup
     board.boardGroup:insert(self.bubbleDisplayGroup)
     transition.to(self.bubbleDisplayGroup, { xScale = 1, yScale = 1, time = 500, onComplete = function()
-        timer.performWithDelay(3000, function()
+        timer.performWithDelay(2000, function()
             self:removeAnyBubble(bubbleDiplayGroup)
         end)
     end })

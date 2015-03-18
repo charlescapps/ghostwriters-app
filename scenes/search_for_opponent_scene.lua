@@ -14,6 +14,7 @@ local MAX_RESULTS = 20
 
 local userResultRows = {}
 local nativeTextInput
+local scrollView
 
 -- Callbacks after 
 
@@ -292,9 +293,11 @@ function scene:hide( event )
         nativeTextInput:removeSelf( )
         nativeTextInput = nil
 
-        scrollView:removeSelf()
-        scrollView = nil
     elseif ( phase == "did" ) then
+        if scrollView then
+            scrollView:removeSelf()
+            scrollView = nil
+        end
         
         -- Called immediately after scene goes off screen.
     end

@@ -38,15 +38,17 @@ function scene:create(event)
 	local sceneGroup = self.view
 	local background = common_ui.create_background()
 	local titleText = createTitleText()
-	local buttonSinglePlayer = createTitleButton("Single Player", "single_player_button", 400, click_single_player)
-	local buttonPlayOthers = createTitleButton("Play with rivals", "multi_player_button", 700, click_play_others)
-	local buttonFacebook = createTitleButton("Find rivals on Facebook", "facebook_button", 1000)
+	local buttonSinglePlayer = createTitleButton("Play Single Player", "single_player_button", 400, click_single_player)
+	local buttonPlayOthers = createTitleButton("Play One-on-One", "multi_player_button", 650, click_play_others)
+	local buttonMyGames = createTitleButton("My Games", "my_games_button", 900)
+	local buttonLeaderboard = createTitleButton("Leaderboard", "leaderboard_button", 1150)
 
 	sceneGroup:insert(background)
 	sceneGroup:insert( titleText )
 	sceneGroup:insert( buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )
-	sceneGroup:insert( buttonFacebook )
+	sceneGroup:insert( buttonMyGames )
+    sceneGroup:insert( buttonLeaderboard )
 end
 
 -- "scene:show()"
