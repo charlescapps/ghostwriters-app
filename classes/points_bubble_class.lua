@@ -11,6 +11,7 @@ local math = require("math")
 local display = require("display")
 local native = require("native")
 local transition = require("transition")
+local timer = require("timer")
 
 local points_bubble_class = {}
 local points_bubble_class_mt = { __index = points_bubble_class }
@@ -35,10 +36,11 @@ function points_bubble_class:computePoints(playMove)
     local board = self.board
     local startR, startC, dir, letters, rackTiles = playMove.start.r + 1, playMove.start.c + 1, playMove.dir, playMove.letters, playMove.tiles
     local points = 0
+    print("startR, startC, dir, letters, rackTiles=" .. startR .. "," .. startC .. "," .. dir .. "," .. letters .. "," .. rackTiles)
     local rackTilesIndex = 1
     if dir == "E" then
         for c = startC, startC + letters:len() - 1 do
-            local tile = self.board.tiles[startR][c]
+            local tile = board.tiles[startR][c]
             if tile and tile ~= TILE.emptyTile then
                points = points + POINTS.getLetterPoints(tile)
             else
@@ -46,6 +48,9 @@ function points_bubble_class:computePoints(playMove)
                 local rackLetter = rackTiles:sub(rackTilesIndex, rackTilesIndex)
                 rackTilesIndex = rackTilesIndex + 1
                 points = points + POINTS.getLetterPoints(rackLetter) * square.num
+
+                local perpPoints = self:getPerpPoints(startR, c, rackLetter, "E", board)
+                points = points + perpPoints
             end
 
         end
@@ -59,10 +64,43 @@ function points_bubble_class:computePoints(playMove)
                 local rackLetter = rackTiles:sub(rackTilesIndex, rackTilesIndex)
                 rackTilesIndex = rackTilesIndex + 1
                 points = points + POINTS.getLetterPoints(rackLetter) * square.num
+
+                local perpPoints = self:getPerpPoints(r, startC, rackLetter, "S", board)
+                points = points + perpPoints
             end
 
         end
     end
+
+    return points
+end
+
+function points_bubble_class:getPerpPoints(r, c, letter, dir, board)
+    local rStart, cStart, rEnd, cEnd
+    if dir == "E" then
+        -- Perp word is North to South, if present
+        rStart, cStart = board:getLastOccupied(r, c, {-1, 0})
+        rEnd, cEnd = board:getLastOccupied(r, c, { 1, 0})
+        if rStart == r and rEnd == r then
+            return 0
+        end
+    else
+        -- Perp word is West to East, if present
+        rStart, cStart = board:getLastOccupied(r, c, {0, -1})
+        rEnd, cEnd = board:getLastOccupied(r, c, { 0, 1})
+        if cStart == c and cEnd == c then
+            return 0
+        end
+    end
+
+    local lettersOnBoard = board:getLettersInRange(rStart, cStart, rEnd, cEnd, false)
+    local points = 0
+    for i = 1, lettersOnBoard:len() do
+        local ch = lettersOnBoard:sub(i, i)
+        points = points + POINTS.getLetterPoints(ch)
+    end
+    local square = board.squares[r][c]
+    points = points + POINTS.getLetterPoints(letter) * square.num
 
     return points
 end
@@ -111,19 +149,26 @@ function points_bubble_class:drawPointsBubble()
             flip = true
         end
     end
-
-    self.bubbleDisplayGroup = self:drawBubble(points, x, y, rotateDegrees, textY, flip)
+    local bubbleDiplayGroup = self:drawBubble(points, x, y, rotateDegrees, textY, flip)
+    self.bubbleDisplayGroup = bubbleDiplayGroup
     board.boardGroup:insert(self.bubbleDisplayGroup)
-    transition.to(self.bubbleDisplayGroup, { xScale = 1, yScale = 1, time = 500 })
+    transition.to(self.bubbleDisplayGroup, { xScale = 1, yScale = 1, time = 500, onComplete = function()
+        timer.performWithDelay(3000, function()
+            self:removeAnyBubble(bubbleDiplayGroup)
+        end)
+    end })
+end
+
+function points_bubble_class:removeAnyBubble(bubbleDisplayGroup)
+    if bubbleDisplayGroup then
+        transition.to(bubbleDisplayGroup, {time = 500, xScale = 0.01, yScale = 0.01, onComplete = function()
+            bubbleDisplayGroup:removeSelf()
+        end})
+    end
 end
 
 function points_bubble_class:removePointsBubble()
-    local currentBubble = self.bubbleDisplayGroup
-    if currentBubble then
-        transition.to(currentBubble, {time = 500, xScale = 0.1, yScale = 0.1, onComplete = function()
-            currentBubble:removeSelf()
-        end})
-    end
+    self:removeAnyBubble(self.bubbleDisplayGroup)
 end
 
 function points_bubble_class:drawBubble(points, x, y, rotateDegrees, textY, flip)

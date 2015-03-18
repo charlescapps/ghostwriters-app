@@ -546,19 +546,19 @@ function board_class:getWordForPlayTilesMove(orderedTiles)
 		#orderedTiles > 1 and orderedTiles[1].col < orderedTiles[2].col then -- East direction
 		local startR, startC = self:getLastOccupied(row, col, {0, -1})
 		local endR, endC = self:getLastOccupied(row, col, {0, 1})
-		return self:getLettersInRange(startR, startC, endR, endC), startR, startC, "E"
+		return self:getLettersInRange(startR, startC, endR, endC, true), startR, startC, "E"
 	elseif (#orderedTiles == 1 and (row > 1 and tileImages[row - 1][col] or row < N and tileImages[row + 1][col])) or 
 			#orderedTiles > 1 and orderedTiles[1].row < orderedTiles[2].row then -- South direction
 		local startR, startC = self:getLastOccupied(row, col, {-1, 0})
 		local endR, endC = self:getLastOccupied(row, col, {1, 0})
-		return self:getLettersInRange(startR, startC, endR, endC), startR, startC, "S"
+		return self:getLettersInRange(startR, startC, endR, endC, true), startR, startC, "S"
 	else 
 		return {errorMsg = "Invalid play"}
 	end
 
 end
 
-function board_class:getLettersInRange(startR, startC, endR, endC)
+function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTiles)
 	local tileImages = self.tileImages
 	local rackTileImages = self.rackTileImages
 	local letters = ""
@@ -569,7 +569,7 @@ function board_class:getLettersInRange(startR, startC, endR, endC)
 				return {errorMsg = "Tiles from the rack can't be on top of tiles on the board!"}
 			elseif tileImages[r][j] then
 				letters = letters .. tileImages[r][j].letter
-			elseif rackTileImages[r][j] then
+			elseif includeRackTiles and rackTileImages[r][j] then
 				letters = letters .. rackTileImages[r][j].letter
 			end
 		end
@@ -581,7 +581,7 @@ function board_class:getLettersInRange(startR, startC, endR, endC)
 				return {errorMsg = "Tiles from the rack can't be on top of tiles on the board!"}
 			elseif tileImages[i][c] then
 				letters = letters .. tileImages[i][c].letter
-			elseif rackTileImages[i][c] then
+			elseif includeRackTiles and rackTileImages[i][c] then
 				letters = letters .. rackTileImages[i][c].letter
 			end
 		end
