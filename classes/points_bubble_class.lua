@@ -16,8 +16,8 @@ local points_bubble_class = {}
 local points_bubble_class_mt = { __index = points_bubble_class }
 
 -- Constants
-local BUBBLE_HEIGHT = 100
-local BUBBLE_WIDTH = 150
+local BUBBLE_HEIGHT = 200
+local BUBBLE_WIDTH = 200
 local PAD = 10
 
 
@@ -80,32 +80,39 @@ function points_bubble_class:drawPointsBubble()
     local pxPerSquare = board.width / board.N
     local r, c = playMove.start.r + 1, playMove.start.c + 1
     local squareGroup = board.squareImages[r][c]
-    local x, y
+    local x, y, rotateDegrees, textY, flip
     if playMove.dir == "E" then
        -- Place bubble above the play
        if squareGroup.y < 0 then
            -- Draw bubble below the word, centered
             x = squareGroup.x - pxPerSquare / 2 + letters:len() * pxPerSquare / 2
             y = squareGroup.y + pxPerSquare / 2 + BUBBLE_HEIGHT / 2 + PAD
-
-        else
+            rotateDegrees, textY = 180, 10
+            flip = false
+       else
            -- Draw the bubble above the word, centered
            x = squareGroup.x - pxPerSquare / 2 + letters:len() * pxPerSquare / 2
            y = squareGroup.y - pxPerSquare / 2 - BUBBLE_HEIGHT / 2 - PAD
+           rotateDegrees, textY = 0, -30
+           flip = false
        end
     else
         if squareGroup.x < 0 then
             -- Draw bubble to the right of the word, centered
             x = squareGroup.x + pxPerSquare / 2 + BUBBLE_WIDTH / 2 + PAD
             y = squareGroup.y - pxPerSquare / 2 + letters:len() * pxPerSquare / 2
+            rotateDegrees, textY = 0, -25
+            flip = false
         else
             -- Draw bubble to the left of the word, centered
             x = squareGroup.x - pxPerSquare / 2 - BUBBLE_WIDTH / 2 - PAD
             y = squareGroup.y - pxPerSquare / 2 + letters:len() * pxPerSquare / 2
+            rotateDegrees, textY = 0, -25
+            flip = true
         end
     end
 
-    self.bubbleDisplayGroup = self:drawBubble(points, x, y)
+    self.bubbleDisplayGroup = self:drawBubble(points, x, y, rotateDegrees, textY, flip)
     board.boardGroup:insert(self.bubbleDisplayGroup)
     transition.to(self.bubbleDisplayGroup, { xScale = 1, yScale = 1, time = 500 })
 end
@@ -119,29 +126,30 @@ function points_bubble_class:removePointsBubble()
     end
 end
 
-function points_bubble_class:drawBubble(points, x, y)
+function points_bubble_class:drawBubble(points, x, y, rotateDegrees, textY, flip)
     local group = display.newGroup()
     group.xScale, group.yScale = 0.1, 0.1 --initial scale very small!
+    group.alpha = 0.8
 
-    -- Draw the rounded rect
-    local roundedRect = display.newRoundedRect(0, 0, BUBBLE_WIDTH, BUBBLE_HEIGHT, 60)
-    roundedRect.alpha = 0.5
-    roundedRect.strokeWidth = 5
-    roundedRect:setStrokeColor(0, 0.13, 1)
-    roundedRect:setFillColor {
-        type="gradient",
-        color1={ 0.54, 0.85, 1 }, color2={ 0.85, 0.85, 0.9 }, direction="down"
-    }
+    -- Draw the speech bubble
+    local speechBubbleImg = display.newImageRect ("images/speech_bubble.png", BUBBLE_WIDTH, BUBBLE_HEIGHT)
+    speechBubbleImg.rotation = rotateDegrees
+    if flip then
+        speechBubbleImg.xScale = -1
+    end
 
     local pointsText = display.newText {
-        text = points,
+        text = points .. "\npoints!",
         font = native.systemFontBold,
-        fontSize = 30,
-        align = "center"
+        fontSize = 40,
+        align = "center",
+        width = 3 * BUBBLE_WIDTH / 4,
+        height = 0,
+        y = textY
     }
-    pointsText:setFillColor(.9, .9, .9)
+    pointsText:setFillColor(0, 0, 0)
 
-    group:insert(roundedRect)
+    group:insert(speechBubbleImg)
     group:insert(pointsText)
     group.x, group.y = self:restrictToBoard(x, y)
     return group

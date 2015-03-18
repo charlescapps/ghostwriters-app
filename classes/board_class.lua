@@ -480,6 +480,7 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 	transition.to(tileImage, {
 		width = squareImage.squareBg.width,
 		height = squareImage.squareBg.height,
+        time = 250,
 		onComplete = function(event)
 			print("Finished adding letter " .. letter .. " to the board")
             self.pointsBubble:drawPointsBubble()
