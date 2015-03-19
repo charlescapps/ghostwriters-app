@@ -1,6 +1,7 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
 local json = require("json")
+local board_helpers = require("common.board_helpers")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local current_game = require("globals.current_game")

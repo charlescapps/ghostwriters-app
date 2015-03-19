@@ -108,12 +108,12 @@ end
 
 -- Callback for successful API call to GET /users?q={query}&maxResults=20
 local function onSearchSuccess(jsonResp)
-    if not jsonResp or not jsonResp["users"] then
+    if not jsonResp or not jsonResp["list"] then
         print("Empty result returned from GET /users: " .. json)
         return
     end
 
-    local users = jsonResp["users"]
+    local users = jsonResp["list"]
 
     local sceneGroup = scene.view
     local searchBarGroup = sceneGroup.searchBarGroup

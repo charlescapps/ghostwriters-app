@@ -1,6 +1,7 @@
 local board_class = {}
 local board_class_mt = { __index = board_class }
 
+local board_helpers = require("common.board_helpers")
 local square = require("common.square")
 local tile = require("common.tile")
 local points_bubble_class = require("classes.points_bubble_class")
@@ -16,16 +17,13 @@ local lists = require("common.lists")
 
 -- Pre-declaration of functions
 
-local boardSizeToN
-local parseSquares
-local parseTiles
 local isConnected
 local isUnitVector
 
 function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
-	local N = boardSizeToN(gameModel["boardSize"])
-	local squares = parseSquares(gameModel["squares"], N)
-	local tiles = parseTiles(gameModel["tiles"], N)
+	local N = gameModel.N
+	local squares = board_helpers.parseSquares(gameModel["squares"], N)
+	local tiles = board_helpers.parseTiles(gameModel["tiles"], N)
 	local rackTileImages = {}
 	for i = 1, N do
 		rackTileImages[i] = {}
@@ -54,6 +52,8 @@ function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
     return newBoard
 end
 
+-- Board class Methods --
+
 function board_class:getZoomScale()
     return self.N / 5
 end
@@ -68,85 +68,8 @@ function board_class:enableInteraction()
     self.interactionDisabled = nil
 end
 
--- Local helpers --
-boardSizeToN = function(boardSize)
-	if boardSize == common_api.SMALL_SIZE then
-		return 5
-	elseif 
-		boardSize == common_api.MEDIUM_SIZE then
-		return 9
-	elseif 
-		boardSize == common_api.LARGE_SIZE then
-		return 13
-	end
-	error("Invalid board size: " .. boardSize)
-
-end
-
-
-parseSquares = function(str, N)
-	local squares = {}
-	for i = 1, N do
-		squares[i] = {}
-	end
-
-	for i = 1, str:len() do
-		local c = str:sub(i, i)
-		local sqType = square.valueOf(c)
-		local row = math.floor((i - 1) / N) + 1
-		local col = (i - 1) % N + 1
-		squares[row][col] = sqType
-	end
-
-	return squares
-end
-
-parseTiles = function(str, N)
-	local tiles = {}
-	for i = 1, N do
-		tiles[i] = {}
-	end
-
-	for i = 1, str:len() do
-		local c = str:sub(i, i)
-		local row = math.floor((i - 1) / N) + 1
-		local col = (i - 1) % N + 1
-		tiles[row][col] = c
-	end
-
-	return tiles
-end
-
--- Board class Methods --
-
 function board_class:isGameFinished()
     return self.gameModel.gameResult ~= common_api.IN_PROGRESS
-end
-
-function board_class:getSquaresStr()
-	local N = self.N
-	local squares = self.squares
-	local str = ""
-	for i = 1, N do
-		for j = 1, N do
-			str = str .. squares[i][j].num .. " "
-		end
-		str = str .. "\n"
-	end
-	return str
-end
-
-function board_class:getTilesStr()
-	local N = self.N
-	local tiles = self.tiles
-	local str = ""
-	for i = 1, N do
-		for j = 1, N do
-			str = str .. tiles[i][j] .. " "
-		end
-		str = str .. "\n"
-	end
-	return str
 end
 
 function board_class:computeTileCoords(r, c)
@@ -195,7 +118,7 @@ function board_class:computeTileCoords(row, col)
 	return x, y
 end
 
-function board_class:createTilesGroup(width)
+function board_class:createTilesGroup()
 	local tilesGroup = display.newGroup()
 	local N = self.N
 	local width = self.width

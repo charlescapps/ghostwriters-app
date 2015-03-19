@@ -1,0 +1,142 @@
+local display = require("display")
+local native = require("native")
+local json = require("json")
+local time_util = require("common.time_util")
+local mini_board_class = require("classes.mini_board_class")
+
+local mini_game_view_class = {}
+local mini_game_view_class_mt = { __index = mini_game_view_class }
+
+-- Constants
+local PAD = 10
+
+function mini_game_view_class.new(gameModel, authUser, width, titleFontSize, otherFontSize)
+    if not gameModel or not authUser then
+        print("ERROR - must provide non-nil gameModel and authUser")
+        return nil
+    end
+
+    if authUser.id ~= gameModel.player1Model.id and authUser.id ~= gameModel.player2Model.id then
+        print("The logged in user (" .. authUser.username .. ") isn't player 1 or player 2 in the given game: " .. json.encode(gameModel))
+        return nil
+    end
+
+    local miniGameView = {
+        gameModel = gameModel,
+        authUser = authUser,
+        width = width or (display.contentWidth - PAD * 2),
+        titleFontSize = titleFontSize or 30,
+        otherFontSize = otherFontSize or 24
+    }
+
+    return setmetatable(miniGameView, mini_game_view_class_mt)
+
+end
+
+-- Render the main display group, store as self.view
+-- Returns self.view
+function mini_game_view_class:render()
+    local title = self:renderTitle()
+    title.y = 50
+
+    local pointsGroup = self:renderPointsDisplay()
+    pointsGroup.y = 100
+
+    local dateView = self:renderDateStarted()
+    dateView.y = 150
+
+    local miniBoardView = self:renderMiniBoardView()
+    miniBoardView.y = 200 + self.width / 2
+
+    local group = display.newGroup()
+    group:insert(title)
+    group:insert(pointsGroup)
+    group:insert(dateView)
+    group:insert(miniBoardView)
+
+    self.view = group
+
+    return group
+end
+
+function mini_game_view_class:renderTitle()
+    local gameModel = self.gameModel
+    local authUser = self.authUser
+    local enemyUser
+    if authUser.id == gameModel.player1Model.id then
+        enemyUser = gameModel.player2Model
+    else
+        enemyUser = gameModel.player1Model
+    end
+    local titleTxt = "Me vs. " .. enemyUser.username
+    return display.newText {
+        text = titleTxt,
+        fontSize = self.titleFontSize,
+        font = native.systemFontBold,
+        width = self.width,
+        align = "center",
+        x = self.width / 2
+    }
+end
+
+function mini_game_view_class:renderPointsDisplay()
+    local gameModel = self.gameModel
+    local authUser = self.authUser
+    local isPlayer1 = authUser.id == gameModel.player1Model.id
+    local myPoints, enemyPoints
+    if isPlayer1 then
+        myPoints, enemyPoints = gameModel.player1Points, gameModel.player2Points
+    else
+        enemyPoints, myPoints = gameModel.player1Points, gameModel.player2Points
+    end
+    local leftPointsTxt = "Me: " .. myPoints
+    local rightPointsTxt = "Them: " .. enemyPoints
+
+    local pointsGroup = display.newGroup()
+
+    local leftText = display.newText {
+        text = leftPointsTxt,
+        font = native.systemFont,
+        fontSize = self.otherFontSize,
+        width = self.width / 2,
+        align = "center",
+        x = self.width / 4
+    }
+
+    local rightText = display.newText {
+        text = rightPointsTxt,
+        font = native.systemFont,
+        fontSize = self.otherFontSize,
+        width = self.width / 2,
+        align = "center",
+        x = 3 * self.width / 4
+    }
+
+    pointsGroup:insert(leftText)
+    pointsGroup:insert(rightText)
+    return pointsGroup
+end
+
+function mini_game_view_class:renderDateStarted()
+    local gameModel = self.gameModel
+    local startTimeSecs = gameModel.dateCreated / 1000
+    local durationPretty = time_util.printDurationPrettyFromStartTime(startTimeSecs)
+    local displayTxt = "Started " .. durationPretty
+    return display.newText {
+        text = displayTxt,
+        fontSize = self.otherFontSize,
+        font = native.systemFont,
+        width = self.width,
+        align = "center"
+    }
+end
+
+function mini_game_view_class:renderMiniBoardView()
+    local miniBoardView = mini_board_class.new(self.gameModel, self.width, PAD / 2)
+    self.miniBoardView = miniBoardView
+    miniBoardView.boardGroup.x = self.width / 2
+    return miniBoardView.boardGroup
+end
+
+return mini_game_view_class
+
