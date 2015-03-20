@@ -10,7 +10,7 @@ local mini_game_view_class_mt = { __index = mini_game_view_class }
 -- Constants
 local PAD = 10
 
-function mini_game_view_class.new(gameModel, authUser, width, titleFontSize, otherFontSize)
+function mini_game_view_class.new(gameModel, authUser, width, miniBoardWidth, titleFontSize, otherFontSize)
     if not gameModel or not authUser then
         print("ERROR - must provide non-nil gameModel and authUser")
         return nil
@@ -25,6 +25,7 @@ function mini_game_view_class.new(gameModel, authUser, width, titleFontSize, oth
         gameModel = gameModel,
         authUser = authUser,
         width = width or (display.contentWidth - PAD * 2),
+        miniBoardWidth = miniBoardWidth,
         titleFontSize = titleFontSize or 30,
         otherFontSize = otherFontSize or 24
     }
@@ -46,7 +47,7 @@ function mini_game_view_class:render()
     dateView.y = 150
 
     local miniBoardView = self:renderMiniBoardView()
-    miniBoardView.y = 200 + self.width / 2
+    miniBoardView.y = 200 + self.miniBoardWidth / 2
 
     local group = display.newGroup()
     group:insert(title)
@@ -57,6 +58,13 @@ function mini_game_view_class:render()
     self.view = group
 
     return group
+end
+
+function mini_game_view_class:destroy()
+    if self.view then
+        self.view:removeSelf()
+        self.view = nil
+    end
 end
 
 function mini_game_view_class:renderTitle()
@@ -132,7 +140,7 @@ function mini_game_view_class:renderDateStarted()
 end
 
 function mini_game_view_class:renderMiniBoardView()
-    local miniBoardView = mini_board_class.new(self.gameModel, self.width, PAD / 2)
+    local miniBoardView = mini_board_class.new(self.gameModel, self.miniBoardWidth, PAD / 2)
     self.miniBoardView = miniBoardView
     miniBoardView.boardGroup.x = self.width / 2
     return miniBoardView.boardGroup

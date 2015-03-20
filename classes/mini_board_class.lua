@@ -10,7 +10,7 @@ local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 
 function mini_board_class.new(gameModel, width, padding)
-    local N = gameModel.N
+    local N = gameModel.numRows
     local squares = board_helpers.parseSquares(gameModel["squares"], N)
     local tiles = board_helpers.parseTiles(gameModel["tiles"], N)
     local rackTileImages = {}
@@ -125,7 +125,7 @@ function mini_board_class:createBoardGroup()
     local squaresGroup = self:createSquaresGroup(width)
     local tilesGroup = self:createTilesGroup(width)
 
-    local boardTexture = common_ui.create_image("images/board_bg_texture.png", width + padding, width + padding, 0, 0)
+    local boardTexture = display.newImageRect("images/board_bg_texture.png", width + padding, width + padding)
 
     self.boardGroup = boardGroup
     self.boardTexture = boardTexture

@@ -1,6 +1,5 @@
 local M = {}
 local display = require("display")
-local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 
 M.NORMAL = { num = "1", letterMult = 1, images = nil }
@@ -45,7 +44,7 @@ M.draw = function(sqType, x, y, width, boardSize)
 	local bg = createSquareBackground(0, 0, width)
 	group:insert(bg)
 	if sqType.images then
-		local img = common_ui.create_image(sqType.images[boardSize], width, width, 0, 0)
+		local img = display.newImageRect(sqType.images[boardSize], width, width)
 		group:insert(img)
 	end
 
@@ -61,7 +60,7 @@ M.drawShadedSquare = function(sqType, x, y, width, boardSize)
     local bg = createSquareBackground(0, 0, width, true)
     group:insert(bg)
     if sqType.images then
-        local img = common_ui.create_image(sqType.images[boardSize], width, width, 0, 0)
+        local img = display.newImageRect(sqType.images[boardSize], width, width)
         group:insert(img)
     end
 

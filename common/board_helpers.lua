@@ -58,5 +58,9 @@ function M.getTilesStr(N, tiles)
     return str
 end
 
+function M.isUnitVector(vec)
+    return vec[1] * vec[1] + vec[2] * vec[2] == 1
+end
+
 return M
 

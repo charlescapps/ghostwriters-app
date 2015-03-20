@@ -18,18 +18,23 @@ local createTitleText
 local createUserInfoText
 
 
-local click_single_player = function()
+local clickSinglePlayer = function()
 	print("Clicked single player")
 	new_game_data.clearAll()
 	new_game_data.gameType = common_api.SINGLE_PLAYER
     nav.goToSceneFrom(scene.sceneName, "scenes.choose_ai_scene", "fade")
 end
 
-local click_play_others = function()
+local clickOneOnOne = function()
 	 print( "Clicked play with rivals" )
 	 new_game_data.clearAll()
 	 new_game_data.gameType = common_api.TWO_PLAYER
      nav.goToSceneFrom(scene.sceneName, "scenes.search_for_opponent_scene", "fade")
+end
+
+local clickMyGames = function()
+    print( "Clicked My Games" )
+    nav.goToSceneFrom(scene.sceneName, "scenes.my_games_scene", "fade")
 end
 
 -- "scene:create()"
@@ -38,9 +43,9 @@ function scene:create(event)
 	local sceneGroup = self.view
 	local background = common_ui.create_background()
 	local titleText = createTitleText()
-	local buttonSinglePlayer = createTitleButton("Play Single Player", "single_player_button", 400, click_single_player)
-	local buttonPlayOthers = createTitleButton("Play One-on-One", "multi_player_button", 650, click_play_others)
-	local buttonMyGames = createTitleButton("My Games", "my_games_button", 900)
+	local buttonSinglePlayer = createTitleButton("Play Single Player", "single_player_button", 400, clickSinglePlayer)
+	local buttonPlayOthers = createTitleButton("Play One-on-One", "multi_player_button", 650, clickOneOnOne)
+	local buttonMyGames = createTitleButton("My Games", "my_games_button", 900, clickMyGames)
 	local buttonLeaderboard = createTitleButton("Leaderboard", "leaderboard_button", 1150)
 
 	sceneGroup:insert(background)

@@ -14,6 +14,9 @@ local INITIAL_PASS = "rL4JDxPyPRprsr6e"
 local DEFAULT_TIMEOUT = 30
 
 -- Constants
+-- Meta stuff
+M.MAX_GAMES_IN_PROGRESS = 10
+
 -- Game types
 M.SINGLE_PLAYER = "SINGLE_PLAYER"
 M.TWO_PLAYER = "TWO_PLAYER"
@@ -103,6 +106,11 @@ end
 
 M.gamesURL = function()
 	return SERVER .. "/games"
+end
+
+M.myGamesURL = function(userId, count, inProgress)
+    local baseURL = M.gamesURL()
+    return baseURL .. "?userId=" .. userId .. "&count=" .. count .. "&inProgress=" .. tostring(inProgress)
 end
 
 M.movesURL = function()
@@ -336,13 +344,24 @@ M.createNewGame = function(newGameInput, onSuccess, onFail, onNetworkFail, doMak
 end
 
 M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-	local url = M.movesURL(gameId)
+	local url = M.movesURL()
     local spinner
     if doMakeSpinner then
         spinner = word_spinner_class.new()
         spinner:start()
     end
 	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, spinner)
+end
+
+M.getMyGames = function(userId, count, inProgress, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    local url = M.myGamesURL(userId, count, inProgress)
+    local spinner
+    if doMakeSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
+
 end
 
 return M

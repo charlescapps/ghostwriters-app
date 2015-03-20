@@ -53,7 +53,9 @@ function word_spinner_class:stop()
     print("Stopping word spinner...")
     self.spinner:removeSelf()
     self.spinner:stop()
-    self.screen:removeSelf()
+    if self.screen then
+        self.screen:removeSelf()
+    end
 end
 
 function word_spinner_class:createScreen()

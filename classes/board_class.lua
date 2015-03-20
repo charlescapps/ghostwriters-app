@@ -12,16 +12,13 @@ local common_ui = require("common.common_ui")
 local transition = require("transition")
 
 local lists = require("common.lists")
--- Constants
-
 
 -- Pre-declaration of functions
 
 local isConnected
-local isUnitVector
 
 function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
-	local N = gameModel.N
+	local N = gameModel.numRows
 	local squares = board_helpers.parseSquares(gameModel["squares"], N)
 	local tiles = board_helpers.parseTiles(gameModel["tiles"], N)
 	local rackTileImages = {}
@@ -330,7 +327,7 @@ function board_class:createBoardContainer()
 	local squaresGroup = self:createSquaresGroup(width)
 	local tilesGroup = self:createTilesGroup(width)
 	local rackTilesGroup = display.newGroup()
-    local boardTexture = common_ui.create_image("images/board_bg_texture.png", width + padding, width + padding, 0, 0)
+    local boardTexture = display.newImageRect("images/board_bg_texture.png", width + padding, width + padding)
 
 	self.boardGroup = boardGroup
 	self.rackTilesGroup = rackTilesGroup
@@ -678,7 +675,7 @@ isConnected = function(tiles)
 	local t2 = tiles[2]
 	local vec = { t2.row - t1.row, t2.col - t1.col }
 
-	if not isUnitVector(vec) then
+	if not board_helpers.isUnitVector(vec) then
 		return false
 	end
 
@@ -693,8 +690,6 @@ isConnected = function(tiles)
 	return true
 end
 
-isUnitVector = function(vec)
-	return vec[1] * vec[1] + vec[2] * vec[2] == 1
-end
+
 
 return board_class
