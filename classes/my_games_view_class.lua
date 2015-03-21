@@ -18,13 +18,20 @@ function my_games_view_class.new(authUser)
 end
 
 function my_games_view_class:setGames(games)
+    print("my_games_view_class:setting games to array of size: " .. #(games.list))
     self.games = games
 end
 
 function my_games_view_class:render()
+    print("Rendering table view...")
     self.tableView = self:renderTableView()
-    for i = 1, #(self.games) do
-        self.tableView:insertRow { }
+    for i = 1, #(self.games.list) do
+        print("Inserting row: " .. i)
+        self.tableView:insertRow {
+            rowHeight = 600,
+            isCategory = false,
+            rowColor = { default={ 0.3, 0.3, 0.3, 0 }, over={ 0.3, 0.3, 0.3, 0.2 } }
+        }
     end
     return self.tableView
 end
@@ -53,24 +60,25 @@ end
 function my_games_view_class:createOnRowRenderCallback()
     return function(event)
         local games = self.games
-        if not games then
+        if not games or not games.list then
             return
         end
 
         local row = event.row
         local index = row.index
 
-        if not games[index] then
+        if not games.list[index] then
             print("games[" .. index .. "] is not defined, so not rendering a row.")
             return
         end
 
         local miniGameView = mini_game_view_class.new(
-            games[index], self.authUser, MINI_GAME_WIDTH, MINI_BOARD_WIDTH, 50, 40)
+            games.list[index], self.authUser, MINI_GAME_WIDTH, MINI_BOARD_WIDTH, 50, 40)
 
         self.miniGameViews[index] = miniGameView
+        local miniGameViewGroup = miniGameView:render()
 
-        row:insert(miniGameView)
+        row:insert(miniGameViewGroup)
     end
 end
 

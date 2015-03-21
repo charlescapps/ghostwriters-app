@@ -47,7 +47,7 @@ local function createSecondaryDeviceLink()
     local LINK_COLOR = {0, 0.43, 1 }
     local LINK_OVER_COLOR = { 0, 0.2, 0.6 }
     local link = display.newText {
-        text = "Sign in as existing user?",
+        text = "Sign in as user from another device?",
         font = native.systemFont,
         fontSize = 36,
         x = display.contentWidth / 2,
@@ -206,6 +206,9 @@ local function createGoButton()
 end
 
 getNextUsername = function()
+    if deviceUsernameText and deviceUsernameText.text then
+        return
+    end
     wordSpinner = word_spinner_class.new()
     wordSpinner:start()
 

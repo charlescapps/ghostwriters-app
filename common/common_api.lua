@@ -5,8 +5,8 @@ local json = require("json")
 local word_spinner_class = require("classes.word_spinner_class")
 local M = {}
 
-local SERVER = "https://words-with-rivals-beta.herokuapp.com/api"
---local SERVER = "http://localhost:8080/api"
+--local SERVER = "https://words-with-rivals-beta.herokuapp.com/api"
+local SERVER = "http://localhost:8080/api"
 
 local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
@@ -108,9 +108,9 @@ M.gamesURL = function()
 	return SERVER .. "/games"
 end
 
-M.myGamesURL = function(userId, count, inProgress)
+M.myGamesURL = function(count, inProgress)
     local baseURL = M.gamesURL()
-    return baseURL .. "?userId=" .. userId .. "&count=" .. count .. "&inProgress=" .. tostring(inProgress)
+    return baseURL .. "?count=" .. count .. "&inProgress=" .. tostring(inProgress)
 end
 
 M.movesURL = function()
@@ -118,7 +118,6 @@ M.movesURL = function()
 end
 
 M.login = function(username, password, onSuccess, onFail)
-
 	local basic = getBasicAuthHeader(username, password)
 	local headers = { ["Authorization"] = basic,
 					  ["Content-Type"] = "application/json" 
@@ -286,7 +285,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
             if code == 401 then
                 print("Error - 401 (Unauthorized) code for current user. Deleting local cookies and returning to title scene")
                 native.showAlert("Authorization error", "Your device doesn't have valid credentials stored. Logging out...", {"OK"})
-                login_common.logoutAndGoToTitle()
+                login_common.logout()
                 return
 			elseif jsonResp == nil then
                 onNetworkFail()
@@ -353,8 +352,8 @@ M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner
 	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, spinner)
 end
 
-M.getMyGames = function(userId, count, inProgress, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = M.myGamesURL(userId, count, inProgress)
+M.getMyGames = function(count, inProgress, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    local url = M.myGamesURL(count, inProgress)
     local spinner
     if doMakeSpinner then
         spinner = word_spinner_class.new()

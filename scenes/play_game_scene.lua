@@ -188,9 +188,6 @@ doesAuthUserMatchGame = function(gameModel, authUser)
         print("Player 1 = " .. json.encode(gameModel.player1Model))
         print("Player 2 = " .. json.encode(gameModel.player2Model))
         login_common.logout()
-        local currentScene = composer.getSceneName("current")
-        composer.gotoScene("scenes.title_scene")
-        composer.removeScene(currentScene, false)
         return false
     end
     return true

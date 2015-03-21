@@ -66,13 +66,7 @@ end
 M.logout = function()
     composer.setVariable(CREDS_KEY, nil)
     loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
-end
-
-M.logoutAndGoToTitle = function()
-    M.logout()
-    local currentScene = composer.getSceneName("current")
-    composer.gotoScene("scenes.title_scene")
-    composer.removeScene(currentScene, false)
+    composer.gotoScene("login.logged_out_scene")
 end
 
 return M

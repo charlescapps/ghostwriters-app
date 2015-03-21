@@ -34,7 +34,7 @@ function scene:show( event )
         local user = creds.user
         self.myGamesView = my_games_view_class.new(user)
 
-        common_api.getMyGames(user.id, common_api.MAX_GAMES_IN_PROGRESS, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
+        common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 
     elseif ( phase == "did" ) then
 
@@ -67,6 +67,11 @@ end
 
 function scene:getOnSuccessCallback()
     return function(games)
+        if not games or not games.list then
+            print("The games endpoint returned nil or is missing the 'list' field: " .. tostring(games))
+            common_ui.create_info_modal("Oops...", "A network error occurred. Please try again.")
+           return
+        end
         self.myGamesView:setGames(games)
         local tableView = self.myGamesView:render()
         self.view:insert(tableView)
