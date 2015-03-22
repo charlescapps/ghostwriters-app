@@ -46,7 +46,7 @@ function M.printDurationPretty(secs)
         return minutes .. " minutes ago"
     end
 
-    return secs .. "seconds ago"
+    return math.floor(secs) .. "seconds ago"
 end
 
 return M

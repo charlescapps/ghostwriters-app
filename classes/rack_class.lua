@@ -71,7 +71,7 @@ function rack_class:createRackDisplayGroup()
 		local letter = letters[i]
 		local x = self:computeTileX(i)
 		local y = self:computeTileY(i)
-		local img = tile.draw(letter, x, y, width, true)
+		local img = tile.draw(letter, x, y, width, true, common_api.MEDIUM_SIZE)
 		img.letter = letter
 		print("Letter: " .. letter .. ", img: " .. tostring(img))
 		tileImages[#tileImages + 1] = img
@@ -100,7 +100,7 @@ function rack_class:addTiles(tilesStr)
 		local x = self:computeTileX(tileNum)
 		local y = self:computeTileY(tileNum)
 
-		local newTileImg = tile.draw(grabTile, x, y, self.tileWidth, true)
+		local newTileImg = tile.draw(grabTile, x, y, self.tileWidth, true, common_api.MEDIUM_SIZE)
 		newTileImg.letter = grabTile
 		self.tileImages[#(self.tileImages) + 1] = newTileImg
 

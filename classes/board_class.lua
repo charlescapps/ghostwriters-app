@@ -132,7 +132,7 @@ function board_class:createTilesGroup()
 		for j = 1, N do
 			local t = tiles[i][j]
 			local x, y = self:computeTileCoords(i, j)
-			local img = tile.draw(t, x, y, pxPerSquareInt)
+			local img = tile.draw(t, x, y, pxPerSquareInt, false, self.gameModel.boardSize)
 			if img then
 				img.board = self
 				img.row = i

@@ -11,7 +11,7 @@ scene.sceneName = "scenes.my_games_scene"
 function scene:create(event)
     local sceneGroup = self.view
     local background = common_ui.create_background()
-    self.backButton = common_ui.create_back_button(100, 100, "scenes.title_scene", function()
+    self.backButton = common_ui.create_back_button(80, 80, "scenes.title_scene", function()
         print("Before transition")
     end)
     sceneGroup:insert(background)
@@ -51,6 +51,10 @@ function scene:hide( event )
     if ( phase == "will" ) then
 
     elseif ( phase == "did" ) then
+        if self.myGamesView then
+            self.myGamesView:destroy()
+            self.myGamesView = nil
+        end
         -- Called immediately after scene goes off screen.
     end
 end

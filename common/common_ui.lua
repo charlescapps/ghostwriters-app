@@ -5,7 +5,7 @@ local composer = require("composer")
 local transition = require("transition")
 local display = require("display")
 
-local DEFAULT_BACKGROUND = "images/book_texture.png"
+local DEFAULT_BACKGROUND = "images/book_texture.jpg"
 
 local DEFAULT_BACK_BUTTON = "images/back-button.png"
 local PRESSED_BACK_BUTTON = "images/back-button-pressed.png"
@@ -234,6 +234,16 @@ M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
     end)
 
     return group
+end
+
+function M.truncateName(username, maxLen)
+    if not username then
+        return username
+    end
+    if username:len() <= maxLen then
+        return username
+    end
+    return username:sub(1, maxLen) .. ".."
 end
 
 return M

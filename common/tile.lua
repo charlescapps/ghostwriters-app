@@ -2,17 +2,12 @@ local M = {}
 
 local image_sheets = require("globals.image_sheets")
 local display = require("display")
-
-local originalTilesImageSheet = image_sheets.getOriginalTilesImageSheet()
-local rackTilesImageSheet = image_sheets.getRackTilesImageSheet()
-local playedTilesImageSheet = image_sheets.getPlayedTilesImageSheet()
-local tileTable
-local rackTileTable
+local common_api = require("common.common_api")
 
 -- Function pre-declarations
-local createOriginalTile
+local createHotTile
 local createRackTile
-local createPlayedTile
+local createStoneTile
 local buildTileTable
 local buildRackTileTable
 
@@ -26,16 +21,16 @@ M.EMPTY_TILE = "EMPTY_TILE"
 M.RACK_TILE = "RACK_TILE"
 
 -- Public functions
-M.getTileInfo = function(letter, isRackTile)
+M.getTileInfo = function(letter, isRackTile, boardSize)
     if isRackTile then
-        return rackTileTable[letter]
+        return M.rackTileTable[boardSize][letter]
     else
-	    return tileTable[letter]
+	    return M.tileTable[boardSize][letter]
     end
 end
 
-M.draw = function(letter, x, y, width, isRackTile)
-	local tileInfo = M.getTileInfo(letter, isRackTile)
+M.draw = function(letter, x, y, width, isRackTile, boardSize)
+	local tileInfo = M.getTileInfo(letter, isRackTile, boardSize)
 	if not tileInfo then
 		return nil
 	end
@@ -47,61 +42,69 @@ M.draw = function(letter, x, y, width, isRackTile)
 end
 
 -- Local helper functions
-createOriginalTile = function(letter, frameIndex)
+createHotTile = function(letter, frameIndex, boardSize)
 	return {
 		letter = letter,
-		imageSheet = originalTilesImageSheet,
+		imageSheet = image_sheets.getHotTilesImageSheet(boardSize),
 		frameIndex = frameIndex,
         tileType = M.ORIGINAL_TILE
 	}
 end
 
-createRackTile = function(letter, frameIndex)
+createRackTile = function(letter, frameIndex, boardSize)
     return {
         letter = letter,
-        imageSheet = rackTilesImageSheet,
+        imageSheet = image_sheets.getRackTilesImageSheet(boardSize),
         frameIndex = frameIndex,
         tileType = M.RACK_TILE
     }
 end
 
-createPlayedTile = function(letter, frameIndex)
+createStoneTile = function(letter, frameIndex, boardSize)
 	return {
 		letter = letter,
-		imageSheet = playedTilesImageSheet,
+		imageSheet = image_sheets.getStoneTilesImageSheet(boardSize),
 		frameIndex = frameIndex,
         tileType = M.PLAYED_TILE
 	}
 end
 
-buildTileTable = function()
+buildTileTable = function(boardSize)
 	local tileTable = {}
 	-- Build lowercase letters, which represent tiles on the board originally
 	for i = 1, 26 do
 		local letter = string.char(96 + i)
-		tileTable[letter] = createOriginalTile(letter, i)
+		tileTable[letter] = createHotTile(letter, i, boardSize)
 	end
 	-- Build uppercase letters, which represent tiles that were placed, or tiles in the rack
 	for i = 1, 26 do
 		local letter = string.char(64 + i)
-		tileTable[letter] = createPlayedTile(letter, i)
+		tileTable[letter] = createStoneTile(letter, i, boardSize)
 	end
 	return tileTable
 end
 
-buildRackTileTable = function()
+buildRackTileTable = function(boardSize)
     local tileTable = {}
     -- Rack tiles are always uppercase
     for i = 1, 26 do
         local letter = string.char(64 + i)
-        tileTable[letter] = createRackTile(letter, i)
+        tileTable[letter] = createRackTile(letter, i, boardSize)
     end
     return tileTable
 end
 
 
 -- Build the tile table
-tileTable = buildTileTable()
-rackTileTable = buildRackTileTable()
+M.tileTable = {}
+M.rackTileTable = {}
+
+M.tileTable[common_api.SMALL_SIZE] = buildTileTable(common_api.SMALL_SIZE)
+M.tileTable[common_api.MEDIUM_SIZE] = buildTileTable(common_api.MEDIUM_SIZE)
+M.tileTable[common_api.LARGE_SIZE] = buildTileTable(common_api.LARGE_SIZE)
+
+M.rackTileTable[common_api.SMALL_SIZE] = buildRackTileTable(common_api.SMALL_SIZE)
+M.rackTileTable[common_api.MEDIUM_SIZE] = buildRackTileTable(common_api.MEDIUM_SIZE)
+M.rackTileTable[common_api.LARGE_SIZE] = buildRackTileTable(common_api.LARGE_SIZE)
 
 return M
