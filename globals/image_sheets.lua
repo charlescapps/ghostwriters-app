@@ -10,6 +10,13 @@ local SHEET_OPTIONS = {
         sheetContentWidth = 1460,
         sheetContentHeight = 438
     },
+    [common_api.SMALL_SIZE .. "_MINI"] = {
+        width = 70,
+        height = 70,
+        numFrames = 26,
+        sheetContentWidth = 700,
+        sheetContentHeight = 210
+    },
     [common_api.MEDIUM_SIZE] = {
         width = 81,
         height = 81,
@@ -17,19 +24,36 @@ local SHEET_OPTIONS = {
         sheetContentWidth = 810,
         sheetContentHeight = 243
     },
+    [common_api.MEDIUM_SIZE .. "_MINI"] = {
+        width = 38,
+        height = 38,
+        numFrames = 26,
+        sheetContentWidth = 380,
+        sheetContentHeight = 114
+    },
     [common_api.LARGE_SIZE] = {
         width = 56,
         height = 56,
         numFrames = 26,
         sheetContentWidth = 560,
         sheetContentHeight = 168
+    },
+    [common_api.LARGE_SIZE .. "_MINI"] = {
+        width = 26,
+        height = 26,
+        numFrames = 26,
+        sheetContentWidth = 260,
+        sheetContentHeight = 78
     }
 }
 
 local HOT_TILE_IMAGE_SHEETS = {
     [common_api.SMALL_SIZE] = "images/hot_tiles_tall_board.png",
+    [common_api.SMALL_SIZE .. "_MINI"] = "images/hot_tiles_tall_board_mini.png",
     [common_api.MEDIUM_SIZE] = "images/hot_tiles_grande_board.png",
-    [common_api.LARGE_SIZE] = "images/hot_tiles_venti_board.png"
+    [common_api.MEDIUM_SIZE .. "_MINI"] = "images/hot_tiles_grande_board_mini.png",
+    [common_api.LARGE_SIZE] = "images/hot_tiles_venti_board.png",
+    [common_api.LARGE_SIZE .. "_MINI"] = "images/hot_tiles_venti_board_mini.png"
 }
 
 local RACK_TILE_IMAGE_SHEETS = {
@@ -40,8 +64,11 @@ local RACK_TILE_IMAGE_SHEETS = {
 
 local STONE_TILE_IMAGE_SHEETS = {
     [common_api.SMALL_SIZE] = "images/stone_tiles_tall_board.png",
+    [common_api.SMALL_SIZE .. "_MINI"] = "images/stone_tiles_tall_board_mini.png",
     [common_api.MEDIUM_SIZE] = "images/stone_tiles_grande_board.png",
-    [common_api.LARGE_SIZE] = "images/stone_tiles_venti_board.png"
+    [common_api.MEDIUM_SIZE .. "_MINI"] = "images/stone_tiles_grande_board_mini.png",
+    [common_api.LARGE_SIZE] = "images/stone_tiles_venti_board.png",
+    [common_api.LARGE_SIZE .. "_MINI"] = "images/stone_tiles_venti_board_mini.png"
 }
 
 M.hotTiles = {}

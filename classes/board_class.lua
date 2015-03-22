@@ -186,7 +186,6 @@ function board_class:getTilesGroupTouchListener()
             local myTile = self:tileForCoords(event.x, event.y)
             -- If the touch event isn't over a grabbable tile
             if myTile == nil or myTile.tileType ~= tile.ORIGINAL_TILE then
-                print("Cannot grab tile: " .. myTile.letter)
                 return true
             end
             display.getCurrentStage():setFocus(event.target)

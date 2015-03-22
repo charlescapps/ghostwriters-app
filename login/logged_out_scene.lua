@@ -180,6 +180,7 @@ onCreateAccountFail = function()
     print("Login failed...")
     textProgress:stop(function()
         createUsernameInput()
+        native.showAlert("Network Error", "Ghostwriters requires an Internet Connection to play.", { "Try again" })
     end)
 end
 
@@ -199,6 +200,7 @@ end
 
 onGetNextUsernameFail = function()
     wordSpinner:stop()
+    native.showAlert("Network Error", "Ghostwriters requires an Internet Connection to play.", { "Try again" })
 end
 
 local function createGoButton()
@@ -213,6 +215,7 @@ getNextUsername = function()
     wordSpinner:start()
 
     local deviceId = system.getInfo("deviceID")
+    print("Found device ID: " .. deviceId)
 
     common_api.getNextUsername(deviceId, onGetNextUsernameSuccess, onGetNextUsernameFail)
 end

@@ -1,11 +1,14 @@
 local composer = require( "composer" )
+local display = require("display")
+local widget = require("widget")
+local nav = require("common.nav")
 local login_common = require("login.login_common")
 local my_games_view_class = require("classes.my_games_view_class")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 
 local scene = composer.newScene()
-scene.sceneName = "scenes.my_games_scene"
+scene.sceneName = "scenes.my_active_games_scene"
 
 -- "scene:create()"
 function scene:create(event)
@@ -14,8 +17,10 @@ function scene:create(event)
     self.backButton = common_ui.create_back_button(80, 80, "scenes.title_scene", function()
         print("Before transition")
     end)
+    self.goToCompleteGamesButton = self:createGoToCompleteGamesButton()
     sceneGroup:insert(background)
     sceneGroup:insert(self.backButton)
+    sceneGroup:insert(self.goToCompleteGamesButton)
 end
 
 -- "scene:show()"
@@ -32,7 +37,7 @@ function scene:show( event )
         end
         self.creds = creds
         local user = creds.user
-        self.myGamesView = my_games_view_class.new(user)
+        self.myGamesView = my_games_view_class.new(user, true)
 
         common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 
@@ -94,6 +99,38 @@ function scene:getOnFailCallback()
 
         common_ui.create_info_modal("Oops...", errorMessage)
 
+    end
+end
+
+function scene:createGoToCompleteGamesButton()
+    local label = self:getgoToCompleteGamesButtonText()
+
+    local button = widget.newButton( {
+        x = display.contentWidth - 100,
+        y = 100,
+        emboss = true,
+        label = label,
+        fontSize = 36,
+        labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
+        width = 175,
+        height = 100,
+        shape = "roundedRect",
+        cornerRadius = 15,
+        fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
+        strokeColor = { 1, 0.2, 0.2 },
+        strokeRadius = 10,
+        onRelease = self:getOnReleaseGoToCompleteGamesButton()
+    } )
+    return button
+end
+
+function scene:getgoToCompleteGamesButtonText()
+    return "Complete"
+end
+
+function scene:getOnReleaseGoToCompleteGamesButton()
+    return function(event)
+        nav.goToSceneFrom(self.sceneName, "scenes.my_complete_games_scene")
     end
 end
 

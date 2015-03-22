@@ -34,7 +34,7 @@ end
 
 local clickMyGames = function()
     print( "Clicked My Games" )
-    nav.goToSceneFrom(scene.sceneName, "scenes.my_games_scene", "fade")
+    nav.goToSceneFrom(scene.sceneName, "scenes.my_active_games_scene", "fade")
 end
 
 -- "scene:create()"
@@ -73,8 +73,11 @@ function scene:show( event )
 
         print("Logged in as=" .. json.encode( self.creds.user ))
 
-        local userInfoText = createUserInfoText()
-        sceneGroup:insert(userInfoText)
+        if self.userInfoText then
+            self.userInfoText:removeSelf()
+        end
+        self.userInfoText = createUserInfoText()
+        sceneGroup:insert(self.userInfoText)
 
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
@@ -112,7 +115,7 @@ end
 
 -- Local helpers
 createTitleText = function()
-    local titleText = display.newText( "Ghost Writers", display.contentWidth / 2, 150, "Arial", 64 )
+    local titleText = display.newText( "Ghostwriters", display.contentWidth / 2, 150, "Arial", 64 )
     titleText:setFillColor(0, 0, 0)
     return titleText
 end

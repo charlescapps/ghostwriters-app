@@ -42,8 +42,7 @@ M.create_title = function(myTitleText, y, rgb, fontSize)
 end 
 
 M.create_button = function(text, y, onRelease)
-	button = widget.newButton( {
-		id = id,
+	local button = widget.newButton( {
 		x = display.contentWidth / 2,
 		y = y,
 		emboss = true,

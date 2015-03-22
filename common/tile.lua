@@ -100,8 +100,11 @@ M.tileTable = {}
 M.rackTileTable = {}
 
 M.tileTable[common_api.SMALL_SIZE] = buildTileTable(common_api.SMALL_SIZE)
+M.tileTable[common_api.SMALL_SIZE .. "_MINI"] = buildTileTable(common_api.SMALL_SIZE .. "_MINI")
 M.tileTable[common_api.MEDIUM_SIZE] = buildTileTable(common_api.MEDIUM_SIZE)
+M.tileTable[common_api.MEDIUM_SIZE .. "_MINI"] = buildTileTable(common_api.MEDIUM_SIZE .. "_MINI")
 M.tileTable[common_api.LARGE_SIZE] = buildTileTable(common_api.LARGE_SIZE)
+M.tileTable[common_api.LARGE_SIZE .. "_MINI"] = buildTileTable(common_api.LARGE_SIZE .. "_MINI")
 
 M.rackTileTable[common_api.SMALL_SIZE] = buildRackTileTable(common_api.SMALL_SIZE)
 M.rackTileTable[common_api.MEDIUM_SIZE] = buildRackTileTable(common_api.MEDIUM_SIZE)
