@@ -366,18 +366,18 @@ onSendMoveSuccess = function(updatedGameModel)
                                                       getMoveDescription(updatedGameModel.lastMove),
                                                       function()
                 titleAreaDisplayGroup.rightPointsText:setPoints( updatedGameModel.player2Points )
-                transition.fadeIn(titleAreaDisplayGroup.leftSparkles, {time = FADE_TIME })
-                transition.fadeOut(titleAreaDisplayGroup.rightSparkles, {time = FADE_TIME, onComplete = resetBoardAndShowModals})
+                transition.fadeIn(titleAreaDisplayGroup.leftCircle, {time = FADE_TIME })
+                transition.fadeOut(titleAreaDisplayGroup.rightCircle, {time = FADE_TIME, onComplete = resetBoardAndShowModals})
 
             end)
         end
         titleAreaDisplayGroup.leftPointsText:setPoints( updatedGameModel.player1Points )
-        transition.fadeOut(titleAreaDisplayGroup.leftSparkles, {time = FADE_TIME })
-        transition.fadeIn(titleAreaDisplayGroup.rightSparkles, {time = FADE_TIME, onComplete = onFadeInComplete })
+        transition.fadeOut(titleAreaDisplayGroup.leftCircle, {time = FADE_TIME })
+        transition.fadeIn(titleAreaDisplayGroup.rightCircle, {time = FADE_TIME, onComplete = onFadeInComplete })
 
     else
-        transition.fadeOut(titleAreaDisplayGroup.leftSparkles, {time = FADE_TIME, onComplete = resetBoardAndShowModals })
-        transition.fadeIn(titleAreaDisplayGroup.rightSparkles, {time = FADE_TIME})
+        transition.fadeOut(titleAreaDisplayGroup.leftCircle, {time = FADE_TIME, onComplete = resetBoardAndShowModals })
+        transition.fadeIn(titleAreaDisplayGroup.rightCircle, {time = FADE_TIME})
     end
 
 

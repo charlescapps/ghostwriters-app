@@ -37,6 +37,9 @@ function scene:show( event )
         end
         self.creds = creds
         local user = creds.user
+        if self.myGamesView then
+            self.myGamesView:destroy()
+        end
         self.myGamesView = my_games_view_class.new(user, true, self.sceneName)
 
         common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)

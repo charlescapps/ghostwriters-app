@@ -54,15 +54,16 @@ function my_games_view_class:render()
     end
 
     group:insert(title)
+
+    self.view = group
     return group
 end
 
 function my_games_view_class:destroy()
-    if self.tableView then
-        self.tableView:removeSelf()
-        self.tableView = nil
-        self.games = nil
+    if self.view then
+        self.view:removeSelf()
     end
+    self.view, self.games = nil, nil
 end
 
 function my_games_view_class:renderTitle()
