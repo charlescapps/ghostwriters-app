@@ -4,6 +4,7 @@ local widget = require("widget")
 local composer = require("composer")
 local transition = require("transition")
 local display = require("display")
+local native = require("native")
 
 local DEFAULT_BACKGROUND = "images/book_texture.jpg"
 
@@ -233,6 +234,37 @@ M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
     end)
 
     return group
+end
+
+function M.createLink(linkText, x, y, fontSize, onPress)
+    local LINK_COLOR = {0, 0.43, 1 }
+    local LINK_OVER_COLOR = { 0, 0.2, 0.6 }
+    local link = display.newText {
+        text = linkText,
+        font = native.systemFont,
+        fontSize = fontSize or 36,
+        x = x or display.contentWidth / 2,
+        y = y or display.contentHeight / 2,
+        align = "center"
+    }
+    link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
+    link:addEventListener("touch", function(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(link)
+            link:setFillColor(LINK_OVER_COLOR[1], LINK_OVER_COLOR[2], LINK_OVER_COLOR[3])
+        elseif event.phase == "ended" then
+            display.getCurrentStage():setFocus(nil)
+            link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
+            if onPress then
+                onPress()
+            end
+        elseif event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+            link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
+        end
+    end)
+
+    return link
 end
 
 function M.truncateName(username, maxLen)

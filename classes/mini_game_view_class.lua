@@ -2,6 +2,9 @@ local display = require("display")
 local native = require("native")
 local json = require("json")
 local common_ui = require("common.common_ui")
+local game_ui = require("common.game_ui")
+local nav = require("common.nav")
+local composer = require("composer")
 local time_util = require("common.time_util")
 local mini_board_class = require("classes.mini_board_class")
 
@@ -11,7 +14,7 @@ local mini_game_view_class_mt = { __index = mini_game_view_class }
 -- Constants
 local PAD = 10
 
-function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize)
+function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize, sceneName)
     if not gameModel or not authUser then
         print("ERROR - must provide non-nil gameModel and authUser")
         return nil
@@ -30,7 +33,8 @@ function mini_game_view_class.new(index, gameModel, authUser, width, height, min
         height = height,
         miniBoardWidth = miniBoardWidth,
         titleFontSize = titleFontSize or 30,
-        otherFontSize = otherFontSize or 24
+        otherFontSize = otherFontSize or 24,
+        sceneName = sceneName
     }
 
     return setmetatable(miniGameView, mini_game_view_class_mt)
@@ -47,9 +51,6 @@ function mini_game_view_class:render()
     local title = self:renderTitle()
     title.y = 50
 
-    local pointsGroup = self:renderPointsDisplay()
-    pointsGroup.y = 100
-
     local dateView = self:renderDateStarted()
     dateView.y = 150
 
@@ -60,7 +61,6 @@ function mini_game_view_class:render()
     group.x = PAD
     group:insert(bg)
     group:insert(title)
-    group:insert(pointsGroup)
     group:insert(dateView)
     group:insert(miniBoardView)
 
@@ -87,61 +87,7 @@ function mini_game_view_class:renderBackground()
 end
 
 function mini_game_view_class:renderTitle()
-    local gameModel = self.gameModel
-    local authUser = self.authUser
-    local enemyUser
-    if authUser.id == gameModel.player1Model.id then
-        enemyUser = gameModel.player2Model
-    else
-        enemyUser = gameModel.player1Model
-    end
-    local titleTxt = "Me vs. " .. enemyUser.username
-    return display.newText {
-        text = titleTxt,
-        fontSize = self.titleFontSize,
-        font = native.systemFontBold,
-        width = self.width,
-        align = "center",
-        x = self.width / 2
-    }
-end
-
-function mini_game_view_class:renderPointsDisplay()
-    local gameModel = self.gameModel
-    local authUser = self.authUser
-    local isPlayer1 = authUser.id == gameModel.player1Model.id
-    local myPoints, enemyPoints, enemyName
-    if isPlayer1 then
-        myPoints, enemyPoints, enemyName = gameModel.player1Points, gameModel.player2Points, gameModel.player2Model.username
-    else
-        enemyPoints, enemyName, myPoints = gameModel.player1Points, gameModel.player1Model.username, gameModel.player2Points
-    end
-    local leftPointsTxt = "Me: " .. myPoints
-    local rightPointsTxt = common_ui.truncateName(enemyName, 12) .. ": " .. enemyPoints
-
-    local pointsGroup = display.newGroup()
-
-    local leftText = display.newText {
-        text = leftPointsTxt,
-        font = native.systemFont,
-        fontSize = self.otherFontSize,
-        width = self.width / 2,
-        align = "center",
-        x = self.width / 4
-    }
-
-    local rightText = display.newText {
-        text = rightPointsTxt,
-        font = native.systemFont,
-        fontSize = self.otherFontSize,
-        width = self.width / 2,
-        align = "center",
-        x = 3 * self.width / 4
-    }
-
-    pointsGroup:insert(leftText)
-    pointsGroup:insert(rightText)
-    return pointsGroup
+    return game_ui.createVersusDisplayGroup(self.gameModel, self.authUser, true, nil, nil, 0, {1, 1, 1})
 end
 
 function mini_game_view_class:renderDateStarted()
@@ -160,10 +106,29 @@ function mini_game_view_class:renderDateStarted()
 end
 
 function mini_game_view_class:renderMiniBoardView()
-    local miniBoardView = mini_board_class.new(self.gameModel, self.miniBoardWidth, PAD)
+    local miniBoardView = mini_board_class.new(self.gameModel, self.miniBoardWidth, 30)
     self.miniBoardView = miniBoardView
     miniBoardView.boardGroup.x = self.width / 2
+    miniBoardView.boardGroup:addEventListener("touch", self)
     return miniBoardView.boardGroup
+end
+
+function mini_game_view_class:touch(event)
+    if event.phase == "began" then
+       display.getCurrentStage():setFocus(event.target)
+       self.miniBoardView.boardGroup.alpha = 0.75
+       return true
+    elseif event.phase == "ended" then
+        display.getCurrentStage():setFocus(nil)
+        self.miniBoardView.boardGroup.alpha = 1
+        local currentScene = composer.getSceneName("current")
+        nav.goToGame(self.gameModel, self.sceneName)
+        return true
+    elseif event.phase == "cancelled" then
+        display.getCurrentStage():setFocus(nil)
+        self.miniBoardView.boardGroup.alpha = 1
+        return true
+    end
 end
 
 return mini_game_view_class

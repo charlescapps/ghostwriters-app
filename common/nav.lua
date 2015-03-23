@@ -1,15 +1,9 @@
---
--- Created by IntelliJ IDEA.
--- User: charlescapps
--- Date: 3/10/15
--- Time: 7:09 PM
--- To change this template use File | Settings | File Templates.
---
-
 local composer = require("composer")
+local current_game = require("globals.current_game")
+
 local M = {}
 
-M.goToSceneFrom = function(fromSceneName, toSceneName, effect)
+function M.goToSceneFrom(fromSceneName, toSceneName, effect)
     local currentScene = composer.getSceneName("current")
     if currentScene == fromSceneName then
         print("Going to scene '" .. toSceneName .. "' from '" .. fromSceneName .. "'")
@@ -18,6 +12,21 @@ M.goToSceneFrom = function(fromSceneName, toSceneName, effect)
         print("ERROR - current scene is '" .. currentScene .. "', cannot go to '" .. toSceneName .. "' from '" .. fromSceneName .. "'")
     end
 end
+
+function M.goToGame(gameModel, fromScene)
+    if not gameModel then
+        print("Error - cannot go to a nil game")
+        return
+    end
+    local currentScene = composer.getSceneName("current")
+    if currentScene ~= fromScene or currentScene == "scenes.play_game_scene" then
+        print("Cannot go to game from current scene '" .. currentScene .. "', expected " .. fromScene)
+        return
+    end
+    current_game.currentGame = gameModel
+    composer.gotoScene("scenes.play_game_scene", "fade")
+end
+
 
 return M
 

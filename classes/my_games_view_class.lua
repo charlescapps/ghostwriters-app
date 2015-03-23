@@ -1,4 +1,5 @@
 local widget = require("widget")
+local common_ui = require("common.common_ui")
 local display = require("display")
 local native = require("native")
 local transition = require("transition")
@@ -14,10 +15,11 @@ local MINI_GAME_WIDTH = display.contentWidth - PAD * 2
 local MINI_GAME_HEIGHT = 600
 local MINI_BOARD_WIDTH = 350
 
-function my_games_view_class.new(authUser, inProgress)
+function my_games_view_class.new(authUser, inProgress, sceneName)
     local myGamesView = {
         authUser = authUser,
         inProgress = inProgress,
+        sceneName = sceneName,
         miniGameViews = {}
     }
     return setmetatable(myGamesView, my_games_view_class_mt)
@@ -98,24 +100,13 @@ function my_games_view_class:renderEmptyGamesGroup()
         text = message,
         width = 7 * display.contentWidth / 8,
         align = "center",
-        font = native.systemFontBold,
-        fontSize = 40
+        font = native.systemFont,
+        fontSize = 52
     }
     messageText:setFillColor(0, 0, 0)
 
-    local linkText = display.newText {
-        text = "Start a new game!",
-        width = 7 * display.contentWidth / 8,
-        align = "center",
-        font = native.systemFontBold,
-        fontSize = 40,
-        y = 100
-    }
-    linkText:setFillColor(0.1, 0.1, 1)
-    linkText:addEventListener("touch", function(event)
-        if event.phase == "ended" then
-            composer.gotoScene("scenes.title_scene")
-        end
+    local linkText = common_ui.createLink("Start a new game!", 0, 100, nil, function()
+        composer.gotoScene("scenes.title_scene")
     end)
 
     group:insert(messageText)
@@ -129,7 +120,7 @@ function my_games_view_class:renderTableView()
         y = display.contentHeight / 2 + 90,
         width = display.contentWidth,
         height = display.contentHeight - 180,
-        onRowRender = self:createOnRowRenderCallback(),
+        onRowRender = self:createOnRowRenderListener(),
         backgroundColor = {1, 1, 1, 0},
         hideBackground = true,
         hideScrollbar = true
@@ -143,12 +134,12 @@ function my_games_view_class:createMiniGames()
     end
     for i = 1, #(games.list) do
        local miniGameView = mini_game_view_class.new(
-           i, games.list[i], self.authUser, MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40)
+           i, games.list[i], self.authUser, MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40, self.sceneName)
         self.miniGameViews[i] = miniGameView
     end
 end
 
-function my_games_view_class:createOnRowRenderCallback()
+function my_games_view_class:createOnRowRenderListener()
     return function(event)
         local games = self.games
         if not games or not games.list then

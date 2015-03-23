@@ -44,32 +44,9 @@ local onGetNextUsernameFail
 local storedUsername
 
 local function createSecondaryDeviceLink()
-    local LINK_COLOR = {0, 0.43, 1 }
-    local LINK_OVER_COLOR = { 0, 0.2, 0.6 }
-    local link = display.newText {
-        text = "Sign in as user from another device?",
-        font = native.systemFont,
-        fontSize = 36,
-        x = display.contentWidth / 2,
-        y = 900,
-        align = "center"
-    }
-    link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
-    link:addEventListener("touch", function(event)
-        if event.phase == "began" then
-            display.getCurrentStage():setFocus(link)
-            link:setFillColor(LINK_OVER_COLOR[1], LINK_OVER_COLOR[2], LINK_OVER_COLOR[3])
-        elseif event.phase == "ended" then
-            display.getCurrentStage():setFocus(nil)
-            link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
-           nav.goToSceneFrom(scene.sceneName, "login.login_existing_user_scene")
-        elseif event.phase == "cancelled" then
-            display.getCurrentStage():setFocus(nil)
-            link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
-        end
+    return common_ui.createLink("Sign in as user from another device?", nil, 900, nil, function()
+        nav.goToSceneFrom(scene.sceneName, "login.login_existing_user_scene")
     end)
-    
-    return link
 end
 
 createAccountAndGo = function()
