@@ -172,6 +172,8 @@ onGetNextUsernameSuccess = function(nextUsername)
        deviceUsernameText = createDeviceUsernameText(username)
        scene.view:insert(deviceUsernameText)
        removeNativeInputs()
+       scene.usernameInputLabel.text = "Welcome back,"
+       scene.getNextUsernameButton.alpha = 0
     end
 end
 
@@ -202,16 +204,16 @@ end
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.create_background()
-    local title = common_ui.create_title("Ghost Writers", nil, { 0, 0, 0 }, 55)
-    local usernameInputLabel = createUsernameInputLabel()
-    local getNextUsernameButton = createGetNextUsernameButton()
+    local title = common_ui.create_title("Ghostwriters", nil, { 0, 0, 0 }, 60)
+    scene.usernameInputLabel = createUsernameInputLabel()
+    scene.getNextUsernameButton = createGetNextUsernameButton()
     local createAccountAndGoButton = createGoButton()
     local secondDeviceButton = createSecondaryDeviceLink()
 
     sceneGroup:insert(background)
     sceneGroup:insert(title)
-    sceneGroup:insert(usernameInputLabel)
-    sceneGroup:insert(getNextUsernameButton)
+    sceneGroup:insert(scene.usernameInputLabel)
+    sceneGroup:insert(scene.getNextUsernameButton)
     sceneGroup:insert(createAccountAndGoButton)
     sceneGroup:insert(secondDeviceButton)
 

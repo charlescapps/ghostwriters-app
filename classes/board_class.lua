@@ -296,23 +296,22 @@ function board_class:toggleZoom(scale, x, y)
 	end
 end
 
-function getBoardTapListener(board)
+function board_class:getBoardTapListener()
 	return function(event)
-        if board.interactionDisabled then
+        if self.interactionDisabled then
             return true
         end
-		if not board.boardGroup then
+		if not self.boardGroup then
 			print("Board has no self.boardGroup. Cannot process tap event.")
 			return true
 		end
 
 		if event.numTaps == 2 then
-            local zoomScale = board:getZoomScale()
-			board:toggleZoom(zoomScale, event.x - board.boardGroup.x, event.y - board.boardGroup.y)
+            local zoomScale = self:getZoomScale()
+			self:toggleZoom(zoomScale, event.x - self.boardGroup.x, event.y - self.boardGroup.y)
 		else
-
+            return true
 		end
-		return true
 	end
 end
 
@@ -337,7 +336,7 @@ function board_class:createBoardContainer()
     boardGroup:insert(squaresGroup)
     boardGroup:insert(tilesGroup)
     boardGroup:insert(rackTilesGroup)
-    boardGroup:addEventListener( "tap", getBoardTapListener(self) )
+    boardGroup:addEventListener( "tap", self:getBoardTapListener() )
 
 	boardContainer:insert(boardGroup)
 
