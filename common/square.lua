@@ -1,17 +1,22 @@
 local M = {}
 local display = require("display")
+local graphics = require("graphics")
 local common_api = require("common.common_api")
+local squares_tall = require("images.squares_tall")
+local squares_grande = require("images.squares_grande")
+local squares_venti = require("images.squares_venti")
+
+local SHEETS = {
+    [common_api.SMALL_SIZE] = graphics.newImageSheet("images/squares_tall.png", squares_tall:getSheet()),
+    [common_api.MEDIUM_SIZE] = graphics.newImageSheet("images/squares_grande.png", squares_grande:getSheet()),
+    [common_api.LARGE_SIZE] = graphics.newImageSheet("images/squares_venti.png", squares_venti:getSheet())
+}
 
 M.NORMAL = { num = "1", letterMult = 1, images = nil }
-M.DL = {num = "2", letterMult = 2, images =
-{ [common_api.SMALL_SIZE] = "images/x2_tall.png", [common_api.MEDIUM_SIZE] = "images/x2_grande.png", [common_api.LARGE_SIZE] = "images/x2_venti.png" }}
-M.TL = {num = "3", letterMult = 3, images =
-{ [common_api.SMALL_SIZE] = "images/x3_tall.png", [common_api.MEDIUM_SIZE] = "images/x3_grande.png", [common_api.LARGE_SIZE] = "images/x3_venti.png" }}
-M.QL = {num = "4", letterMult = 1, images =
-{ [common_api.SMALL_SIZE] = "images/x4_tall.png", [common_api.MEDIUM_SIZE] = "images/x4_grande.png", [common_api.LARGE_SIZE] = "images/x4_venti.png" }}
-
-M.MINE = {num = "0", letterMult = 0, images =
-{ [common_api.SMALL_SIZE] = "images/mine_tall.png", [common_api.MEDIUM_SIZE] = "images/mine_grande.png", [common_api.LARGE_SIZE] = "images/mine_venti.png" }}
+M.X2 = {num = "2", letterMult = 2, frameIndex = 1}
+M.X3 = {num = "3", letterMult = 3, frameIndex = 2}
+M.X4 = {num = "4", letterMult = 4, frameIndex = 3}
+M.X5 = {num = "5", letterMult = 5, frameIndex = 5}
 
 local borderRgb = {0, 99/256, 54/256}
 local backgroundRgb = {0, 189/256, 47/256}
@@ -24,14 +29,14 @@ local createSquareBackground
 M.valueOf = function(str)
 	if str == M.NORMAL.num then
 		return M.NORMAL
-	elseif str == M.DL.num then
-		return M.DL
-	elseif str == M.TL.num then
-		return M.TL
-	elseif str == M.QL.num then
-		return M.QL
-	elseif str == M.MINE.num then
-		return M.MINE
+	elseif str == M.X2.num then
+		return M.X2
+	elseif str == M.X3.num then
+		return M.X3
+	elseif str == M.X4.num then
+		return M.X4
+	elseif str == M.X5.num then
+		return M.X5
 	else
 		error("Invalid character for a Square: " .. str)
 	end
@@ -43,8 +48,9 @@ M.draw = function(sqType, x, y, width, boardSize)
 	group.y = y
 	local bg = createSquareBackground(0, 0, width)
 	group:insert(bg)
-	if sqType.images then
-		local img = display.newImageRect(sqType.images[boardSize], width, width)
+	if sqType.frameIndex then
+        local sheet = SHEETS[boardSize]
+		local img = display.newImageRect(sheet, sqType.frameIndex, width, width)
 		group:insert(img)
 	end
 
@@ -59,8 +65,9 @@ M.drawShadedSquare = function(sqType, x, y, width, boardSize)
     group.y = y
     local bg = createSquareBackground(0, 0, width, true)
     group:insert(bg)
-    if sqType.images then
-        local img = display.newImageRect(sqType.images[boardSize], width, width)
+    if sqType.frameIndex then
+        local sheet = SHEETS[boardSize]
+        local img = display.newImageRect(sheet, sqType.frameIndex, width, width)
         group:insert(img)
     end
 
