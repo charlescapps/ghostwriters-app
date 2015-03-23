@@ -47,6 +47,14 @@ local SHEET_OPTIONS = {
     }
 }
 
+local RACK_TILE_OPTIONS = {
+    width = 100,
+    height = 100,
+    numFrames = 26,
+    sheetContentWidth = 1000,
+    sheetContentHeight = 300
+}
+
 local HOT_TILE_IMAGE_SHEETS = {
     [common_api.SMALL_SIZE] = "images/hot_tiles_tall_board.png",
     [common_api.SMALL_SIZE .. "_MINI"] = "images/hot_tiles_tall_board_mini.png",
@@ -54,12 +62,6 @@ local HOT_TILE_IMAGE_SHEETS = {
     [common_api.MEDIUM_SIZE .. "_MINI"] = "images/hot_tiles_grande_board_mini.png",
     [common_api.LARGE_SIZE] = "images/hot_tiles_venti_board.png",
     [common_api.LARGE_SIZE .. "_MINI"] = "images/hot_tiles_venti_board_mini.png"
-}
-
-local RACK_TILE_IMAGE_SHEETS = {
-    [common_api.SMALL_SIZE] = "images/rack_tiles_tall_board.png",
-    [common_api.MEDIUM_SIZE] = "images/rack_tiles_grande_board.png",
-    [common_api.LARGE_SIZE] = "images/rack_tiles_venti_board.png"
 }
 
 local STONE_TILE_IMAGE_SHEETS = {
@@ -71,9 +73,11 @@ local STONE_TILE_IMAGE_SHEETS = {
     [common_api.LARGE_SIZE .. "_MINI"] = "images/stone_tiles_venti_board_mini.png"
 }
 
+local RACK_TILE_IMAGE_SHEET = "images/rack_tiles.png"
+
 M.hotTiles = {}
-M.rackTiles = {}
 M.stoneTiles = {}
+M.rackTiles = nil
 
 M.getHotTilesImageSheet = function(boardSize)
 	if M.hotTiles[boardSize] then
@@ -87,16 +91,16 @@ M.getHotTilesImageSheet = function(boardSize)
 	return M.hotTiles[boardSize]
 end
 
-M.getRackTilesImageSheet = function(boardSize)
-    if M.rackTiles[boardSize] then
-        return M.rackTiles[boardSize]
+M.getRackTilesImageSheet = function()
+    if M.rackTiles then
+        return M.rackTiles
     end
 
-    local options = SHEET_OPTIONS[boardSize]
-    local imgSheet = RACK_TILE_IMAGE_SHEETS[boardSize]
+    local options = RACK_TILE_OPTIONS
+    local imgSheet = RACK_TILE_IMAGE_SHEET
 
-    M.rackTiles[boardSize] = graphics.newImageSheet(imgSheet, options)
-    return M.rackTiles[boardSize]
+    M.rackTiles = graphics.newImageSheet(imgSheet, options)
+    return M.rackTiles
 end
 
 M.getStoneTilesImageSheet = function(boardSize)

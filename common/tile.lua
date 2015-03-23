@@ -23,7 +23,7 @@ M.RACK_TILE = "RACK_TILE"
 -- Public functions
 M.getTileInfo = function(letter, isRackTile, boardSize)
     if isRackTile then
-        return M.rackTileTable[boardSize][letter]
+        return M.rackTileTable[letter]
     else
 	    return M.tileTable[boardSize][letter]
     end
@@ -51,10 +51,10 @@ createHotTile = function(letter, frameIndex, boardSize)
 	}
 end
 
-createRackTile = function(letter, frameIndex, boardSize)
+createRackTile = function(letter, frameIndex)
     return {
         letter = letter,
-        imageSheet = image_sheets.getRackTilesImageSheet(boardSize),
+        imageSheet = image_sheets.getRackTilesImageSheet(),
         frameIndex = frameIndex,
         tileType = M.RACK_TILE
     }
@@ -84,12 +84,12 @@ buildTileTable = function(boardSize)
 	return tileTable
 end
 
-buildRackTileTable = function(boardSize)
+buildRackTileTable = function()
     local tileTable = {}
     -- Rack tiles are always uppercase
     for i = 1, 26 do
         local letter = string.char(64 + i)
-        tileTable[letter] = createRackTile(letter, i, boardSize)
+        tileTable[letter] = createRackTile(letter, i)
     end
     return tileTable
 end
@@ -106,8 +106,6 @@ M.tileTable[common_api.MEDIUM_SIZE .. "_MINI"] = buildTileTable(common_api.MEDIU
 M.tileTable[common_api.LARGE_SIZE] = buildTileTable(common_api.LARGE_SIZE)
 M.tileTable[common_api.LARGE_SIZE .. "_MINI"] = buildTileTable(common_api.LARGE_SIZE .. "_MINI")
 
-M.rackTileTable[common_api.SMALL_SIZE] = buildRackTileTable(common_api.SMALL_SIZE)
-M.rackTileTable[common_api.MEDIUM_SIZE] = buildRackTileTable(common_api.MEDIUM_SIZE)
-M.rackTileTable[common_api.LARGE_SIZE] = buildRackTileTable(common_api.LARGE_SIZE)
+M.rackTileTable = buildRackTileTable()
 
 return M
