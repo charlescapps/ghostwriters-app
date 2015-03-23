@@ -87,7 +87,8 @@ function mini_game_view_class:renderBackground()
 end
 
 function mini_game_view_class:renderTitle()
-    return game_ui.createVersusDisplayGroup(self.gameModel, self.authUser, true, nil, nil, 0, {1, 1, 1})
+    return game_ui.createVersusDisplayGroup(self.gameModel, self.authUser, true,
+        self.width / 4, self.width / 2, 3 * self.width / 4, 0, {1, 1, 1}, 275)
 end
 
 function mini_game_view_class:renderDateStarted()

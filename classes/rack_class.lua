@@ -73,7 +73,6 @@ function rack_class:createRackDisplayGroup()
 		local y = self:computeTileY(i)
 		local img = tile.draw(letter, x, y, width, true, common_api.MEDIUM_SIZE)
 		img.letter = letter
-		print("Letter: " .. letter .. ", img: " .. tostring(img))
 		tileImages[#tileImages + 1] = img
         if not self:isGameFinished() then
 		    img:addEventListener( "touch", getTouchListener(self) )

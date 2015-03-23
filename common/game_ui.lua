@@ -5,8 +5,13 @@ local common_api = require("common.common_api")
 
 local M = {}
 
-function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, leftX, rightX, firstRowY, fontRgb)
+function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, leftX, centerX, rightX, firstRowY, fontRgb, circleWidth)
     fontRgb = fontRgb or { 0, 0, 0 }
+    centerX = centerX or display.contentWidth / 2
+    leftX = leftX or display.contentWidth / 4
+    rightX = rightX or 3 * display.contentWidth / 4
+    firstRowY = firstRowY or 100
+
     local authUserIsPlayer1 = gameModel.player1 == authUser.id
     local isAuthUserTurn = gameModel.player1Turn and authUserIsPlayer1 or not gameModel.player1Turn and not authUserIsPlayer1
     local player1 = gameModel.player1Model
@@ -49,9 +54,6 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
         rightFontSize = 30
     end
 
-    leftX = leftX or 175
-    rightX = rightX or 575
-    firstRowY = firstRowY or 100
     -- Create the username texts
     local leftPlayerText = display.newText( {
         text = leftUsername,
@@ -59,8 +61,6 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
         y = firstRowY,
         font = leftFont,
         fontSize = leftFontSize,
-        width = 400,
-        height = 50,
         align = "center"
     })
     leftPlayerText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
@@ -71,12 +71,11 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
         y = firstRowY,
         font = rightFont,
         fontSize = rightFontSize,
-        width = 400, height = 50,
         align = "center" })
     rightPlayerText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
 
     -- Create vs. text
-    local versusText = display.newText("vs.", display.contentWidth / 2, firstRowY, native.systemFontBold, 50 )
+    local versusText = display.newText("vs.", centerX, firstRowY, native.systemFontBold, 50 )
     versusText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
 
     local pointsY = firstRowY + 50
@@ -103,13 +102,14 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
 
     -- If the game is in progress, draw a circle around the current user
     if gameModel.gameResult == common_api.IN_PROGRESS then
-        local leftCircle = display.newImageRect("images/pencil-circled.png", 325, 75)
+        circleWidth = circleWidth or 300
+        local leftCircle = display.newImageRect("images/pencil-circled.png", circleWidth, 75)
         leftCircle.x, leftCircle.y, leftCircle.alpha = leftX, firstRowY, 0
 
-        local rightCircle = display.newImageRect("images/pencil-circled.png", 325, 75)
+        local rightCircle = display.newImageRect("images/pencil-circled.png", circleWidth, 75)
         rightCircle.x, rightCircle.y, rightCircle.alpha = rightX, firstRowY, 0
 
-        -- Store sparkles in group object for later use
+        -- Store the circles in group object for later use
         group.leftCircle, group.rightCircle = leftCircle, rightCircle
 
         if isAuthUserTurn then
@@ -134,9 +134,21 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
 
         -- draw the trophy on the right player
         local trophyImg = display.newImageRect("images/trophy.png", 75, 75)
-        trophyImg.x = display.contentWidth / 2 + 75
+        trophyImg.x = centerX + 75
         trophyImg.y = pointsY
         group:insert(trophyImg)
+
+    elseif gameModel.gameResult == common_api.TIE then
+
+        local tieText = display.newText {
+            text = "TIE!",
+            font = native.systemFontBold,
+            fontSize = 40,
+            x = centerX,
+            y = pointsY
+        }
+        tieText:setFillColor(fontRgb[1], fontRgb[2], fontRgb[3])
+        group:insert(tieText)
 
     end
 

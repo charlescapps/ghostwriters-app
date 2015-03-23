@@ -194,7 +194,7 @@ doesAuthUserMatchGame = function(gameModel, authUser)
 end
 
 createTitleAreaDisplayGroup = function(gameModel)
-    return game_ui.createVersusDisplayGroup(gameModel, scene.creds.user, false, nil, nil, 100)
+    return game_ui.createVersusDisplayGroup(gameModel, scene.creds.user, false, nil, nil, nil, 100)
 end
 
 createActionButtonsGroup = function(startY, width, height, onPlayButtonRelease, onResetButtonRelease)
