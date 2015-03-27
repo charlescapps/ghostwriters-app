@@ -176,6 +176,7 @@ M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
 
     local group = display.newGroup()
     group.x, group.y = x, y
+    group.alpha = 0
 
     local modalImage = display.newImageRect(group, MODAL_IMAGE, 650, 484)
 
@@ -206,10 +207,10 @@ M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
     modalText:setFillColor(0, 0, 0)
 
     local onComplete = function()
-        group:removeSelf()
         if onClose then
             onClose()
         end
+        group:removeSelf()
     end
 
     group:insert(modalImage)
@@ -222,16 +223,13 @@ M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
         elseif event.phase == "ended" or event.phase == "cancelled" then
             display.getCurrentStage():setFocus(nil)
             transition.fadeOut(group, {
-                onComplete = function()
-                    group:removeSelf()
-                    if onClose then
-                        onClose()
-                    end
-                end
+                onComplete = onComplete
             })
         end
         return true
     end)
+
+    transition.fadeIn(group, { time = 1000 })
 
     return group
 end

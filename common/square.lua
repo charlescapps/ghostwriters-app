@@ -16,7 +16,7 @@ M.NORMAL = { num = "1", letterMult = 1, images = nil }
 M.X2 = {num = "2", letterMult = 2, frameIndex = 1}
 M.X3 = {num = "3", letterMult = 3, frameIndex = 2}
 M.X4 = {num = "4", letterMult = 4, frameIndex = 3}
-M.X5 = {num = "5", letterMult = 5, frameIndex = 5}
+M.X5 = {num = "5", letterMult = 5, frameIndex = 4}
 
 local borderRgb = {0, 99/256, 54/256}
 local backgroundRgb = {0, 189/256, 47/256}

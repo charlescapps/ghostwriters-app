@@ -9,6 +9,7 @@ local board_class = require("classes.board_class")
 local rack_class = require("classes.rack_class")
 local login_common = require("login.login_common")
 local game_menu_class = require("classes.game_menu_class")
+local table = require("table")
 local scene = composer.newScene()
 
 -- The board object
@@ -44,6 +45,8 @@ local createGrabMoveJson
 local completeMove
 local getSendMoveSuccessCallback
 local onSendMoveSuccess
+local fadeToOpponentTurnAndBack
+local fadeToMyTurnAgain
 local onSendMoveFail
 local onSendMoveNetworkFail
 
@@ -148,6 +151,7 @@ function scene:hide( event )
         -- Insert code here to "pause" the scene.
         -- Example: stop timers, stop animation, stop audio, etc.
     elseif ( phase == "did" ) then
+        self.creds = nil
         -- Called immediately after scene goes off screen.
     end
 end
@@ -352,39 +356,76 @@ end
 resetBoardAndShowModals = function()
     reset()
     showGameOverModal()
-    showNoMovesModal()
+end
+
+function scene:getOpponentUser()
+    local gameModel = board.gameModel
+    local authUser = self.creds.user
+    if gameModel.player1 == authUser.id then
+        return gameModel.player2Model
+    else
+        return gameModel.player1Model
+    end
+end
+
+function scene:didOpponentPlayMove(lastMoves)
+    return lastMoves and #lastMoves > 0 and lastMoves[1].playerId ~= self.creds.user.id
+end
+
+function scene:applyOpponentMoves()
+    if not self:didOpponentPlayMove(self.movesToDisplay) then
+        print("Calling applyOpponentsMove. Creating a new board Moves: " .. json.encode(self.movesToDisplay))
+        self.movesToDisplay = nil
+        self:fadeToTurn(false)
+        resetBoardAndShowModals()
+        return
+    end
+
+    print("Calling applyOpponentsMove. Applying the last move: " .. json.encode(self.movesToDisplay))
+
+    local firstMove = table.remove(self.movesToDisplay, 1)
+    local moveDescr = getMoveDescription(firstMove)
+    local opponent = self:getOpponentUser()
+    local myScene = self
+    common_ui.create_info_modal(opponent.username, moveDescr, function()
+        board:applyMove(firstMove, rack, firstMove.playerId == myScene.creds.user.id, function()
+            myScene:applyOpponentMoves()
+        end)
+    end)
+
 end
 
 onSendMoveSuccess = function(updatedGameModel)
     current_game.currentGame = updatedGameModel
-    local sceneGroup = scene.view
-    local FADE_TIME = 1500
-    if updatedGameModel.gameType == common_api.SINGLE_PLAYER and updatedGameModel.player1Turn then
-        -- If it's the human player's turn again, then the AI just played a move.
-        local onFadeInComplete = function()
-            common_ui.create_info_modal(updatedGameModel.player2Model.username,
-                                                      getMoveDescription(updatedGameModel.lastMove),
-                                                      function()
-                titleAreaDisplayGroup.rightPointsText:setPoints( updatedGameModel.player2Points )
-                transition.fadeIn(titleAreaDisplayGroup.leftCircle, {time = FADE_TIME })
-                transition.fadeOut(titleAreaDisplayGroup.rightCircle, {time = FADE_TIME, onComplete = resetBoardAndShowModals})
+    scene.movesToDisplay = table.copy(updatedGameModel.lastMoves)
 
-            end)
-        end
-        titleAreaDisplayGroup.leftPointsText:setPoints( updatedGameModel.player1Points )
-        transition.fadeOut(titleAreaDisplayGroup.leftCircle, {time = FADE_TIME })
-        transition.fadeIn(titleAreaDisplayGroup.rightCircle, {time = FADE_TIME, onComplete = onFadeInComplete })
+    local myMove = scene.myMove
+    local moveDescr = getMoveDescription(myMove)
+    common_ui.create_info_modal(scene.creds.user.username, moveDescr, function()
+        board:applyMove(myMove, rack, true, function()
+            if scene:didOpponentPlayMove(scene.movesToDisplay) then
+                scene:fadeToTurn(true)
+            end
+            print("Calling applyOpponentsMove from onSendMoveSuccess. Moves: " .. json.encode(scene.movesToDisplay))
+            scene:applyOpponentMoves()
+        end)
+    end)
 
-    else
-        transition.fadeOut(titleAreaDisplayGroup.leftCircle, {time = FADE_TIME, onComplete = resetBoardAndShowModals })
-        transition.fadeIn(titleAreaDisplayGroup.rightCircle, {time = FADE_TIME})
-    end
-
-
-    -- TODO: display the previous move played by the AI in some manner
 end
 
+function scene:fadeToTurn(isOpponentTurn)
+    if isOpponentTurn then
+        transition.fadeOut(titleAreaDisplayGroup.leftCircle, {time = 2000 })
+        transition.fadeIn(titleAreaDisplayGroup.rightCircle, {time = 2000 })
+    else
+        transition.fadeIn(titleAreaDisplayGroup.leftCircle, {time = 2000 })
+        transition.fadeOut(titleAreaDisplayGroup.rightCircle, {time = 2000 })
+    end
+end
+
+
 onSendMoveFail = function(json)
+    scene.myMove = nil
     if json and json["errorMessage"] then
         local message
         local messageFromServer = json["errorMessage"]
@@ -404,6 +445,7 @@ onSendMoveFail = function(json)
 end
 
 onSendMoveNetworkFail = function(event)
+    scene.myMove = nil
     native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
         if event.action == "clicked" then
            rack:enableInteraction()
@@ -432,6 +474,7 @@ onGrabTiles = function(tiles)
                     board:disableInteraction()
                     rack:disableInteraction()
                     local moveJson = createGrabMoveJson(tiles)
+                    scene.myMove = moveJson
                     common_api.sendMove(moveJson, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
                 elseif i == 2 then
                     board:cancel_grab()
@@ -466,6 +509,7 @@ onReleasePlayButton = function(event)
             print("Sending move: " .. json.encode(move))
             board:disableInteraction()
             rack:disableInteraction()
+            scene.myMove = move
             common_api.sendMove(move, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
         else
             print("User clicked 'Nope'")
@@ -527,6 +571,7 @@ end
 
 pass = function()
     local passMove = common_api.getPassMove(current_game.currentGame)
+    scene.myMove = passMove
     common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
 end
 

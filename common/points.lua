@@ -33,7 +33,7 @@ local pointMap = {
     W=4,
     X=9,
     Y=5,
-    Z=11
+    Z=12
 }
 
 M.getLetterPoints = function(letter)

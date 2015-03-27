@@ -8,6 +8,7 @@ local display = require("display")
 local transition = require("transition")
 local easing = require("easing")
 local lists = require("common.lists")
+local table = require("table")
 local MAX_TILES = 20
 local NUM_ROWS = 3
 
@@ -146,7 +147,12 @@ function rack_class:computeIndexFromContentCoords(xContent, yContent)
 
 end
 
-function rack_class:returnTileImage(tileImage)
+function rack_class:addTileImage(tileImage, onComplete)
+    self.tileImages[#(self.tileImages) + 1] = tileImage
+    self:returnTileImage(tileImage, onComplete)
+end
+
+function rack_class:returnTileImage(tileImage, onComplete)
     if not tileImage then
         return
     end
@@ -169,7 +175,7 @@ function rack_class:returnTileImage(tileImage)
     local dist = math.sqrt((x - xRack)*(x - xRack) + (y - yRack)*(y - yRack))
     local duration = math.floor(dist / SPEED)
     transition.to(tileImage, {x = x, y = y, width = self.tileWidth, height = self.tileWidth,
-        time = duration, transition = easing.inOutBack})
+        time = duration, transition = easing.inOutBack, onComplete = onComplete})
 
 	self.board:removeRackTileFromBoard(tileImage)
 

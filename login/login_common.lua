@@ -13,19 +13,23 @@ M.CREDS_KEY = CREDS_KEY
 M.fetchCredentials = function()
     local serverCreds = composer.getVariable(CREDS_KEY)
 
-    if not serverCreds or not serverCreds["user"] or not serverCreds["cookie"] then
+    if not M.isValidCreds(serverCreds) then
         print ("Server creds not found in composer variable or missing data. Falling back to loading from file...")
 	    serverCreds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
         composer.setVariable(CREDS_KEY, serverCreds)
     end
 
-	if not serverCreds or not serverCreds["user"] or not serverCreds["cookie"] then
+	if not M.isValidCreds(serverCreds) then
 		print("No ghostWritersUserCreds.json file found, or data is corrupt.")
         print("Data found = " .. json.encode(serverCreds))
 		return nil
     end
 
 	return serverCreds
+end
+
+M.isValidCreds = function(creds)
+   return creds and creds["user"] and creds["cookie"]
 end
 
 M.dumpToLoggedOutScene = function(fromScene)
@@ -64,7 +68,7 @@ M.getCookie = function()
 end
 
 M.logout = function()
-    composer.setVariable(CREDS_KEY, nil)
+    composer.setVariable(CREDS_KEY, {})
     loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
     composer.gotoScene("login.logged_out_scene")
 end

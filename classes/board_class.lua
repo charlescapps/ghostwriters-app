@@ -10,6 +10,7 @@ local display = require("display")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local transition = require("transition")
+local table = require("table")
 
 local lists = require("common.lists")
 
@@ -436,13 +437,17 @@ function board_class:getCurrentPlayTilesMove()
 	local rackTileLetters = self:getLettersFromTiles(orderedTiles)
 
 	-- Construct the move
-	return {
+	local moveJson =  {
 		letters = letters:upper(),
 		start = { r = startR - 1, c = startC - 1 },
 		dir = dir,
 		tiles = rackTileLetters,
 		moveType = common_api.PLAY_TILES
-	}
+    }
+
+    local points = self.pointsBubble:computePoints(moveJson)
+    moveJson.points = points
+    return moveJson
 end
 
 function board_class:getLettersFromTiles(tileImages)
@@ -660,6 +665,130 @@ function board_class:destroy()
     self.boardContainer:removeSelf()
     self.boardContainer = nil
     self.boardGroup = nil
+end
+
+function board_class:applyMove(move, rack, isCurrentUser, onComplete)
+    if move.moveType == common_api.PASS then
+        print("Board applying PASS move, doing nothing...")
+        if onComplete then
+            onComplete()
+        end
+    elseif move.moveType == common_api.PLAY_TILES then
+        self:applyPlayTilesMove(move.tiles, move.start.r + 1, move.start.c + 1, move.dir, onComplete)
+    elseif move.moveType == common_api.GRAB_TILES then
+        if isCurrentUser then
+            self:applyCurrentUserGrabTilesMove(rack, move.letters, move.start.r + 1, move.start.c + 1, move.dir, onComplete)
+        else
+            self:applyOpponentGrabTilesMove(move.letters, move.start.r + 1, move.start.c + 1, move.dir, onComplete)
+        end
+    end
+end
+
+function board_class:go(r, c, dir)
+    if dir == "S" then
+        return r + 1, c
+    elseif dir == "E" then
+        return r, c + 1
+    elseif dir == "N" then
+        return r - 1, c
+    elseif dir == "W" then
+        return r, c - 1
+    end
+
+    print("Error, invalid dir: " .. tostring(dir))
+    return nil, nil
+
+end
+
+function board_class:applyPlayTilesMove(tiles, startR, startC, dir, onComplete)
+    local tileIndex = 1
+    local r, c = startR, startC
+    local tileWidth = math.floor(self.width / self.N)
+    local firstTile = true
+    while tileIndex <= tiles:len() do
+        if r > self.N or c > self.N then
+            print("Error - invalid row or column reached in applyPlayTilesMoves: " .. r .. ", " .. c)
+            return
+        end
+        local myTile = self.tiles[r][c]
+        local letter = tiles:sub(tileIndex, tileIndex)
+        if myTile == tile.emptyTile then
+           local x, y = self:computeTileCoords(r, c)
+           local newTileImg = tile.draw(letter, x, y, tileWidth, false, self.gameModel.boardSize)
+           newTileImg.alpha = 0;
+           self.tilesGroup:insert(newTileImg)
+           if firstTile then
+                firstTile = false
+                transition.fadeIn(newTileImg, { time = 2000, onComplete = onComplete })
+           else
+                transition.fadeIn(newTileImg, { time = 2000 })
+           end
+           tileIndex = tileIndex + 1
+        end
+
+        r, c = self:go(r, c, dir)
+    end
+end
+
+function board_class:applyOpponentGrabTilesMove(letters, startR, startC, dir, onComplete)
+    local isFirstTile = true
+    if dir == "S" then
+        for r = startR, startR + letters:len() - 1 do
+            local tileImg = self.tileImages[r][startC]
+            if isFirstTile then
+                isFirstTile = false
+                transition.fadeOut(tileImg, { time = 2000, onComplete = onComplete })
+            else
+                transition.fadeOut(tileImg, { time = 2000 })
+            end
+        end
+
+    else
+        for c = startC, startC + letters:len() - 1 do
+            local tileImg = self.tileImages[startR][c]
+            if isFirstTile then
+                isFirstTile = false
+                transition.fadeOut(tileImg, { time = 2000, onComplete = onComplete })
+            else
+                transition.fadeOut(tileImg, { time = 2000 })
+            end
+        end
+    end
+end
+
+function board_class:fadeOutGrabbedTile(r, c, rack, onComplete)
+    local tileImg = self.tileImages[r][c]
+    rack:addTileImage(tileImg, onComplete)
+
+    local squareImg = self.squareImages[r][c]
+    if squareImg and squareImg.shadedSquareGroup then
+       transition.fadeOut(squareImg.shadedSquareGroup, { time = 2000 })
+    end
+end
+
+function board_class:applyCurrentUserGrabTilesMove(rack, letters, startR, startC, dir, onComplete)
+    local isFirstTile = true
+
+    if dir == "S" then
+        for r = startR, startR + letters:len() - 1 do
+            if isFirstTile then
+                isFirstTile = false
+                self:fadeOutGrabbedTile(r, startC, rack, onComplete)
+            else
+                self:fadeOutGrabbedTile(r, startC, rack)
+            end
+        end
+
+    else
+        for c = startC, startC + letters:len() - 1 do
+            if isFirstTile then
+                isFirstTile = false
+                self:fadeOutGrabbedTile(startR, c, rack, onComplete)
+            else
+                self:fadeOutGrabbedTile(startR, c, rack)
+            end
+        end
+    end
 end
 
 -- Local functions
