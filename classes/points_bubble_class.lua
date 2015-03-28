@@ -171,6 +171,13 @@ function points_bubble_class:removePointsBubble()
     self:removeAnyBubble(self.bubbleDisplayGroup)
 end
 
+function points_bubble_class:destroy()
+    if self.bubbleDisplayGroup then
+       transition.cancel(self.bubbleDisplayGroup)
+       self.bubbleDisplayGroup:removeSelf()
+    end
+end
+
 function points_bubble_class:drawBubble(points, x, y, rotateDegrees, textY, flip)
     local group = display.newGroup()
     group.xScale, group.yScale = 0.1, 0.1 --initial scale very small!

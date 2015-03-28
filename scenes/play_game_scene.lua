@@ -401,7 +401,7 @@ onSendMoveSuccess = function(updatedGameModel)
 
     local myMove = scene.myMove
     local moveDescr = getMoveDescription(myMove)
-    common_ui.create_info_modal(scene.creds.user.username, moveDescr, function()
+    common_ui.create_info_modal("You", moveDescr, function()
         board:applyMove(myMove, rack, true, function()
             if scene:didOpponentPlayMove(scene.movesToDisplay) then
                 scene:fadeToTurn(true)
