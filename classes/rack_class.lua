@@ -148,8 +148,13 @@ function rack_class:computeIndexFromContentCoords(xContent, yContent)
 end
 
 function rack_class:addTileImage(tileImage, onComplete)
-    self.tileImages[#(self.tileImages) + 1] = tileImage
-    self:returnTileImage(tileImage, onComplete)
+    for i = 1, MAX_TILES do
+       if not self.tileImages[i] then
+           self.tileImages[i] = tileImage
+           self:returnTileImage(tileImage, onComplete)
+           return
+       end
+    end
 end
 
 function rack_class:returnTileImage(tileImage, onComplete)
