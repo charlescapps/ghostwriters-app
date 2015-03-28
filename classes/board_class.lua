@@ -14,6 +14,9 @@ local table = require("table")
 
 local lists = require("common.lists")
 
+-- Constants
+local APPLY_MOVE_TAG = "apply_move_tag"
+
 -- Pre-declaration of functions
 
 local isConnected
@@ -665,6 +668,8 @@ end
 function board_class:destroy()
 
     -- Remove any pending transitions
+    transition.cancel(APPLY_MOVE_TAG)
+
     for i = 1, self.N do
         for j = 1, self.N do
             local tileImg = self.tileImages[i][j]
@@ -735,7 +740,7 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
     local tileWidth = math.floor(self.width / self.N)
     local firstTile = true
     for i = 0, letters:len() - 1 do
-        if r > self.N or c > self.N then
+        if r < 1 or c < 1 or r > self.N or c > self.N then
             print("Error - invalid row or column reached in applyPlayTilesMoves: " .. r .. ", " .. c)
             return
         end
@@ -749,16 +754,19 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
            self.tilesGroup:insert(newTileImg)
            if firstTile then
                 firstTile = false
-                transition.fadeIn(newTileImg, { time = 2000, onComplete = onComplete })
+                transition.fadeIn(newTileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = onComplete })
            else
-                transition.fadeIn(newTileImg, { time = 2000 })
+                transition.fadeIn(newTileImg, { tag = APPLY_MOVE_TAG, time = 2000 })
            end
            tileIndex = tileIndex + 1
            if self.rackTileImages and self.rackTileImages[r][c] then
-               local rackTile = self.rackTileImages[r][c]
-              transition.fadeOut(self.rackTileImages[r][c], { time = 2000, onComplete = function()
-                rackTile:removeSelf()
-                self.rackTileImages[r][c] = nil
+             local rackTile = self.rackTileImages[r][c]
+             rackTile.r, rackTile.c = r, c
+             transition.fadeOut(rackTile, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = function(obj)
+                 obj:removeSelf()
+                 if obj.r and obj.c then
+                    self.rackTileImages[obj.r][obj.c] = nil
+                 end
               end})
            end
         else
@@ -768,10 +776,11 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
                 local stoneTileImg = tile.draw(myTile:upper(), x, y, tileWidth, false, self.gameModel.boardSize)
                 stoneTileImg.alpha = 0
                 self.tilesGroup:insert(stoneTileImg)
-                transition.fadeIn(stoneTileImg, { time = 2000, onComplete = function()
-                    self.tileImages[r][c] = stoneTileImg
-                    if myTileImg then
-                        myTileImg:removeSelf()
+                self.tileImages[r][c] = stoneTileImg
+                stoneTileImg.replaceTile = myTileImg
+                transition.fadeIn(stoneTileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = function(obj)
+                    if obj.replaceTile then
+                        obj.replaceTile:removeSelf()
                     end
                 end })
             end
@@ -789,9 +798,9 @@ function board_class:applyOpponentGrabTilesMove(letters, startR, startC, dir, on
        if tileImg then
            if isFirstTile then
                isFirstTile = false
-               transition.fadeOut(tileImg, { time = 2000, onComplete = onComplete })
+               transition.fadeOut(tileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = onComplete })
            else
-               transition.fadeOut(tileImg, { time = 2000 })
+               transition.fadeOut(tileImg, { tag = APPLY_MOVE_TAG, time = 2000 })
            end
        end
     end
@@ -805,7 +814,7 @@ function board_class:fadeOutGrabbedTile(r, c, rack, onComplete)
 
     local squareImg = self.squareImages[r][c]
     if squareImg and squareImg.shadedSquareGroup then
-       transition.fadeOut(squareImg.shadedSquareGroup, { time = 2000 })
+       transition.fadeOut(squareImg.shadedSquareGroup, { tag = APPLY_MOVE_TAG, time = 2000 })
     end
 end
 
