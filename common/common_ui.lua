@@ -15,7 +15,7 @@ local BACK_BTN_HEIGHT = 75
 
 local MODAL_IMAGE = "images/book_modal.png"
 
-M.create_background = function(imageFile)
+M.createBackground = function(imageFile)
 	local file = imageFile or DEFAULT_BACKGROUND
     local background = display.newImageRect( file, 750, 1334 )
     background.x = display.contentWidth / 2
@@ -23,7 +23,7 @@ M.create_background = function(imageFile)
     return background
 end
 
-M.create_title = function(myTitleText, y, rgb, fontSize)
+M.createTitle = function(myTitleText, y, rgb, fontSize)
 	local useFontSize = fontSize or 48
 	if not y then
 		y = 150  -- default y position for titles.
@@ -42,7 +42,7 @@ M.create_title = function(myTitleText, y, rgb, fontSize)
     return title
 end 
 
-M.create_button = function(text, y, onRelease)
+M.createButton = function(text, y, onRelease)
 	local button = widget.newButton( {
 		x = display.contentWidth / 2,
 		y = y,
@@ -62,7 +62,7 @@ M.create_button = function(text, y, onRelease)
 	return button
 end
 
-M.create_img_button = function(y, width, height, defaultFile, overFile, onRelease)
+M.createImageButton = function(y, width, height, defaultFile, overFile, onRelease)
 
 	return widget.newButton({
 		x = display.contentWidth / 2,
@@ -75,21 +75,7 @@ M.create_img_button = function(y, width, height, defaultFile, overFile, onReleas
 	})
 end
 
-M.create_img_button2 = function(x, y, width, height, defaultFile, overFile, onPress, onRelease)
-
-    return widget.newButton {
-        x = x,
-        y = y,
-        width = width,
-        height = height,
-        defaultFile = defaultFile,
-        overFile = overFile,
-        onPress = onPress,
-        onRelease = onRelease
-    }
-end
-
-M.create_back_button = function(x, y, sceneName, beforeTransition, afterTransition)
+M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition)
     -- Helper to call "beforeTransition", then go to the previous or specified scene, then call "afterTransition"
     local onRelease = function(event)
         if beforeTransition then
@@ -117,18 +103,10 @@ M.create_back_button = function(x, y, sceneName, beforeTransition, afterTransiti
     }
 end
 
-M.find_by_id = function(group, id)
-	for i=1, #array do
-		if group[i] and group[i].id == id then
-			return group[i]
-		end
-	end
-	return nil
-end
 
-M.create_img_button_group = function(defaultFile, overFile, imgY, title, subtitle, onRelease)
+M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subtitle, onRelease)
     local group = display.newGroup()
-    local imgButton = M.create_img_button(imgY, 300, 300, defaultFile, overFile, onRelease)
+    local imgButton = M.createImageButton(imgY, 300, 300, defaultFile, overFile, onRelease)
     imgButton.x = display.contentWidth / 2
     imgButton.y = imgY
     
@@ -163,7 +141,7 @@ M.create_img_button_group = function(defaultFile, overFile, imgY, title, subtitl
     return group
 end
 
-M.create_info_modal = function(titleText, text, onClose, x, y, fontSize)
+M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
     if not x then
         x = display.contentWidth / 2
     end

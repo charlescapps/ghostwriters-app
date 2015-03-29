@@ -13,8 +13,8 @@ scene.sceneName = "scenes.my_active_games_scene"
 -- "scene:create()"
 function scene:create(event)
     local sceneGroup = self.view
-    local background = common_ui.create_background()
-    self.backButton = common_ui.create_back_button(80, 80, "scenes.title_scene", function()
+    local background = common_ui.createBackground()
+    self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene", function()
         print("Before transition")
     end)
     self.goToCompleteGamesButton = self:createGoToCompleteGamesButton()
@@ -81,7 +81,7 @@ function scene:getOnSuccessCallback()
     return function(games)
         if not games or not games.list then
             print("The games endpoint returned nil or is missing the 'list' field: " .. tostring(games))
-            common_ui.create_info_modal("Oops...", "A network error occurred. Please try again.")
+            common_ui.createInfoModal("Oops...", "A network error occurred. Please try again.")
            return
         end
         self.myGamesView:setGames(games)
@@ -100,7 +100,7 @@ function scene:getOnFailCallback()
             errorMessage = "A network error occurred. Please try again."
         end
 
-        common_ui.create_info_modal("Oops...", errorMessage)
+        common_ui.createInfoModal("Oops...", errorMessage)
 
     end
 end

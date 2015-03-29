@@ -216,7 +216,7 @@ local function createSearchBar()
 end
 
 local function createStartGameButton()
-    return common_ui.create_button("Start a game", 900, function(event)
+    return common_ui.createButton("Start a game", 900, function(event)
             print( "Button was pressed and released" )
 
             local selectedRow =  getSelectedResultRow()
@@ -239,8 +239,8 @@ end
 function scene:create(event)
     
 	local sceneGroup = self.view
-    local background = common_ui.create_background()
-    local backButton = common_ui.create_back_button(100, 100, "scenes.title_scene")
+    local background = common_ui.createBackground()
+    local backButton = common_ui.createBackButton(100, 100, "scenes.title_scene")
     local searchBarGroup = createSearchBar()
     local startGameButton = createStartGameButton()
     sceneGroup:insert( background )

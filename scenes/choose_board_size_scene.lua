@@ -21,12 +21,12 @@ end
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
-    local background = common_ui.create_background()
+    local background = common_ui.createBackground()
     local backButton = createBackButton()
 
-    local smallBoardGrp = common_ui.create_img_button_group("images/small_board.jpg", "images/small_board_dark.jpg", 200, "Short story", "(5x5 board)", getOnReleaseListener(common_api.SMALL_SIZE))
-    local mediumBoardGrp = common_ui.create_img_button_group("images/medium_board.jpg", "images/medium_board_dark.jpg", 600, "Novel", "(9x9 board)", getOnReleaseListener(common_api.MEDIUM_SIZE))
-    local largeBoardGrp = common_ui.create_img_button_group("images/large_board.jpg", "images/large_board_dark.jpg", 1000, "Necronomicon", "(13x13 board)", getOnReleaseListener(common_api.LARGE_SIZE))
+    local smallBoardGrp = common_ui.createImageButtonWithText("images/small_board.jpg", "images/small_board_dark.jpg", 200, "Short story", "(5x5 board)", getOnReleaseListener(common_api.SMALL_SIZE))
+    local mediumBoardGrp = common_ui.createImageButtonWithText("images/medium_board.jpg", "images/medium_board_dark.jpg", 600, "Novel", "(9x9 board)", getOnReleaseListener(common_api.MEDIUM_SIZE))
+    local largeBoardGrp = common_ui.createImageButtonWithText("images/large_board.jpg", "images/large_board_dark.jpg", 1000, "Necronomicon", "(13x13 board)", getOnReleaseListener(common_api.LARGE_SIZE))
 
     sceneGroup:insert(background)
     sceneGroup:insert(backButton)
@@ -93,7 +93,7 @@ createBackButton = function()
         end
     end
 
-    return common_ui.create_back_button(100, 100, previousScene, beforeTransition)
+    return common_ui.createBackButton(100, 100, previousScene, beforeTransition)
 end
 
 

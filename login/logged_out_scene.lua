@@ -183,7 +183,7 @@ onGetNextUsernameFail = function()
 end
 
 local function createGoButton()
-    return common_ui.create_button("Go!", 550, createAccountAndGo)
+    return common_ui.createButton("Go!", 550, createAccountAndGo)
 end
 
 getNextUsername = function()
@@ -203,8 +203,8 @@ end
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
-    local background = common_ui.create_background()
-    local title = common_ui.create_title("Ghostwriters", nil, { 0, 0, 0 }, 60)
+    local background = common_ui.createBackground()
+    local title = common_ui.createTitle("Ghostwriters", nil, { 0, 0, 0 }, 60)
     scene.usernameInputLabel = createUsernameInputLabel()
     scene.getNextUsernameButton = createGetNextUsernameButton()
     local createAccountAndGoButton = createGoButton()

@@ -53,13 +53,13 @@ end
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
-    local background = common_ui.create_background()
-    local backButton = common_ui.create_back_button(100, 100, "scenes.choose_game_density_scene", function()
+    local background = common_ui.createBackground()
+    local backButton = common_ui.createBackButton(100, 100, "scenes.choose_game_density_scene", function()
         new_game_data.bonusesType, new_game_data.gameDensity = nil, nil
     end)
 
-    local smallBoardGrp = common_ui.create_img_button_group("images/fixed_bonuses.jpg", "images/fixed_bonuses_dark.jpg", 300, "Standard bonuses", "(Same bonus squares every time)", getOnReleaseListener(common_api.FIXED_BONUSES))
-    local mediumBoardGrp = common_ui.create_img_button_group("images/random_bonuses.jpg", "images/random_bonuses_dark.jpg", 800, "Random bonuses", "(Unpredictable bonus squares)", getOnReleaseListener(common_api.RANDOM_BONUSES))
+    local smallBoardGrp = common_ui.createImageButtonWithText("images/fixed_bonuses.jpg", "images/fixed_bonuses_dark.jpg", 300, "Standard bonuses", "(Same bonus squares every time)", getOnReleaseListener(common_api.FIXED_BONUSES))
+    local mediumBoardGrp = common_ui.createImageButtonWithText("images/random_bonuses.jpg", "images/random_bonuses_dark.jpg", 800, "Random bonuses", "(Unpredictable bonus squares)", getOnReleaseListener(common_api.RANDOM_BONUSES))
 
     sceneGroup:insert(background)
     sceneGroup:insert(backButton)

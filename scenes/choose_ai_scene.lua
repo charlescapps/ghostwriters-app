@@ -19,14 +19,14 @@ end
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
-    local background = common_ui.create_background()
-    local backButton = common_ui.create_back_button(100, 100, "scenes.title_scene", function()
+    local background = common_ui.createBackground()
+    local backButton = common_ui.createBackButton(100, 100, "scenes.title_scene", function()
         new_game_data.clearAll()
     end)
 
-    local randomAiGrp = common_ui.create_img_button_group("images/monkey-typing.jpg", "images/monkey-typing-dark.jpg", 200, "Monkey", "(Random opponent)", getOnReleaseListener(common_api.RANDOM_AI))
-    local bookwormAiGrp = common_ui.create_img_button_group("images/bookworm.jpg", "images/bookworm-dark.jpg", 600, "Bookworm", "(Normal opponent)", getOnReleaseListener(common_api.BOOKWORM_AI))
-    local professorAiGrp = common_ui.create_img_button_group("images/professor.jpeg", "images/professor-dark.jpeg", 1000, "Professor", "(Difficult opponent)", getOnReleaseListener(common_api.PROFESSOR_AI))
+    local randomAiGrp = common_ui.createImageButtonWithText("images/monkey-typing.jpg", "images/monkey-typing-dark.jpg", 200, "Monkey", "(Random opponent)", getOnReleaseListener(common_api.RANDOM_AI))
+    local bookwormAiGrp = common_ui.createImageButtonWithText("images/bookworm.jpg", "images/bookworm-dark.jpg", 600, "Bookworm", "(Normal opponent)", getOnReleaseListener(common_api.BOOKWORM_AI))
+    local professorAiGrp = common_ui.createImageButtonWithText("images/professor.jpeg", "images/professor-dark.jpeg", 1000, "Professor", "(Difficult opponent)", getOnReleaseListener(common_api.PROFESSOR_AI))
 
     sceneGroup:insert(background)
     sceneGroup:insert(backButton)

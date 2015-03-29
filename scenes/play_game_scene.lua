@@ -80,7 +80,7 @@ function scene:create(event)
         return
     end
 
-    local background = common_ui.create_background()
+    local background = common_ui.createBackground()
 
     titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, scene.creds.user)
 
@@ -387,7 +387,7 @@ function scene:applyOpponentMoves()
     local moveDescr = getMoveDescription(firstMove)
     local opponent = self:getOpponentUser()
     local myScene = self
-    common_ui.create_info_modal(opponent.username, moveDescr, function()
+    common_ui.createInfoModal(opponent.username, moveDescr, function()
         board:applyMove(firstMove, rack, firstMove.playerId == myScene.creds.user.id, function()
             myScene:applyOpponentMoves()
         end)
@@ -401,7 +401,7 @@ onSendMoveSuccess = function(updatedGameModel)
 
     local myMove = scene.myMove
     local moveDescr = getMoveDescription(myMove)
-    common_ui.create_info_modal("You", moveDescr, function()
+    common_ui.createInfoModal("You", moveDescr, function()
         board:applyMove(myMove, rack, true, function()
             if scene:didOpponentPlayMove(scene.movesToDisplay) then
                 scene:fadeToTurn(true)
@@ -458,7 +458,7 @@ end
 onGrabTiles = function(tiles)
     print("Tiles grabbed!")
     if not current_game.isUsersTurn(scene.creds.user) then
-       common_ui.create_info_modal("Oops...", "It's not your turn")
+       common_ui.createInfoModal("Oops...", "It's not your turn")
        board:cancel_grab()
        return
     end
@@ -487,7 +487,7 @@ end
 
 onReleasePlayButton = function(event)
     if not current_game.isUsersTurn(scene.creds.user) then
-        common_ui.create_info_modal("Oops...", "It's not your turn")
+        common_ui.createInfoModal("Oops...", "It's not your turn")
         return
     end
 
@@ -547,7 +547,7 @@ showGameOverModal = function()
         return
     end
 
-    local modal = common_ui.create_info_modal("Game Over", modalMessage, nil, nil, nil)
+    local modal = common_ui.createInfoModal("Game Over", modalMessage, nil, nil, nil)
     scene.view:insert(modal)
 
 end
@@ -566,7 +566,7 @@ showNoMovesModal = function()
 
     local modalMessage = "You must pass.\nTouch to continue..."
 
-    common_ui.create_info_modal("No Moves!", modalMessage, pass)
+    common_ui.createInfoModal("No Moves!", modalMessage, pass)
 end
 
 pass = function()

@@ -315,15 +315,15 @@ createAccountFail = function()
 end
 
 local function create_done_button()
-    local doneButton = common_ui.create_button("Go!", 1050, submit)
+    local doneButton = common_ui.createButton("Go!", 1050, submit)
     return doneButton
 end
 
 -- "scene:create()"
 function scene:create(event)
 	local sceneGroup = self.view
-    local background = common_ui.create_background()
-    local backButton = common_ui.create_back_button(100, 100)
+    local background = common_ui.createBackground()
+    local backButton = common_ui.createBackButton(100, 100)
     local usernameLabelGrp = create_username_label_and_desc()
     local emailLabelGrp = createEmailLabelGroup()
     local passwordLabels = createPasswordLabels()

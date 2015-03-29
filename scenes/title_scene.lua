@@ -41,7 +41,7 @@ end
 function scene:create(event)
 
 	local sceneGroup = self.view
-	local background = common_ui.create_background()
+	local background = common_ui.createBackground()
 	local titleText = createTitleText()
 	local buttonSinglePlayer = createTitleButton("Play Single Player", "single_player_button", 400, clickSinglePlayer)
 	local buttonPlayOthers = createTitleButton("Play One-on-One", "multi_player_button", 650, clickOneOnOne)
