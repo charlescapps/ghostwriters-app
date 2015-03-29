@@ -170,7 +170,12 @@ function rack_class:returnTileImage(tileImage, onComplete)
 
     local SPEED = 0.5 -- pixels per millisecond
 
-    local xContent, yContent = tileImage.parent:localToContent(tileImage.x, tileImage.y)
+    local xContent, yContent
+    if tileImage.parent then
+        xContent, yContent = tileImage.parent:localToContent(tileImage.x, tileImage.y)
+    else
+        xContent, yContent = tileImage.x, tileImage.y
+    end
     local xRack, yRack = self.displayGroup:contentToLocal(xContent, yContent)
     tileImage.x, tileImage.y = xRack, yRack
 

@@ -751,7 +751,10 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
            local letter = tiles:sub(tileIndex, tileIndex)
            local newTileImg = tile.draw(letter:upper(), x, y, tileWidth, false, self.gameModel.boardSize)
            newTileImg.alpha = 0;
+           newTileImg.letter = letter
            self.tilesGroup:insert(newTileImg)
+           self.tiles[r][c] = letter
+           self.tileImages[r][c] = newTileImg
            if firstTile then
                 firstTile = false
                 transition.fadeIn(newTileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = onComplete })
@@ -761,12 +764,9 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
            tileIndex = tileIndex + 1
            if self.rackTileImages and self.rackTileImages[r][c] then
              local rackTile = self.rackTileImages[r][c]
-             rackTile.r, rackTile.c = r, c
+             self.rackTileImages[r][c] = nil
              transition.fadeOut(rackTile, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = function(obj)
                  obj:removeSelf()
-                 if obj.r and obj.c then
-                    self.rackTileImages[obj.r][obj.c] = nil
-                 end
               end})
            end
         else
@@ -795,6 +795,8 @@ function board_class:applyOpponentGrabTilesMove(letters, startR, startC, dir, on
     for i = 0, letters:len() - 1 do
        local r, c = self:go(startR, startC, dir, i)
        local tileImg = self.tileImages[r][c]
+       self.tileImages[r][c] = nil
+       self.tiles[r][c] = tile.emptyTile
        if tileImg then
            if isFirstTile then
                isFirstTile = false
