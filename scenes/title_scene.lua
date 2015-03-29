@@ -29,7 +29,7 @@ local clickOneOnOne = function()
 	 print( "Clicked play with rivals" )
 	 new_game_data.clearAll()
 	 new_game_data.gameType = common_api.TWO_PLAYER
-     nav.goToSceneFrom(scene.sceneName, "scenes.search_for_opponent_scene", "fade")
+     nav.goToSceneFrom(scene.sceneName, "scenes.start_multiplayer_scene", "fade")
 end
 
 local clickMyGames = function()

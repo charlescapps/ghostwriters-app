@@ -14,6 +14,10 @@ local BACK_BTN_WIDTH = 75
 local BACK_BTN_HEIGHT = 75
 
 local MODAL_IMAGE = "images/book_modal.png"
+local BOOK_BUTTON_DEFAULT_IMAGE = "images/book_button_default.png"
+local BOOK_BUTTON_OVER_IMAGE = "images/book_button_over.png"
+local BOOK_BUTTON_WIDTH = 500
+local BOOK_BUTTON_HEIGHT = 300
 
 M.createBackground = function(imageFile)
 	local file = imageFile or DEFAULT_BACKGROUND
@@ -142,18 +146,8 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
 end
 
 M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
-    if not x then
-        x = display.contentWidth / 2
-    end
-    if not y then
-        y = display.contentHeight / 2
-    end
-    if not fontSize then
-        fontSize = 50
-    end
-
     local group = display.newGroup()
-    group.x, group.y = x, y
+    group.x, group.y = x or display.contentWidth / 2, y or display.contentHeight / 2
     group.alpha = 0
 
     local modalImage = display.newImageRect(group, MODAL_IMAGE, 650, 484)
@@ -179,7 +173,7 @@ M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
         width = 600,
         height = 250,
         font = native.systemBoldFont,
-        fontSize = 40,
+        fontSize = fontSize or 40,
         align = "center"
     }
     modalText:setFillColor(0, 0, 0)
@@ -208,6 +202,53 @@ M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
     end)
 
     transition.fadeIn(group, { time = 1000 })
+
+    return group
+end
+
+M.createBookButton = function(titleText, text, fontSize, onRelease, x, y)
+    local group = display.newGroup()
+    group.x, group.y = x or display.contentWidth / 2, y or display.contentWidth / 2
+
+    local imgButton = widget.newButton({
+        x = 0,
+        y = 0,
+        width = BOOK_BUTTON_WIDTH,
+        height = BOOK_BUTTON_HEIGHT,
+        defaultFile = BOOK_BUTTON_DEFAULT_IMAGE,
+        overFile = BOOK_BUTTON_OVER_IMAGE,
+        onRelease = onRelease
+    })
+
+    local buttonTitle = display.newText {
+        parent = group,
+        x = 0,
+        y = -75,
+        text = titleText,
+        width = BOOK_BUTTON_WIDTH - 100,
+        height = 100,
+        font = native.systemBoldFont,
+        fontSize = 50,
+        align = "center"
+    }
+    buttonTitle:setFillColor(0, 0, 0)
+
+    local buttonText = display.newText {
+        parent = group,
+        x = 0,
+        y = 75,
+        text = text,
+        width = BOOK_BUTTON_WIDTH - 100,
+        height = 175,
+        font = native.systemBoldFont,
+        fontSize = fontSize or 32,
+        align = "center"
+    }
+    buttonText:setFillColor(0, 0, 0)
+
+    group:insert(imgButton)
+    group:insert(buttonTitle)
+    group:insert(buttonText)
 
     return group
 end
