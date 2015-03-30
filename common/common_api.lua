@@ -83,6 +83,18 @@ local function escape (str)
         return str
 end
 
+local function parseCookie(setCookieHeader)
+    if not setCookieHeader then
+        return nil
+    end
+    local startI, endI = setCookieHeader:find(";")
+    if not startI or startI == 1 then
+        return setCookieHeader
+    end
+    return setCookieHeader:sub(1, startI - 1)
+
+end
+
 M.isValidUser = function(user)
 	return user ~= nil and user.id and user.username
 end
@@ -146,17 +158,20 @@ M.login = function(username, password, onSuccess, onFail)
 				return				
 			end
 			local headers = event.responseHeaders
-			local cookie = headers["Set-Cookie"]
+			local cookie = parseCookie(headers["Set-Cookie"])
+            print("Received cookie: " .. cookie)
 			if cookie == nil or cookie:len() <= 0 then
                 M.showNetworkError()
 				print ("Failed to get a cookie from the login response: " .. json.encode(event))
 				onFail()
 			end
 			print("SUCCESS - saving user '" .. user.username .. "' with cookie: " .. cookie)
-			login_common.saveUser(user)
-			login_common.saveCookie(cookie)
+            local creds = {
+                user = user,
+                cookie = cookie
+            }
+			login_common.saveCreds(creds)
 			onSuccess(user)
-
 		end
 	end
 
@@ -244,17 +259,20 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 				return				
 			end
 			local headers = event.responseHeaders
-			local cookie = headers["Set-Cookie"]
+			local cookie = parseCookie(headers["Set-Cookie"])
+            print("Received cookie: " .. cookie)
 			if cookie == nil or cookie:len() <= 0 then
                 M.showNetworkError()
 				print ("Failed to get a cookie from the login response: " .. json.encode(event))
 				onFail()
 			end
 			print("SUCCESS - created user: " .. user.username)
-			login_common.saveUser(user)
-			login_common.saveCookie(cookie)
+            local creds = {
+                user = user,
+                cookie = cookie
+            }
+			login_common.saveCreds(creds)
 			onSuccess(user)
-
 		end
 	end
 	return network.request(M.usersURL(), "POST", listener, params)
@@ -303,7 +321,9 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 			onSuccess(jsonResp)
 
 		end
-	end
+    end
+    print("Doing " .. method .. " to " .. url .. " with request body:\n" .. tostring(body))
+    print("Sending Cookie: " .. tostring(cookie))
 	return network.request(url, method, listener, params)
 end
 

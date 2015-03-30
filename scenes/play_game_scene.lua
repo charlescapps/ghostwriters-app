@@ -434,13 +434,12 @@ onSendMoveFail = function(json)
         else
             message = "Invalid move!"
         end
-        native.showAlert( "Oops...", message, { "Try again" }, function(event)
-            if event.action == "clicked" then
-               rack:enableInteraction()
-               board:enableInteraction()
-            end
-        end)
+        native.showAlert( "Oops...", message, { "Try again" })
+    else
+        native.showAlert( "A server error occurred", { "Try again" } )
     end
+    rack:enableInteraction()
+    board:enableInteraction()
     board:cancel_grab()
 end
 

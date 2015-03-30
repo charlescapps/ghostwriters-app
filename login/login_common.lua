@@ -11,21 +11,22 @@ local CREDS_KEY = "USER_CREDENTIALS_KEY"
 M.CREDS_KEY = CREDS_KEY
 
 M.fetchCredentials = function()
-    local serverCreds = composer.getVariable(CREDS_KEY)
+    local creds = composer.getVariable(CREDS_KEY)
 
-    if not M.isValidCreds(serverCreds) then
+    if not M.isValidCreds(creds) then
         print ("Server creds not found in composer variable or missing data. Falling back to loading from file...")
-	    serverCreds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
-        composer.setVariable(CREDS_KEY, serverCreds)
+	    creds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
+        composer.setVariable(CREDS_KEY, creds or {})
     end
 
-	if not M.isValidCreds(serverCreds) then
+	if not M.isValidCreds(creds) then
 		print("No ghostWritersUserCreds.json file found, or data is corrupt.")
-        print("Data found = " .. json.encode(serverCreds))
-		return nil
+        print("Data found = " .. json.encode(creds))
+        loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
+		creds = nil
     end
 
-	return serverCreds
+	return creds
 end
 
 M.isValidCreds = function(creds)
@@ -36,40 +37,23 @@ M.dumpToLoggedOutScene = function(fromScene)
     nav.goToSceneFrom(fromScene, "login.logged_out_scene")
 end
 
-M.saveUser = function(user)
-	local serverCreds = {}
-	serverCreds.user = user
-	loadsave.saveTable(serverCreds, CREDS_FILE, system.DocumentsDirectory)
-end
-
-M.saveCookie = function(cookie)
-	local serverCreds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
-	if not serverCreds then
-		serverCreds = {}
-	end
-	serverCreds.cookie = cookie
-	loadsave.saveTable(serverCreds, CREDS_FILE, system.DocumentsDirectory)
+M.saveCreds = function(creds)
+    loadsave.saveTable(creds or {}, CREDS_FILE, system.DocumentsDirectory)
+    composer.setVariable(CREDS_KEY, creds or {})
 end
 
 M.getUser = function()
-	local serverCreds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
-	if not serverCreds then
-		return nil
-	end
-	return serverCreds["user"]
+	local creds = M.fetchCredentials()
+    return creds and creds["user"]
 end
 
 M.getCookie = function()
-	local serverCreds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
-	if not serverCreds then
-		return nil
-	end
-	return serverCreds["cookie"]
+    local creds = M.fetchCredentials()
+    return creds and creds["cookie"]
 end
 
 M.logout = function()
-    composer.setVariable(CREDS_KEY, {})
-    loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
+    M.saveCreds({})
     composer.gotoScene("login.logged_out_scene")
 end
 
