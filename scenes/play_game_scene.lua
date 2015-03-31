@@ -436,7 +436,7 @@ onSendMoveFail = function(json)
         end
         native.showAlert( "Oops...", message, { "Try again" })
     else
-        native.showAlert( "A server error occurred", { "Try again" } )
+        native.showAlert( "Network error", "A network error occurred", { "Try again" } )
     end
     rack:enableInteraction()
     board:enableInteraction()
@@ -569,7 +569,7 @@ showNoMovesModal = function()
 end
 
 pass = function()
-    local passMove = common_api.getPassMove(current_game.currentGame)
+    local passMove = common_api.getPassMove(current_game.currentGame, scene.creds.user.id)
     scene.myMove = passMove
     common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
 end

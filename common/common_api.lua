@@ -6,7 +6,7 @@ local word_spinner_class = require("classes.word_spinner_class")
 local M = {}
 
 local SERVER = "https://words-with-rivals-beta.herokuapp.com/api"
---local SERVER = "http://localhost:8080/api"
+--local SERVER = "http://10.0.0.13:8080/api"
 
 local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
@@ -45,12 +45,11 @@ M.GRAB_TILES = "GRAB_TILES"
 M.PLAY_TILES = "PLAY_WORD"
 M.PASS = "PASS"
 
-M.getPassMove = function(gameModel)
+M.getPassMove = function(gameModel, playerId)
     return {
         gameId = gameModel.id,
+        playerId = playerId,
         moveType = M.PASS,
-        player1 = gameModel.player1,
-        player2 = gameModel.player2,
         start = {r = 0, c = 0},
         dir = "E",
         letters = "",
@@ -312,7 +311,8 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 			end
 
 			if code ~= expectedCode then
-				print("Error - unexpected status code (" .. code .. ") returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
+				print("Error - unexpected status code (" .. code .. ") returned with " .. method .. " to " .. url);
+                print("Response - " .. json.encode(event.response))
 				onFail(jsonResp)
 				return
 			end
@@ -323,7 +323,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 		end
     end
     print("Doing " .. method .. " to " .. url .. " with request body:\n" .. tostring(body))
-    print("Sending Cookie: " .. tostring(cookie))
+    print("Sending Headers: " .. json.encode(headers))
 	return network.request(url, method, listener, params)
 end
 
