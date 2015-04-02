@@ -3,9 +3,12 @@ local json = require("json")
 local common_api = require("common.common_api")
 
 M.rival = nil
+M.gameType = nil
 M.boardSize = nil
 M.bonusesType = nil
 M.gameDensity = nil
+M.aiType = nil
+M.startScene = nil
 
 M.getNewGameModel = function(user)
 	if M.gameType == common_api.SINGLE_PLAYER then
@@ -47,11 +50,12 @@ end
 
 M.clearAll = function()
 	M.rival = nil
-	M.boardSize = nil
-	M.bonusesType = nil
-	M.gameDensity = nil
-	M.gameType = nil
+    M.gameType = nil
+    M.boardSize = nil
+    M.bonusesType = nil
+    M.gameDensity = nil
 	M.aiType = nil
+    M.startScene = nil
 end
 
 return M

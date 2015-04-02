@@ -57,4 +57,19 @@ M.logout = function()
     composer.gotoScene("login.logged_out_scene")
 end
 
+M.fetchCredentialsOrLogout = function(sceneName)
+    local currentScene = composer.getSceneName("current")
+    if not currentScene == sceneName then
+        return
+    end
+
+    local creds = M.fetchCredentials()
+    if creds then
+        return creds
+    end
+
+    M.logout()
+    composer.removeHidden()
+end
+
 return M

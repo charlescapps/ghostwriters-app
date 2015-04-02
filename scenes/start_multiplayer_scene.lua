@@ -1,21 +1,40 @@
 local composer = require( "composer" )
 local common_ui = require("common.common_ui")
+local common_api = require("common.common_api")
+local new_game_data = require("globals.new_game_data")
+local native = require("native")
+local login_common = require("login.login_common")
+local user_search_widget = require("classes.user_search_widget")
 local scene = composer.newScene()
 scene.sceneName = "scenes.start_multiplayer_scene"
 
+-- Constants
+local SEARCH_BOX_WIDTH = 700
+local SEARCH_BOX_HEIGHT = 800
+local MARGIN = 25
+
 -- "scene:create()"
 function scene:create(event)
-    local sceneGroup = self.view
-    scene.background = common_ui.createBackground()
+    self.creds = login_common.fetchCredentialsOrLogout()
+    if not self.creds then
+        return
+    end
 
-    scene.startGameButton = common_ui.createBookButton("Start a game", "Play a Ghostwriter of similar skill", nil,
+    local sceneGroup = self.view
+    self.background = common_ui.createBackground()
+
+    self.startGameButton = common_ui.createBookButton("Start a game", "Play a Ghostwriter of similar skill", nil,
         self:getOnReleaseStartGameListener(), nil, 225)
 
-    scene.backButton = common_ui.createBackButton(50, 100, "scenes.title_scene")
+    self.backButton = common_ui.createBackButton(50, 100, "scenes.title_scene")
 
-    sceneGroup:insert(scene.background)
-    sceneGroup:insert(scene.startGameButton)
-    sceneGroup:insert(scene.backButton)
+    self.userSearchWidget = user_search_widget.new(self.creds.user, MARGIN, 400, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT)
+
+    sceneGroup:insert(self.background)
+    sceneGroup:insert(self.userSearchWidget:render())
+
+    sceneGroup:insert(self.startGameButton)
+    sceneGroup:insert(self.backButton)
 end
 
 -- "scene:show()"
@@ -25,11 +44,9 @@ function scene:show( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-        -- Called when the scene is still off screen (but is about to come on screen).
+        self.userSearchWidget:queryForUsers()
     elseif ( phase == "did" ) then
-        -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+
     end
 end
 
@@ -62,7 +79,22 @@ end
 
 function scene:getOnReleaseStartGameListener()
     return function()
+        common_api.getBestMatch(function(user)
+            self:startGameWithUser(user)
+        end,
+        function()
+            native.showAlert("Network Error", "A network error occurred", { "Try again" })
+        end)
+    end
+end
 
+function scene:startGameWithUser(userModel)
+    local currentScene = composer.getSceneName("current")
+    if currentScene == self.sceneName then
+        new_game_data.clearAll()
+        new_game_data.rival = userModel
+        new_game_data.gameType = common_api.TWO_PLAYER
+        composer.gotoScene("scenes.choose_board_size_scene", "fade")
     end
 end
 

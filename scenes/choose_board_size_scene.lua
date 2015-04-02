@@ -82,7 +82,7 @@ end
 createBackButton = function()
     local previousScene, beforeTransition
     if new_game_data.gameType == common_api.TWO_PLAYER then
-        previousScene = "scenes.title_scene"
+        previousScene = "scenes.start_multiplayer_scene"
         beforeTransition = function()
             new_game_data.clearAll()
         end

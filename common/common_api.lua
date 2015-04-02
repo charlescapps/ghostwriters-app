@@ -98,6 +98,8 @@ M.isValidUser = function(user)
 	return user ~= nil and user.id and user.username
 end
 
+-- Functions to construct URLs
+-- May be a constant URL, or may require query params
 M.loginURL = function()
 	return SERVER .. "/login"
 end
@@ -126,6 +128,14 @@ end
 
 M.movesURL = function()
 	return SERVER .. "/moves"
+end
+
+M.getBestMatchURL = function()
+    return SERVER .. "/users/bestMatch"
+end
+
+M.getUsersWithSimilarRatingURL = function(maxResults)
+    return SERVER .. "/users/similarRating?maxResults=" .. escape(maxResults)
 end
 
 M.login = function(username, password, onSuccess, onFail)
@@ -381,6 +391,23 @@ M.getMyGames = function(count, inProgress, onSuccess, onFail, onNetworkFail, doM
     end
     M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
 
+end
+
+M.getBestMatch = function(onSuccess, onFail)
+    local url = M.getBestMatchURL()
+    local spinner = word_spinner_class.new()
+    spinner:start()
+    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onFail, spinner)
+end
+
+M.getUsersWithSimilarRating = function(maxResults, onSuccess, onFail, doCreateSpinner)
+    local url = M.getUsersWithSimilarRatingURL(maxResults)
+    local spinner
+    if doCreateSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onFail, spinner)
 end
 
 return M
