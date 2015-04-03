@@ -28,10 +28,10 @@ function scene:create(event)
 
     self.backButton = common_ui.createBackButton(50, 100, "scenes.title_scene")
 
-    self.userSearchWidget = user_search_widget.new(self.creds.user, MARGIN, 400, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT)
+    self.userSearchWidget = user_search_widget.new(self.creds.user, MARGIN, 400, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT,
+        self:getOnRowTouchListener())
 
     sceneGroup:insert(self.background)
-    sceneGroup:insert(self.userSearchWidget:render())
 
     sceneGroup:insert(self.startGameButton)
     sceneGroup:insert(self.backButton)
@@ -44,7 +44,8 @@ function scene:show( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-        self.userSearchWidget:queryForUsers()
+        sceneGroup:insert(self.userSearchWidget:render())
+        self.userSearchWidget:queryForUsersWithSimilarRating()
     elseif ( phase == "did" ) then
 
     end
@@ -58,11 +59,11 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-        -- Called when the scene is on screen (but is about to go off screen).
-        -- Insert code here to "pause" the scene.
-        -- Example: stop timers, stop animation, stop audio, etc.
+        if self.userSearchWidget then
+            self.userSearchWidget:destroy()
+        end
     elseif ( phase == "did" ) then
-        -- Called immediately after scene goes off screen.
+
     end
 end
 
@@ -90,11 +91,17 @@ end
 
 function scene:startGameWithUser(userModel)
     local currentScene = composer.getSceneName("current")
-    if currentScene == self.sceneName then
+    if currentScene == self.sceneName and userModel.id ~= scene.creds.user.id then
         new_game_data.clearAll()
         new_game_data.rival = userModel
         new_game_data.gameType = common_api.TWO_PLAYER
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
+    end
+end
+
+function scene:getOnRowTouchListener()
+    return function(user)
+        self:startGameWithUser(user)
     end
 end
 

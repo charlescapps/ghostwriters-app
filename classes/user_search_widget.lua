@@ -6,18 +6,20 @@ local json = require("json")
 local math = require("math")
 
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 
 local user_search_widget = {}
 local user_search_widget_mt = { __index = user_search_widget }
 
 -- Constants
-local BOX_TOP_MARGIN = 100
+local BOX_TOP_MARGIN = 125
 local BOX_SIDE_MARGIN = 90
 local ROW_HEIGHT = 80
 local EVEN_ROW_COLOR = { default = { 0.46, 0.78, 1.0, 0.2 }, over = { 0.46, 0.78, 1.0, 0.6 } }
-local ODD_ROW_COLOR = { default = { 0.87, 0.95, 1.0, 0.2 }, over = { 0.87, 0.95, 1.0, 0.6 } }
+local ODD_ROW_COLOR = { default = { 0.87, 0.95, 1.0, 0.2 }, over = { 0.67, 0.75, 0.8, 0.6 } }
+local FAKE_ROWS = 1
 
-function user_search_widget.new(authUser, x, y, boxWidth, boxHeight)
+function user_search_widget.new(authUser, x, y, boxWidth, boxHeight, onRowTouch)
 
     local numVisibleRows = math.ceil((boxHeight - 2 * BOX_TOP_MARGIN) / ROW_HEIGHT)
 
@@ -27,6 +29,7 @@ function user_search_widget.new(authUser, x, y, boxWidth, boxHeight)
         y = y,
         boxWidth = boxWidth,
         boxHeight = boxHeight,
+        onRowTouch = onRowTouch,
         numVisibleRows = numVisibleRows
     }
 
@@ -34,15 +37,18 @@ function user_search_widget.new(authUser, x, y, boxWidth, boxHeight)
 end
 
 function user_search_widget:render()
-    self:destroy()
     self.view = display.newGroup()
     self.view.x, self.view.y = self.x, self.y
 
     self.background = self:createBackground()
     self.tableView = self:createTableView()
+    self.noResultsText = self:createNoResultsText()
+    self.searchAreaGroup = self:createSearchAreaGroup()
 
     self.view:insert(self.background)
     self.view:insert(self.tableView)
+    self.view:insert(self.noResultsText)
+    self.view:insert(self.searchAreaGroup)
     return self.view
 end
 
@@ -50,9 +56,13 @@ function user_search_widget:destroy()
     if self.view then
         self.view:removeSelf()
     end
+    if self.searchAreaGroup then
+        self.searchAreaGroup:removeNativeInput()
+    end
     self.view = nil
     self.background = nil
     self.tableView = nil
+    self.noResultsText = nil
     self.authUserIndex = nil
 end
 
@@ -76,6 +86,73 @@ function user_search_widget:createTableView()
     return tableView
 end
 
+function user_search_widget:createSearchAreaGroup()
+    local group = display.newGroup()
+    group.y = self.boxHeight + 75
+
+    group.searchInput = native.newTextField( 275, 0, 500, 75 )
+    group.searchInput.placeholder = "Enter a username"
+    group.searchInput.size = 16
+    group.searchInput.isFontSizeScaled = true
+
+    local onReleaseSearchButton = function()
+        local txt = group.searchInput.text
+        if txt and txt:len() < 1 then
+            self:queryForUsersWithSimilarRating()
+        elseif txt and txt:len() >= 1 then
+            self:queryForUsersByName(txt)
+        end
+    end
+
+    group.searchInput:addEventListener("userInput", function(event)
+        if event.phase == "ended" or event.phase == "submitted" then
+            onReleaseSearchButton()
+        end
+    end)
+
+    group.searchButton = common_ui.createImageButton(0, 150, 150, "images/search_button_default.png", "images/search_button_over.png", onReleaseSearchButton)
+    group.searchButton.x = self.boxWidth - 75
+
+    group:insert(group.searchInput)
+    group:insert(group.searchButton)
+
+    function group:removeNativeInput()
+        if self.searchInput and self.searchInput.removeSelf then
+            self.searchInput:removeSelf()
+        end
+    end
+
+    return group
+end
+
+function user_search_widget:createNoResultsText()
+    local noResultsText = display.newText {
+        x = self.boxWidth / 2,
+        y = self.boxHeight / 2,
+        width = self.boxWidth,
+        height = 200,
+        font = native.systemFontBold,
+        fontSize = 36,
+        text = "Oops...no results!",
+        align = "center"
+    }
+    noResultsText:setFillColor(0, 0, 0)
+    noResultsText.alpha = 0
+    return noResultsText
+end
+
+function user_search_widget:showNoResultsText()
+    if self.noResultsText then
+        transition.fadeIn(self.noResultsText, { time = 1500 })
+    end
+end
+
+function user_search_widget:hideNoResultsText()
+    if self.noResultsText then
+        transition.fadeOut(self.noResultsText, { time = 1000 })
+    end
+end
+
 function user_search_widget:getOnRowRenderListener()
     return function(event)
         local row = event.row
@@ -83,7 +160,6 @@ function user_search_widget:getOnRowRenderListener()
         local index = row.index
 
         if #(self.users) < index then
-            print("Error - rendering row index " .. index .. ", but num users is: " .. #(self.users))
             return
         end
 
@@ -100,6 +176,12 @@ end
 
 function user_search_widget:getOnRowTouchListener()
     return function(event)
+        local row = event.row
+        local index = row.index
+        local user = self.users[index]
+        if user then
+            self.onRowTouch(user)
+        end
     end
 end
 
@@ -113,6 +195,14 @@ function user_search_widget:getOnQuerySuccessListener()
 
         self.users = jsonResult.list
         self.tableView:deleteAllRows()
+        self.authUserIndex = nil
+
+        if #(self.users) <= 0 then
+            self:showNoResultsText()
+            return
+        end
+
+        self:hideNoResultsText()
 
         for i = 1, #(self.users) do
             local rowColor = i % 2 == 1 and ODD_ROW_COLOR or EVEN_ROW_COLOR
@@ -141,7 +231,11 @@ function user_search_widget:getOnQuerySuccessListener()
         end
 
         if self.authUserIndex then
+            print("Scrolling to authUser at index = " .. self.authUserIndex)
             self.tableView:scrollToIndex(self.authUserIndex)
+        else
+            print("Scrolling to index = 1")
+            self.tableView:scrollToIndex(1)
         end
     end
 end
@@ -152,8 +246,12 @@ function user_search_widget:getOnQueryFailListener()
     end
 end
 
-function user_search_widget:queryForUsers()
+function user_search_widget:queryForUsersWithSimilarRating()
     common_api.getUsersWithSimilarRating(20, self:getOnQuerySuccessListener(), self:getOnQueryFailListener())
+end
+
+function user_search_widget:queryForUsersByName(q)
+    common_api.searchForUsers(q, 40, self:getOnQuerySuccessListener(), self:getOnQueryFailListener(), self:getOnQueryFailListener() )
 end
 
 
