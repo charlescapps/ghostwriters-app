@@ -15,11 +15,11 @@ local MINI_GAME_WIDTH = display.contentWidth - PAD * 2
 local MINI_GAME_HEIGHT = 600
 local MINI_BOARD_WIDTH = 350
 
-function my_games_view_class.new(authUser, inProgress, sceneName)
+function my_games_view_class.new(authUser, inProgress, scene)
     local myGamesView = {
         authUser = authUser,
         inProgress = inProgress,
-        sceneName = sceneName,
+        scene = scene,
         miniGameViews = {}
     }
     return setmetatable(myGamesView, my_games_view_class_mt)
@@ -44,7 +44,7 @@ function my_games_view_class:render()
             self.tableView:insertRow {
                 rowHeight = MINI_GAME_HEIGHT + PAD,
                 isCategory = false,
-                rowColor = { default={ 0.3, 0.3, 0.3, 0 }, over={ 0.3, 0.3, 0.3, 0.2 } }
+                rowColor = { default = { 0.3, 0.3, 0.3, 0 }, over = { 0.3, 0.3, 0.3, 0.2 } }
             }
         end
         group:insert(self.tableView)
@@ -60,6 +60,13 @@ function my_games_view_class:render()
 end
 
 function my_games_view_class:destroy()
+    if self.miniGameViews then
+        for i = 1, #(self.miniGameViews) do
+            if self.miniGameViews[i] then
+                self.miniGameViews[i]:destroy()
+            end
+        end
+    end
     if self.view then
         self.view:removeSelf()
     end
@@ -122,7 +129,7 @@ function my_games_view_class:renderTableView()
         width = display.contentWidth,
         height = display.contentHeight - 180,
         onRowRender = self:createOnRowRenderListener(),
-        backgroundColor = {1, 1, 1, 0},
+        backgroundColor = { 1, 1, 1, 0 },
         hideBackground = true,
         hideScrollbar = true
     }
@@ -134,8 +141,7 @@ function my_games_view_class:createMiniGames()
         return
     end
     for i = 1, #(games.list) do
-       local miniGameView = mini_game_view_class.new(
-           i, games.list[i], self.authUser, MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40, self.sceneName)
+        local miniGameView = mini_game_view_class.new(i, games.list[i], self.authUser, MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40, self.scene)
         self.miniGameViews[i] = miniGameView
     end
 end

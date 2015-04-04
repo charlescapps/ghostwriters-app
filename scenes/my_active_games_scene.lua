@@ -4,6 +4,7 @@ local widget = require("widget")
 local nav = require("common.nav")
 local login_common = require("login.login_common")
 local my_games_view_class = require("classes.my_games_view_class")
+local new_game_data = require("globals.new_game_data")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 
@@ -40,7 +41,7 @@ function scene:show( event )
         if self.myGamesView then
             self.myGamesView:destroy()
         end
-        self.myGamesView = my_games_view_class.new(user, true, self.sceneName)
+        self.myGamesView = my_games_view_class.new(user, true, self)
 
         common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 
@@ -137,6 +138,15 @@ function scene:getOnReleaseGoToCompleteGamesButton()
     end
 end
 
+function scene:startGameWithUser(userModel)
+    local currentScene = composer.getSceneName("current")
+    if currentScene == self.sceneName and userModel.id ~= scene.creds.user.id then
+        new_game_data.clearAll()
+        new_game_data.rival = userModel
+        new_game_data.gameType = common_api.TWO_PLAYER
+        composer.gotoScene("scenes.choose_board_size_scene", "fade")
+    end
+end
 
 -- Listener setup
 scene:addEventListener( "create", scene )

@@ -14,7 +14,7 @@ local mini_game_view_class_mt = { __index = mini_game_view_class }
 -- Constants
 local PAD = 10
 
-function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize, sceneName)
+function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize, scene)
     if not gameModel or not authUser then
         print("ERROR - must provide non-nil gameModel and authUser")
         return nil
@@ -34,7 +34,7 @@ function mini_game_view_class.new(index, gameModel, authUser, width, height, min
         miniBoardWidth = miniBoardWidth,
         titleFontSize = titleFontSize or 30,
         otherFontSize = otherFontSize or 24,
-        sceneName = sceneName
+        scene = scene
     }
 
     return setmetatable(miniGameView, mini_game_view_class_mt)
@@ -48,8 +48,8 @@ function mini_game_view_class:render()
     bg.x = self.width / 2
     bg.y = 300
 
-    local title = self:renderTitle()
-    title.y = 50
+    self.title = self:renderTitle()
+    self.title.y = 50
 
     local dateView = self:renderDateStarted()
     dateView.y = 150
@@ -60,7 +60,7 @@ function mini_game_view_class:render()
     local group = display.newGroup()
     group.x = PAD
     group:insert(bg)
-    group:insert(title)
+    group:insert(self.title)
     group:insert(dateView)
     group:insert(miniBoardView)
 
@@ -73,6 +73,10 @@ function mini_game_view_class:destroy()
     if self.view then
         self.view:removeSelf()
         self.view = nil
+    end
+
+    if self.title then
+        self.title:destroyUserInfoPopups()
     end
 end
 
@@ -87,8 +91,8 @@ function mini_game_view_class:renderBackground()
 end
 
 function mini_game_view_class:renderTitle()
-    return game_ui.createVersusDisplayGroup(self.gameModel, self.authUser, true,
-        self.width / 4, self.width / 2, 3 * self.width / 4, 0, {1, 1, 1}, 275)
+    return game_ui.createVersusDisplayGroup(self.gameModel, self.authUser, self.scene, true,
+        self.width / 4, self.width / 2, 3 * self.width / 4, 0, {1, 1, 1}, 275, true)
 end
 
 function mini_game_view_class:renderDateStarted()
@@ -123,7 +127,7 @@ function mini_game_view_class:touch(event)
         display.getCurrentStage():setFocus(nil)
         self.miniBoardView.boardGroup.alpha = 1
         local currentScene = composer.getSceneName("current")
-        nav.goToGame(self.gameModel, self.sceneName)
+        nav.goToGame(self.gameModel, self.scene.sceneName)
         return true
     elseif event.phase == "cancelled" then
         display.getCurrentStage():setFocus(nil)

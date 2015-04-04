@@ -9,6 +9,7 @@ local board_class = require("classes.board_class")
 local rack_class = require("classes.rack_class")
 local login_common = require("login.login_common")
 local game_menu_class = require("classes.game_menu_class")
+local new_game_data = require("globals.new_game_data")
 local table = require("table")
 local scene = composer.newScene()
 
@@ -30,7 +31,6 @@ local resetButton
 -- Local helpers pre-declaration
 local checkGameModelIsDefined
 local doesAuthUserMatchGame
-local createTitleAreaDisplayGroup
 local createBoard
 local createRack
 local createActionButtonsGroup
@@ -82,7 +82,7 @@ function scene:create(event)
 
     local background = common_ui.createBackground()
 
-    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, scene.creds.user)
+    titleAreaDisplayGroup = self:createTitleAreaDisplayGroup(gameModel)
 
     board = createBoard(gameModel)
 
@@ -152,6 +152,7 @@ function scene:hide( event )
         -- Example: stop timers, stop animation, stop audio, etc.
     elseif ( phase == "did" ) then
         self.creds = nil
+        composer.removeScene(self.sceneName, false)
         -- Called immediately after scene goes off screen.
     end
 end
@@ -197,8 +198,9 @@ doesAuthUserMatchGame = function(gameModel, authUser)
     return true
 end
 
-createTitleAreaDisplayGroup = function(gameModel)
-    return game_ui.createVersusDisplayGroup(gameModel, scene.creds.user, false, nil, nil, nil, 100)
+function scene:createTitleAreaDisplayGroup(gameModel)
+    local isAllowStartNewGame = gameModel.gameResult ~= common_api.IN_PROGRESS
+    return game_ui.createVersusDisplayGroup(gameModel, self.creds.user, self, false, nil, nil, nil, 100, nil, nil, isAllowStartNewGame)
 end
 
 createActionButtonsGroup = function(startY, width, height, onPlayButtonRelease, onResetButtonRelease)
@@ -324,7 +326,7 @@ reset = function()
     local oldBoard = board
     local oldRack = rack
 
-    titleAreaDisplayGroup = createTitleAreaDisplayGroup(gameModel, scene.creds.user)
+    titleAreaDisplayGroup = scene:createTitleAreaDisplayGroup(gameModel)
 
     board = createBoard(gameModel)
     rack = createRack(gameModel, board)
@@ -582,6 +584,16 @@ showPassModal = function()
             end
         end
     end )
+end
+
+function scene:startGameWithUser(userModel)
+    local currentScene = composer.getSceneName("current")
+    if currentScene == self.sceneName and userModel.id ~= scene.creds.user.id then
+        new_game_data.clearAll()
+        new_game_data.rival = userModel
+        new_game_data.gameType = common_api.TWO_PLAYER
+        composer.gotoScene("scenes.choose_board_size_scene", "fade")
+    end
 end
 
 -- Listener setup

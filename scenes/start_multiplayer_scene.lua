@@ -5,6 +5,7 @@ local new_game_data = require("globals.new_game_data")
 local native = require("native")
 local login_common = require("login.login_common")
 local user_search_widget = require("classes.user_search_widget")
+local user_info_popup = require("classes.user_info_popup")
 local scene = composer.newScene()
 scene.sceneName = "scenes.start_multiplayer_scene"
 
@@ -62,6 +63,9 @@ function scene:hide( event )
         if self.userSearchWidget then
             self.userSearchWidget:destroy()
         end
+        if self.userInfoPopup then
+            self.userInfoPopup:destroy()
+        end
     elseif ( phase == "did" ) then
 
     end
@@ -72,10 +76,8 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
+    sceneGroup:removeSelf()
 
-    -- Called prior to the removal of scene's view ("sceneGroup").
-    -- Insert code here to clean up the scene.
-    -- Example: remove display objects, save state, etc.
 end
 
 function scene:getOnReleaseStartGameListener()
@@ -99,9 +101,14 @@ function scene:startGameWithUser(userModel)
     end
 end
 
+function scene:openUserInfoPopup(user)
+    self.userInfoPopup = user_info_popup.new(user, self, self.creds.user, true)
+    self.view:insert(self.userInfoPopup:render())
+end
+
 function scene:getOnRowTouchListener()
     return function(user)
-        self:startGameWithUser(user)
+        self:openUserInfoPopup(user)
     end
 end
 

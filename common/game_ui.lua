@@ -1,11 +1,12 @@
 local display = require("display")
 local native = require("native")
 local common_api = require("common.common_api")
+local user_info_popup = require("classes.user_info_popup")
 
 
 local M = {}
 
-function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, leftX, centerX, rightX, firstRowY, fontRgb, circleWidth)
+function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithMe, leftX, centerX, rightX, firstRowY, fontRgb, circleWidth, allowStartNewGame)
     fontRgb = fontRgb or { 0, 0, 0 }
     centerX = centerX or display.contentWidth / 2
     leftX = leftX or display.contentWidth / 4
@@ -16,7 +17,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
     local isAuthUserTurn = gameModel.player1Turn and authUserIsPlayer1 or not gameModel.player1Turn and not authUserIsPlayer1
     local player1 = gameModel.player1Model
     local player2 = gameModel.player2Model
-    local leftUsername, rightUsername, leftPoints, rightPoints, leftFont, rightFont
+    local leftUsername, rightUsername, leftPoints, rightPoints, leftFont, rightFont, leftPlayer, rightPlayer
     if authUserIsPlayer1 then
         if replaceNameWithMe then
             leftUsername = "Me"
@@ -24,6 +25,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
             leftUsername = player1.username
         end
         rightUsername = player2.username
+        leftPlayer, rightPlayer = player1, player2
         leftPoints, rightPoints = gameModel.player1Points, gameModel.player2Points
     else
         if replaceNameWithMe then
@@ -32,6 +34,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
             leftUsername = player2.username
         end
         rightUsername = player1.username
+        leftPlayer, rightPlayer = player2, player1
         leftPoints, rightPoints = gameModel.player2Points, gameModel.player1Points
     end
 
@@ -64,6 +67,14 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
         align = "center"
     })
     leftPlayerText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
+    function leftPlayerText:touch(event)
+        if event.phase == "ended" then
+            group.leftUserInfoPopup = user_info_popup.new(leftPlayer, scene, authUser, allowStartNewGame)
+            scene.view:insert(group.leftUserInfoPopup:render())
+        end
+        return true
+    end
+    leftPlayerText:addEventListener("touch")
 
     local rightPlayerText = display.newText( {
         text = rightUsername,
@@ -73,6 +84,14 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
         fontSize = rightFontSize,
         align = "center" })
     rightPlayerText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
+    function rightPlayerText:touch(event)
+        if event.phase == "ended" then
+            group.rightUserInfoPopup = user_info_popup.new(rightPlayer, scene, authUser, allowStartNewGame)
+            scene.view:insert(group.rightUserInfoPopup:render())
+        end
+        return true
+    end
+    rightPlayerText:addEventListener("touch")
 
     -- Create vs. text
     local versusText = display.newText("vs.", centerX, firstRowY, native.systemFontBold, 50 )
@@ -93,6 +112,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
     end
 
     group.leftPointsText, group.rightPointsText = leftPointsText, rightPointsText
+    group.leftPlayerText, group.rightPlayerText = leftPlayerText, rightPlayerText
 
     group:insert(leftPlayerText)
     group:insert(rightPlayerText)
@@ -150,6 +170,17 @@ function M.createVersusDisplayGroup(gameModel, authUser, replaceNameWithMe, left
         tieText:setFillColor(fontRgb[1], fontRgb[2], fontRgb[3])
         group:insert(tieText)
 
+    end
+
+    -- Add a method to destroy the modals
+    function group:destroyUserInfoPopups()
+        if self.leftUserInfoPopup then
+            self.leftUserInfoPopup:destroy()
+        end
+
+        if self.rightUserInfoPopup then
+            self.rightUserInfoPopup:destroy()
+        end
     end
 
     return group

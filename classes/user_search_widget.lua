@@ -91,7 +91,7 @@ function user_search_widget:createSearchAreaGroup()
     group.y = self.boxHeight + 75
 
     group.searchInput = native.newTextField( 275, 0, 500, 75 )
-    group.searchInput.placeholder = "Enter a username"
+    group.searchInput.placeholder = "Search for players"
     group.searchInput.size = 16
     group.searchInput.isFontSizeScaled = true
 
@@ -176,12 +176,15 @@ end
 
 function user_search_widget:getOnRowTouchListener()
     return function(event)
-        local row = event.row
-        local index = row.index
-        local user = self.users[index]
-        if user then
-            self.onRowTouch(user)
+        if event.phase == "release" or event.phase == "tap" then
+            local row = event.row
+            local index = row.index
+            local user = self.users[index]
+            if user then
+                self.onRowTouch(user)
+            end
         end
+        return true
     end
 end
 
