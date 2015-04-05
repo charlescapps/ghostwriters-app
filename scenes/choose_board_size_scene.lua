@@ -24,9 +24,9 @@ function scene:create(event)
     local background = common_ui.createBackground()
     local backButton = createBackButton()
 
-    local smallBoardGrp = common_ui.createImageButtonWithText("images/small_board.jpg", "images/small_board_dark.jpg", 200, "Short story", "(5x5 board)", getOnReleaseListener(common_api.SMALL_SIZE))
-    local mediumBoardGrp = common_ui.createImageButtonWithText("images/medium_board.jpg", "images/medium_board_dark.jpg", 600, "Novel", "(9x9 board)", getOnReleaseListener(common_api.MEDIUM_SIZE))
-    local largeBoardGrp = common_ui.createImageButtonWithText("images/large_board.jpg", "images/large_board_dark.jpg", 1000, "Necronomicon", "(13x13 board)", getOnReleaseListener(common_api.LARGE_SIZE))
+    local smallBoardGrp = common_ui.createImageButtonWithText("images/small_board.png", "images/small_board_over.png", 225, "Short story", "(5x5 board)", getOnReleaseListener(common_api.SMALL_SIZE), 350)
+    local mediumBoardGrp = common_ui.createImageButtonWithText("images/medium_board.png", "images/medium_board_over.png", 650, "Novel", "(9x9 board)", getOnReleaseListener(common_api.MEDIUM_SIZE), 350)
+    local largeBoardGrp = common_ui.createImageButtonWithText("images/large_board.png", "images/large_board_over.png", 1075, "Tome", "(13x13 board)", getOnReleaseListener(common_api.LARGE_SIZE), 350)
 
     sceneGroup:insert(background)
     sceneGroup:insert(backButton)

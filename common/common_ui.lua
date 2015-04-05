@@ -108,9 +108,10 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
 end
 
 
-M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subtitle, onRelease)
+M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subtitle, onRelease, size)
     local group = display.newGroup()
-    local imgButton = M.createImageButton(imgY, 300, 300, defaultFile, overFile, onRelease)
+    size = size or 300
+    local imgButton = M.createImageButton(imgY, size, size, defaultFile, overFile, onRelease)
     imgButton.x = display.contentWidth / 2
     imgButton.y = imgY
     
@@ -118,11 +119,11 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
     	parent = group, 
     	text = title, 
     	x = display.contentWidth / 2, 
-    	y = imgY + 175, 
+    	y = imgY + size / 2 + 15,
     	width = display.contentWidth, 
     	height = 50, 
     	font = native.systemFontBold, 
-    	fontSize = 40,
+    	fontSize = 35,
     	align = "center"
     	} 
 
@@ -132,7 +133,7 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
     	parent = group, 
     	text = subtitle, 
     	x = display.contentWidth / 2, 
-    	y = imgY + 220, 
+    	y = imgY + size / 2 + 50,
     	width = display.contentWidth, 
     	height = 40, 
     	font = native.systemFont, 
