@@ -31,9 +31,8 @@ function scene:show( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-        local creds = login_common.fetchCredentials()
+        local creds = login_common.fetchCredentialsOrLogout(self.sceneName)
         if not creds then
-            login_common.dumpToLoggedOutScene(self.sceneName)
             return
         end
         self.creds = creds
@@ -43,7 +42,7 @@ function scene:show( event )
         end
         self.myGamesView = my_games_view_class.new(user, true, self)
 
-        common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
+        common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 
     elseif ( phase == "did" ) then
 

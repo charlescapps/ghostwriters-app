@@ -58,14 +58,14 @@ M.logout = function()
 end
 
 M.fetchCredentialsOrLogout = function(sceneName)
-    local currentScene = composer.getSceneName("current")
-    if not currentScene == sceneName then
-        return
-    end
-
     local creds = M.fetchCredentials()
     if creds then
         return creds
+    end
+
+    local currentScene = composer.getSceneName("current")
+    if currentScene ~= sceneName then
+        return
     end
 
     M.logout()

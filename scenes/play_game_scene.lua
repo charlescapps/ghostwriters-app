@@ -70,13 +70,13 @@ function scene:create(event)
         return
     end
 
-    scene.creds = login_common.fetchCredentials()
+    self.creds = login_common.fetchCredentialsOrLogout(self.sceneName)
 
-    if not scene.creds then
-        login_common.dumpToLoggedOutScene(self.sceneName)
+    if not self.creds then
+        return
     end
 
-    if not doesAuthUserMatchGame(gameModel, scene.creds.user) then
+    if not doesAuthUserMatchGame(gameModel, self.creds.user) then
         return
     end
 
@@ -86,7 +86,7 @@ function scene:create(event)
 
     board = createBoard(gameModel)
 
-    rack = createRack(gameModel, board)
+    rack = createRack(gameModel, board, self.creds.user)
 
     gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50, function()
         gameMenu:close()
@@ -116,8 +116,8 @@ createBoard = function(gameModel)
     return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, 20, onGrabTiles)
 end
 
-createRack = function(gameModel, board)
-    return rack_class.new(gameModel, 100, display.contentWidth + 274, 7, 25, board)
+createRack = function(gameModel, board, authUser)
+    return rack_class.new(gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser)
 end
 
 -- "scene:show()"
@@ -127,15 +127,24 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
-        scene.creds = login_common.fetchCredentials() -- Check if the current user is logged in.
-        if not scene.creds then
-            login_common.dumpToLoggedOutScene(self.sceneName)
+        self.creds = login_common.fetchCredentialsOrLogout(self.sceneName) -- Check if the current user is logged in.
+        if not self.creds then
+            return
         end
 
     elseif ( phase == "did" ) then
-        -- Called when the scene is now on screen.
-        showGameOverModal()
-        showNoMovesModal()
+        if board.gameModel and board.gameModel.lastMoves then
+            self.movesToDisplay = table.copy(board.gameModel.lastMoves)
+            self:applyOpponentMoves(function()
+                showGameOverModal()
+                showNoMovesModal()
+            end)
+        else
+            -- Called when the scene is now on screen.
+            showGameOverModal()
+            showNoMovesModal()
+        end
+
     end
 end
 
@@ -329,7 +338,7 @@ reset = function()
     titleAreaDisplayGroup = scene:createTitleAreaDisplayGroup(gameModel)
 
     board = createBoard(gameModel)
-    rack = createRack(gameModel, board)
+    rack = createRack(gameModel, board, scene.creds.user)
 
     local viewGroup = scene.view
     viewGroup:insert(board.boardContainer)
@@ -374,12 +383,15 @@ function scene:didOpponentPlayMove(lastMoves)
     return lastMoves and #lastMoves > 0 and lastMoves[1].playerId ~= self.creds.user.id
 end
 
-function scene:applyOpponentMoves()
+function scene:applyOpponentMoves(onApplyMovesComplete)
     if not self:didOpponentPlayMove(self.movesToDisplay) then
         print("Calling applyOpponentsMove. Creating a new board Moves: " .. json.encode(self.movesToDisplay))
         self.movesToDisplay = nil
         self:fadeToTurn(false)
         resetBoardAndShowModals()
+        if onApplyMovesComplete then
+            onApplyMovesComplete()
+        end
         return
     end
 
@@ -556,12 +568,10 @@ end
 showNoMovesModal = function()
     local gameModel = current_game.currentGame
     if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS or not board then
-        print("Game is over, not showing No Moves Modal")
         return
     end
 
     if gameModel.player1Rack:len() > 0 or gameModel.tiles:upper() ~= gameModel.tiles then
-       print("Player 1 rack is non-empty, or game still has tiles to grab. Not showing No Moves Modal")
         return
     end
 

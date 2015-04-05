@@ -15,8 +15,8 @@ local NUM_ROWS = 3
 local getTouchListener
 
 
-function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board)
-	local rack = gameModel.player1Rack
+function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board, authUser)
+	local rack = gameModel.player1 == authUser.id and gameModel.player1Rack or gameModel.player2Rack
 	local letters = { }
 
 	for i = 1, rack:len() do
