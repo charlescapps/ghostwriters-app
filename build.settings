@@ -5,6 +5,19 @@
 
 settings =
 {
+    plugins =
+    {
+        ["plugin.GameThrivePushNotifications"] =
+        {
+            publisherId = "com.gamethrive",
+        },
+        ["plugin.google.play.services"] =
+        {
+            publisherId = "com.coronalabs",
+            supportedPlatforms = { android=true, ["android-kindle"]=true },
+        },
+    },
+
     build = {
         neverStripDebugInfo = false
     },
@@ -100,7 +113,8 @@ settings =
                     ["UILaunchImageOrientation"] = "Portrait",
                     ["UILaunchImageSize"] = "{414, 736}"
                 }
-            }
+            },
+            UIBackgroundModes = {"remote-notification"}
 		}
 	},
 	

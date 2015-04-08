@@ -11,6 +11,7 @@ local login_common = require("login.login_common")
 local game_menu_class = require("classes.game_menu_class")
 local new_game_data = require("globals.new_game_data")
 local table = require("table")
+local GameThrive = require "plugin.GameThrivePushNotifications"
 local scene = composer.newScene()
 
 -- The board object
@@ -43,8 +44,6 @@ local tilesToStr
 local createGrabMoveJson
 
 local completeMove
-local getSendMoveSuccessCallback
-local onSendMoveSuccess
 local fadeToOpponentTurnAndBack
 local fadeToMyTurnAgain
 local onSendMoveFail
@@ -133,6 +132,8 @@ function scene:show( event )
         end
 
     elseif ( phase == "did" ) then
+        GameThrive.RegisterForNotifications()
+
         if board.gameModel and board.gameModel.lastMoves then
             self.movesToDisplay = table.copy(board.gameModel.lastMoves)
             self:applyOpponentMoves(function()
@@ -409,7 +410,7 @@ function scene:applyOpponentMoves(onApplyMovesComplete)
 
 end
 
-onSendMoveSuccess = function(updatedGameModel)
+function scene.onSendMoveSuccess(updatedGameModel)
     current_game.currentGame = updatedGameModel
     scene.movesToDisplay = table.copy(updatedGameModel.lastMoves)
 
@@ -488,7 +489,7 @@ onGrabTiles = function(tiles)
                     rack:disableInteraction()
                     local moveJson = createGrabMoveJson(tiles)
                     scene.myMove = moveJson
-                    common_api.sendMove(moveJson, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
+                    common_api.sendMove(moveJson, scene.onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
                 elseif i == 2 then
                     board:cancel_grab()
                     -- Do nothing, user clicked "Nope"
@@ -523,7 +524,7 @@ onReleasePlayButton = function(event)
             board:disableInteraction()
             rack:disableInteraction()
             scene.myMove = move
-            common_api.sendMove(move, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
+            common_api.sendMove(move, scene.onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
         else
             print("User clicked 'Nope'")
         end
@@ -583,7 +584,7 @@ end
 pass = function()
     local passMove = common_api.getPassMove(current_game.currentGame, scene.creds.user.id)
     scene.myMove = passMove
-    common_api.sendMove(passMove, onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
+    common_api.sendMove(passMove, scene.onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
 end
 
 showPassModal = function()

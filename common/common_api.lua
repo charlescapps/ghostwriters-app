@@ -5,7 +5,7 @@ local json = require("json")
 local word_spinner_class = require("classes.word_spinner_class")
 local M = {}
 
-local SERVER = "https://words-with-rivals-beta.herokuapp.com/api"
+local SERVER = "https://ghostwriters.herokuapp.com/api"
 --local SERVER = "http://10.0.0.13:8080/api"
 
 local INITIAL_USER = "Initial User"
