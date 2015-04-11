@@ -19,7 +19,7 @@ function M.goToGame(gameModel, fromScene)
         return
     end
     local currentScene = composer.getSceneName("current")
-    if currentScene ~= fromScene or currentScene == "scenes.play_game_scene" then
+    if fromScene and currentScene ~= fromScene or currentScene == "scenes.play_game_scene" then
         print("Cannot go to game from current scene '" .. currentScene .. "', expected " .. fromScene)
         return
     end

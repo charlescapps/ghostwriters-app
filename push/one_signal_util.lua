@@ -2,6 +2,8 @@ local GameThrive = require("plugin.GameThrivePushNotifications")
 local composer = require("composer")
 local json = require("json")
 local current_game = require("globals.current_game")
+local nav = require("common.nav")
+local common_api = require("common.common_api")
 
 local M = {}
 
@@ -23,15 +25,17 @@ function M.onReceiveNotification(message, additionalData, isActive)
     end
 
     local updatedGame = additionalData.updatedGame
-    local currentSceneName = composer.getSceneName("current")
+    print("updatedGame='" .. tostring(updatedGame) .. "'")
+
     local currentGame = current_game.currentGame
+    print("currentGame.id='" .. tostring(currentGame and currentGame.id) .. "'")
+
+    local currentSceneName = composer.getSceneName("current")
 
     -- If the current scene is the play_game_scene, then just update the game in view
     if currentSceneName == "scenes.play_game_scene" then
        local playGameScene = composer.getScene("scenes.play_game_scene")
         if playGameScene and playGameScene:isValidGameScene() then
-            print("currentGame.id='" .. tostring(currentGame.id) .. "'")
-            print("updatedGame='" .. updatedGame .. "'")
             if currentGame and tostring(currentGame.id) == updatedGame then
                 print("Current scene is play_game_scene, and it's valid, so updating existing game.")
                 playGameScene:refreshGameFromServer()
@@ -41,8 +45,30 @@ function M.onReceiveNotification(message, additionalData, isActive)
             end
         end
     else
-        print("Current scene is not play_game_scene, so not updating game:" .. currentSceneName)
+        print("Current scene is not play_game_scene, so going to play_game_scene:" .. currentSceneName)
     end
+
+    print("Going to play_game_scene with updatedGame: " .. updatedGame)
+    M.goToGameByIdFrom(updatedGame, currentSceneName)
+
+end
+
+function M.goToGameByIdFrom(gameId, fromScene)
+    local function onFailToGetGame(jsonResp)
+        print("Error fetching game with id '" .. tostring(gameId) .. "'")
+        print("Response: " .. tostring(jsonResp))
+    end
+
+    local function onSuccessToGetGame(gameModel)
+        if not gameModel or not gameModel.id then
+            print("Invalid game model received from server:" .. json.encode(gameModel))
+            return
+        end
+        current_game.currentGame = gameModel
+        nav.goToGame(gameModel, fromScene)
+    end
+
+    common_api.getGameById(gameId, true, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
 end
 
 

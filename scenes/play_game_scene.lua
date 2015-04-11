@@ -11,7 +11,8 @@ local login_common = require("login.login_common")
 local game_menu_class = require("classes.game_menu_class")
 local new_game_data = require("globals.new_game_data")
 local table = require("table")
-local GameThrive = require "plugin.GameThrivePushNotifications"
+local GameThrive = require("plugin.GameThrivePushNotifications")
+local timer = require("timer")
 local scene = composer.newScene()
 
 -- Local helpers pre-declaration
@@ -115,6 +116,26 @@ function scene:show(event)
             self:showGameOverModal()
             self:showNoMovesModal()
         end
+
+        self.pollForGameHandle = timer.performWithDelay(30000, self:getPollForGameListener(), -1)
+    end
+end
+
+function scene:getPollForGameListener()
+    return function()
+        if self.isDestroyed then
+            print("Error - trying to poll for game when isDestroyed == true")
+            return
+        end
+        if not self.creds then
+            print("Error - trying to poll for game when self.creds == nil")
+            return
+        end
+        if current_game.isUsersTurn(self.creds.user) then
+            print("Not polling for game since it's the auth user's turn.")
+            return
+        end
+        self:refreshGameFromServer()
     end
 end
 
@@ -125,6 +146,10 @@ function scene:hide(event)
 
     if (phase == "will") then
         print("play_game_scene:hide() - phase = will")
+        if self.pollForGameHandle then
+            timer.cancel(self.pollForGameHandle)
+            self.pollForGameHandle = nil
+        end
     elseif (phase == "did") then
         print("play_game_scene:hide() - phase = did")
         -- Set self.view to nil, so that create() will be called each time we load this scene.
@@ -361,6 +386,9 @@ function scene:applyOpponentMoves(onApplyMovesComplete)
         if onApplyMovesComplete then
             onApplyMovesComplete()
         end
+        if self.pollForGameHandle then
+            timer.resume(self.pollForGameHandle)
+        end
         return
     end
 
@@ -424,9 +452,15 @@ function scene:applyUpdatedGame(updatedGameModel)
 end
 
 function scene:refreshGameFromServer()
+    if self.pollForGameHandle then
+       timer.pause(self.pollForGameHandle)
+    end
     local currentGame = current_game.currentGame
     if not currentGame or not currentGame.id then
         print("current_game.currentGame is invalid, cannot refresh from server:" .. json.encode(currentGame))
+        if self.pollForGameHandle then
+            timer.resume(self.pollForGameHandle)
+        end
         return
     end
 
