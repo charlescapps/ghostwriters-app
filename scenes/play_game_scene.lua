@@ -1,5 +1,5 @@
-local composer = require( "composer" )
-local widget = require( "widget" )
+local composer = require("composer")
+local widget = require("widget")
 local json = require("json")
 local game_ui = require("common.game_ui")
 local common_api = require("common.common_api")
@@ -14,47 +14,10 @@ local table = require("table")
 local GameThrive = require "plugin.GameThrivePushNotifications"
 local scene = composer.newScene()
 
--- The board object
-local board
--- The rack object
-local rack
--- The options menu
-local gameMenu
--- The options button
-local optionsButton
-
--- Display objects
-local titleAreaDisplayGroup
-local actionButtonsGroup
-local playMoveButton
-local resetButton
-
 -- Local helpers pre-declaration
-local checkGameModelIsDefined
-local doesAuthUserMatchGame
-local createBoard
-local createRack
-local createActionButtonsGroup
 local drawOptionsButton
-local onReleaseOptionsButton
-local onReleasePlayButton
-local onReleaseResetButton
-local onGrabTiles
 local tilesToStr
 local createGrabMoveJson
-
-local completeMove
-local fadeToOpponentTurnAndBack
-local fadeToMyTurnAgain
-local onSendMoveFail
-local onSendMoveNetworkFail
-
-local showPassModal
-local pass
-local reset
-local resetBoardAndShowModals
-local showGameOverModal
-local showNoMovesModal
 local getMoveDescription
 
 scene.sceneName = "scenes.play_game_scene"
@@ -63,7 +26,7 @@ scene.sceneName = "scenes.play_game_scene"
 function scene:create(event)
     local sceneGroup = self.view
 
-    local gameModel = checkGameModelIsDefined()
+    local gameModel = self:checkGameModelIsDefined()
 
     if not gameModel then
         return
@@ -75,92 +38,89 @@ function scene:create(event)
         return
     end
 
-    if not doesAuthUserMatchGame(gameModel, self.creds.user) then
+    if not self:doesAuthUserMatchGame(gameModel, self.creds.user) then
         return
     end
 
     local background = common_ui.createBackground()
 
-    titleAreaDisplayGroup = self:createTitleAreaDisplayGroup(gameModel)
+    self.titleAreaDisplayGroup = self:createTitleAreaDisplayGroup(gameModel)
 
-    board = createBoard(gameModel)
+    self.board = self:createBoard(gameModel)
 
-    rack = createRack(gameModel, board, self.creds.user)
+    self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
-    gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50, function()
-        gameMenu:close()
-        showPassModal()
+    self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50, function()
+        self.gameMenu:close()
+        self:showPassModal()
     end)
 
-    actionButtonsGroup = createActionButtonsGroup(display.contentWidth + 195, 200, 64, onReleasePlayButton, onReleaseResetButton)
+    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 195, 200, 64, self:getOnReleasePlayButton(), self:getOnReleaseResetButton())
 
-    optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
+    self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
 
     sceneGroup:insert(background)
-    sceneGroup:insert(titleAreaDisplayGroup)
+    sceneGroup:insert(self.titleAreaDisplayGroup)
 
-    sceneGroup:insert(board.boardContainer)
-    sceneGroup:insert(rack.displayGroup)
-    sceneGroup:insert(optionsButton)
-    sceneGroup:insert(actionButtonsGroup)
-    sceneGroup:insert(gameMenu.displayGroup)
-
+    sceneGroup:insert(self.board.boardContainer)
+    sceneGroup:insert(self.rack.displayGroup)
+    sceneGroup:insert(self.optionsButton)
+    sceneGroup:insert(self.actionButtonsGroup)
+    sceneGroup:insert(self.gameMenu.displayGroup)
 end
 
-createBoard = function(gameModel)
+function scene:createBoard(gameModel)
     local boardWidth = display.contentWidth - 20
     local boardCenterX = display.contentWidth / 2
     local boardCenterY = display.contentWidth / 2 + 180
 
-    return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, 20, onGrabTiles)
+    return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, 20, self:getOnGrabTiles())
 end
 
-createRack = function(gameModel, board, authUser)
+function scene:createRack(gameModel, board, authUser)
     return rack_class.new(gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser)
 end
 
 -- "scene:show()"
-function scene:show( event )
+function scene:show(event)
 
     local phase = event.phase
 
-    if ( phase == "will" ) then
+    if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
-        self.creds = login_common.fetchCredentialsOrLogout(self.sceneName) -- Check if the current user is logged in.
-        if not self.creds then
+        self.creds = login_common.fetchCredentials() -- Check if the current user is logged in.
+        if not self.creds or self.badCreds then
+            login_common.logout()
             return
         end
 
-    elseif ( phase == "did" ) then
+    elseif (phase == "did") then
         GameThrive.RegisterForNotifications()
 
-        if board.gameModel and board.gameModel.lastMoves then
-            self.movesToDisplay = table.copy(board.gameModel.lastMoves)
+        if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
+            self.movesToDisplay = table.copy(self.board.gameModel.lastMoves)
             self:applyOpponentMoves(function()
-                showGameOverModal()
-                showNoMovesModal()
+                self:showGameOverModal()
+                self:showNoMovesModal()
             end)
         else
             -- Called when the scene is now on screen.
-            showGameOverModal()
-            showNoMovesModal()
+            self:showGameOverModal()
+            self:showNoMovesModal()
         end
-
     end
 end
 
 
 -- "scene:hide()"
-function scene:hide( event )
+function scene:hide(event)
 
     local sceneGroup = self.view
     local phase = event.phase
 
-    if ( phase == "will" ) then
-        -- Called when the scene is on screen (but is about to go off screen).
-        -- Insert code here to "pause" the scene.
-        -- Example: stop timers, stop animation, stop audio, etc.
-    elseif ( phase == "did" ) then
+    if (phase == "will") then
+
+    elseif (phase == "did") then
         self.creds = nil
         composer.removeScene(self.sceneName, false)
         -- Called immediately after scene goes off screen.
@@ -169,26 +129,23 @@ end
 
 
 -- "scene:destroy()"
-function scene:destroy( event )
+function scene:destroy(event)
 
     local sceneGroup = self.view
-    scene.creds = nil
-    board, rack, gameMenu, titleAreaDisplayGroup, actionButtonsGroup, playMoveButton, resetButton = nil, nil, nil, nil, nil, nil, nil
+    self.creds = nil
+    self.board, self.rack, self.gameMenu, self.titleAreaDisplayGroup, self.actionButtonsGroup, self.playMoveButton, self.resetButton = nil, nil, nil, nil, nil, nil, nil
 
-    -- Called prior to the removal of scene's view ("sceneGroup").
-    -- Insert code here to clean up the scene.
-    -- Example: remove display objects, save state, etc.
 end
 
 -- Local helpers
-checkGameModelIsDefined = function()
+function scene:checkGameModelIsDefined()
     local gameModel = current_game.currentGame
 
     if not gameModel then
-        print ("Error - no current game is defined in the current_game module.")
+        print("Error - no current game is defined in the current_game module.")
         local currentScene = composer.getSceneName("current")
-        if currentScene == scene.sceneName then
-            composer.gotoScene( "scenes.title_scene" )
+        if currentScene == self.sceneName then
+            composer.gotoScene("scenes.title_scene")
             composer.removeScene(currentScene, false)
         end
     end
@@ -196,13 +153,13 @@ checkGameModelIsDefined = function()
     return gameModel
 end
 
-doesAuthUserMatchGame = function(gameModel, authUser)
+function scene:doesAuthUserMatchGame(gameModel, authUser)
     if authUser.id ~= gameModel.player1 and authUser.id ~= gameModel.player2 then
         print("Error - incorrect authenticated user for game! User doesn't match either player.")
         print("Auth user = " .. json.encode(authUser))
         print("Player 1 = " .. json.encode(gameModel.player1Model))
         print("Player 2 = " .. json.encode(gameModel.player2Model))
-        login_common.logout()
+        self.badCreds = true
         return false
     end
     return true
@@ -213,23 +170,23 @@ function scene:createTitleAreaDisplayGroup(gameModel)
     return game_ui.createVersusDisplayGroup(gameModel, self.creds.user, self, false, nil, nil, nil, 100, nil, nil, isAllowStartNewGame)
 end
 
-createActionButtonsGroup = function(startY, width, height, onPlayButtonRelease, onResetButtonRelease)
+function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelease, onResetButtonRelease)
     local group = display.newGroup()
     -- Create the Play Word button
     local x1 = display.contentWidth / 2 - width / 2 - 5
     local y = startY + height / 2
-    playMoveButton = widget.newButton {
+    self.playMoveButton = widget.newButton {
         x = x1,
         y = y,
         emboss = true,
         label = "Play word",
         fontSize = 32,
-        labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
+        labelColor = { default = { 1, 0.9, 0.9 }, over = { 0, 0, 0 } },
         width = width,
         height = height,
         shape = "roundedRect",
         cornerRadius = 15,
-        fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
+        fillColor = { default = { 0.93, 0.48, 0.01, 0.7 }, over = { 0.76, 0, 0.13, 1 } },
         strokeColor = { 1, 0.2, 0.2 },
         strokeRadius = 10,
         onRelease = onPlayButtonRelease
@@ -237,25 +194,25 @@ createActionButtonsGroup = function(startY, width, height, onPlayButtonRelease, 
 
     -- Create the Reset button
     local x2 = display.contentWidth / 2 + width / 2 + 5
-    resetButton = widget.newButton {
+    self.resetButton = widget.newButton {
         x = x2,
         y = y,
         emboss = true,
         label = "Reset",
         fontSize = 32,
-        labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
+        labelColor = { default = { 1, 0.9, 0.9 }, over = { 0, 0, 0 } },
         width = width,
         height = height,
         shape = "roundedRect",
         cornerRadius = 15,
-        fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
+        fillColor = { default = { 0.93, 0.48, 0.01, 0.7 }, over = { 0.76, 0, 0.13, 1 } },
         strokeColor = { 1, 0.2, 0.2 },
         strokeRadius = 10,
         onEvent = onResetButtonRelease
     }
 
-    group:insert(playMoveButton)
-    group:insert(resetButton)
+    group:insert(self.playMoveButton)
+    group:insert(self.resetButton)
     return group
 end
 
@@ -265,16 +222,18 @@ drawOptionsButton = function(x, y, width)
         y = y,
         width = width,
         height = width,
-        defaultFile = "images/options-button.png", 
+        defaultFile = "images/options-button.png",
         overFile = "images/options-button-pressed.png",
         onPress = nil,
-        onRelease = onReleaseOptionsButton
+        onRelease = scene:getOnReleaseOptionsButton()
     })
 end
 
-onReleaseOptionsButton = function(event)
-    print ("Options button pressed!")
-    gameMenu:toggle()
+function scene:getOnReleaseOptionsButton()
+    return function(event)
+        print("Options button pressed!")
+        self.gameMenu:toggle()
+    end
 end
 
 tilesToStr = function(tiles, sep)
@@ -293,7 +252,7 @@ end
 createGrabMoveJson = function(tiles)
     local gameModel = current_game.currentGame
     local letters = tilesToStr(tiles, "")
-    local dir 
+    local dir
     if #tiles == 1 then
         dir = "E" -- direction doesn't matter for a single tile grab.
     elseif tiles[1].row == tiles[2].row then
@@ -305,7 +264,7 @@ createGrabMoveJson = function(tiles)
     else
         if tiles[2].row > tiles[1].row then
             dir = "S"
-        else 
+        else
             dir = "N"
         end
     end
@@ -316,62 +275,60 @@ createGrabMoveJson = function(tiles)
         moveType = common_api.GRAB_TILES,
         start = { r = tiles[1].row - 1, c = tiles[1].col - 1 },
         dir = dir
-     }
-
+    }
 end
 
-reset = function()
+function scene:reset()
     local gameModel = current_game.currentGame
     if not gameModel then
         print("Error - current_game.currentGame wasn't defined when reset() was called in single player scene")
         local currentScene = composer.getSceneName("current")
-        if currentScene == scene.sceneName then
+        if currentScene == self.sceneName then
             composer.gotoScene("scenes.title_scene")
             composer.removeScene(currentScene, false)
         end
         return
     end
 
-    local oldTitleArea = titleAreaDisplayGroup
-    local oldBoard = board
-    local oldRack = rack
+    local oldTitleArea = self.titleAreaDisplayGroup
+    local oldBoard = self.board
+    local oldRack = self.rack
 
-    titleAreaDisplayGroup = scene:createTitleAreaDisplayGroup(gameModel)
+    self.titleAreaDisplayGroup = scene:createTitleAreaDisplayGroup(gameModel)
 
-    board = createBoard(gameModel)
-    rack = createRack(gameModel, board, scene.creds.user)
+    self.board = self:createBoard(gameModel)
+    self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
-    local viewGroup = scene.view
-    viewGroup:insert(board.boardContainer)
-    viewGroup:insert(rack.displayGroup)
-    viewGroup:insert(titleAreaDisplayGroup)
+    local viewGroup = self.view
+    viewGroup:insert(self.board.boardContainer)
+    viewGroup:insert(self.rack.displayGroup)
+    viewGroup:insert(self.titleAreaDisplayGroup)
 
-    optionsButton:toFront() -- Put the options button on top of the new rack.
-    gameMenu.displayGroup:toFront() -- Put the game menu in front
+    self.optionsButton:toFront() -- Put the options button on top of the new rack.
+    self.gameMenu.displayGroup:toFront() -- Put the game menu in front
 
     oldBoard:destroy()
     oldRack:destroy()
     oldTitleArea:removeSelf()
-
 end
 
 getMoveDescription = function(moveJson)
     if moveJson.moveType == common_api.GRAB_TILES then
         return "grabbed the tiles \"" .. moveJson.letters .. "\"!"
     elseif moveJson.moveType == common_api.PLAY_TILES then
-       return "played \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
+        return "played \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
     elseif moveJson.moveType == common_api.PASS then
         return "passed."
     end
 end
 
-resetBoardAndShowModals = function()
-    reset()
-    showGameOverModal()
+function scene:resetBoardAndShowModals()
+    self:reset()
+    self:showGameOverModal()
 end
 
 function scene:getOpponentUser()
-    local gameModel = board.gameModel
+    local gameModel = self.board.gameModel
     local authUser = self.creds.user
     if gameModel.player1 == authUser.id then
         return gameModel.player2Model
@@ -389,7 +346,7 @@ function scene:applyOpponentMoves(onApplyMovesComplete)
         print("Calling applyOpponentsMove. Creating a new board Moves: " .. json.encode(self.movesToDisplay))
         self.movesToDisplay = nil
         self:fadeToTurn(false)
-        resetBoardAndShowModals()
+        self:resetBoardAndShowModals()
         if onApplyMovesComplete then
             onApplyMovesComplete()
         end
@@ -401,149 +358,163 @@ function scene:applyOpponentMoves(onApplyMovesComplete)
     local firstMove = table.remove(self.movesToDisplay, 1)
     local moveDescr = getMoveDescription(firstMove)
     local opponent = self:getOpponentUser()
-    local myScene = self
     common_ui.createInfoModal(opponent.username, moveDescr, function()
-        board:applyMove(firstMove, rack, firstMove.playerId == myScene.creds.user.id, function()
-            myScene:applyOpponentMoves()
-        end)
+        if self.board then
+            self.board:applyMove(firstMove, self.rack, firstMove.playerId == self.creds.user.id, function()
+                self:applyOpponentMoves()
+            end)
+        end
     end)
-
 end
 
-function scene.onSendMoveSuccess(updatedGameModel)
-    current_game.currentGame = updatedGameModel
-    scene.movesToDisplay = table.copy(updatedGameModel.lastMoves)
+function scene:getOnSendMoveSuccess(updatedGameModel)
+    return function(updatedGameModel)
+        current_game.currentGame = updatedGameModel
+        self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
 
-    local myMove = scene.myMove
-    local moveDescr = getMoveDescription(myMove)
-    common_ui.createInfoModal("You", moveDescr, function()
-        board:applyMove(myMove, rack, true, function()
-            if scene:didOpponentPlayMove(scene.movesToDisplay) then
-                scene:fadeToTurn(true)
-            end
-            print("Calling applyOpponentsMove from onSendMoveSuccess. Moves: " .. json.encode(scene.movesToDisplay))
-            scene:applyOpponentMoves()
+        local myMove = self.myMove
+        local moveDescr = getMoveDescription(myMove)
+
+        common_ui.createInfoModal("You", moveDescr, function()
+            self.board:applyMove(myMove, self.rack, true, function()
+                local currentScene = composer.getSceneName("current")
+                if currentScene == self.sceneName then
+                    if self:didOpponentPlayMove(self.movesToDisplay) then
+                        self:fadeToTurn(true)
+                    end
+                    print("Calling applyOpponentsMove from onSendMoveSuccess. Moves: " .. json.encode(self.movesToDisplay))
+                    self:applyOpponentMoves()
+                end
+            end)
         end)
-    end)
-
+    end
 end
 
 function scene:fadeToTurn(isOpponentTurn)
     if isOpponentTurn then
-        transition.fadeOut(titleAreaDisplayGroup.leftCircle, {time = 2000 })
-        transition.fadeIn(titleAreaDisplayGroup.rightCircle, {time = 2000 })
+        transition.fadeOut(self.titleAreaDisplayGroup.leftCircle, { time = 2000 })
+        transition.fadeIn(self.titleAreaDisplayGroup.rightCircle, { time = 2000 })
     else
-        transition.fadeIn(titleAreaDisplayGroup.leftCircle, {time = 2000 })
-        transition.fadeOut(titleAreaDisplayGroup.rightCircle, {time = 2000 })
+        transition.fadeIn(self.titleAreaDisplayGroup.leftCircle, { time = 2000 })
+        transition.fadeOut(self.titleAreaDisplayGroup.rightCircle, { time = 2000 })
     end
 end
 
 
-onSendMoveFail = function(json)
-    scene.myMove = nil
-    if json and json["errorMessage"] then
-        local message
-        local messageFromServer = json["errorMessage"]
-        if messageFromServer and messageFromServer:len() > 0 then
-            message = messageFromServer
+function scene:getOnSendMoveFail()
+    return function(json)
+        self.myMove = nil
+        if json and json["errorMessage"] then
+            local message
+            local messageFromServer = json["errorMessage"]
+            if messageFromServer and messageFromServer:len() > 0 then
+                message = messageFromServer
+            else
+                message = "Invalid move!"
+            end
+            native.showAlert("Oops...", message, { "Try again" })
         else
-            message = "Invalid move!"
+            native.showAlert("Network error", "A network error occurred", { "Try again" })
         end
-        native.showAlert( "Oops...", message, { "Try again" })
-    else
-        native.showAlert( "Network error", "A network error occurred", { "Try again" } )
+        self.rack:enableInteraction()
+        self.board:enableInteraction()
+        self.board:cancel_grab()
     end
-    rack:enableInteraction()
-    board:enableInteraction()
-    board:cancel_grab()
 end
 
-onSendMoveNetworkFail = function(event)
-    scene.myMove = nil
-    native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
-        if event.action == "clicked" then
-           rack:enableInteraction()
-           board:enableInteraction()
-        end
-    end)
-    board:cancel_grab()
-end
-
-onGrabTiles = function(tiles)
-    print("Tiles grabbed!")
-    if not current_game.isUsersTurn(scene.creds.user) then
-       common_ui.createInfoModal("Oops...", "It's not your turn")
-       board:cancel_grab()
-       return
-    end
-
-    local lettersStr = tilesToStr(tiles, ", ")
-
-    native.showAlert("Grab tiles?", "Grab tiles: " .. lettersStr .. "?", {"OK", "Nope"}, 
-        function(event)
+function scene:getOnSendMoveNetworkFail()
+    return function(event)
+        self.myMove = nil
+        native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
             if event.action == "clicked" then
-                local i = event.index
-                if i == 1 then
-                    rack:returnAllTiles()
-                    board:disableInteraction()
-                    rack:disableInteraction()
-                    local moveJson = createGrabMoveJson(tiles)
-                    scene.myMove = moveJson
-                    common_api.sendMove(moveJson, scene.onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
-                elseif i == 2 then
-                    board:cancel_grab()
-                    -- Do nothing, user clicked "Nope"
-                end
+                self.rack:enableInteraction()
+                self.board:enableInteraction()
             end
         end)
-
+        self.board:cancel_grab()
+    end
 end
 
-onReleasePlayButton = function(event)
-    if not current_game.isUsersTurn(scene.creds.user) then
-        common_ui.createInfoModal("Oops...", "It's not your turn")
-        return
-    end
-
-    local move = board:getCurrentPlayTilesMove()
-    if move["errorMsg"] then
-        native.showAlert("Oops...", move["errorMsg"], {"Try again"} )
-        return
-    end
-    local gameModel = current_game.currentGame
-    if not gameModel then
-        print("Error - no game model defined in current_game module when clicking Play button.")
-        return
-    end
-    move.gameId = gameModel.id
-    native.showAlert("Send move?", "Play word " .. move.letters .. " ?", { "Yes", "Nope" }, function(event)
-        local index = event.index
-        if index == 1 then
-            -- Disable interaction until the move is complete
-            print("Sending move: " .. json.encode(move))
-            board:disableInteraction()
-            rack:disableInteraction()
-            scene.myMove = move
-            common_api.sendMove(move, scene.onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
-        else
-            print("User clicked 'Nope'")
+function scene:getOnGrabTiles()
+    return function(tiles)
+        print("Tiles grabbed!")
+        if not current_game.isUsersTurn(self.creds.user) then
+            common_ui.createInfoModal("Oops...", "It's not your turn")
+            self.board:cancel_grab()
+            return
         end
-    end)
+
+        local lettersStr = tilesToStr(tiles, ", ")
+
+        native.showAlert("Grab tiles?", "Grab tiles: " .. lettersStr .. "?", { "OK", "Nope" },
+            function(event)
+                if event.action == "clicked" then
+                    local i = event.index
+                    if i == 1 then
+                        self.rack:returnAllTiles()
+                        self.board:disableInteraction()
+                        self.rack:disableInteraction()
+                        local moveJson = createGrabMoveJson(tiles)
+                        self.myMove = moveJson
+                        common_api.sendMove(moveJson, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+                    elseif i == 2 then
+                        self.board:cancel_grab()
+                        -- Do nothing, user clicked "Nope"
+                    end
+                end
+            end)
+    end
 end
 
-onReleaseResetButton = function(event)
-    rack:returnAllTiles()
+function scene:getOnReleasePlayButton()
+    return function(event)
+        if not current_game.isUsersTurn(self.creds.user) then
+            common_ui.createInfoModal("Oops...", "It's not your turn")
+            return
+        end
+
+        local move = self.board:getCurrentPlayTilesMove()
+        if move["errorMsg"] then
+            native.showAlert("Oops...", move["errorMsg"], { "Try again" })
+            return
+        end
+        local gameModel = current_game.currentGame
+        if not gameModel then
+            print("Error - no game model defined in current_game module when clicking Play button.")
+            return
+        end
+        move.gameId = gameModel.id
+        native.showAlert("Send move?", "Play word " .. move.letters .. " ?", { "Yes", "Nope" }, function(event)
+            local index = event.index
+            if index == 1 then
+                -- Disable interaction until the move is complete
+                print("Sending move: " .. json.encode(move))
+                self.board:disableInteraction()
+                self.rack:disableInteraction()
+                self.myMove = move
+                common_api.sendMove(move, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+            else
+                print("User clicked 'Nope'")
+            end
+        end)
+    end
 end
 
-showGameOverModal = function()
+function scene:getOnReleaseResetButton()
+    return function(event)
+        self.rack:returnAllTiles()
+    end
+end
+
+function scene:showGameOverModal()
     local gameModel = current_game.currentGame
     if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS then
-        print("Not displaying Game Over modal, game result is " .. tostring(gameModel and gameModel.gameResult) )
+        print("Not displaying Game Over modal, game result is " .. tostring(gameModel and gameModel.gameResult))
         return
     end
 
-    playMoveButton:setEnabled(false)
-    resetButton:setEnabled(false)
+    self.playMoveButton:setEnabled(false)
+    self.resetButton:setEnabled(false)
 
     local gameResult = gameModel.gameResult
 
@@ -562,13 +533,12 @@ showGameOverModal = function()
     end
 
     local modal = common_ui.createInfoModal("Game Over", modalMessage, nil, nil, nil)
-    scene.view:insert(modal)
-
+    self.view:insert(modal)
 end
 
-showNoMovesModal = function()
+function scene:showNoMovesModal()
     local gameModel = current_game.currentGame
-    if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS or not board then
+    if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS or not self.board then
         return
     end
 
@@ -578,28 +548,28 @@ showNoMovesModal = function()
 
     local modalMessage = "You must pass.\nTouch to continue..."
 
-    common_ui.createInfoModal("No Moves!", modalMessage, pass)
+    common_ui.createInfoModal("No Moves!", modalMessage, function() self:pass() end)
 end
 
-pass = function()
-    local passMove = common_api.getPassMove(current_game.currentGame, scene.creds.user.id)
-    scene.myMove = passMove
-    common_api.sendMove(passMove, scene.onSendMoveSuccess, onSendMoveFail, onSendMoveNetworkFail, true)
+function scene:pass()
+    local passMove = common_api.getPassMove(current_game.currentGame, self.creds.user.id)
+    self.myMove = passMove
+    common_api.sendMove(passMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
 end
 
-showPassModal = function()
-    native.showAlert( "Pass?", "Are you sure you want to pass?" , { "Yes", "Nope" }, function(event)
+function scene:showPassModal()
+    native.showAlert("Pass?", "Are you sure you want to pass?", { "Yes", "Nope" }, function(event)
         if event.action == "clicked" then
             if event.index == 1 then
-                pass()
+                self:pass()
             end
         end
-    end )
+    end)
 end
 
 function scene:startGameWithUser(userModel)
     local currentScene = composer.getSceneName("current")
-    if currentScene == self.sceneName and userModel.id ~= scene.creds.user.id then
+    if currentScene == self.sceneName and userModel.id ~= self.creds.user.id then
         new_game_data.clearAll()
         new_game_data.rival = userModel
         new_game_data.gameType = common_api.TWO_PLAYER
@@ -608,10 +578,10 @@ function scene:startGameWithUser(userModel)
 end
 
 -- Listener setup
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
+scene:addEventListener("create", scene)
+scene:addEventListener("show", scene)
+scene:addEventListener("hide", scene)
+scene:addEventListener("destroy", scene)
 
 -- -------------------------------------------------------------------------------
 

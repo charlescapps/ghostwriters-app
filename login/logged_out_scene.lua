@@ -8,6 +8,7 @@ local common_api = require("common.common_api")
 local nav = require("common.nav")
 local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
+local GameThrive = require("plugin.GameThrivePushNotifications")
 
 local scene = composer.newScene()
 
@@ -148,9 +149,11 @@ createTextProgress = function()
         "Signing in...", 75, 0.8)
 end
 
-onCreateAccountSuccess = function()
+onCreateAccountSuccess = function(user)
     textProgress:stop()
     nav.goToSceneFrom(scene.sceneName, "scenes.title_scene", "fade")
+    -- Tag the player in Game Thrive (OneSignal) with the user ID.
+    GameThrive.TagPlayer("ghostwriters_id", user.id)
 end
 
 onCreateAccountFail = function()

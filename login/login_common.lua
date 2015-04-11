@@ -55,6 +55,7 @@ end
 M.logout = function()
     M.saveCreds({})
     composer.gotoScene("login.logged_out_scene")
+    composer.removeHidden()
 end
 
 M.fetchCredentialsOrLogout = function(sceneName)
@@ -69,7 +70,6 @@ M.fetchCredentialsOrLogout = function(sceneName)
     end
 
     M.logout()
-    composer.removeHidden()
 end
 
 return M
