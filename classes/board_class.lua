@@ -215,7 +215,7 @@ function board_class:getTilesGroupTouchListener()
             end
             if myTile.tileType ~= tile.ORIGINAL_TILE then
                 print ("User grabbed a non-grabbable tile, cancelling grab: " .. myTile.letter)
-                self:cancel_grab()
+                self:cancelGrab()
                 return true
             end
             self:addGrabEffect(myTile)
@@ -225,7 +225,7 @@ function board_class:getTilesGroupTouchListener()
             print("Tiles Group touch listener: " .. event.phase)
             display.getCurrentStage():setFocus(nil)
             if not self.isGrabbing or not isConnected(self.grabbed) then
-                self:cancel_grab()
+                self:cancelGrab()
                 return true
             end
             self.onGrabTiles(self.grabbed)
@@ -362,7 +362,7 @@ function board_class:restrictX(x, scale)
 	end
 end
 
-function board_class:cancel_grab()
+function board_class:cancelGrab()
     print("Cancelling grab")
     if self.grabbed then
         for i = 1, #(self.grabbed) do

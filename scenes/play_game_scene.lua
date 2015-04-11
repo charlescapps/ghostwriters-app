@@ -24,6 +24,7 @@ scene.sceneName = "scenes.play_game_scene"
 
 -- "scene:create()"
 function scene:create(event)
+    self.isDestroyed = nil
     local sceneGroup = self.view
 
     local gameModel = self:checkGameModelIsDefined()
@@ -83,18 +84,24 @@ end
 
 -- "scene:show()"
 function scene:show(event)
-
     local phase = event.phase
 
+    if self.isDestroyed then
+        print("Error - play_game_scene is destroyed in scene:show(). Phase = " .. phase)
+        return
+    end
+
     if (phase == "will") then
+        print("play_game_scene:show() - phase = will")
         -- Called when the scene is still off screen (but is about to come on screen).
-        self.creds = login_common.fetchCredentials() -- Check if the current user is logged in.
-        if not self.creds or self.badCreds then
-            login_common.logout()
+        self.creds = login_common.fetchCredentialsOrLogout(self.sceneName) -- Check if the current user is logged in.
+        if not self.creds then
+            print("Error - user didn't have credentials on play_game_scene:show(). Logging out...")
             return
         end
 
     elseif (phase == "did") then
+        print("play_game_scene:show() - phase = did")
         GameThrive.RegisterForNotifications()
 
         if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
@@ -114,24 +121,24 @@ end
 
 -- "scene:hide()"
 function scene:hide(event)
-
-    local sceneGroup = self.view
     local phase = event.phase
 
     if (phase == "will") then
-
+        print("play_game_scene:hide() - phase = will")
     elseif (phase == "did") then
-        self.creds = nil
-        composer.removeScene(self.sceneName, false)
-        -- Called immediately after scene goes off screen.
+        print("play_game_scene:hide() - phase = did")
+        -- Set self.view to nil, so that create() will be called each time we load this scene.
+        self.view = nil
     end
 end
 
 
 -- "scene:destroy()"
 function scene:destroy(event)
-
-    local sceneGroup = self.view
+    print("play_game_scene:destroy()")
+    -- Set self.view to nil, so that create() will be called each time we load this scene.
+    self.view = nil
+    self.isDestroyed = true
     self.creds = nil
     self.board, self.rack, self.gameMenu, self.titleAreaDisplayGroup, self.actionButtonsGroup, self.playMoveButton, self.resetButton = nil, nil, nil, nil, nil, nil, nil
 
@@ -159,7 +166,6 @@ function scene:doesAuthUserMatchGame(gameModel, authUser)
         print("Auth user = " .. json.encode(authUser))
         print("Player 1 = " .. json.encode(gameModel.player1Model))
         print("Player 2 = " .. json.encode(gameModel.player2Model))
-        self.badCreds = true
         return false
     end
     return true
@@ -279,6 +285,11 @@ createGrabMoveJson = function(tiles)
 end
 
 function scene:reset()
+    if self.isDestroyed then
+        print("Error - play_game_scene is destroyed in scene:reset().")
+        return
+    end
+
     local gameModel = current_game.currentGame
     if not gameModel then
         print("Error - current_game.currentGame wasn't defined when reset() was called in single player scene")
@@ -367,30 +378,66 @@ function scene:applyOpponentMoves(onApplyMovesComplete)
     end)
 end
 
-function scene:getOnSendMoveSuccess(updatedGameModel)
+function scene:getOnSendMoveSuccess()
     return function(updatedGameModel)
-        current_game.currentGame = updatedGameModel
-        self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
+        self:applyUpdatedGame(updatedGameModel)
+    end
+end
 
-        local myMove = self.myMove
+function scene:applyUpdatedGame(updatedGameModel)
+    print("Applying updated game...")
+    current_game.currentGame = updatedGameModel
+
+    local myMove = self.myMove
+
+    if myMove then
+        print("Applying myMove...")
+        -- if self.myMove is set, then apply my move, before applying opponent's moves (if present)
         local moveDescr = getMoveDescription(myMove)
 
         common_ui.createInfoModal("You", moveDescr, function()
             self.board:applyMove(myMove, self.rack, true, function()
+                self.myMove = nil
                 local currentScene = composer.getSceneName("current")
                 if currentScene == self.sceneName then
+                    print("Finished applying myMove, now applying opponent's move(s)...")
+                    self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
+
                     if self:didOpponentPlayMove(self.movesToDisplay) then
                         self:fadeToTurn(true)
                     end
+
                     print("Calling applyOpponentsMove from onSendMoveSuccess. Moves: " .. json.encode(self.movesToDisplay))
                     self:applyOpponentMoves()
                 end
             end)
         end)
+    else
+        print("Applying opponent's move(s) only...")
+    -- If self.myMove is not present, just cancel whatever you've done on the board, then apply the opponent's moves.
+        self.board:cancelGrab()
+        self.rack:returnAllTiles()
+        self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
+        print("Calling applyOpponentsMove from onSendMoveSuccess. Moves: " .. json.encode(self.movesToDisplay))
+        self:applyOpponentMoves()
     end
 end
 
+function scene:refreshGameFromServer()
+    local currentGame = current_game.currentGame
+    if not currentGame or not currentGame.id then
+        print("current_game.currentGame is invalid, cannot refresh from server:" .. json.encode(currentGame))
+        return
+    end
+
+    common_api.getGameById(currentGame.id, true, self:getOnSendMoveSuccess(), self:getRefreshGameFail(), self:getRefreshGameFail(), false)
+end
+
+
 function scene:fadeToTurn(isOpponentTurn)
+    if self.isDestroyed then
+        return
+    end
     if isOpponentTurn then
         transition.fadeOut(self.titleAreaDisplayGroup.leftCircle, { time = 2000 })
         transition.fadeIn(self.titleAreaDisplayGroup.rightCircle, { time = 2000 })
@@ -418,7 +465,13 @@ function scene:getOnSendMoveFail()
         end
         self.rack:enableInteraction()
         self.board:enableInteraction()
-        self.board:cancel_grab()
+        self.board:cancelGrab()
+    end
+end
+
+function scene:getRefreshGameFail()
+    return function(jsonResp)
+        print("Error updating game:" .. json.encode(jsonResp))
     end
 end
 
@@ -431,7 +484,7 @@ function scene:getOnSendMoveNetworkFail()
                 self.board:enableInteraction()
             end
         end)
-        self.board:cancel_grab()
+        self.board:cancelGrab()
     end
 end
 
@@ -440,7 +493,7 @@ function scene:getOnGrabTiles()
         print("Tiles grabbed!")
         if not current_game.isUsersTurn(self.creds.user) then
             common_ui.createInfoModal("Oops...", "It's not your turn")
-            self.board:cancel_grab()
+            self.board:cancelGrab()
             return
         end
 
@@ -458,7 +511,7 @@ function scene:getOnGrabTiles()
                         self.myMove = moveJson
                         common_api.sendMove(moveJson, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
                     elseif i == 2 then
-                        self.board:cancel_grab()
+                        self.board:cancelGrab()
                         -- Do nothing, user clicked "Nope"
                     end
                 end
@@ -507,6 +560,11 @@ function scene:getOnReleaseResetButton()
 end
 
 function scene:showGameOverModal()
+    if self.isDestroyed then
+        print("Error - isDestroyed by called play_game_scene:showGameOverModal()")
+        return
+    end
+
     local gameModel = current_game.currentGame
     if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS then
         print("Not displaying Game Over modal, game result is " .. tostring(gameModel and gameModel.gameResult))
@@ -537,6 +595,11 @@ function scene:showGameOverModal()
 end
 
 function scene:showNoMovesModal()
+    if self.isDestroyed then
+        print("Error - isDestroyed by called play_game_scene:showNoMovesModal()")
+        return
+    end
+
     local gameModel = current_game.currentGame
     if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS or not self.board then
         return
@@ -575,6 +638,10 @@ function scene:startGameWithUser(userModel)
         new_game_data.gameType = common_api.TWO_PLAYER
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
     end
+end
+
+function scene:isValidGameScene()
+    return self.view and self.board and self.rack and self.creds and true
 end
 
 -- Listener setup

@@ -29,19 +29,20 @@ function M.onReceiveNotification(message, additionalData, isActive)
     -- If the current scene is the play_game_scene, then just update the game in view
     if currentSceneName == "scenes.play_game_scene" then
        local playGameScene = composer.getScene("scenes.play_game_scene")
-        if playGameScene then
-            if currentGame and currentGame.id == updatedGame.id then
-                playGameScene.onSendMoveSuccess(updatedGame)
+        if playGameScene and playGameScene:isValidGameScene() then
+            print("currentGame.id='" .. tostring(currentGame.id) .. "'")
+            print("updatedGame='" .. updatedGame .. "'")
+            if currentGame and tostring(currentGame.id) == updatedGame then
+                print("Current scene is play_game_scene, and it's valid, so updating existing game.")
+                playGameScene:refreshGameFromServer()
                 return
+            else
+                print("Current game doesn't match game id. Current = '" .. tostring(currentGame.id) .. "', from push = '" .. updatedGame .. "'")
             end
         end
+    else
+        print("Current scene is not play_game_scene, so not updating game:" .. currentSceneName)
     end
-
-    -- Else, go to the play game scene
-    current_game.currentGame = updatedGame
-    composer.removeScene("scenes.play_game_scene", false)
-    composer.gotoScene("scenes.play_game_scene")
-
 end
 
 
