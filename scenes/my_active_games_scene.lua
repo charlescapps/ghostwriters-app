@@ -106,29 +106,16 @@ function scene:getOnFailCallback()
 end
 
 function scene:createGoToCompleteGamesButton()
-    local label = self:getgoToCompleteGamesButtonText()
-
     local button = widget.newButton( {
         x = display.contentWidth - 100,
         y = 100,
-        emboss = true,
-        label = label,
-        fontSize = 36,
-        labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
-        width = 175,
-        height = 100,
-        shape = "roundedRect",
-        cornerRadius = 15,
-        fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
-        strokeColor = { 1, 0.2, 0.2 },
-        strokeRadius = 10,
+        width = 200,
+        height = 150,
+        defaultFile = "images/finished_games_button_default.png",
+        overFile = "images/finished_games_button_over.png",
         onRelease = self:getOnReleaseGoToCompleteGamesButton()
     } )
     return button
-end
-
-function scene:getgoToCompleteGamesButtonText()
-    return "Complete"
 end
 
 function scene:getOnReleaseGoToCompleteGamesButton()

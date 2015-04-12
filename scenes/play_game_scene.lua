@@ -58,7 +58,7 @@ function scene:create(event)
         self:showPassModal()
     end)
 
-    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 195, 200, 64, self:getOnReleasePlayButton(), self:getOnReleaseResetButton())
+    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 195, 200, 64, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
     self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
 
@@ -163,7 +163,8 @@ function scene:destroy(event)
     self.view = nil
     self.isDestroyed = true
     self.creds = nil
-    self.board, self.rack, self.gameMenu, self.titleAreaDisplayGroup, self.actionButtonsGroup, self.playMoveButton, self.resetButton = nil, nil, nil, nil, nil, nil, nil
+    self.board, self.rack, self.gameMenu, self.titleAreaDisplayGroup, self.actionButtonsGroup, self.playMoveButton, self.resetButton, self.passButton =
+        nil, nil, nil, nil, nil, nil, nil, nil
 
 end
 
@@ -188,10 +189,10 @@ function scene:createTitleAreaDisplayGroup(gameModel)
     return game_ui.createVersusDisplayGroup(gameModel, self.creds.user, self, false, nil, nil, nil, 100, nil, nil, isAllowStartNewGame)
 end
 
-function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelease, onResetButtonRelease)
+function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelease, onResetButtonRelease, onPassButtonRelease)
     local group = display.newGroup()
     -- Create the Play Word button
-    local x1 = display.contentWidth / 2 - width / 2 - 5
+    local x1 = display.contentWidth / 2 - width - 20
     local y = startY + height / 2
     self.playMoveButton = widget.newButton {
         x = x1,
@@ -199,7 +200,7 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
         emboss = true,
         label = "Play word",
         fontSize = 32,
-        labelColor = { default = { 1, 0.9, 0.9 }, over = { 0, 0, 0 } },
+        labelColor = { default = { 0.05, 0.05, 0.05, 1 }, over = { 0.2, 0.2, 0.2, 0.6 } },
         width = width,
         height = height,
         shape = "roundedRect",
@@ -211,14 +212,14 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
     }
 
     -- Create the Reset button
-    local x2 = display.contentWidth / 2 + width / 2 + 5
+    local x2 = display.contentWidth / 2
     self.resetButton = widget.newButton {
         x = x2,
         y = y,
         emboss = true,
         label = "Reset",
         fontSize = 32,
-        labelColor = { default = { 1, 0.9, 0.9 }, over = { 0, 0, 0 } },
+        labelColor = { default = { 0.05, 0.05, 0.05, 1 }, over = { 0.2, 0.2, 0.2, 0.6 } },
         width = width,
         height = height,
         shape = "roundedRect",
@@ -226,11 +227,31 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
         fillColor = { default = { 0.93, 0.48, 0.01, 0.7 }, over = { 0.76, 0, 0.13, 1 } },
         strokeColor = { 1, 0.2, 0.2 },
         strokeRadius = 10,
-        onEvent = onResetButtonRelease
+        onRelease = onResetButtonRelease
+    }
+
+    -- Create the Pass button
+    local x3 = display.contentWidth / 2 + width + 20
+    self.passButton = widget.newButton {
+        x = x3,
+        y = y,
+        emboss = true,
+        label = "Pass",
+        fontSize = 32,
+        labelColor = { default = { 0.05, 0.05, 0.05, 1 }, over = { 0.2, 0.2, 0.2, 0.6 } },
+        width = width,
+        height = height,
+        shape = "roundedRect",
+        cornerRadius = 15,
+        fillColor = { default = { 0.93, 0.48, 0.01, 0.7 }, over = { 0.76, 0, 0.13, 1 } },
+        strokeColor = { 1, 0.2, 0.2 },
+        strokeRadius = 10,
+        onRelease = onPassButtonRelease
     }
 
     group:insert(self.playMoveButton)
     group:insert(self.resetButton)
+    group:insert(self.passButton)
     return group
 end
 
@@ -585,6 +606,13 @@ function scene:getOnReleaseResetButton()
     end
 end
 
+function scene:getOnReleasePassButton()
+    return function(event)
+        self:pass()
+    end
+end
+
+
 function scene:showGameOverModal()
     if self.isDestroyed then
         print("Error - isDestroyed by called play_game_scene:showGameOverModal()")
@@ -599,6 +627,7 @@ function scene:showGameOverModal()
 
     self.playMoveButton:setEnabled(false)
     self.resetButton:setEnabled(false)
+    self.passButton:setEnabled(false)
 
     local gameResult = gameModel.gameResult
 

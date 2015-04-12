@@ -101,29 +101,17 @@ function scene:getOnFailCallback()
 end
 
 function scene:createGoToActiveGamesButton()
-    local label = self:getGoToActiveGamesButtonText()
 
     local button = widget.newButton( {
         x = display.contentWidth - 100,
         y = 100,
-        emboss = true,
-        label = label,
-        fontSize = 36,
-        labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
-        width = 175,
-        height = 100,
-        shape = "roundedRect",
-        cornerRadius = 15,
-        fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
-        strokeColor = { 1, 0.2, 0.2 },
-        strokeRadius = 10,
+        width = 200,
+        height = 150,
+        defaultFile = "images/active_games_button_default.png",
+        overFile = "images/active_games_button_over.png",
         onRelease = self:getOnReleaseGoToActiveGamesButton()
     } )
     return button
-end
-
-function scene:getGoToActiveGamesButtonText()
-    return "Active"
 end
 
 function scene:getOnReleaseGoToActiveGamesButton()

@@ -79,7 +79,7 @@ function my_games_view_class:renderTitle()
     if self.inProgress then
         titleText = titleText .. "Active Games"
     else
-        titleText = titleText .. "Complete Games"
+        titleText = titleText .. "Finished Games"
     end
     local title = display.newText {
         text = titleText,
@@ -102,7 +102,7 @@ function my_games_view_class:renderEmptyGamesGroup()
     if self.inProgress then
         message = "No active games."
     else
-        message = "No completed games."
+        message = "No finished games."
     end
     local messageText = display.newText {
         text = message,

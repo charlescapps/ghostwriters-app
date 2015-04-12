@@ -27,7 +27,6 @@ function game_menu_class.new(x, y, doPass)
     gameMenu.menuBackground = gameMenu:createMenuBackground()
     gameMenu.backToMenuButton = gameMenu:createBackToMenuButton()
     gameMenu.dictionaryButton = gameMenu:createDictionaryButton()
-    gameMenu.passButton = gameMenu:createPassButton()
 
     return gameMenu
 
@@ -124,13 +123,6 @@ function game_menu_class:createDictionaryButton()
     self.displayGroup:insert(dictionaryButton)
     dictionaryButton.x, dictionaryButton.y = 0, 0
     return dictionaryButton
-end
-
-function game_menu_class:createPassButton()
-    local passButton = self:createMenuButton("Pass", self.doPass)
-    self.displayGroup:insert(passButton)
-    passButton.x, passButton.y = 0, 200
-    return passButton
 end
 
 

@@ -99,7 +99,7 @@ function mini_game_view_class:renderDateStarted()
     local gameModel = self.gameModel
     local startTimeSecs = gameModel.dateCreated / 1000
     local durationPretty = time_util.printDurationPrettyFromStartTime(startTimeSecs)
-    local displayTxt = "Started " .. durationPretty
+    local displayTxt = "Last move " .. durationPretty
     return display.newText {
         text = displayTxt,
         fontSize = self.otherFontSize,
