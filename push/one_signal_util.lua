@@ -34,7 +34,7 @@ function M.onReceiveNotification(message, additionalData, isActive)
 
     -- If the current scene is the play_game_scene, then just update the game in view
     if currentSceneName == "scenes.play_game_scene" then
-       local playGameScene = composer.getScene("scenes.play_game_scene")
+        local playGameScene = composer.getScene("scenes.play_game_scene")
         if playGameScene and playGameScene:isValidGameScene() then
             if currentGame and tostring(currentGame.id) == updatedGame then
                 print("Current scene is play_game_scene, and it's valid, so updating existing game.")
@@ -42,15 +42,21 @@ function M.onReceiveNotification(message, additionalData, isActive)
                 return
             else
                 print("Current game doesn't match game id. Current = '" .. tostring(currentGame.id) .. "', from push = '" .. updatedGame .. "'")
+
             end
         end
     else
         print("Current scene is not play_game_scene, so going to play_game_scene:" .. currentSceneName)
     end
 
+    if isActive then
+        print("App was active, but not in the game for the push notification, so not sending user to the game with the move...")
+        -- TODO: Can we have some kind of "toast" message in this case?
+        return
+    end
+
     print("Going to play_game_scene with updatedGame: " .. updatedGame)
     M.goToGameByIdFrom(updatedGame, currentSceneName)
-
 end
 
 function M.goToGameByIdFrom(gameId, fromScene)
@@ -68,7 +74,7 @@ function M.goToGameByIdFrom(gameId, fromScene)
         nav.goToGame(gameModel, fromScene)
     end
 
-    common_api.getGameById(gameId, true, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
+    common_api.getGameById(gameId, true, nil, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
 end
 
 

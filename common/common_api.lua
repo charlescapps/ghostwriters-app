@@ -121,11 +121,20 @@ M.gamesURL = function()
 	return SERVER .. "/games"
 end
 
-M.gameByIdURL = function(gameId, includeMoves)
-    local url = SERVER .. "/games/" .. tostring(gameId)
+M.gameByIdURL = function(gameId, includeMoves, currentMove)
+    local includeMovesParam
     if includeMoves then
-        url = url .. "?includeMoves=true"
+        includeMovesParam = "true"
+    else
+        includeMovesParam = "false"
     end
+
+    local url = SERVER .. "/games/" .. tostring(gameId) .. "?includeMoves=" .. includeMovesParam
+
+    if currentMove then
+        url = url .. "&currentMove=" .. tostring(currentMove)
+    end
+
     return url
 end
 
@@ -394,8 +403,8 @@ M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner
 	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, spinner)
 end
 
-M.getGameById = function(gameId, includeMoves, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = M.gameByIdURL(gameId, includeMoves)
+M.getGameById = function(gameId, includeMoves, currentMove, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    local url = M.gameByIdURL(gameId, includeMoves, currentMove)
     local spinner
     if doMakeSpinner then
         spinner = word_spinner_class.new()

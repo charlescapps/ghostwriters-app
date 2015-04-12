@@ -2,6 +2,7 @@ local composer = require("composer")
 local widget = require("widget")
 local json = require("json")
 local game_ui = require("common.game_ui")
+local game_helpers = require("common.game_helpers")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local current_game = require("globals.current_game")
@@ -40,7 +41,7 @@ function scene:create(event)
         return
     end
 
-    if not self:doesAuthUserMatchGame(gameModel, self.creds.user) then
+    if not game_helpers.doesAuthUserMatchGame(gameModel, self.creds.user) then
         return
     end
 
@@ -117,7 +118,7 @@ function scene:show(event)
             self:showNoMovesModal()
         end
 
-        self.pollForGameHandle = timer.performWithDelay(30000, self:getPollForGameListener(), -1)
+        self:startPollForGame()
     end
 end
 
@@ -146,10 +147,7 @@ function scene:hide(event)
 
     if (phase == "will") then
         print("play_game_scene:hide() - phase = will")
-        if self.pollForGameHandle then
-            timer.cancel(self.pollForGameHandle)
-            self.pollForGameHandle = nil
-        end
+        self:cancelPollForGame()
     elseif (phase == "did") then
         print("play_game_scene:hide() - phase = did")
         -- Set self.view to nil, so that create() will be called each time we load this scene.
@@ -183,17 +181,6 @@ function scene:checkGameModelIsDefined()
     end
 
     return gameModel
-end
-
-function scene:doesAuthUserMatchGame(gameModel, authUser)
-    if authUser.id ~= gameModel.player1 and authUser.id ~= gameModel.player2 then
-        print("Error - incorrect authenticated user for game! User doesn't match either player.")
-        print("Auth user = " .. json.encode(authUser))
-        print("Player 1 = " .. json.encode(gameModel.player1Model))
-        print("Player 2 = " .. json.encode(gameModel.player2Model))
-        return false
-    end
-    return true
 end
 
 function scene:createTitleAreaDisplayGroup(gameModel)
@@ -386,9 +373,7 @@ function scene:applyOpponentMoves(onApplyMovesComplete)
         if onApplyMovesComplete then
             onApplyMovesComplete()
         end
-        if self.pollForGameHandle then
-            timer.resume(self.pollForGameHandle)
-        end
+        self:resumePollForGame()
         return
     end
 
@@ -408,63 +393,69 @@ end
 
 function scene:getOnSendMoveSuccess()
     return function(updatedGameModel)
-        self:applyUpdatedGame(updatedGameModel)
-    end
-end
+        local myMove = self.myMove
 
-function scene:applyUpdatedGame(updatedGameModel)
-    print("Applying updated game...")
-    current_game.currentGame = updatedGameModel
+        if myMove then
+            -- if self.myMove is set, then apply my move, before applying opponent's moves (if present)
+            print("Applying my move...")
+            local moveDescr = getMoveDescription(myMove)
 
-    local myMove = self.myMove
-
-    if myMove then
-        print("Applying myMove...")
-        -- if self.myMove is set, then apply my move, before applying opponent's moves (if present)
-        local moveDescr = getMoveDescription(myMove)
-
-        common_ui.createInfoModal("You", moveDescr, function()
-            self.board:applyMove(myMove, self.rack, true, function()
-                self.myMove = nil
-                local currentScene = composer.getSceneName("current")
-                if currentScene == self.sceneName then
-                    print("Finished applying myMove, now applying opponent's move(s)...")
-                    self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
-
-                    if self:didOpponentPlayMove(self.movesToDisplay) then
-                        self:fadeToTurn(true)
+            common_ui.createInfoModal("You", moveDescr, function()
+                self.board:applyMove(myMove, self.rack, true, function()
+                    self.myMove = nil
+                    local currentScene = composer.getSceneName("current")
+                    if currentScene == self.sceneName then
+                        print("Finished applying myMove, now applying opponent's move(s)...")
+                        self:applyUpdatedGame(updatedGameModel, true)
                     end
-
-                    print("Calling applyOpponentsMove from onSendMoveSuccess. Moves: " .. json.encode(self.movesToDisplay))
-                    self:applyOpponentMoves()
-                end
+                end)
             end)
-        end)
-    else
-        print("Applying opponent's move(s) only...")
-    -- If self.myMove is not present, just cancel whatever you've done on the board, then apply the opponent's moves.
-        self.board:cancelGrab()
-        self.rack:returnAllTiles()
-        self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
-        print("Calling applyOpponentsMove from onSendMoveSuccess. Moves: " .. json.encode(self.movesToDisplay))
-        self:applyOpponentMoves()
+        else
+            print("Applying opponent's move(s) only...")
+            self:applyUpdatedGame(updatedGameModel, false)
+        end
     end
 end
 
-function scene:refreshGameFromServer()
-    if self.pollForGameHandle then
-       timer.pause(self.pollForGameHandle)
+function scene:getOnRefreshGameSuccess()
+    return function(updatedGameModel)
+        self:applyUpdatedGame(updatedGameModel, false)
     end
-    local currentGame = current_game.currentGame
-    if not currentGame or not currentGame.id then
-        print("current_game.currentGame is invalid, cannot refresh from server:" .. json.encode(currentGame))
-        if self.pollForGameHandle then
-            timer.resume(self.pollForGameHandle)
-        end
+end
+
+function scene:applyUpdatedGame(updatedGameModel, isAfterPlayMove)
+
+    if not game_helpers.isValidGameUpdate(current_game.currentGame, updatedGameModel) then
+        print("Updated game isn't a valid game update. Returning from play_game_scene:applyUpdatedGame()...")
+        self:resumePollForGame()
         return
     end
 
-    common_api.getGameById(currentGame.id, true, self:getOnSendMoveSuccess(), self:getRefreshGameFail(), self:getRefreshGameFail(), false)
+    print("Applying updated game...")
+    current_game.currentGame = updatedGameModel
+
+    if not isAfterPlayMove then
+        print("Cancelling current grab.")
+        self.board:cancelGrab()
+        print("Returning tiles.")
+        self.rack:returnAllTiles()
+    end
+
+    self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
+    print("Applying opponent move(s): " .. json.encode(self.movesToDisplay))
+    self:applyOpponentMoves()
+end
+
+function scene:refreshGameFromServer()
+
+    local currentGame = current_game.currentGame
+    if not game_helpers.isValidGame(currentGame) then
+        print("current_game.currentGame is invalid, cannot refresh from server.")
+        return
+    end
+
+    self:pausePollForGame()
+    common_api.getGameById(currentGame.id, true, currentGame.moveNum, self:getOnRefreshGameSuccess(), self:getRefreshGameFail(), self:getRefreshGameFail(), false)
 end
 
 
@@ -506,6 +497,7 @@ end
 function scene:getRefreshGameFail()
     return function(jsonResp)
         print("Error updating game:" .. json.encode(jsonResp))
+        self:resumePollForGame()
     end
 end
 
@@ -676,6 +668,34 @@ end
 
 function scene:isValidGameScene()
     return self.view and self.board and self.rack and self.creds and true
+end
+
+function scene:startPollForGame()
+    if current_game.currentGame and current_game.currentGame.gameType == common_api.TWO_PLAYER then
+        self.pollForGameHandle = timer.performWithDelay(30000, self:getPollForGameListener(), -1)
+    end
+end
+
+function scene:resumePollForGame()
+    if self.pollForGameHandle then
+        print("Resuming poll for game timer...")
+        timer.resume(self.pollForGameHandle)
+    end
+end
+
+function scene:pausePollForGame()
+    if self.pollForGameHandle then
+        print("Pausing poll for game timer...")
+        timer.pause(self.pollForGameHandle)
+    end
+end
+
+function scene:cancelPollForGame()
+    if self.pollForGameHandle then
+        print("Cancelling poll for game timer...")
+        timer.cancel(self.pollForGameHandle)
+        self.pollForGameHandle = nil
+    end
 end
 
 -- Listener setup
