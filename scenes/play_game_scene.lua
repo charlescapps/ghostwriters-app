@@ -53,10 +53,7 @@ function scene:create(event)
 
     self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
-    self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50, function()
-        self.gameMenu:close()
-        self:showPassModal()
-    end)
+    self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50)
 
     self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 195, 200, 64, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
@@ -358,7 +355,7 @@ end
 
 getMoveDescription = function(moveJson)
     if moveJson.moveType == common_api.GRAB_TILES then
-        return "grabbed the tiles \"" .. moveJson.letters .. "\"!"
+        return "grabbed \"" .. moveJson.letters .. "\"!"
     elseif moveJson.moveType == common_api.PLAY_TILES then
         return "played \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
     elseif moveJson.moveType == common_api.PASS then
@@ -608,7 +605,7 @@ end
 
 function scene:getOnReleasePassButton()
     return function(event)
-        self:pass()
+        self:showPassModal()
     end
 end
 

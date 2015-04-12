@@ -14,9 +14,9 @@ local GAME_MENU_WIDTH = 750
 local GAME_MENU_HEIGHT = 895
 
 
-function game_menu_class.new(x, y, doPass)
+function game_menu_class.new(x, y)
 
-    local gameMenu = setmetatable( { doPass = doPass }, game_menu_class_mt )
+    local gameMenu = setmetatable( {  }, game_menu_class_mt )
 
     local displayGroup = display.newGroup()
     displayGroup.x, displayGroup.y = x, y
