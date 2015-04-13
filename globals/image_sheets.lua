@@ -55,15 +55,6 @@ local RACK_TILE_OPTIONS = {
     sheetContentHeight = 300
 }
 
-local HOT_TILE_IMAGE_SHEETS = {
-    [common_api.SMALL_SIZE] = "images/hot_tiles_tall_board.png",
-    [common_api.SMALL_SIZE .. "_MINI"] = "images/hot_tiles_tall_board_mini.png",
-    [common_api.MEDIUM_SIZE] = "images/hot_tiles_grande_board.png",
-    [common_api.MEDIUM_SIZE .. "_MINI"] = "images/hot_tiles_grande_board_mini.png",
-    [common_api.LARGE_SIZE] = "images/hot_tiles_venti_board.png",
-    [common_api.LARGE_SIZE .. "_MINI"] = "images/hot_tiles_venti_board_mini.png"
-}
-
 local STONE_TILE_IMAGE_SHEETS = {
     [common_api.SMALL_SIZE] = "images/stone_tiles_tall_board.png",
     [common_api.SMALL_SIZE .. "_MINI"] = "images/stone_tiles_tall_board_mini.png",

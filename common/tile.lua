@@ -4,8 +4,14 @@ local image_sheets = require("globals.image_sheets")
 local display = require("display")
 local common_api = require("common.common_api")
 
+local ghostly_tall = require("spritesheets.ghostly_tall")
+local ghostly_grande = require("spritesheets.ghostly_grande")
+local ghostly_venti = require("spritesheets.ghostly_venti")
+
+local graphics = require("graphics")
+
 -- Function pre-declarations
-local createHotTile
+local createGhostlyTile
 local createRackTile
 local createStoneTile
 local buildTileTable
@@ -19,6 +25,14 @@ M.ORIGINAL_TILE = "ORIGINAL_TILE"
 M.PLAYED_TILE = "PLAYED_TILE"
 M.EMPTY_TILE = "EMPTY_TILE"
 M.RACK_TILE = "RACK_TILE"
+
+-- Spritesheets
+M.ghostlySheets = {}
+M.ghostlySheetHelpers = {
+    [common_api.SMALL_SIZE] = ghostly_tall,
+    [common_api.MEDIUM_SIZE] = ghostly_grande,
+    [common_api.LARGE_SIZE] = ghostly_venti
+}
 
 -- Public functions
 M.getTileInfo = function(letter, isRackTile, boardSize)
@@ -42,11 +56,18 @@ M.draw = function(letter, x, y, width, isRackTile, boardSize)
 end
 
 -- Local helper functions
-createHotTile = function(letter, frameIndex, boardSize)
+createGhostlyTile = function(letter, boardSize)
+    print("Creating ghostly tile for letter '" .. letter .. "', boardSize='" .. boardSize .. "'" )
+    local helper = M.ghostlySheetHelpers[boardSize]
+    if not M.ghostlySheets[boardSize] then
+        local imageFile = "spritesheets/ghostly_" .. boardSize:lower() .. ".png"
+        M.ghostlySheets[boardSize] = graphics.newImageSheet(imageFile, helper:getSheet())
+    end
+
 	return {
 		letter = letter,
-		imageSheet = image_sheets.getHotTilesImageSheet(boardSize),
-		frameIndex = frameIndex,
+		imageSheet = M.ghostlySheets[boardSize],
+		frameIndex = helper:getFrameIndex(letter:lower() .. "_ghostly"),
         tileType = M.ORIGINAL_TILE
 	}
 end
@@ -74,7 +95,7 @@ buildTileTable = function(boardSize)
 	-- Build lowercase letters, which represent tiles on the board originally
 	for i = 1, 26 do
 		local letter = string.char(96 + i)
-		tileTable[letter] = createHotTile(letter, i, boardSize)
+		tileTable[letter] = createGhostlyTile(letter, boardSize)
 	end
 	-- Build uppercase letters, which represent tiles that were placed, or tiles in the rack
 	for i = 1, 26 do
@@ -100,11 +121,8 @@ M.tileTable = {}
 M.rackTileTable = {}
 
 M.tileTable[common_api.SMALL_SIZE] = buildTileTable(common_api.SMALL_SIZE)
-M.tileTable[common_api.SMALL_SIZE .. "_MINI"] = buildTileTable(common_api.SMALL_SIZE .. "_MINI")
 M.tileTable[common_api.MEDIUM_SIZE] = buildTileTable(common_api.MEDIUM_SIZE)
-M.tileTable[common_api.MEDIUM_SIZE .. "_MINI"] = buildTileTable(common_api.MEDIUM_SIZE .. "_MINI")
 M.tileTable[common_api.LARGE_SIZE] = buildTileTable(common_api.LARGE_SIZE)
-M.tileTable[common_api.LARGE_SIZE .. "_MINI"] = buildTileTable(common_api.LARGE_SIZE .. "_MINI")
 
 M.rackTileTable = buildRackTileTable()
 

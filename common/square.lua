@@ -18,11 +18,11 @@ M.X3 = {num = "3", letterMult = 3, frameIndex = 2}
 M.X4 = {num = "4", letterMult = 4, frameIndex = 3}
 M.X5 = {num = "5", letterMult = 5, frameIndex = 4}
 
-local borderRgb = {0, 99/256, 54/256}
-local backgroundRgb = {0, 189/256, 47/256}
+local borderRgb = {0, 0, 0, 1}
+local backgroundRgb = {0, 0, 0, 0.01}
 
-local darkBorderRgb = {0, 29/256, 4/256}
-local darkBackgroundRgb = {0, 99/256, 1/256}
+local darkBorderRgb = {0, 0, 0, 1}
+local darkBackgroundRgb = {0, 0, 0, 0.5}
 
 local createSquareBackground
 
@@ -81,11 +81,11 @@ createSquareBackground = function(x, y, width, isShaded)
 	local myRoundedRect = display.newRoundedRect( x, y, width, width, 12 )
 	myRoundedRect.strokeWidth = 5
     if isShaded then
-        myRoundedRect:setFillColor( darkBackgroundRgb[1], darkBackgroundRgb[2], darkBackgroundRgb[3] )
-        myRoundedRect:setStrokeColor( darkBorderRgb[1], darkBorderRgb[2], darkBorderRgb[3] )
+        myRoundedRect:setFillColor( darkBackgroundRgb[1], darkBackgroundRgb[2], darkBackgroundRgb[3], darkBackgroundRgb[4] )
+        myRoundedRect:setStrokeColor( darkBorderRgb[1], darkBorderRgb[2], darkBorderRgb[3], darkBorderRgb[4] )
     else
-	    myRoundedRect:setFillColor( backgroundRgb[1], backgroundRgb[2], backgroundRgb[3] )
-	    myRoundedRect:setStrokeColor( borderRgb[1], borderRgb[2], borderRgb[3] )
+	    myRoundedRect:setFillColor( backgroundRgb[1], backgroundRgb[2], backgroundRgb[3], backgroundRgb[4] )
+	    myRoundedRect:setStrokeColor( borderRgb[1], borderRgb[2], borderRgb[3],borderRgb[4] )
     end
 	return myRoundedRect
 end

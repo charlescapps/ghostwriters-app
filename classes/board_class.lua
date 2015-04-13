@@ -167,6 +167,9 @@ function board_class:getSquaresGroupTouchListener()
            display.getCurrentStage():setFocus(event.target)
            self.boardGroupStartX, self.boardGroupStartY = self.boardGroup.x, self.boardGroup.y
         elseif event.phase == "moved" then
+            if not self.boardGroupStartX or not self.boardGroupStartY then
+                return
+            end
             local xLocal, yLocal = self.boardContainer:contentToLocal(event.x, event.y)
             local xStartLocal, yStartLocal = self.boardContainer:contentToLocal(event.xStart, event.yStart)
             local scale = self:getZoomScale()
