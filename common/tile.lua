@@ -8,6 +8,10 @@ local ghostly_tall = require("spritesheets.ghostly_tall")
 local ghostly_grande = require("spritesheets.ghostly_grande")
 local ghostly_venti = require("spritesheets.ghostly_venti")
 
+local stone_tall = require("spritesheets.stone_tall")
+local stone_grande = require("spritesheets.stone_grande")
+local stone_venti = require("spritesheets.stone_venti")
+
 local graphics = require("graphics")
 
 -- Function pre-declarations
@@ -28,10 +32,16 @@ M.RACK_TILE = "RACK_TILE"
 
 -- Spritesheets
 M.ghostlySheets = {}
+M.stoneSheets = {}
 M.ghostlySheetHelpers = {
     [common_api.SMALL_SIZE] = ghostly_tall,
     [common_api.MEDIUM_SIZE] = ghostly_grande,
     [common_api.LARGE_SIZE] = ghostly_venti
+}
+M.stoneSheetHelpers = {
+    [common_api.SMALL_SIZE] = stone_tall,
+    [common_api.MEDIUM_SIZE] = stone_grande,
+    [common_api.LARGE_SIZE] = stone_venti
 }
 
 -- Public functions
@@ -81,13 +91,20 @@ createRackTile = function(letter, frameIndex)
     }
 end
 
-createStoneTile = function(letter, frameIndex, boardSize)
-	return {
-		letter = letter,
-		imageSheet = image_sheets.getStoneTilesImageSheet(boardSize),
-		frameIndex = frameIndex,
+createStoneTile = function(letter, boardSize)
+    print("Creating stone tile for letter '" .. letter .. "', boardSize='" .. boardSize .. "'" )
+    local helper = M.stoneSheetHelpers[boardSize]
+    if not M.stoneSheets[boardSize] then
+        local imageFile = "spritesheets/stone_" .. boardSize:lower() .. ".png"
+        M.stoneSheets[boardSize] = graphics.newImageSheet(imageFile, helper:getSheet())
+    end
+
+    return {
+        letter = letter,
+        imageSheet = M.stoneSheets[boardSize],
+        frameIndex = helper:getFrameIndex(letter:lower() .. "_stone"),
         tileType = M.PLAYED_TILE
-	}
+    }
 end
 
 buildTileTable = function(boardSize)
@@ -100,7 +117,7 @@ buildTileTable = function(boardSize)
 	-- Build uppercase letters, which represent tiles that were placed, or tiles in the rack
 	for i = 1, 26 do
 		local letter = string.char(64 + i)
-		tileTable[letter] = createStoneTile(letter, i, boardSize)
+		tileTable[letter] = createStoneTile(letter, boardSize)
 	end
 	return tileTable
 end
