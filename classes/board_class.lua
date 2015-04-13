@@ -622,7 +622,7 @@ function board_class:getOrderedRackTiles()
 	-- Finally verify there aren't any additional tiles on the board that aren't included in the play
 	for i = row, N do
 		for j = 1, N do
-			if rackTileImages[i][j] and lists.indexOf(orderedTiles, rackTileImages[i][j]) == 0 then
+			if rackTileImages[i][j] and not lists.indexOf(orderedTiles, rackTileImages[i][j]) then
 				return {errorMsg = "You must place tiles in the same row or column with no empty spaces in between"}
 			end
 		end

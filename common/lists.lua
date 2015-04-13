@@ -11,7 +11,7 @@ M.indexOf = function(list, item, maxIndex)
 			return i
 		end
 	end
-	return 0
+	return nil
 end
 
 M.removeFromList = function(list, item)

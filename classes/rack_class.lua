@@ -8,12 +8,13 @@ local display = require("display")
 local transition = require("transition")
 local easing = require("easing")
 local lists = require("common.lists")
-local table = require("table")
 local MAX_TILES = 20
 local NUM_ROWS = 3
 
 local getTouchListener
 
+-- Constants
+local TILE_PADDING = 2
 
 function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board, authUser)
 	local rack = gameModel.player1 == authUser.id and gameModel.player1Rack or gameModel.player2Rack
@@ -29,6 +30,7 @@ function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board,
 	local newRack = {
 		letters = letters,
 		tileWidth = tileWidth,
+		drawTileWidth = tileWidth - 2 * TILE_PADDING,
 		startY = startY,
 		numPerRow = numPerRow, 
 		padding = padding,
@@ -59,7 +61,6 @@ function rack_class:createRackDisplayGroup()
     group.x = self.padding
 
 	local letters = self.letters
-	local width = self.tileWidth
 	local tileImages = {}
 
     -- Create background texture
@@ -72,7 +73,7 @@ function rack_class:createRackDisplayGroup()
 		local letter = letters[i]
 		local x = self:computeTileX(i)
 		local y = self:computeTileY(i)
-		local img = tile.draw(letter, x, y, width, true, common_api.MEDIUM_SIZE)
+		local img = tile.draw(letter, x, y, self.drawTileWidth, true, common_api.MEDIUM_SIZE)
 		img.letter = letter
 		tileImages[#tileImages + 1] = img
         if not self:isGameFinished() then
@@ -100,7 +101,7 @@ function rack_class:addTiles(tilesStr)
 		local x = self:computeTileX(tileNum)
 		local y = self:computeTileY(tileNum)
 
-		local newTileImg = tile.draw(grabTile, x, y, self.tileWidth, true, common_api.MEDIUM_SIZE)
+		local newTileImg = tile.draw(grabTile, x, y, self.drawTileWidth, true, common_api.MEDIUM_SIZE)
 		newTileImg.letter = grabTile
 		self.tileImages[#(self.tileImages) + 1] = newTileImg
 
@@ -163,7 +164,7 @@ function rack_class:returnTileImage(tileImage, onComplete)
     end
 
     local index = lists.indexOf(self.tileImages, tileImage, MAX_TILES)
-    if index <= 0 then
+    if not index then
         print("Cannot return tile to rack, index is: " .. tostring(index))
         return
     end
@@ -184,7 +185,7 @@ function rack_class:returnTileImage(tileImage, onComplete)
 	local x, y = self:computeTileX(index), self:computeTileY(index)
     local dist = math.sqrt((x - xRack)*(x - xRack) + (y - yRack)*(y - yRack))
     local duration = math.floor(dist / SPEED)
-    transition.to(tileImage, {x = x, y = y, width = self.tileWidth, height = self.tileWidth,
+    transition.to(tileImage, {x = x, y = y, width = self.drawTileWidth, height = self.drawTileWidth,
         time = duration, transition = easing.inOutBack, onComplete = onComplete})
 
 	self.board:removeRackTileFromBoard(tileImage)
@@ -253,8 +254,8 @@ getTouchListener = function(rack)
 	        event.target.x = event.x
         	event.target.y = event.y	
         	transition.to(event.target, {
-        		width = rack.tileWidth,
-        		height = rack.tileWidth
+        		width = rack.drawTileWidth,
+        		height = rack.drawTileWidth
         		})
 	        return true
 	    elseif event.target.isFocus then
