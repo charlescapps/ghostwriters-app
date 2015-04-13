@@ -40,6 +40,8 @@ function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
 		startX = startX,
 		startY = startY,
 		width = width,
+        tileWidth = width / N,
+        drawTileWidth = width / N - 2 * TILE_PADDING,
         padding = padding,
 		onGrabTiles = onGrabTiles,
 		rackTileImages = rackTileImages,
@@ -75,9 +77,9 @@ function board_class:isGameFinished()
 end
 
 function board_class:computeTileCoords(r, c)
-    local pxPerSquare = self.width / self.N
-    local x = math.floor((c - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
-    local y = math.floor((r - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
+    local tileWidth = self.tileWidth
+    local x = math.floor((c - 1) * tileWidth + tileWidth / 2 - self.width / 2)
+    local y = math.floor((r - 1) * tileWidth + tileWidth / 2 - self.width / 2)
     return x, y
 end
 
@@ -86,19 +88,16 @@ function board_class:createSquaresGroup(width)
 	local N = self.N
 	local squares = self.squares
 	local width = self.width
-	local pxPerSquare = width / N
-	local pxPerSquareInt = math.floor(pxPerSquare)
 	local squareImages = {}
 	for i = 1, N do
 		squareImages[i] = {}
 	end
-	print("px per square=" .. pxPerSquare)
 
 	for i = 1, N do
 		for j = 1, N do
 			local s = squares[i][j]
 			local x, y = self:computeTileCoords(i, j)
-			local squareGroup = square.draw(s, x, y, pxPerSquareInt, self.gameModel.boardSize)
+			local squareGroup = square.draw(s, x, y, self.tileWidth, self.gameModel.boardSize)
 			squaresGroup:insert(squareGroup)
 			squareImages[i][j] = squareGroup
 			squareGroup.row = i
@@ -114,9 +113,9 @@ end
 
 
 function board_class:computeTileCoords(row, col)
-	local pxPerSquare = self.width / self.N
-	local x = math.floor((col - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
-	local y = math.floor((row - 1) * pxPerSquare + pxPerSquare / 2 - self.width / 2)
+	local tileWidth = self.tileWidth
+	local x = math.floor((col - 0.5) * tileWidth - self.width / 2)
+	local y = math.floor((row - 0.5) * tileWidth - self.width / 2)
 	return x, y
 end
 
@@ -125,9 +124,6 @@ function board_class:createTilesGroup()
 	local N = self.N
 	local width = self.width
 	local tiles = self.tiles
-	local pxPerSquare = width / N
-	local pxPerSquareInt = math.floor(pxPerSquare)
-    local tileWidth = pxPerSquareInt - TILE_PADDING * 2
 
 	local tileImages = {}
 	for i = 1, N do
@@ -138,7 +134,7 @@ function board_class:createTilesGroup()
 		for j = 1, N do
 			local t = tiles[i][j]
 			local x, y = self:computeTileCoords(i, j)
-			local img = tile.draw(t, x, y, tileWidth, false, self.gameModel.boardSize)
+			local img = tile.draw(t, x, y, self.drawTileWidth, false, self.gameModel.boardSize)
 			if img then
 				img.board = self
 				img.row = i
@@ -165,7 +161,6 @@ function board_class:getSquaresGroupTouchListener()
             return true
         end
         if event.phase == "began" then
-           print("Sqaures touch listener: began")
            display.getCurrentStage():setFocus(event.target)
            self.boardGroupStartX, self.boardGroupStartY = self.boardGroup.x, self.boardGroup.y
         elseif event.phase == "moved" then
@@ -191,7 +186,6 @@ function board_class:getTilesGroupTouchListener()
             return true
         end
         if event.phase == "began" then
-            print("Tiles group touch listener: began")
             local myTile = self:tileForCoords(event.x, event.y)
             -- If the touch event isn't over a grabbable tile
             if myTile == nil or myTile.tileType ~= tile.ORIGINAL_TILE then
@@ -227,7 +221,6 @@ function board_class:getTilesGroupTouchListener()
             self.grabbed[#(self.grabbed) + 1] = myTile
 
         elseif event.phase == "ended" or event.phase == "cancelled" then
-            print("Tiles Group touch listener: " .. event.phase)
             display.getCurrentStage():setFocus(nil)
             if not self.isGrabbing or not isConnected(self.grabbed) then
                 self:cancelGrab()
@@ -241,10 +234,10 @@ end
 
 function board_class:rowColForCoords(xContent, yContent)
     local x, y = self.tilesGroup:contentToLocal(xContent, yContent)
-    local N, width = self.N, self.width
-    local pxPerSquare = width / N
-    local c = math.floor((x + self.width / 2) / pxPerSquare + 1)
-    local r = math.floor((y + self.width / 2) / pxPerSquare + 1)
+    local width = self.width
+    local tileWidth = self.tileWidth
+    local c = math.floor((x + width / 2) / tileWidth + 1)
+    local r = math.floor((y + width / 2) / tileWidth + 1)
     return r, c
 end
 
