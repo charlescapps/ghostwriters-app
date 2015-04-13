@@ -8,6 +8,9 @@ local math = require("math")
 local display = require("display")
 local common_api = require("common.common_api")
 
+-- Constants
+local TILE_PADDING = 1
+
 function mini_board_class.new(gameModel, width, padding)
     local N = gameModel.numRows
     local squares = board_helpers.parseSquares(gameModel["squares"], N)
@@ -90,6 +93,7 @@ function mini_board_class:createTilesGroup()
     local tiles = self.tiles
     local pxPerSquare = width / N
     local pxPerSquareInt = math.floor(pxPerSquare)
+    local tileWidth = pxPerSquareInt - TILE_PADDING * 2
 
     local tileImages = {}
     for i = 1, N do
@@ -100,7 +104,7 @@ function mini_board_class:createTilesGroup()
         for j = 1, N do
             local t = tiles[i][j]
             local x, y = self:computeTileCoords(i, j)
-            local img = tile.draw(t, x, y, pxPerSquareInt, false, self.gameModel.boardSize)
+            local img = tile.draw(t, x, y, tileWidth, false, self.gameModel.boardSize)
             if img then
                 img.board = self
                 img.row = i

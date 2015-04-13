@@ -24,8 +24,6 @@ local backgroundRgb = {0, 0, 0, 0.01}
 local darkBorderRgb = {0, 0, 0, 1}
 local darkBackgroundRgb = {0, 0, 0, 0.5}
 
-local createSquareBackground
-
 M.valueOf = function(str)
 	if str == M.NORMAL.num then
 		return M.NORMAL
@@ -46,7 +44,7 @@ M.draw = function(sqType, x, y, width, boardSize)
 	local group = display.newGroup()
 	group.x = x
 	group.y = y
-	local bg = createSquareBackground(0, 0, width)
+	local bg = M.createSquareBackground(0, 0, width)
 	group:insert(bg)
 	if sqType.frameIndex then
         local sheet = SHEETS[boardSize]
@@ -63,7 +61,7 @@ M.drawShadedSquare = function(sqType, x, y, width, boardSize)
     local group = display.newGroup()
     group.x = x
     group.y = y
-    local bg = createSquareBackground(0, 0, width, true)
+    local bg = M.createSquareBackground(0, 0, width, true)
     group:insert(bg)
     if sqType.frameIndex then
         local sheet = SHEETS[boardSize]
@@ -72,14 +70,14 @@ M.drawShadedSquare = function(sqType, x, y, width, boardSize)
     end
 
     group.squareBg = bg
-
     return group
 end
 
 
-createSquareBackground = function(x, y, width, isShaded)
-	local myRoundedRect = display.newRoundedRect( x, y, width, width, 12 )
-	myRoundedRect.strokeWidth = 5
+function M.createSquareBackground(x, y, width, isShaded)
+    local radius = M.computeRadius(width)
+	local myRoundedRect = display.newRoundedRect( x, y, width, width, radius )
+	myRoundedRect.strokeWidth = M.computeStrokeWidth(width)
     if isShaded then
         myRoundedRect:setFillColor( darkBackgroundRgb[1], darkBackgroundRgb[2], darkBackgroundRgb[3], darkBackgroundRgb[4] )
         myRoundedRect:setStrokeColor( darkBorderRgb[1], darkBorderRgb[2], darkBorderRgb[3], darkBorderRgb[4] )
@@ -88,6 +86,26 @@ createSquareBackground = function(x, y, width, isShaded)
 	    myRoundedRect:setStrokeColor( borderRgb[1], borderRgb[2], borderRgb[3],borderRgb[4] )
     end
 	return myRoundedRect
+end
+
+function M.computeRadius(width)
+    if width > 200 then
+        return 12
+    elseif width > 100 then
+        return 6
+    else
+        return 3
+    end
+end
+
+function M.computeStrokeWidth(width)
+    if width > 200 then
+        return 6
+    elseif width > 100 then
+        return 4
+    else
+        return 3
+    end
 end
 
 return M
