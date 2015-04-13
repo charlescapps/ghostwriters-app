@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:cbb0565a891fab908e383931c541c086:29cc66e1fb59b0225f1c207961215dac:8924fb542fea7d803ea205f3a0e94df6$
+-- $TexturePacker:SmartUpdate:3d8fffde0ac751d4144ba5742fe78695:7a6bda7559ff839ec990f04773b6f345:8924fb542fea7d803ea205f3a0e94df6$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -18,214 +18,214 @@ SheetInfo.sheet =
             -- a_ghostly
             x=6,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- b_ghostly
-            x=128,
+            x=127,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- c_ghostly
-            x=250,
+            x=248,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- d_ghostly
-            x=372,
+            x=369,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- e_ghostly
-            x=494,
+            x=490,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- f_ghostly
-            x=616,
+            x=611,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- g_ghostly
-            x=738,
+            x=732,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- h_ghostly
-            x=860,
+            x=853,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- i_ghostly
-            x=982,
+            x=974,
             y=6,
-            width=116,
-            height=116,
+            width=115,
+            height=115,
 
         },
         {
             -- j_ghostly
             x=6,
-            y=128,
-            width=116,
-            height=116,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- k_ghostly
-            x=128,
-            y=128,
-            width=116,
-            height=116,
+            x=127,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- l_ghostly
-            x=250,
-            y=128,
-            width=116,
-            height=116,
+            x=248,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- m_ghostly
-            x=372,
-            y=128,
-            width=116,
-            height=116,
+            x=369,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- n_ghostly
-            x=494,
-            y=128,
-            width=116,
-            height=116,
+            x=490,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- o_ghostly
-            x=616,
-            y=128,
-            width=116,
-            height=116,
+            x=611,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- p_ghostly
-            x=738,
-            y=128,
-            width=116,
-            height=116,
+            x=732,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- q_ghostly
-            x=860,
-            y=128,
-            width=116,
-            height=116,
+            x=853,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- r_ghostly
-            x=982,
-            y=128,
-            width=116,
-            height=116,
+            x=974,
+            y=127,
+            width=115,
+            height=115,
 
         },
         {
             -- s_ghostly
             x=6,
-            y=250,
-            width=116,
-            height=116,
+            y=248,
+            width=115,
+            height=115,
 
         },
         {
             -- t_ghostly
-            x=128,
-            y=250,
-            width=116,
-            height=116,
+            x=127,
+            y=248,
+            width=115,
+            height=115,
 
         },
         {
             -- u_ghostly
-            x=250,
-            y=250,
-            width=116,
-            height=116,
+            x=248,
+            y=248,
+            width=115,
+            height=115,
 
         },
         {
             -- v_ghostly
-            x=372,
-            y=250,
-            width=116,
-            height=116,
+            x=369,
+            y=248,
+            width=115,
+            height=115,
 
         },
         {
             -- w_ghostly
-            x=494,
-            y=250,
-            width=116,
-            height=116,
+            x=490,
+            y=248,
+            width=115,
+            height=115,
 
         },
         {
             -- x_ghostly
-            x=616,
-            y=250,
-            width=116,
-            height=116,
+            x=611,
+            y=248,
+            width=115,
+            height=115,
 
         },
         {
             -- y_ghostly
-            x=738,
-            y=250,
-            width=116,
-            height=116,
+            x=732,
+            y=248,
+            width=115,
+            height=115,
 
         },
         {
             -- z_ghostly
-            x=860,
-            y=250,
-            width=116,
-            height=116,
+            x=853,
+            y=248,
+            width=115,
+            height=115,
 
         },
     },
     
-    sheetContentWidth = 1104,
-    sheetContentHeight = 372
+    sheetContentWidth = 1095,
+    sheetContentHeight = 369
 }
 
 SheetInfo.frameIndex =

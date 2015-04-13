@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:6551ba7acb9521466b35fa8f5fcc243f:29cc66e1fb59b0225f1c207961215dac:4430a90b6183e337dfa1d8f14dd836e1$
+-- $TexturePacker:SmartUpdate:4012f30e36b076046dcaa51566732637:7a6bda7559ff839ec990f04773b6f345:528b2233b899704b49b580032def7322$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )

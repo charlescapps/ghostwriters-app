@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:cbb0565a891fab908e383931c541c086:29cc66e1fb59b0225f1c207961215dac:8924fb542fea7d803ea205f3a0e94df6$
+-- $TexturePacker:SmartUpdate:3d8fffde0ac751d4144ba5742fe78695:7a6bda7559ff839ec990f04773b6f345:8924fb542fea7d803ea205f3a0e94df6$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -32,7 +32,7 @@ SheetInfo.sheet =
         },
         {
             -- c_ghostly
-            x=125,
+            x=124,
             y=3,
             width=58,
             height=58,
@@ -40,7 +40,7 @@ SheetInfo.sheet =
         },
         {
             -- d_ghostly
-            x=186,
+            x=185,
             y=3,
             width=58,
             height=58,
@@ -48,7 +48,7 @@ SheetInfo.sheet =
         },
         {
             -- e_ghostly
-            x=247,
+            x=245,
             y=3,
             width=58,
             height=58,
@@ -56,7 +56,7 @@ SheetInfo.sheet =
         },
         {
             -- f_ghostly
-            x=308,
+            x=306,
             y=3,
             width=58,
             height=58,
@@ -64,7 +64,7 @@ SheetInfo.sheet =
         },
         {
             -- g_ghostly
-            x=369,
+            x=366,
             y=3,
             width=58,
             height=58,
@@ -72,7 +72,7 @@ SheetInfo.sheet =
         },
         {
             -- h_ghostly
-            x=430,
+            x=427,
             y=3,
             width=58,
             height=58,
@@ -80,7 +80,7 @@ SheetInfo.sheet =
         },
         {
             -- i_ghostly
-            x=491,
+            x=487,
             y=3,
             width=58,
             height=58,
@@ -104,7 +104,7 @@ SheetInfo.sheet =
         },
         {
             -- l_ghostly
-            x=125,
+            x=124,
             y=64,
             width=58,
             height=58,
@@ -112,7 +112,7 @@ SheetInfo.sheet =
         },
         {
             -- m_ghostly
-            x=186,
+            x=185,
             y=64,
             width=58,
             height=58,
@@ -120,7 +120,7 @@ SheetInfo.sheet =
         },
         {
             -- n_ghostly
-            x=247,
+            x=245,
             y=64,
             width=58,
             height=58,
@@ -128,7 +128,7 @@ SheetInfo.sheet =
         },
         {
             -- o_ghostly
-            x=308,
+            x=306,
             y=64,
             width=58,
             height=58,
@@ -136,7 +136,7 @@ SheetInfo.sheet =
         },
         {
             -- p_ghostly
-            x=369,
+            x=366,
             y=64,
             width=58,
             height=58,
@@ -144,7 +144,7 @@ SheetInfo.sheet =
         },
         {
             -- q_ghostly
-            x=430,
+            x=427,
             y=64,
             width=58,
             height=58,
@@ -152,7 +152,7 @@ SheetInfo.sheet =
         },
         {
             -- r_ghostly
-            x=491,
+            x=487,
             y=64,
             width=58,
             height=58,
@@ -161,7 +161,7 @@ SheetInfo.sheet =
         {
             -- s_ghostly
             x=3,
-            y=125,
+            y=124,
             width=58,
             height=58,
 
@@ -169,63 +169,63 @@ SheetInfo.sheet =
         {
             -- t_ghostly
             x=64,
-            y=125,
+            y=124,
             width=58,
             height=58,
 
         },
         {
             -- u_ghostly
-            x=125,
-            y=125,
+            x=124,
+            y=124,
             width=58,
             height=58,
 
         },
         {
             -- v_ghostly
-            x=186,
-            y=125,
+            x=185,
+            y=124,
             width=58,
             height=58,
 
         },
         {
             -- w_ghostly
-            x=247,
-            y=125,
+            x=245,
+            y=124,
             width=58,
             height=58,
 
         },
         {
             -- x_ghostly
-            x=308,
-            y=125,
+            x=306,
+            y=124,
             width=58,
             height=58,
 
         },
         {
             -- y_ghostly
-            x=369,
-            y=125,
+            x=366,
+            y=124,
             width=58,
             height=58,
 
         },
         {
             -- z_ghostly
-            x=430,
-            y=125,
+            x=427,
+            y=124,
             width=58,
             height=58,
 
         },
     },
     
-    sheetContentWidth = 552,
-    sheetContentHeight = 186
+    sheetContentWidth = 548,
+    sheetContentHeight = 185
 }
 
 SheetInfo.frameIndex =
