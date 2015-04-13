@@ -406,8 +406,8 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 	tileImage.col = col
 	self.rackTileImages[row][col] = tileImage
 	transition.to(tileImage, {
-		width = squareImage.squareBg.width,
-		height = squareImage.squareBg.height,
+		width = squareImage.squareBg.width - 2 * TILE_PADDING,
+		height = squareImage.squareBg.height - 2 * TILE_PADDING,
         time = 250,
 		onComplete = function(event)
 			print("Finished adding letter " .. letter .. " to the board")

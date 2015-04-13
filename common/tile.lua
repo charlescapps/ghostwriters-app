@@ -33,6 +33,8 @@ M.RACK_TILE = "RACK_TILE"
 -- Spritesheets
 M.ghostlySheets = {}
 M.stoneSheets = {}
+M.rackSheet = nil
+
 M.ghostlySheetHelpers = {
     [common_api.SMALL_SIZE] = ghostly_tall,
     [common_api.MEDIUM_SIZE] = ghostly_grande,
@@ -43,6 +45,7 @@ M.stoneSheetHelpers = {
     [common_api.MEDIUM_SIZE] = stone_grande,
     [common_api.LARGE_SIZE] = stone_venti
 }
+M.rackSheetHelper = require("spritesheets.rack_sheet")
 
 -- Public functions
 M.getTileInfo = function(letter, isRackTile, boardSize)
@@ -82,11 +85,18 @@ createGhostlyTile = function(letter, boardSize)
 	}
 end
 
-createRackTile = function(letter, frameIndex)
+createRackTile = function(letter)
+    print("Creating rack tile for letter '" .. letter )
+    local helper = M.rackSheetHelper
+    if not M.rackSheet then
+        local imageFile = "spritesheets/rack_sheet.png"
+        M.rackSheet = graphics.newImageSheet(imageFile, helper:getSheet())
+    end
+
     return {
         letter = letter,
-        imageSheet = image_sheets.getRackTilesImageSheet(),
-        frameIndex = frameIndex,
+        imageSheet = M.rackSheet,
+        frameIndex = helper:getFrameIndex(letter:lower() .. "_rack"),
         tileType = M.RACK_TILE
     }
 end
