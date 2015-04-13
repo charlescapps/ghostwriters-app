@@ -1,6 +1,5 @@
 local M = {}
 
-local image_sheets = require("globals.image_sheets")
 local display = require("display")
 local common_api = require("common.common_api")
 
