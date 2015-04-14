@@ -69,7 +69,6 @@ end
 
 -- Local helper functions
 createGhostlyTile = function(letter, boardSize)
-    print("Creating ghostly tile for letter '" .. letter .. "', boardSize='" .. boardSize .. "'" )
     local helper = M.ghostlySheetHelpers[boardSize]
     if not M.ghostlySheets[boardSize] then
         local imageFile = "spritesheets/ghostly_" .. boardSize:lower() .. ".png"
@@ -85,7 +84,6 @@ createGhostlyTile = function(letter, boardSize)
 end
 
 createRackTile = function(letter)
-    print("Creating rack tile for letter '" .. letter )
     local helper = M.rackSheetHelper
     if not M.rackSheet then
         local imageFile = "spritesheets/rack_sheet.png"
@@ -101,7 +99,6 @@ createRackTile = function(letter)
 end
 
 createStoneTile = function(letter, boardSize)
-    print("Creating stone tile for letter '" .. letter .. "', boardSize='" .. boardSize .. "'" )
     local helper = M.stoneSheetHelpers[boardSize]
     if not M.stoneSheets[boardSize] then
         local imageFile = "spritesheets/stone_" .. boardSize:lower() .. ".png"

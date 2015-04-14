@@ -79,7 +79,8 @@ function scene:createBoard(gameModel)
 end
 
 function scene:createRack(gameModel, board, authUser)
-    return rack_class.new(gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser)
+    local skipHint = gameModel and gameModel.moveNum and gameModel.moveNum > 2
+    return rack_class.new(gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser, skipHint)
 end
 
 -- "scene:show()"
@@ -91,7 +92,7 @@ function scene:show(event)
         return
     end
 
-    if (phase == "will") then
+    if phase == "will" then
         print("play_game_scene:show() - phase = will")
         -- Called when the scene is still off screen (but is about to come on screen).
         self.creds = login_common.fetchCredentialsOrLogout(self.sceneName) -- Check if the current user is logged in.
@@ -100,21 +101,17 @@ function scene:show(event)
             return
         end
 
-    elseif (phase == "did") then
+    elseif phase == "did" then
         print("play_game_scene:show() - phase = did")
         GameThrive.RegisterForNotifications()
 
         if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
             self.movesToDisplay = table.copy(self.board.gameModel.lastMoves)
-            self:applyOpponentMoves(function()
-                self:showGameOverModal()
-                self:showNoMovesModal()
-            end)
-        else
-            -- Called when the scene is now on screen.
-            self:showGameOverModal()
-            self:showNoMovesModal()
+            self:applyOpponentMoves(nil, true)
         end
+
+        -- Called when the scene is now on screen.
+        self:showGameOverModal()
 
         self:startPollForGame()
     end
@@ -301,6 +298,7 @@ createGrabMoveJson = function(tiles)
 end
 
 function scene:reset()
+    print("Resetting scene...")
     if self.isDestroyed then
         print("Error - play_game_scene is destroyed in scene:reset().")
         return
@@ -365,15 +363,21 @@ function scene:getOpponentUser()
 end
 
 function scene:didOpponentPlayMove(lastMoves)
+    if self.isDestroyed or not self.creds or not self.creds.user then
+        return false
+    end
+
     return lastMoves and #lastMoves > 0 and lastMoves[1].playerId ~= self.creds.user.id
 end
 
-function scene:applyOpponentMoves(onApplyMovesComplete)
+function scene:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
     if not self:didOpponentPlayMove(self.movesToDisplay) then
-        print("Calling applyOpponentsMove. Creating a new board Moves: " .. json.encode(self.movesToDisplay))
+        print("Calling applyOpponentsMove. Creating a new board. Moves: " .. json.encode(self.movesToDisplay))
         self.movesToDisplay = nil
         self:fadeToTurn(false)
-        self:resetBoardAndShowModals()
+        if not skipResetBoard then
+            self:resetBoardAndShowModals()
+        end
         if onApplyMovesComplete then
             onApplyMovesComplete()
         end
@@ -632,26 +636,6 @@ function scene:showGameOverModal()
     self.view:insert(modal)
 end
 
-function scene:showNoMovesModal()
-    if self.isDestroyed then
-        print("Error - isDestroyed by called play_game_scene:showNoMovesModal()")
-        return
-    end
-
-    local gameModel = current_game.currentGame
-    if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS or not self.board then
-        return
-    end
-
-    if gameModel.player1Rack:len() > 0 or gameModel.tiles:upper() ~= gameModel.tiles then
-        return
-    end
-
-    local modalMessage = "You must pass.\nTouch to continue..."
-
-    common_ui.createInfoModal("No Moves!", modalMessage, function() self:pass() end)
-end
-
 function scene:pass()
     local passMove = common_api.getPassMove(current_game.currentGame, self.creds.user.id)
     self.myMove = passMove
@@ -684,6 +668,7 @@ end
 
 function scene:startPollForGame()
     if current_game.currentGame and current_game.currentGame.gameType == common_api.TWO_PLAYER then
+        print("Starting poll for gameType=" .. current_game.currentGame.gameType)
         self.pollForGameHandle = timer.performWithDelay(30000, self:getPollForGameListener(), -1)
     end
 end

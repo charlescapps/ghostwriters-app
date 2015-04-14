@@ -1,6 +1,7 @@
 local rack_class = {}
 local rack_class_mt = { __index = rack_class }
 
+local native = require("native")
 local common_api = require("common.common_api")
 local tile = require("common.tile")
 local math = require("math")
@@ -15,10 +16,12 @@ local getTouchListener
 
 -- Constants
 local TILE_PADDING = 2
+local RACK_WIDTH = display.contentWidth
+local RACK_HEIGHT = 320
 
-function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board, authUser)
+function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board, authUser, skipHint)
 	local rack = gameModel.player1 == authUser.id and gameModel.player1Rack or gameModel.player2Rack
-	local letters = { }
+	local letters = {}
 
 	for i = 1, rack:len() do
 		local letter = rack:sub( i, i )
@@ -35,11 +38,15 @@ function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board,
 		numPerRow = numPerRow, 
 		padding = padding,
 		board = board,
-        gameModel = gameModel
-	}
+        gameModel = gameModel,
+        skipHint = skipHint
+    }
 
 	newRack = setmetatable( newRack, rack_class_mt )
 	newRack:createRackDisplayGroup()
+    if rack:len() <= 0 then
+       newRack:showGhostlyTilesHint()
+    end
 	return newRack
 end
 
@@ -64,7 +71,7 @@ function rack_class:createRackDisplayGroup()
 	local tileImages = {}
 
     -- Create background texture
-    local rackBackground = display.newImageRect("images/rack_bg_texture.png", display.contentWidth, 320)
+    local rackBackground = display.newImageRect("images/rack_bg_texture.png", RACK_WIDTH, RACK_HEIGHT)
     rackBackground.x = display.contentWidth / 2 - self.padding
     rackBackground.y = 150
     group:insert(rackBackground)
@@ -107,8 +114,31 @@ function rack_class:addTiles(tilesStr)
 
 		self.displayGroup:insert(newTileImg)
 		newTileImg:addEventListener( "touch", getTouchListener(self) )
-	end
+    end
+
 	return true
+end
+
+function rack_class:showGhostlyTilesHint()
+    if self.showedHint or self.skipHint then
+        return
+    end
+
+    if not self.ghostlyHint then
+        self.ghostlyHint = display.newImageRect("images/grab_tiles_hint.png", RACK_WIDTH, RACK_HEIGHT)
+        self.ghostlyHint.alpha = 0
+        self.ghostlyHint.x, self.ghostlyHint.y = RACK_WIDTH / 2 - self.padding, 150
+        self.displayGroup:insert(self.ghostlyHint)
+    end
+
+    transition.fadeIn(self.ghostlyHint, { time = 1000 })
+    self.showedHint = true
+end
+
+function rack_class:hideGhostlyTilesHint()
+    if self.ghostlyHint and self.ghostlyHint.alpha > 0 then
+        transition.fadeOut(self.ghostlyHint, { time = 1000 })
+    end
 end
 
 function rack_class:computeTileX(i)
@@ -149,6 +179,7 @@ function rack_class:computeIndexFromContentCoords(xContent, yContent)
 end
 
 function rack_class:addTileImage(tileImage, onComplete)
+    self:hideGhostlyTilesHint()
     for i = 1, MAX_TILES do
        if not self.tileImages[i] then
            self.tileImages[i] = tileImage
