@@ -13,7 +13,6 @@ local nav = require("common.nav")
 scene.sceneName = "scenes.title_scene"
 
 -- Pre-defined functions
-local createTitleButton
 local createTitleText
 local createUserInfoText
 
@@ -43,12 +42,12 @@ function scene:create(event)
 	local sceneGroup = self.view
 	local background = common_ui.createBackground()
 	local titleText = createTitleText()
-	local buttonSinglePlayer = createTitleButton("Play Single Player", "single_player_button", 400, clickSinglePlayer)
-	local buttonPlayOthers = createTitleButton("Play One-on-One", "multi_player_button", 650, clickOneOnOne)
-	local buttonMyGames = createTitleButton("My Games", "my_games_button", 900, clickMyGames)
-	local buttonLeaderboard = createTitleButton("Leaderboard", "leaderboard_button", 1150)
+	local buttonSinglePlayer = common_ui.createButton("Play Single Player", 400, clickSinglePlayer)
+	local buttonPlayOthers = common_ui.createButton("Play One-on-One", 650, clickOneOnOne)
+	local buttonMyGames = common_ui.createButton("My Games", 900, clickMyGames)
+	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150)
 
-	sceneGroup:insert(background)
+	sceneGroup:insert( background )
 	sceneGroup:insert( titleText )
 	sceneGroup:insert( buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )
@@ -80,9 +79,7 @@ function scene:show( event )
         sceneGroup:insert(self.userInfoText)
 
     elseif ( phase == "did" ) then
-        -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+
     end
 end
 
@@ -94,9 +91,7 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-        -- Called when the scene is on screen (but is about to go off screen).
-        -- Insert code here to "pause" the scene.
-        -- Example: stop timers, stop animation, stop audio, etc.
+
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
     end
@@ -108,9 +103,6 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
 
-    -- Called prior to the removal of scene's view ("sceneGroup").
-    -- Insert code here to clean up the scene.
-    -- Example: remove display objects, save state, etc.
 end
 
 -- Local helpers
@@ -132,26 +124,6 @@ createUserInfoText = function()
     }
     userInfoText:setFillColor(0, 0, 0)
     return userInfoText
-end
-
-createTitleButton = function(text, id, y, onRelease)
-    return widget.newButton( {
-        id = id,
-        x = display.contentWidth / 2,
-        y = y,
-        emboss = true,
-        label = text,
-        fontSize = 44,
-        labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
-        width = 500,
-        height = 125,
-        shape = "roundedRect",
-        cornerRadius = 15,
-        fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
-        strokeColor = { 1, 0.2, 0.2 },
-        strokeRadius = 10,
-        onRelease = onRelease
-    } )
 end
 
 

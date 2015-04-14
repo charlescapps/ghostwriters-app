@@ -1,6 +1,7 @@
 local composer = require("composer")
 local widget = require("widget")
 local json = require("json")
+local native = require("native")
 local game_ui = require("common.game_ui")
 local game_helpers = require("common.game_helpers")
 local common_api = require("common.common_api")
@@ -55,7 +56,7 @@ function scene:create(event)
 
     self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50)
 
-    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 195, 200, 64, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
+    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 190, 200, 64, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
     self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
 
@@ -188,62 +189,47 @@ end
 
 function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelease, onResetButtonRelease, onPassButtonRelease)
     local group = display.newGroup()
+
     -- Create the Play Word button
-    local x1 = display.contentWidth / 2 - width - 20
     local y = startY + height / 2
     self.playMoveButton = widget.newButton {
-        x = x1,
+        x = display.contentWidth / 2,
         y = y,
         emboss = true,
         label = "Play word",
-        fontSize = 32,
-        labelColor = { default = { 0.05, 0.05, 0.05, 1 }, over = { 0.2, 0.2, 0.2, 0.6 } },
+        font = native.systemFont,
+        fontSize = 36,
         width = width,
         height = height,
         shape = "roundedRect",
         cornerRadius = 15,
-        fillColor = { default = { 0.93, 0.48, 0.01, 0.7 }, over = { 0.76, 0, 0.13, 1 } },
-        strokeColor = { 1, 0.2, 0.2 },
-        strokeRadius = 10,
+        labelColor = { default = common_ui.BUTTON_LABEL_COLOR_DEFAULT, over = common_ui.BUTTON_LABEL_COLOR_OVER },
+        fillColor = { default = common_ui.BUTTON_FILL_COLOR_DEFAULT, over = common_ui.BUTTON_FILL_COLOR_OVER },
+        strokeColor = { default = common_ui.BUTTON_STROKE_COLOR_DEFAULT, over = common_ui.BUTTON_STROKE_COLOR_OVER },
+        strokeWidth = 2,
         onRelease = onPlayButtonRelease
     }
 
-    -- Create the Reset button
-    local x2 = display.contentWidth / 2
-    self.resetButton = widget.newButton {
-        x = x2,
+    -- Create the Pass button
+    self.passButton = widget.newButton {
+        x = display.contentWidth / 2 - width - 20,
         y = y,
-        emboss = true,
-        label = "Reset",
-        fontSize = 32,
-        labelColor = { default = { 0.05, 0.05, 0.05, 1 }, over = { 0.2, 0.2, 0.2, 0.6 } },
-        width = width,
-        height = height,
-        shape = "roundedRect",
-        cornerRadius = 15,
-        fillColor = { default = { 0.93, 0.48, 0.01, 0.7 }, over = { 0.76, 0, 0.13, 1 } },
-        strokeColor = { 1, 0.2, 0.2 },
-        strokeRadius = 10,
-        onRelease = onResetButtonRelease
+        width = 64,
+        height = 64,
+        defaultFile = "images/pass_button_default.png",
+        overFile = "images/pass_button_over.png",
+        onRelease = onPassButtonRelease
     }
 
-    -- Create the Pass button
-    local x3 = display.contentWidth / 2 + width + 20
-    self.passButton = widget.newButton {
-        x = x3,
+    -- Create the Reset button
+    self.resetButton = widget.newButton {
+        x = display.contentWidth / 2 + width + 20,
         y = y,
-        emboss = true,
-        label = "Pass",
-        fontSize = 32,
-        labelColor = { default = { 0.05, 0.05, 0.05, 1 }, over = { 0.2, 0.2, 0.2, 0.6 } },
-        width = width,
-        height = height,
-        shape = "roundedRect",
-        cornerRadius = 15,
-        fillColor = { default = { 0.93, 0.48, 0.01, 0.7 }, over = { 0.76, 0, 0.13, 1 } },
-        strokeColor = { 1, 0.2, 0.2 },
-        strokeRadius = 10,
-        onRelease = onPassButtonRelease
+        width = 64,
+        height = 64,
+        defaultFile = "images/reset_button_default.png",
+        overFile = "images/reset_button_over.png",
+        onRelease = onResetButtonRelease
     }
 
     group:insert(self.playMoveButton)

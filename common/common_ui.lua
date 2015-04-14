@@ -19,6 +19,16 @@ local BOOK_BUTTON_OVER_IMAGE = "images/book_button_over.png"
 local BOOK_BUTTON_WIDTH = 500
 local BOOK_BUTTON_HEIGHT = 300
 
+-- Colors
+M.BUTTON_FILL_COLOR_DEFAULT = { 0.93, 0.48, 0.01, 0.7 }
+M.BUTTON_FILL_COLOR_OVER = { 0.72, 0.36, 0, 0.9 }
+
+M.BUTTON_STROKE_COLOR_DEFAULT = { 0.3, 0.3, 0.3, 0.9 }
+M.BUTTON_STROKE_COLOR_OVER = { 0.1, 0.1, 0.1, 1 }
+
+M.BUTTON_LABEL_COLOR_DEFAULT = { 0.05, 0.05, 0.05, 1 }
+M.BUTTON_LABEL_COLOR_OVER = { 0, 0, 0, 1 }
+
 M.createBackground = function(imageFile)
 	local file = imageFile or DEFAULT_BACKGROUND
     local background = display.newImageRect( file, 750, 1334 )
@@ -52,15 +62,16 @@ M.createButton = function(text, y, onRelease)
 		y = y,
 		emboss = true,
 		label = text,
-		fontSize = 44,
-		labelColor = { default = {1, 0.9, 0.9}, over = { 0, 0, 0 } },
+        font = native.systemFont,
+		fontSize = 46,
+		labelColor = { default = M.BUTTON_LABEL_COLOR_DEFAULT, over = M.BUTTON_LABEL_COLOR_OVER },
 		width = 500,
 		height = 125,
 		shape = "roundedRect",
 		cornerRadius = 15,
-		fillColor = { default={ 0.93, 0.48, 0.01, 0.7 }, over={ 0.76, 0, 0.13, 1 } },
-		strokeColor = { 1, 0.2, 0.2 },
-		strokeRadius = 10,
+		fillColor = { default = M.BUTTON_FILL_COLOR_DEFAULT, over = M.BUTTON_FILL_COLOR_OVER },
+		strokeColor = { default = M.BUTTON_STROKE_COLOR_DEFAULT, over = M.BUTTON_STROKE_COLOR_OVER },
+		strokeWidth = 2,
 		onRelease = onRelease
 		} )
 	return button
@@ -77,34 +88,6 @@ M.createImageButton = function(y, width, height, defaultFile, overFile, onReleas
 		overFile = overFile,
 		onRelease = onRelease
 	})
-end
-
-M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition)
-    -- Helper to call "beforeTransition", then go to the previous or specified scene, then call "afterTransition"
-    local onRelease = function(event)
-        if beforeTransition then
-            beforeTransition()
-        end
-
-        if not sceneName then
-            sceneName = composer.getSceneName("previous")
-        end
-
-        composer.gotoScene(sceneName)
-
-        if afterTransition then
-            afterTransition()
-        end
-    end
-    return widget.newButton {
-        x = x,
-        y = y,
-        width = BACK_BTN_WIDTH,
-        height = BACK_BTN_HEIGHT,
-        defaultFile = DEFAULT_BACK_BUTTON,
-        overFile = PRESSED_BACK_BUTTON,
-        onRelease = onRelease
-    }
 end
 
 
@@ -144,6 +127,34 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
     group:insert(imgButton)
 
     return group
+end
+
+M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition)
+-- Helper to call "beforeTransition", then go to the previous or specified scene, then call "afterTransition"
+    local onRelease = function(event)
+        if beforeTransition then
+            beforeTransition()
+        end
+
+        if not sceneName then
+            sceneName = composer.getSceneName("previous")
+        end
+
+        composer.gotoScene(sceneName)
+
+        if afterTransition then
+            afterTransition()
+        end
+    end
+    return widget.newButton {
+        x = x,
+        y = y,
+        width = BACK_BTN_WIDTH,
+        height = BACK_BTN_HEIGHT,
+        defaultFile = DEFAULT_BACK_BUTTON,
+        overFile = PRESSED_BACK_BUTTON,
+        onRelease = onRelease
+    }
 end
 
 M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
