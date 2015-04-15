@@ -38,9 +38,6 @@ function mini_board_class.new(gameModel, width, padding)
 end
 
 -- Board class Methods --
-function mini_board_class:isGameFinished()
-    return self.gameModel.gameResult ~= common_api.IN_PROGRESS
-end
 
 function mini_board_class:computeTileCoords(r, c)
     local pxPerSquare = self.width / self.N

@@ -58,7 +58,9 @@ M.getPassMove = function(gameModel, playerId)
 end
 
 -- Game results
+M.OFFERED = "OFFERED"
 M.IN_PROGRESS = "IN_PROGRESS"
+M.REJECTED = "REJECTED"
 M.PLAYER1_WIN = "PLAYER1_WIN"
 M.PLAYER2_WIN = "PLAYER2_WIN"
 M.TIE = "TIE"

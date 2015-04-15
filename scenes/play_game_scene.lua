@@ -180,7 +180,10 @@ function scene:checkGameModelIsDefined()
 end
 
 function scene:createTitleAreaDisplayGroup(gameModel)
+    -- Option to start a rematch only present if game isn't IN_PROGRESS or OFFERED.
     local isAllowStartNewGame = gameModel.gameResult ~= common_api.IN_PROGRESS
+            and gameModel.gameResult ~= common_api.OFFERED
+
     return game_ui.createVersusDisplayGroup(gameModel, self.creds.user, self, false, nil, nil, nil, 100, nil, nil, isAllowStartNewGame)
 end
 
@@ -607,7 +610,7 @@ function scene:showGameOverModal()
     end
 
     local gameModel = current_game.currentGame
-    if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS then
+    if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
         print("Not displaying Game Over modal, game result is " .. tostring(gameModel and gameModel.gameResult))
         return
     end

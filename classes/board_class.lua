@@ -73,7 +73,7 @@ function board_class:enableInteraction()
 end
 
 function board_class:isGameFinished()
-    return self.gameModel.gameResult ~= common_api.IN_PROGRESS
+    return self.gameModel.gameResult ~= common_api.IN_PROGRESS and self.gameModel.gameResult ~= common_api.OFFERED
 end
 
 function board_class:computeTileCoords(r, c)

@@ -121,7 +121,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     group:insert(rightPointsText)
 
     -- If the game is in progress, draw a circle around the current user
-    if gameModel.gameResult == common_api.IN_PROGRESS then
+    if gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
         circleWidth = circleWidth or 300
         local leftCircle = display.newImageRect("images/pencil-circled.png", circleWidth, 75)
         leftCircle.x, leftCircle.y, leftCircle.alpha = leftX, firstRowY, 0

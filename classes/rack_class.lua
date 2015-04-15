@@ -59,7 +59,7 @@ function rack_class:enableInteraction()
 end
 
 function rack_class:isGameFinished()
-    return self.gameModel.gameResult ~= common_api.IN_PROGRESS
+    return self.gameModel.gameResult ~= common_api.IN_PROGRESS and self.gameModel.gameResult ~= common_api.OFFERED
 end
 
 function rack_class:createRackDisplayGroup()
