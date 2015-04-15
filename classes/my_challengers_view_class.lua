@@ -6,8 +6,8 @@ local transition = require("transition")
 local composer = require("composer")
 local mini_game_view_class = require("classes.mini_game_view_class")
 
-local my_games_view_class = {}
-local my_games_view_class_mt = { __index = my_games_view_class }
+local my_challengers_view_class = {}
+local my_challengers_view_class_mt = { __index = my_challengers_view_class }
 
 -- Constants
 local PAD = 10
@@ -15,22 +15,22 @@ local MINI_GAME_WIDTH = display.contentWidth - PAD * 2
 local MINI_GAME_HEIGHT = 600
 local MINI_BOARD_WIDTH = 350
 
-function my_games_view_class.new(authUser, inProgress, scene)
+function my_challengers_view_class.new(authUser, challengedToMe, scene)
     local myGamesView = {
         authUser = authUser,
-        inProgress = inProgress,
+        challengedToMe = challengedToMe,
         scene = scene,
         miniGameViews = {}
     }
-    return setmetatable(myGamesView, my_games_view_class_mt)
+    return setmetatable(myGamesView, my_challengers_view_class_mt)
 end
 
-function my_games_view_class:setGames(games)
-    print("my_games_view_class:setting games to array of size: " .. #(games.list))
+function my_challengers_view_class:setGames(games)
+    print("my_challengers_view_class:setting games to array of size: " .. #(games.list))
     self.games = games
 end
 
-function my_games_view_class:render()
+function my_challengers_view_class:render()
     print("Rendering My Games view...")
     local group = display.newGroup()
 
@@ -59,7 +59,7 @@ function my_games_view_class:render()
     return group
 end
 
-function my_games_view_class:destroy()
+function my_challengers_view_class:destroy()
     if self.miniGameViews then
         for i = 1, #(self.miniGameViews) do
             if self.miniGameViews[i] then
@@ -73,13 +73,12 @@ function my_games_view_class:destroy()
     self.view, self.games = nil, nil
 end
 
-function my_games_view_class:renderTitle()
-    local myUsername = self.authUser.username
+function my_challengers_view_class:renderTitle()
     local titleText
-    if self.inProgress then
-        titleText = "My Active Games"
+    if self.challengedToMe then
+        titleText = "My Challengers"
     else
-        titleText = "My Finished Games"
+        titleText = "Started by Me"
     end
     local title = display.newText {
         text = titleText,
@@ -94,15 +93,15 @@ function my_games_view_class:renderTitle()
     return title
 end
 
-function my_games_view_class:renderEmptyGamesGroup()
+function my_challengers_view_class:renderEmptyGamesGroup()
     local group = display.newGroup()
     group.x = display.contentWidth / 2
     group.y = display.contentHeight / 2
     local message
-    if self.inProgress then
-        message = "No active games."
+    if self.challengedToMe then
+        message = "No challengers yet!"
     else
-        message = "No finished games."
+        message = "You haven't challenged any players!"
     end
     local messageText = display.newText {
         text = message,
@@ -122,7 +121,7 @@ function my_games_view_class:renderEmptyGamesGroup()
     return group
 end
 
-function my_games_view_class:renderTableView()
+function my_challengers_view_class:renderTableView()
     return widget.newTableView {
         x = display.contentWidth / 2,
         y = display.contentHeight / 2 + 90,
@@ -135,7 +134,7 @@ function my_games_view_class:renderTableView()
     }
 end
 
-function my_games_view_class:createMiniGames()
+function my_challengers_view_class:createMiniGames()
     local games = self.games
     if not games or not games.list then
         return
@@ -146,7 +145,7 @@ function my_games_view_class:createMiniGames()
     end
 end
 
-function my_games_view_class:createOnRowRenderListener()
+function my_challengers_view_class:createOnRowRenderListener()
     return function(event)
         local games = self.games
         if not games or not games.list then
@@ -173,6 +172,4 @@ function my_games_view_class:createOnRowRenderListener()
     end
 end
 
-
-
-return my_games_view_class
+return my_challengers_view_class

@@ -36,15 +36,21 @@ local clickMyGames = function()
     nav.goToSceneFrom(scene.sceneName, "scenes.my_active_games_scene", "fade")
 end
 
+local clickMyChallengers = function()
+    print( "Clicked My Challengers" )
+    nav.goToSceneFrom(scene.sceneName, "scenes.my_challengers_scene", "fade")
+end
+
 -- "scene:create()"
 function scene:create(event)
 
 	local sceneGroup = self.view
 	local background = common_ui.createBackground()
 	local titleText = createTitleText()
-	local buttonSinglePlayer = common_ui.createButton("Play Single Player", 400, clickSinglePlayer)
-	local buttonPlayOthers = common_ui.createButton("Play One-on-One", 650, clickOneOnOne)
-	local buttonMyGames = common_ui.createButton("My Games", 900, clickMyGames)
+	local buttonSinglePlayer = common_ui.createButton("Play Single Player", 350, clickSinglePlayer)
+	local buttonPlayOthers = common_ui.createButton("Play One-on-One", 550, clickOneOnOne)
+	local buttonMyGames = common_ui.createButton("My Games", 750, clickMyGames)
+	local buttonMyChallengers = common_ui.createButton("My Challengers", 950, clickMyChallengers)
 	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150)
 
 	sceneGroup:insert( background )
@@ -52,6 +58,7 @@ function scene:create(event)
 	sceneGroup:insert( buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )
 	sceneGroup:insert( buttonMyGames )
+	sceneGroup:insert( buttonMyChallengers )
     sceneGroup:insert( buttonLeaderboard )
 end
 

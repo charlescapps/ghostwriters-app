@@ -77,11 +77,11 @@ local function getBasicAuthHeader(username, password)
 end
 
 local function escape (str)
-        str = string.gsub (str, "\n", "\r\n")
-        str = string.gsub (str, "([^0-9a-zA-Z ])", -- locale independent
-                function (c) return string.format ("%%%02X", string.byte(c)) end)
-        str = string.gsub (str, " ", "+")
-        return str
+    str = string.gsub (str, "\n", "\r\n")
+    str = string.gsub (str, "([^0-9a-zA-Z ])", -- locale independent
+            function (c) return string.format ("%%%02X", string.byte(c)) end)
+    str = string.gsub (str, " ", "+")
+    return str
 end
 
 local function parseCookie(setCookieHeader)
@@ -93,7 +93,6 @@ local function parseCookie(setCookieHeader)
         return setCookieHeader
     end
     return setCookieHeader:sub(1, startI - 1)
-
 end
 
 M.isValidUser = function(user)
@@ -147,6 +146,14 @@ M.myGamesURL = function(count, inProgress, includeMoves)
         url = url .. "&includeMoves=true"
     end
     return url
+end
+
+M.gamesOfferedToMeURL = function(count)
+    return SERVER .. "/games/offeredToMe?count=" .. tostring(count)
+end
+
+M.gamesOfferedByMeURL = function(count)
+    return SERVER .. "/games/offeredByMe?count=" .. tostring(count)
 end
 
 M.movesURL = function()
@@ -423,7 +430,26 @@ M.getMyGames = function(count, inProgress, includeMoves, onSuccess, onFail, onNe
         spinner:start()
     end
     M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
+end
 
+M.getGamesOfferedToMe = function(count, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    local url = M.gamesOfferedToMeURL(count)
+    local spinner
+    if doMakeSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
+end
+
+M.getGamesOfferedByMe = function(count, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    local url = M.gamesOfferedByMeURL(count)
+    local spinner
+    if doMakeSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
 end
 
 M.getBestMatch = function(onSuccess, onFail)
