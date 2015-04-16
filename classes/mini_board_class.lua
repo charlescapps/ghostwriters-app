@@ -6,12 +6,11 @@ local square = require("common.square")
 local tile = require("common.tile")
 local math = require("math")
 local display = require("display")
-local common_api = require("common.common_api")
 
 -- Constants
 local TILE_PADDING = 1
 
-function mini_board_class.new(gameModel, width, padding)
+function mini_board_class.new(gameModel, width, padding, onlyShowQuestionMarks)
     local N = gameModel.numRows
     local squares = board_helpers.parseSquares(gameModel["squares"], N)
     local tiles = board_helpers.parseTiles(gameModel["tiles"], N)
@@ -23,12 +22,13 @@ function mini_board_class.new(gameModel, width, padding)
     print ("Creating new MINI board with width=" .. width)
 
     local newBoard = {
-        N = N,
-        squares = squares,
-        tiles = tiles,
+        gameModel = gameModel,
         width = width,
         padding = padding,
-        gameModel = gameModel
+        onlyShowQuestionMarks = onlyShowQuestionMarks,
+        N = N,
+        squares = squares,
+        tiles = tiles
     }
 
     newBoard = setmetatable( newBoard, mini_board_class_mt )
@@ -99,7 +99,7 @@ function mini_board_class:createTilesGroup()
 
     for i = 1, N do
         for j = 1, N do
-            local t = tiles[i][j]
+            local t = self.onlyShowQuestionMarks and tiles[i][j] ~= tile.emptyTile and '?' or tiles[i][j]
             local x, y = self:computeTileCoords(i, j)
             local img = tile.draw(t, x, y, tileWidth, false, self.gameModel.boardSize)
             if img then

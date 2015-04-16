@@ -140,7 +140,7 @@ function my_challengers_view_class:createMiniGames()
         return
     end
     for i = 1, #(games.list) do
-        local miniGameView = mini_game_view_class.new(i, games.list[i], self.authUser, MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40, self.scene)
+        local miniGameView = mini_game_view_class.new(i, games.list[i], self.authUser, MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40, self.scene, true)
         self.miniGameViews[i] = miniGameView
     end
 end

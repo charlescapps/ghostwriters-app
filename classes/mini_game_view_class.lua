@@ -14,7 +14,7 @@ local mini_game_view_class_mt = { __index = mini_game_view_class }
 -- Constants
 local PAD = 10
 
-function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize, scene)
+function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize, scene, isOfferedGame)
     if not gameModel or not authUser then
         print("ERROR - must provide non-nil gameModel and authUser")
         return nil
@@ -34,7 +34,8 @@ function mini_game_view_class.new(index, gameModel, authUser, width, height, min
         miniBoardWidth = miniBoardWidth,
         titleFontSize = titleFontSize or 30,
         otherFontSize = otherFontSize or 24,
-        scene = scene
+        scene = scene,
+        isOfferedGame = isOfferedGame
     }
 
     return setmetatable(miniGameView, mini_game_view_class_mt)
@@ -99,7 +100,7 @@ function mini_game_view_class:renderDateStarted()
     local gameModel = self.gameModel
     local startTimeSecs = gameModel.dateCreated / 1000
     local durationPretty = time_util.printDurationPrettyFromStartTime(startTimeSecs)
-    local displayTxt = "Last move " .. durationPretty
+    local displayTxt = self.isOfferedGame and "Challenged " .. durationPretty or "Last move " .. durationPretty
     return display.newText {
         text = displayTxt,
         fontSize = self.otherFontSize,
@@ -111,10 +112,12 @@ function mini_game_view_class:renderDateStarted()
 end
 
 function mini_game_view_class:renderMiniBoardView()
-    local miniBoardView = mini_board_class.new(self.gameModel, self.miniBoardWidth, 30)
+    local miniBoardView = mini_board_class.new(self.gameModel, self.miniBoardWidth, 30, self.isOfferedGame)
     self.miniBoardView = miniBoardView
     miniBoardView.boardGroup.x = self.width / 2
-    miniBoardView.boardGroup:addEventListener("touch", self)
+    if not self.isOfferedGame then
+        miniBoardView.boardGroup:addEventListener("touch", self)
+    end
     return miniBoardView.boardGroup
 end
 

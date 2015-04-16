@@ -119,7 +119,9 @@ buildTileTable = function(boardSize)
 	for i = 1, 26 do
 		local letter = string.char(96 + i)
 		tileTable[letter] = createGhostlyTile(letter, boardSize)
-	end
+    end
+    tileTable['?'] = createGhostlyTile('?', boardSize)
+
 	-- Build uppercase letters, which represent tiles that were placed, or tiles in the rack
 	for i = 1, 26 do
 		local letter = string.char(64 + i)
