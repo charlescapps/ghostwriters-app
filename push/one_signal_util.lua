@@ -4,6 +4,7 @@ local json = require("json")
 local current_game = require("globals.current_game")
 local nav = require("common.nav")
 local common_api = require("common.common_api")
+local login_common = require("login.login_common")
 
 local M = {}
 
@@ -21,6 +22,13 @@ function M.onReceiveNotification(message, additionalData, isActive)
     print("additionalData=" .. additionalDataStr)
     if not additionalData or not additionalData.updatedGame then
         print("Received push notification without updatedGame field: " .. additionalDataStr)
+        return
+    end
+
+    local creds = login_common.fetchCredentialsOrLogout()
+    if not creds then
+        local loggedOutScene = composer.getScene("login.logged_out_scene")
+        loggedOutScene.pushData = additionalData
         return
     end
 
@@ -42,7 +50,6 @@ function M.onReceiveNotification(message, additionalData, isActive)
                 return
             else
                 print("Current game doesn't match game id. Current = '" .. tostring(currentGame.id) .. "', from push = '" .. updatedGame .. "'")
-
             end
         end
     else
@@ -55,8 +62,18 @@ function M.onReceiveNotification(message, additionalData, isActive)
         return
     end
 
-    print("Going to play_game_scene with updatedGame: " .. updatedGame)
-    M.goToGameByIdFrom(updatedGame, currentSceneName)
+    M.actOnPushData(additionalData, currentSceneName)
+end
+
+function M.actOnPushData(additionalData, currentSceneName)
+
+    if additionalData.isGameOffer == "true" then
+        print("Accepting game offer, then going to the game")
+        M.acceptThenGoToGameById(additionalData.updatedGame, currentSceneName)
+    else
+        print("Going to play_game_scene with updatedGame: " .. additionalData.updatedGame)
+        M.goToGameByIdFrom(additionalData.updatedGame, currentSceneName)
+    end
 end
 
 function M.goToGameByIdFrom(gameId, fromScene)
@@ -77,6 +94,18 @@ function M.goToGameByIdFrom(gameId, fromScene)
     common_api.getGameById(gameId, true, nil, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
 end
 
+function M.acceptThenGoToGameById(gameId, fromScene)
+    local function onAcceptGameOfferSuccess()
+        M.goToGameByIdFrom(gameId, fromScene)
+    end
+
+    local function onAcceptGameOfferFail()
+        print("Error accepting game, attempting to go to the 'My Challengers' scene")
+        nav.goToSceneFrom(fromScene, "scenes.my_challengers_scene", "fade")
+    end
+
+    common_api.acceptGameOffer(gameId, onAcceptGameOfferSuccess, onAcceptGameOfferFail, true)
+end
 
 return M
 

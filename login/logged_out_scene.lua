@@ -9,6 +9,7 @@ local nav = require("common.nav")
 local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
 local GameThrive = require("plugin.GameThrivePushNotifications")
+local one_signal_util = require("push.one_signal_util")
 
 local scene = composer.newScene()
 
@@ -18,87 +19,61 @@ scene.sceneName = "login.logged_out_scene"
 local MIN_USERNAME_LEN = 4
 local MAX_USERNAME_LEN = 16
 
--- Display objects
-local usernameTextField
-local deviceUsernameText
-local passwordTextField
-local textProgress
-local wordSpinner
-
--- Pre-declated functions
-local createUsernameInput
-local createDeviceUsernameText
-local createGetNextUsernameButton
-local removeNativeInputs
-local createAccountAndGo
-local getNextUsername
-local createTextProgress
-
--- Callbacks
-local onCreateAccountSuccess
-local onCreateAccountFail
-
-local onGetNextUsernameSuccess
-local onGetNextUsernameFail
-
--- Stored values
-local storedUsername
-
-local function createSecondaryDeviceLink()
+function scene:createSecondaryDeviceLink()
     return common_ui.createLink("Sign in as user from another device?", nil, 900, nil, function()
-        nav.goToSceneFrom(scene.sceneName, "login.login_existing_user_scene")
+        nav.goToSceneFrom(self.sceneName, "login.login_existing_user_scene")
     end)
 end
 
-createAccountAndGo = function()
-    local username = deviceUsernameText and deviceUsernameText.text or usernameTextField.text
+function scene:createAccountAndGo()
+    local username = self.deviceUsernameText and self.deviceUsernameText.text or self.usernameTextField.text
     local deviceId = system.getInfo("deviceID")
     if not username or username:len() <= 0 then
-        native.showAlert("Oops...", "Please enter a username", {"OK"})
+        native.showAlert("Oops...", "Please enter a username", { "OK" })
     elseif username:len() < MIN_USERNAME_LEN then
-        native.showAlert("Oops...", "Usernames must be at least " .. MIN_USERNAME_LEN .. " characters long.", {"OK"})
+        native.showAlert("Oops...", "Usernames must be at least " .. MIN_USERNAME_LEN .. " characters long.", { "OK" })
     elseif username:len() > MAX_USERNAME_LEN then
-        native.showAlert("Oops...", "Usernames can't be longer than " .. MAX_USERNAME_LEN .. " characters long.", {"OK"})
+        native.showAlert("Oops...", "Usernames can't be longer than " .. MAX_USERNAME_LEN .. " characters long.", { "OK" })
     else
-        storedUsername = username
+        self.storedUsername = username
         local currentScene = composer.getSceneName("current")
-        if currentScene == scene.sceneName then
-            removeNativeInputs()
-            textProgress = createTextProgress()
-            textProgress:start()
+        if currentScene == self.sceneName then
+            self:removeNativeInputs()
+            self.textProgress = self:createTextProgress()
+            self.textProgress:start()
             common_api.createNewAccountAndLogin(username, nil, deviceId,
-                onCreateAccountSuccess, onCreateAccountFail)
+                self:getOnCreateAccountSuccessListener(), self:getOnCreateAccountFailListener())
         end
     end
 end
 
-createUsernameInput = function()
+function scene:createUsernameInput()
 
-    usernameTextField = native.newTextField(display.contentWidth / 2, 400, 475, 80)
+    self.usernameTextField = native.newTextField(display.contentWidth / 2, 400, 475, 80)
 
-    usernameTextField.isFontSizeScaled = true
-    usernameTextField.size = 16
-    usernameTextField.placeholder = "e.g. Ghosty McFee"
-    usernameTextField:setReturnKey("done")
-    if storedUsername then
-        usernameTextField.text = storedUsername
+    self.usernameTextField.isFontSizeScaled = true
+    self.usernameTextField.size = 16
+    self.usernameTextField.placeholder = "e.g. Ghosty McFee"
+    self.usernameTextField:setReturnKey("done")
+    if self.storedUsername then
+        self.usernameTextField.text = self.storedUsername
     end
 
-    usernameTextField.align = "center"
+    self.usernameTextField.align = "center"
 
-    usernameTextField:addEventListener("userInput", function(event)
+    self.usernameTextField:addEventListener("userInput", function(event)
         if event.phase == "editing" then
             if event.text and event.text:len() > MAX_USERNAME_LEN then
-               usernameTextField.text = event.text:sub(1, MAX_USERNAME_LEN)
+                self.usernameTextField.text = event.text:sub(1, MAX_USERNAME_LEN)
             end
         elseif event.phase == "submitted" then
-            createAccountAndGo()
+            self:createAccountAndGo()
         end
     end)
 end
 
-createDeviceUsernameText = function(deviceUsername)
-    deviceUsernameText = display.newText {
+function scene:createDeviceUsernameText(deviceUsername)
+    local deviceUsernameText = display.newText {
         x = display.contentWidth / 2,
         y = 400,
         text = deviceUsername,
@@ -110,11 +85,11 @@ createDeviceUsernameText = function(deviceUsername)
     return deviceUsernameText
 end
 
-createGetNextUsernameButton = function()
+function scene:createGetNextUsernameButton()
     return widget.newButton {
         x = 675,
         y = 400,
-        onRelease = getNextUsername,
+        onRelease = function() self:getNextUsername() end,
         width = 80,
         height = 80,
         defaultFile = "images/refresh_username_icon.png",
@@ -122,10 +97,10 @@ createGetNextUsernameButton = function()
     }
 end
 
-removeNativeInputs = function()
-    if usernameTextField then
-        usernameTextField:removeSelf()
-        usernameTextField = nil
+function scene:removeNativeInputs()
+    if self.usernameTextField then
+        self.usernameTextField:removeSelf()
+        self.usernameTextField = nil
     end
 end
 
@@ -144,143 +119,148 @@ local function createUsernameInputLabel()
     return usernameLabel
 end
 
-createTextProgress = function()
-    return text_progress_class.new(scene.view, display.contentWidth / 2, display.contentHeight / 2,
+function scene:createTextProgress()
+    return text_progress_class.new(self.view, display.contentWidth / 2, display.contentHeight / 2,
         "Signing in...", 75, 0.8)
 end
 
-onCreateAccountSuccess = function(user)
-    textProgress:stop()
-    nav.goToSceneFrom(scene.sceneName, "scenes.title_scene", "fade")
-    -- Tag the player in Game Thrive (OneSignal) with the user ID.
-    GameThrive.TagPlayer("ghostwriters_id", user.id)
+function scene:getOnCreateAccountSuccessListener()
+    return function(user)
+        self.textProgress:stop()
+        if self.pushData then
+            one_signal_util.actOnPushData(self.pushData, self.sceneName)
+            return
+        end
+        nav.goToSceneFrom(self.sceneName, "scenes.title_scene", "fade")
+        -- Tag the player in Game Thrive (OneSignal) with the user ID.
+        GameThrive.TagPlayer("ghostwriters_id", user.id)
+    end
 end
 
-onCreateAccountFail = function()
-    print("Login failed...")
-    textProgress:stop(function()
-        createUsernameInput()
+function scene:getOnCreateAccountFailListener()
+    return function()
+        print("Login failed...")
+        self.textProgress:stop(function()
+            self:createUsernameInput()
+            native.showAlert("Network Error", "Ghostwriters requires an Internet Connection to play.", { "Try again" })
+        end)
+    end
+end
+
+function scene:getOnGetNextUsernameSuccessListener()
+    return function(nextUsername)
+        self.wordSpinner:stop()
+        local username = nextUsername.nextUsername
+        local required = nextUsername.required
+        if self.usernameTextField then
+            self.usernameTextField.text = username
+        end
+        if username and required then
+            self.deviceUsernameText = self:createDeviceUsernameText(username)
+            self.view:insert(self.deviceUsernameText)
+            self:removeNativeInputs()
+            self.usernameInputLabel.text = "Welcome back,"
+            self.getNextUsernameButton.alpha = 0
+        end
+    end
+end
+
+function scene:getOnGetNextUsernameFailListener()
+    return function()
+        self.wordSpinner:stop()
         native.showAlert("Network Error", "Ghostwriters requires an Internet Connection to play.", { "Try again" })
-    end)
-end
-
-onGetNextUsernameSuccess = function(nextUsername)
-    wordSpinner:stop()
-    local username = nextUsername.nextUsername
-    local required = nextUsername.required
-    if usernameTextField then
-        usernameTextField.text = username
     end
-    if username and required then
-       deviceUsernameText = createDeviceUsernameText(username)
-       scene.view:insert(deviceUsernameText)
-       removeNativeInputs()
-       scene.usernameInputLabel.text = "Welcome back,"
-       scene.getNextUsernameButton.alpha = 0
-    end
-end
-
-onGetNextUsernameFail = function()
-    wordSpinner:stop()
-    native.showAlert("Network Error", "Ghostwriters requires an Internet Connection to play.", { "Try again" })
 end
 
 local function createGoButton()
-    return common_ui.createButton("Go!", 550, createAccountAndGo)
+    return common_ui.createButton("Go!", 550, function() scene:createAccountAndGo() end)
 end
 
-getNextUsername = function()
-    if deviceUsernameText and deviceUsernameText.text then
+function scene:getNextUsername()
+    if self.deviceUsernameText and self.deviceUsernameText.text then
         return
     end
-    wordSpinner = word_spinner_class.new()
-    wordSpinner:start()
+    self.wordSpinner = word_spinner_class.new()
+    self.wordSpinner:start()
 
     local deviceId = system.getInfo("deviceID")
     print("Found device ID: " .. deviceId)
 
-    common_api.getNextUsername(deviceId, onGetNextUsernameSuccess, onGetNextUsernameFail)
+    common_api.getNextUsername(deviceId, self:getOnGetNextUsernameSuccessListener(), self:getOnGetNextUsernameFailListener())
 end
 
 
 -- "scene:create()"
 function scene:create(event)
-	local sceneGroup = self.view
+    local sceneGroup = self.view
     local background = common_ui.createBackground()
     local title = common_ui.createTitle("Ghostwriters", nil, { 0, 0, 0 }, 60)
-    scene.usernameInputLabel = createUsernameInputLabel()
-    scene.getNextUsernameButton = createGetNextUsernameButton()
+    self.usernameInputLabel = createUsernameInputLabel()
+    self.getNextUsernameButton = self:createGetNextUsernameButton()
     local createAccountAndGoButton = createGoButton()
-    local secondDeviceButton = createSecondaryDeviceLink()
+    local secondDeviceButton = self:createSecondaryDeviceLink()
 
     sceneGroup:insert(background)
     sceneGroup:insert(title)
-    sceneGroup:insert(scene.usernameInputLabel)
-    sceneGroup:insert(scene.getNextUsernameButton)
+    sceneGroup:insert(self.usernameInputLabel)
+    sceneGroup:insert(self.getNextUsernameButton)
     sceneGroup:insert(createAccountAndGoButton)
     sceneGroup:insert(secondDeviceButton)
 
-    getNextUsername()
-
+    self:getNextUsername()
 end
 
 -- "scene:show()"
-function scene:show( event )
+function scene:show(event)
 
     local sceneGroup = self.view
     local phase = event.phase
 
-    if ( phase == "will" ) then
+    if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
-        createUsernameInput()
-    elseif ( phase == "did" ) then
-
+        self:createUsernameInput()
+    elseif (phase == "did") then
     end
 end
 
 
 -- "scene:hide()"
-function scene:hide( event )
+function scene:hide(event)
 
     local sceneGroup = self.view
     local phase = event.phase
 
-    if ( phase == "will" ) then
-        -- Called when the scene is on screen (but is about to go off screen).
-        -- Insert code here to "pause" the scene.
-        -- Example: stop timers, stop animation, stop audio, etc.
-        removeNativeInputs()
-    elseif ( phase == "did" ) then
+    if (phase == "will") then
+
+        self:removeNativeInputs()
+    elseif (phase == "did") then
         -- Called immediately after scene goes off screen.
     end
 end
 
 
 -- "scene:destroy()"
-function scene:destroy( event )
+function scene:destroy(event)
 
     local sceneGroup = self.view
-    removeNativeInputs()
-    storedUsername = nil
-    if textProgress then
-        textProgress:stop()
-        textProgress = nil
+    self:removeNativeInputs()
+    self.storedUsername = nil
+    if self.textProgress then
+        self.textProgress:stop()
+        self.textProgress = nil
     end
-    if wordSpinner then
-        wordSpinner:stop()
-        wordSpinner = nil
+    if self.wordSpinner then
+        self.wordSpinner:stop()
+        self.wordSpinner = nil
     end
-    -- Called prior to the removal of scene's view ("sceneGroup").
-    -- Insert code here to clean up the scene.
-    -- Example: remove display objects, save state, etc.
 end
 
 
 -- Listener setup
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
+scene:addEventListener("create", scene)
+scene:addEventListener("show", scene)
+scene:addEventListener("hide", scene)
+scene:addEventListener("destroy", scene)
 
 -- -------------------------------------------------------------------------------
 

@@ -328,6 +328,13 @@ end
 M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, onNetworkFail, spinner)
 
 	local cookie = login_common.getCookie()
+    if not cookie then
+        print("Error - No cookie found stored for current user. Deleting local credentials and logging out.")
+        native.showAlert("Authorization error", "Your device doesn't have valid credentials stored. Logging out...", {"OK"})
+        login_common.logout()
+        return
+    end
+
 	local headers = { ["Cookie"] = cookie,
 					  ["Content-Type"] = "application/json" 
 					}
