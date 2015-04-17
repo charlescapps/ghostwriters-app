@@ -1,10 +1,12 @@
 local display = require("display")
 local native = require("native")
 local json = require("json")
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local game_ui = require("common.game_ui")
 local nav = require("common.nav")
 local composer = require("composer")
+local widget = require("widget")
 local time_util = require("common.time_util")
 local mini_board_class = require("classes.mini_board_class")
 
@@ -14,7 +16,8 @@ local mini_game_view_class_mt = { __index = mini_game_view_class }
 -- Constants
 local PAD = 10
 
-function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize, scene, isOfferedGame)
+function mini_game_view_class.new(index, gameModel, authUser, width, height, miniBoardWidth, titleFontSize, otherFontSize, scene,
+                    isOfferedGame, onAccept, onReject)
     if not gameModel or not authUser then
         print("ERROR - must provide non-nil gameModel and authUser")
         return nil
@@ -35,7 +38,9 @@ function mini_game_view_class.new(index, gameModel, authUser, width, height, min
         titleFontSize = titleFontSize or 30,
         otherFontSize = otherFontSize or 24,
         scene = scene,
-        isOfferedGame = isOfferedGame
+        isOfferedGame = isOfferedGame,
+        onAccept = onAccept,
+        onReject = onReject
     }
 
     return setmetatable(miniGameView, mini_game_view_class_mt)
@@ -45,6 +50,8 @@ end
 -- Render the main display group, store as self.view
 -- Returns self.view
 function mini_game_view_class:render()
+    local group = display.newGroup()
+
     local bg = self:renderBackground()
     bg.x = self.width / 2
     bg.y = 300
@@ -58,12 +65,18 @@ function mini_game_view_class:render()
     local miniBoardView = self:renderMiniBoardView()
     miniBoardView.y = 200 + self.miniBoardWidth / 2
 
-    local group = display.newGroup()
     group.x = PAD
     group:insert(bg)
     group:insert(self.title)
     group:insert(dateView)
     group:insert(miniBoardView)
+
+    if self.isOfferedGame then
+        -- Render the accept/reject buttons
+        self.acceptButton, self.rejectButton = self:renderAcceptAndRejectButtons()
+        group:insert(self.acceptButton)
+        group:insert(self.rejectButton)
+    end
 
     self.view = group
 
@@ -119,6 +132,46 @@ function mini_game_view_class:renderMiniBoardView()
         miniBoardView.boardGroup:addEventListener("touch", self)
     end
     return miniBoardView.boardGroup
+end
+
+function mini_game_view_class:renderAcceptAndRejectButtons()
+    local acceptButton = widget.newButton {
+        x = self.width / 4 + 20,
+        y = self.height / 2,
+        emboss = true,
+        label = "Accept",
+        font = native.systemFontBold,
+        fontSize = 42,
+        width = self.width / 3,
+        height = self.height / 6,
+        shape = "roundedRect",
+        cornerRadius = 20,
+        labelColor = { default = common_ui.BUTTON_LABEL_COLOR_DEFAULT, over = common_ui.BUTTON_LABEL_COLOR_OVER },
+        fillColor = { default = common_ui.GREEN_FILL_COLOR_DEFAULT, over = common_ui.GREEN_FILL_COLOR_OVER },
+        strokeColor = { default = common_ui.GREEN_STROKE_COLOR_DEFAULT, over = common_ui.GREEN_STROKE_COLOR_OVER },
+        strokeWidth = 4,
+        onRelease = self.onAccept
+    }
+
+    local rejectButton = widget.newButton {
+        x = 3 * self.width / 4 - 20,
+        y = self.height / 2,
+        emboss = true,
+        label = "Reject",
+        font = native.systemFontBold,
+        fontSize = 42,
+        width = self.width / 3,
+        height = self.height / 6,
+        shape = "roundedRect",
+        cornerRadius = 20,
+        labelColor = { default = common_ui.BUTTON_LABEL_COLOR_DEFAULT, over = common_ui.BUTTON_LABEL_COLOR_OVER },
+        fillColor = { default = common_ui.RED_FILL_COLOR_DEFAULT, over = common_ui.RED_FILL_COLOR_OVER },
+        strokeColor = { default = common_ui.RED_STROKE_COLOR_DEFAULT, over = common_ui.RED_STROKE_COLOR_OVER },
+        strokeWidth = 4,
+        onRelease = self.onReject
+    }
+
+    return acceptButton, rejectButton
 end
 
 function mini_game_view_class:touch(event)

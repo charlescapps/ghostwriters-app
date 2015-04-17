@@ -630,6 +630,9 @@ function scene:showGameOverModal()
         modalMessage = gameModel.player1Model.username .. " timed out."
     elseif gameResult == common_api.PLAYER2_TIMEOUT then
         modalMessage = gameModel.player2Model.username .. " timed out."
+    elseif gameResult == common_api.REJECTED then
+        modalMessage = self.creds and self.creds.user and self.creds.user.id == gameModel.player1 and "Your challenge was rejected. Try again!"
+            or "You rejected this challenge."
     else
         print("Invalid game result: " .. tostring(gameResult))
         return

@@ -1,9 +1,11 @@
 local widget = require("widget")
 local common_ui = require("common.common_ui")
+local common_api = require("common.common_api")
 local display = require("display")
 local native = require("native")
 local transition = require("transition")
 local composer = require("composer")
+local nav = require("common.nav")
 local mini_game_view_class = require("classes.mini_game_view_class")
 
 local my_challengers_view_class = {}
@@ -140,7 +142,10 @@ function my_challengers_view_class:createMiniGames()
         return
     end
     for i = 1, #(games.list) do
-        local miniGameView = mini_game_view_class.new(i, games.list[i], self.authUser, MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40, self.scene, true)
+        local miniGameView = mini_game_view_class.new(i, games.list[i], self.authUser,
+            MINI_GAME_WIDTH, MINI_GAME_HEIGHT, MINI_BOARD_WIDTH, 50, 40,
+            self.scene, true,
+            self:getAcceptGameListener(i), self:getRejectGameListener(i))
         self.miniGameViews[i] = miniGameView
     end
 end
@@ -169,6 +174,49 @@ function my_challengers_view_class:createOnRowRenderListener()
 
         row:insert(miniGameViewGroup)
         transition.fadeIn(miniGameViewGroup, { time = 2000 })
+    end
+end
+
+function my_challengers_view_class:getGameAtIndex(index)
+    return self.games and self.games.list and self.games.list[index]
+end
+
+function my_challengers_view_class:getOnAcceptGameSuccessListener(index)
+    return function()
+        local game = self:getGameAtIndex(index)
+        if not game then
+            print("Error - no game found with index: " .. tostring(index))
+            return
+        end
+        nav.goToGame(game, self.scene.sceneName)
+    end
+end
+
+function my_challengers_view_class:getOnRejectGameSuccessListener(index)
+    return function()
+        self.tableView:deleteRows({ index }, { slideLeftTransitionTime = 1000 })
+    end
+end
+
+function my_challengers_view_class:getAcceptGameListener(index)
+    return function()
+        local game = self:getGameAtIndex(index)
+        if not game then
+            print("Error - no game found with index: " .. tostring(index))
+            return
+        end
+        common_api.acceptGameOffer(game.id, self:getOnAcceptGameSuccessListener(index), common_api.showNetworkError, true)
+    end
+end
+
+function my_challengers_view_class:getRejectGameListener(index)
+    return function()
+        local game = self:getGameAtIndex(index)
+        if not game then
+            print("Error - no game found with index: " .. tostring(index))
+            return
+        end
+        common_api.rejectGameOffer(game.id, self:getOnRejectGameSuccessListener(index), common_api.showNetworkError, true)
     end
 end
 

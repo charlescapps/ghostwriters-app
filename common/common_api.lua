@@ -69,7 +69,7 @@ M.PLAYER2_TIMEOUT = "PLAYER2_TIMEOUT"
 
 -- Predeclared functions
 M.showNetworkError = function()
-    native.showAlert( "Network error", "A network error occurred. Please try again.", {"OK"} )
+    native.showAlert( "Network error", "A network error occurred. Please try what you were doing again soon.", {"OK"} )
 end
 
 local function getBasicAuthHeader(username, password)
@@ -166,6 +166,14 @@ end
 
 M.getUsersWithSimilarRatingURL = function(maxResults)
     return SERVER .. "/users/similarRating?maxResults=" .. escape(maxResults)
+end
+
+M.getAcceptGameURL = function(gameId)
+    return SERVER .. "/games/" .. tostring(gameId) .. "/accept"
+end
+
+M.getRejectGameURL = function(gameId)
+    return SERVER .. "/games/" .. tostring(gameId) .. "/reject"
 end
 
 M.login = function(username, password, onSuccess, onFail)
@@ -467,6 +475,26 @@ M.getUsersWithSimilarRating = function(maxResults, onSuccess, onFail, doCreateSp
         spinner:start()
     end
     M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onFail, spinner)
+end
+
+M.acceptGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
+    local url = M.getAcceptGameURL(gameId)
+    local spinner
+    if doCreateSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "POST", nil, 200, onSuccess, onFail, onFail, spinner)
+end
+
+M.rejectGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
+    local url = M.getRejectGameURL(gameId)
+    local spinner
+    if doCreateSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "POST", nil, 200, onSuccess, onFail, onFail, spinner)
 end
 
 return M

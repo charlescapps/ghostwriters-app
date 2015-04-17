@@ -20,6 +20,7 @@ local BOOK_BUTTON_WIDTH = 500
 local BOOK_BUTTON_HEIGHT = 300
 
 -- Colors
+-- Default button colors
 M.BUTTON_FILL_COLOR_DEFAULT = { 0.93, 0.48, 0.01, 0.7 }
 M.BUTTON_FILL_COLOR_OVER = { 0.72, 0.36, 0, 0.9 }
 
@@ -28,6 +29,20 @@ M.BUTTON_STROKE_COLOR_OVER = { 0.1, 0.1, 0.1, 1 }
 
 M.BUTTON_LABEL_COLOR_DEFAULT = { 0.05, 0.05, 0.05, 1 }
 M.BUTTON_LABEL_COLOR_OVER = { 0, 0, 0, 1 }
+
+-- Red reject color
+M.RED_FILL_COLOR_DEFAULT = { 0.99, 0.2, 0, 0.9 }
+M.RED_FILL_COLOR_OVER = { 0.6, 0.12, 0, 1 }
+
+M.RED_STROKE_COLOR_DEFAULT = { 0.42, 0.1, 0, 1 }
+M.RED_STROKE_COLOR_OVER = { 0.1, 0.1, 0.1, 1 }
+
+-- Green accept color
+M.GREEN_FILL_COLOR_DEFAULT = { 0, 0.6, 0.2, 0.9 }
+M.GREEN_FILL_COLOR_OVER = { 0, 0.3, 0.1, 1 }
+
+M.GREEN_STROKE_COLOR_DEFAULT = { 0.1, 0.37, 0.19, 1 }
+M.GREEN_STROKE_COLOR_OVER = { 0.1, 0.1, 0.1, 1 }
 
 M.createBackground = function(imageFile)
 	local file = imageFile or DEFAULT_BACKGROUND
