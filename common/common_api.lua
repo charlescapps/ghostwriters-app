@@ -330,7 +330,6 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 	local cookie = login_common.getCookie()
     if not cookie then
         print("Error - No cookie found stored for current user. Deleting local credentials and logging out.")
-        native.showAlert("Authorization error", "Your device doesn't have valid credentials stored. Logging out...", {"OK"})
         login_common.logout()
         return
     end
@@ -356,7 +355,6 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
             local code = event.status
             if code == 401 then
                 print("Error - 401 (Unauthorized) code for current user. Deleting local cookies and returning to title scene")
-                native.showAlert("Authorization error", "Your device doesn't have valid credentials stored. Logging out...", {"OK"})
                 login_common.logout()
                 return
 			elseif jsonResp == nil then

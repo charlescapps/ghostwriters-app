@@ -5,7 +5,7 @@ local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local login_common = require("login.login_common")
 local new_game_data = require("globals.new_game_data")
-local nav = require("common.nav")
+local native = require("native")
 local scene = composer.newScene()
 
 scene.sceneName = "scenes.search_for_opponent_scene"
@@ -270,9 +270,10 @@ function scene:show( event )
             scrollView = createScrollViewForSearchResults()
         end
     elseif ( phase == "did" ) then
-        -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+        if not self.creds then
+            login_common.logout()
+            return
+        end
         native.setKeyboardFocus(nativeTextInput)
     end
 end
@@ -286,20 +287,19 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is on screen (but is about to go off screen).
-        -- Insert code here to "pause" the scene.
-        -- Example: stop timers, stop animation, stop audio, etc.
         userResultRows = nil
 
         nativeTextInput:removeSelf( )
         nativeTextInput = nil
 
     elseif ( phase == "did" ) then
+        -- Called immediately after scene goes off screen.
         if scrollView then
             scrollView:removeSelf()
             scrollView = nil
         end
-        
-        -- Called immediately after scene goes off screen.
+        self.view = nil
+        composer.removeScene(self.sceneName, false)
     end
 end
 

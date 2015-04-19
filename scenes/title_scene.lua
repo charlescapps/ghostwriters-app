@@ -73,7 +73,6 @@ function scene:show( event )
         self.creds = login_common.fetchCredentials()
 
         if not self.creds then
-            login_common.dumpToLoggedOutScene(self.sceneName)
             return
         end
 
@@ -86,7 +85,9 @@ function scene:show( event )
         sceneGroup:insert(self.userInfoText)
 
     elseif ( phase == "did" ) then
-
+        if not self.creds then
+            login_common.logout()
+        end
     end
 end
 
@@ -101,6 +102,8 @@ function scene:hide( event )
 
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
+        self.view = nil
+        composer.removeScene(self.sceneName, false)
     end
 end
 

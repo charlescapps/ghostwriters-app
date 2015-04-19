@@ -15,6 +15,7 @@ local new_game_data = require("globals.new_game_data")
 local table = require("table")
 local GameThrive = require("plugin.GameThrivePushNotifications")
 local timer = require("timer")
+local transition = require("transition")
 local scene = composer.newScene()
 
 -- Local helpers pre-declaration
@@ -27,7 +28,6 @@ scene.sceneName = "scenes.play_game_scene"
 
 -- "scene:create()"
 function scene:create(event)
-    self.isDestroyed = nil
     local sceneGroup = self.view
 
     local gameModel = self:checkGameModelIsDefined()
@@ -36,7 +36,7 @@ function scene:create(event)
         return
     end
 
-    self.creds = login_common.fetchCredentialsOrLogout(self.sceneName)
+    self.creds = login_common.fetchCredentials()
 
     if not self.creds then
         return
@@ -87,22 +87,21 @@ end
 function scene:show(event)
     local phase = event.phase
 
-    if self.isDestroyed then
-        print("Error - play_game_scene is destroyed in scene:show(). Phase = " .. phase)
-        return
-    end
-
     if phase == "will" then
         print("play_game_scene:show() - phase = will")
         -- Called when the scene is still off screen (but is about to come on screen).
-        self.creds = login_common.fetchCredentialsOrLogout(self.sceneName) -- Check if the current user is logged in.
         if not self.creds then
-            print("Error - user didn't have credentials on play_game_scene:show(). Logging out...")
             return
         end
 
     elseif phase == "did" then
         print("play_game_scene:show() - phase = did")
+
+        if not self.creds then
+            login_common.logout()
+            return
+        end
+
         GameThrive.RegisterForNotifications()
 
         if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
@@ -119,10 +118,6 @@ end
 
 function scene:getPollForGameListener()
     return function()
-        if self.isDestroyed then
-            print("Error - trying to poll for game when isDestroyed == true")
-            return
-        end
         if not self.creds then
             print("Error - trying to poll for game when self.creds == nil")
             return
@@ -143,10 +138,12 @@ function scene:hide(event)
     if (phase == "will") then
         print("play_game_scene:hide() - phase = will")
         self:cancelPollForGame()
+        transition.cancel()
     elseif (phase == "did") then
         print("play_game_scene:hide() - phase = did")
         -- Set self.view to nil, so that create() will be called each time we load this scene.
         self.view = nil
+        composer.removeScene(self.sceneName, false)
     end
 end
 
@@ -156,7 +153,6 @@ function scene:destroy(event)
     print("play_game_scene:destroy()")
     -- Set self.view to nil, so that create() will be called each time we load this scene.
     self.view = nil
-    self.isDestroyed = true
     self.creds = nil
     self.board, self.rack, self.gameMenu, self.titleAreaDisplayGroup, self.actionButtonsGroup, self.playMoveButton, self.resetButton, self.passButton =
         nil, nil, nil, nil, nil, nil, nil, nil
@@ -302,10 +298,6 @@ end
 
 function scene:reset()
     print("Resetting scene...")
-    if self.isDestroyed then
-        print("Error - play_game_scene is destroyed in scene:reset().")
-        return
-    end
 
     local gameModel = current_game.currentGame
     if not gameModel then
@@ -366,9 +358,6 @@ function scene:getOpponentUser()
 end
 
 function scene:didOpponentPlayMove(lastMoves)
-    if self.isDestroyed or not self.creds or not self.creds.user then
-        return false
-    end
 
     return lastMoves and #lastMoves > 0 and lastMoves[1].playerId ~= self.creds.user.id
 end
@@ -471,9 +460,6 @@ end
 
 
 function scene:fadeToTurn(isOpponentTurn)
-    if self.isDestroyed then
-        return
-    end
     if isOpponentTurn then
         transition.fadeOut(self.titleAreaDisplayGroup.leftCircle, { time = 2000 })
         transition.fadeIn(self.titleAreaDisplayGroup.rightCircle, { time = 2000 })
@@ -604,10 +590,6 @@ end
 
 
 function scene:showGameOverModal()
-    if self.isDestroyed then
-        print("Error - isDestroyed by called play_game_scene:showGameOverModal()")
-        return
-    end
 
     local gameModel = current_game.currentGame
     if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then

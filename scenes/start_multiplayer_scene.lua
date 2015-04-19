@@ -16,7 +16,7 @@ local MARGIN = 25
 
 -- "scene:create()"
 function scene:create(event)
-    self.creds = login_common.fetchCredentialsOrLogout()
+    self.creds = login_common.fetchCredentials()
     if not self.creds then
         return
     end
@@ -45,10 +45,16 @@ function scene:show( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
+        if not self.creds then
+            return
+        end
         sceneGroup:insert(self.userSearchWidget:render())
         self.userSearchWidget:queryForUsersWithSimilarRating()
     elseif ( phase == "did" ) then
-
+        if not self.creds then
+            login_common.logout()
+            return
+        end
     end
 end
 
@@ -67,16 +73,14 @@ function scene:hide( event )
             self.userInfoPopup:destroy()
         end
     elseif ( phase == "did" ) then
-
+        self.view = nil
+        composer.removeScene(self.sceneName, false)
     end
 end
 
 
 -- "scene:destroy()"
 function scene:destroy( event )
-
-    local sceneGroup = self.view
-    sceneGroup:removeSelf()
 
 end
 

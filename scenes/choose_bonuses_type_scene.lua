@@ -78,14 +78,13 @@ function scene:show( event )
 
         self.creds = login_common.fetchCredentials()
         if not self.creds then
-            login_common.dumpToLoggedOutScene(self.sceneName)
             return
         end
 
     elseif ( phase == "did" ) then
-        -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+        if not self.creds then
+            login_common.logout()
+        end
     end
 end
 

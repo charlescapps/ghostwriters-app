@@ -31,12 +31,11 @@ function scene:show( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-        local creds = login_common.fetchCredentialsOrLogout(self.sceneName)
-        if not creds then
+        self.creds = login_common.fetchCredentials()
+        if not self.creds then
             return
         end
-        self.creds = creds
-        local user = creds.user
+        local user = self.creds.user
         if self.myGamesView then
             self.myGamesView:destroy()
         end
@@ -45,7 +44,10 @@ function scene:show( event )
         common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 
     elseif ( phase == "did" ) then
-
+        if not self.creds then
+            login_common.logout()
+            return
+        end
     end
 end
 
@@ -64,6 +66,8 @@ function scene:hide( event )
             self.myGamesView = nil
         end
         -- Called immediately after scene goes off screen.
+        self.view = nil
+        composer.removeScene(self.sceneName)
     end
 end
 

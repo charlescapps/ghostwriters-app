@@ -25,8 +25,9 @@ function M.onReceiveNotification(message, additionalData, isActive)
         return
     end
 
-    local creds = login_common.fetchCredentialsOrLogout()
+    local creds = login_common.fetchCredentials()
     if not creds then
+        login_common.logout()
         local loggedOutScene = composer.getScene("login.logged_out_scene")
         loggedOutScene.pushData = additionalData
         return
