@@ -10,6 +10,7 @@ local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
 local GameThrive = require("plugin.GameThrivePushNotifications")
 local one_signal_util = require("push.one_signal_util")
+local transition = require("transition")
 
 local scene = composer.newScene()
 
@@ -99,8 +100,11 @@ end
 
 function scene:removeNativeInputs()
     if self.usernameTextField then
-        self.usernameTextField:removeSelf()
-        self.usernameTextField = nil
+        local function removeMe()
+            self.usernameTextField:removeSelf()
+            self.usernameTextField = nil
+        end
+        transition.fadeOut(self.usernameTextField, { time = 1000, onComplete = removeMe, onCancel = removeMe})
     end
 end
 
@@ -156,6 +160,9 @@ function scene:getOnGetNextUsernameSuccessListener()
             self.usernameTextField.text = username
         end
         if username and required then
+            if self.deviceUsernameText then
+                self.deviceUsernameText:removeSelf()
+            end
             self.deviceUsernameText = self:createDeviceUsernameText(username)
             self.view:insert(self.deviceUsernameText)
             self:removeNativeInputs()
@@ -177,9 +184,6 @@ local function createGoButton()
 end
 
 function scene:getNextUsername()
-    if self.deviceUsernameText and self.deviceUsernameText.text then
-        return
-    end
     self.wordSpinner = word_spinner_class.new()
     self.wordSpinner:start()
 
@@ -207,7 +211,6 @@ function scene:create(event)
     sceneGroup:insert(createAccountAndGoButton)
     sceneGroup:insert(secondDeviceButton)
 
-    self:getNextUsername()
 end
 
 -- "scene:show()"
@@ -219,6 +222,7 @@ function scene:show(event)
     if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
         self:createUsernameInput()
+        self:getNextUsername()
     elseif (phase == "did") then
     end
 end
@@ -233,7 +237,13 @@ function scene:hide(event)
     if (phase == "will") then
 
         self:removeNativeInputs()
+        transition.cancel()
+
     elseif (phase == "did") then
+        if self.deviceUsernameText then
+            self.deviceUsernameText:removeSelf()
+            self.deviceUsernameText = nil
+        end
         -- Called immediately after scene goes off screen.
     end
 end

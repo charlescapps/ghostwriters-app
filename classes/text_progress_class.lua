@@ -33,12 +33,15 @@ end
 
 function text_progress_class:stop(onComplete)
     print("Stopping progress text...")
-    transition.fadeOut(self.displayGroup, { time = 500, onComplete = function()
-        self.displayGroup:removeSelf()
+    local function destroy()
+        if self.displayGroup then
+            self.displayGroup:removeSelf()
+        end
         if onComplete then
             onComplete()
         end
-    end })
+    end
+    transition.fadeOut(self.displayGroup, { time = 500, onComplete = destroy, onCancel = destroy })
 end
 
 function text_progress_class:createTextObj(x, y, text, fontSize, alpha)

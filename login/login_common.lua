@@ -15,6 +15,8 @@ M.fetchCredentials = function()
 
     if not M.isValidCreds(creds) then
         print ("Server creds not found in composer variable or missing data. Falling back to loading from file...")
+        local path = system.pathForFile(CREDS_FILE, system.DocumentsDirectory)
+        print("Path to creds file: " .. path)
 	    creds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
         composer.setVariable(CREDS_KEY, creds or {})
     end

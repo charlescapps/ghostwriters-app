@@ -45,9 +45,10 @@ settings =
 	{
 		plist =
 		{
-			UIStatusBarHidden = false,
+			UIStatusBarHidden = true,
 			UIPrerenderedIcon = true, -- set to false for "shine" overlay
 			--UIApplicationExitsOnSuspend = true, -- uncomment to quit app on suspend
+			MinimumOSVersion = "6.0",
 
 			CFBundleIconFiles =
 			{
@@ -67,6 +68,8 @@ settings =
 				"Icon-Small-40@2x.png",
 				"Icon-Small-50.png",
 				"Icon-Small-50@2x.png",
+				"iTunesArtwork.png",
+				"iTunesArtwork@2x.png"
 			},
 
 			--[[
@@ -128,5 +131,14 @@ settings =
 			"android.permission.INTERNET",
 			"android.permission.READ\_PHONE\_STATE"
 		},
+		supportsScreens =
+        {
+            resizeable    = true,
+            smallScreens  = true,
+            normalScreens = true,
+            largeScreens  = true,
+            xlargeScreens = true
+        },
+        largeHeap = true
 	},
 }
