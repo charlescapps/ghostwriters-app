@@ -3,10 +3,8 @@ local mime = require("mime")
 local login_common = require("login.login_common")
 local json = require("json")
 local word_spinner_class = require("classes.word_spinner_class")
+local urls = require("common.urls")
 local M = {}
-
-local SERVER = "https://ghostwriters.herokuapp.com/api"
---local SERVER = "http://10.0.0.13:8080/api"
 
 local INITIAL_USER = "Initial User"
 local INITIAL_PASS = "rL4JDxPyPRprsr6e"
@@ -76,14 +74,6 @@ local function getBasicAuthHeader(username, password)
 	return "Basic " .. mime.b64(username .. ":" .. password)
 end
 
-local function escape (str)
-    str = string.gsub (str, "\n", "\r\n")
-    str = string.gsub (str, "([^0-9a-zA-Z ])", -- locale independent
-            function (c) return string.format ("%%%02X", string.byte(c)) end)
-    str = string.gsub (str, " ", "+")
-    return str
-end
-
 local function parseCookie(setCookieHeader)
     if not setCookieHeader then
         return nil
@@ -97,83 +87,6 @@ end
 
 M.isValidUser = function(user)
 	return user ~= nil and user.id and user.username
-end
-
--- Functions to construct URLs
--- May be a constant URL, or may require query params
-M.loginURL = function()
-	return SERVER .. "/login"
-end
-
-M.usersURL = function()
-	return SERVER .. "/users"
-end
-
-M.nextUsernameURL = function(deviceId)
-    local url =  M.usersURL() .. "/nextUsername"
-    if deviceId then
-        return url .. "?deviceId=" .. escape(deviceId)
-    else
-        return url
-    end
-end
-
-M.gamesURL = function()
-	return SERVER .. "/games"
-end
-
-M.gameByIdURL = function(gameId, includeMoves, currentMove)
-    local includeMovesParam
-    if includeMoves then
-        includeMovesParam = "true"
-    else
-        includeMovesParam = "false"
-    end
-
-    local url = SERVER .. "/games/" .. tostring(gameId) .. "?includeMoves=" .. includeMovesParam
-
-    if currentMove then
-        url = url .. "&currentMove=" .. tostring(currentMove)
-    end
-
-    return url
-end
-
-M.myGamesURL = function(count, inProgress, includeMoves)
-    local baseURL = M.gamesURL()
-    local url = baseURL .. "?count=" .. count .. "&inProgress=" .. tostring(inProgress)
-    if includeMoves then
-        url = url .. "&includeMoves=true"
-    end
-    return url
-end
-
-M.gamesOfferedToMeURL = function(count)
-    return SERVER .. "/games/offeredToMe?count=" .. tostring(count)
-end
-
-M.gamesOfferedByMeURL = function(count)
-    return SERVER .. "/games/offeredByMe?count=" .. tostring(count)
-end
-
-M.movesURL = function()
-	return SERVER .. "/moves"
-end
-
-M.getBestMatchURL = function()
-    return SERVER .. "/users/bestMatch"
-end
-
-M.getUsersWithSimilarRatingURL = function(maxResults)
-    return SERVER .. "/users/similarRating?maxResults=" .. escape(maxResults)
-end
-
-M.getAcceptGameURL = function(gameId)
-    return SERVER .. "/games/" .. tostring(gameId) .. "/accept"
-end
-
-M.getRejectGameURL = function(gameId)
-    return SERVER .. "/games/" .. tostring(gameId) .. "/reject"
 end
 
 M.login = function(username, password, onSuccess, onFail)
@@ -222,7 +135,7 @@ M.login = function(username, password, onSuccess, onFail)
 		end
 	end
 
-	return network.request(M.loginURL(), "POST", listener, params)
+	return network.request(urls.loginURL(), "POST", listener, params)
 end
 
 M.getNextUsername = function(deviceId, onSuccess, onFail)
@@ -262,7 +175,7 @@ M.getNextUsername = function(deviceId, onSuccess, onFail)
 
         end
     end
-    return network.request(M.nextUsernameURL(deviceId), "GET", listener, params)
+    return network.request(urls.nextUsernameURL(deviceId), "GET", listener, params)
 end
 
 M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFail)
@@ -322,7 +235,7 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 			onSuccess(user)
 		end
 	end
-	return network.request(M.usersURL(), "POST", listener, params)
+	return network.request(urls.usersURL(), "POST", listener, params)
 end
 
 M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, onNetworkFail, spinner)
@@ -380,6 +293,15 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 	return network.request(url, method, listener, params)
 end
 
+M.doGetWithSpinner = function(url, onSuccess, onFail, onNetworkFail, doCreateSpinner)
+    local spinner
+    if doCreateSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail, spinner)
+end
+
 M.isValidUsernameChars = function(text)
 	if not string.match( text, "[a-zA-Z0-9_ \\-]+" ) then
 		return {
@@ -400,13 +322,13 @@ M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail, onNetwor
 	end
 
 	-- Sanitize input and construct URL with query params.
-	local url = M.usersURL() .. "?q=" .. escape(textEntered) .. "&maxResults=" .. maxResults
+	local url = M.usersURL() .. "?q=" .. urls.escape(textEntered) .. "&maxResults=" .. maxResults
 
 	M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail or M.showNetworkError)
 end
 
 M.createNewGame = function(newGameInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-	local url = M.gamesURL()
+	local url = urls.gamesURL()
     local spinner
     if doMakeSpinner then
         spinner = word_spinner_class.new()
@@ -416,7 +338,7 @@ M.createNewGame = function(newGameInput, onSuccess, onFail, onNetworkFail, doMak
 end
 
 M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-	local url = M.movesURL()
+	local url = urls.movesURL()
     local spinner
     if doMakeSpinner then
         spinner = word_spinner_class.new()
@@ -426,64 +348,37 @@ M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner
 end
 
 M.getGameById = function(gameId, includeMoves, currentMove, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = M.gameByIdURL(gameId, includeMoves, currentMove)
-    local spinner
-    if doMakeSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
-    end
-    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail, spinner)
+    local url = urls.gameByIdURL(gameId, includeMoves, currentMove)
+    M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
 M.getMyGames = function(count, inProgress, includeMoves, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = M.myGamesURL(count, inProgress, includeMoves)
-    local spinner
-    if doMakeSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
-    end
-    M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
+    local url = urls.myGamesURL(count, inProgress, includeMoves)
+    M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
 M.getGamesOfferedToMe = function(count, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = M.gamesOfferedToMeURL(count)
-    local spinner
-    if doMakeSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
-    end
-    M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
+    local url = urls.gamesOfferedToMeURL(count)
+    M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
 M.getGamesOfferedByMe = function(count, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = M.gamesOfferedByMeURL(count)
-    local spinner
-    if doMakeSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
-    end
-    M.doApiRequest(url, "GET", "", 200, onSuccess, onFail, onNetworkFail, spinner)
+    local url = urls.gamesOfferedByMeURL(count)
+    M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
 M.getBestMatch = function(onSuccess, onFail)
-    local url = M.getBestMatchURL()
-    local spinner = word_spinner_class.new()
-    spinner:start()
-    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onFail, spinner)
+    local url = urls.getBestMatchURL()
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, true)
 end
 
 M.getUsersWithSimilarRating = function(maxResults, onSuccess, onFail, doCreateSpinner)
-    local url = M.getUsersWithSimilarRatingURL(maxResults)
-    local spinner
-    if doCreateSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
-    end
-    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onFail, spinner)
+    local url = urls.getUsersWithSimilarRatingURL(maxResults)
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
 M.acceptGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
-    local url = M.getAcceptGameURL(gameId)
+    local url = urls.getAcceptGameURL(gameId)
     local spinner
     if doCreateSpinner then
         spinner = word_spinner_class.new()
@@ -493,7 +388,7 @@ M.acceptGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
 end
 
 M.rejectGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
-    local url = M.getRejectGameURL(gameId)
+    local url = urls.getRejectGameURL(gameId)
     local spinner
     if doCreateSpinner then
         spinner = word_spinner_class.new()
@@ -502,7 +397,29 @@ M.rejectGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
     M.doApiRequest(url, "POST", nil, 200, onSuccess, onFail, onFail, spinner)
 end
 
+M.getUsersWithSimilarRank = function(userId, maxResults, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getRanksAroundUserURL(userId, maxResults)
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
+end
+
+M.getBestRankedUsers = function(maxResults, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getBestRankedUsersURL(maxResults)
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
+end
+
+M.getRanksNearProfessor = function(maxResults, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getRanksNearProfessorURL(maxResults)
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
+end
+
+M.getRanksNearBookworm = function(maxResults, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getRanksNearBookwormURL(maxResults)
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
+end
+
+M.getRanksNearMonkey = function(maxResults, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getRanksNearMonkeyURL(maxResults)
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
+end
+
 return M
-
-
-
