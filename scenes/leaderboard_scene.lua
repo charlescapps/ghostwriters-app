@@ -1,10 +1,25 @@
 local composer = require( "composer" )
+local common_ui = require("common.common_ui")
+local login_common = require("login.login_common")
+local leaderboard_class = require("classes.leaderboard_class")
+
 local scene = composer.newScene()
+scene.sceneName = "scenes.leaderboard_scene"
 
 -- "scene:create()"
 function scene:create(event)
-	local sceneGroup = self.view
+    self.creds = login_common.fetchCredentials()
+    if not self.creds then
+        return
+    end
 
+    local sceneGroup = self.view
+    local background = common_ui.createBackground()
+    self.leaderboard = leaderboard_class.new()
+    local leaderboardView = self.leaderboard:render()
+
+    sceneGroup:insert(background)
+    sceneGroup:insert(leaderboardView)
 end
 
 -- "scene:show()"
@@ -15,8 +30,15 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
+        if not self.creds then
+            return
+        end
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
+        if not self.creds then
+            login_common.logout()
+            return
+        end
     end
 end
 
