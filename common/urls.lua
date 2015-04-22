@@ -24,7 +24,7 @@ end
 M.nextUsernameURL = function(deviceId)
     local url =  M.usersURL() .. "/nextUsername"
     if deviceId then
-        return url .. "?deviceId=" .. common_api.escape(deviceId)
+        return url .. "?deviceId=" .. M.escape(deviceId)
     else
         return url
     end
