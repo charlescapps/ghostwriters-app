@@ -3,6 +3,7 @@ local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
+local game_helpers = require("common.game_helpers")
 local scene = composer.newScene()
 
 scene.sceneName = "scenes.choose_board_size_scene"
@@ -64,6 +65,8 @@ function scene:hide( event )
         -- Example: stop timers, stop animation, stop audio, etc.
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
+        self.view = nil
+        composer.removeScene(self.sceneName, false)
     end
 end
 
@@ -82,14 +85,17 @@ end
 createBackButton = function()
     local previousScene, beforeTransition
     if new_game_data.gameType == common_api.TWO_PLAYER then
-        previousScene = "scenes.start_multiplayer_scene"
+        local storedScene = composer.getVariable(game_helpers.START_GAME_FROM_SCENE_KEY)
+        previousScene = storedScene and storedScene:len() > 0 and storedScene or "scenes.title_scene"
         beforeTransition = function()
             new_game_data.clearAll()
+            composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, "")
         end
     else
         previousScene = "scenes.choose_ai_scene"
         beforeTransition = function()
             new_game_data.boardSize, new_game_data.aiType = nil, nil
+            composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, "")
         end
     end
 

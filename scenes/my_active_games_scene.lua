@@ -7,6 +7,7 @@ local my_games_view_class = require("classes.my_games_view_class")
 local new_game_data = require("globals.new_game_data")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
+local game_helpers = require("common.game_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.my_active_games_scene"
@@ -15,9 +16,7 @@ scene.sceneName = "scenes.my_active_games_scene"
 function scene:create(event)
     local sceneGroup = self.view
     local background = common_ui.createBackground()
-    self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene", function()
-        print("Before transition")
-    end)
+    self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene")
     self.goToCompleteGamesButton = self:createGoToCompleteGamesButton()
     sceneGroup:insert(background)
     sceneGroup:insert(self.backButton)
@@ -134,6 +133,7 @@ function scene:startGameWithUser(userModel)
         new_game_data.clearAll()
         new_game_data.rival = userModel
         new_game_data.gameType = common_api.TWO_PLAYER
+        composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
     end
 end

@@ -9,13 +9,15 @@ local common_api = require("common.common_api")
 local leaderboard_class = {}
 local leaderboard_class_mt = { __index = leaderboard_class }
 
-local TABLE_WIDTH = 550
-local ROW_HEIGHT = 120
+local TABLE_WIDTH = 750
+local ROW_HEIGHT = 150
 
-function leaderboard_class.new()
+function leaderboard_class.new(parentScene, authUser)
     local leaderBoard = {
         users = {},
-        leaderboardRows = {}
+        leaderboardRows = {},
+        parentScene = parentScene,
+        authUser = authUser
     }
     return setmetatable(leaderBoard, leaderboard_class_mt)
 end
@@ -36,6 +38,7 @@ function leaderboard_class:clear()
 end
 
 function leaderboard_class:loadRanksNearUser(userId)
+    print("Loading ranks near user id:" .. tostring(userId))
     self.userId = userId
     common_api.getUsersWithSimilarRank(self.userId, 10, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
@@ -46,20 +49,33 @@ function leaderboard_class:getOnLoadRanksSuccessListener()
             print("Error - invalid users list returned from server:" .. json.encode(jsonResp))
             return
         end
-        self.users = jsonResp.list
 
         -- Remove old rows, and clear any data.
         self.tableView:deleteAllRows()
         self:clear()
 
+        self.users = jsonResp.list
+
+        local focusedUserIndex
+
+        print("Adding rows...")
         for i = 1, #self.users do
-            self.leaderboardRows[i] = leaderboard_row.new(i, self.users[i])
+            print("Inserting row #" .. i)
+            local user = self.users[i]
+            if user.id == self.userId then
+                focusedUserIndex = i
+            end
+            self.leaderboardRows[i] = leaderboard_row.new(i, user, TABLE_WIDTH, ROW_HEIGHT, self.parentScene, self.authUser, user.id == self.userId)
 
             self.tableView:insertRow {
                 rowHeight = ROW_HEIGHT,
                 rowColor = { default = { 1, 1, 1, 0 }, over = { 1, 1, 1, 0.4 } },
                 params = { leaderboardRow = self.leaderboardRows[i] }
             }
+        end
+
+        if focusedUserIndex and focusedUserIndex > 3 then
+            self.tableView:scrollToIndex(focusedUserIndex, 1000)
         end
     end
 end
@@ -85,9 +101,9 @@ end
 function leaderboard_class:renderTableView()
     return widget.newTableView {
         x = TABLE_WIDTH / 2,
-        y = display.contentHeight / 2 + 100,
-        width = display.contentWidth - 200,
-        height = display.contentHeight - 300,
+        y = 800,
+        width = TABLE_WIDTH,
+        height = 1000,
         onRowRender = self:createOnRowRenderListener(),
         backgroundColor = { 1, 1, 1, 0 },
         hideBackground = true,
@@ -95,10 +111,10 @@ function leaderboard_class:renderTableView()
     }
 end
 
-function leaderboard_class:createOnRowRenderlistener()
+function leaderboard_class:createOnRowRenderListener()
     return function(event)
         local row = event.row
-        local leaderboardRow = event.target and event.target.params and event.target.params.leaderboardRow
+        local leaderboardRow = row and row.params and row.params.leaderboardRow
 
         if not leaderboardRow then
             print("Leaderboard Row instance is not defined, so not rendering a row.")

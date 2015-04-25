@@ -1,6 +1,9 @@
 local json = require("json")
+local math = require("math")
 
 local M = {}
+
+M.START_GAME_FROM_SCENE_KEY = "startGameFromScene"
 
 function M.isValidGame(game)
     return game and game.id and game.player1 and game.player2 and game.player1Model and game.player2Model and true
@@ -31,6 +34,10 @@ function M.doesAuthUserMatchGame(gameModel, authUser)
         return false
     end
     return true
+end
+
+function M.getFriendlyRating(rating)
+    return math.round(rating / 1000)
 end
 
 return M

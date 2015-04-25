@@ -65,14 +65,16 @@ end
 
 function user_info_popup:destroy()
     if self.view then
-        transition.fadeOut(self.view, { time = 1000, onComplete = function()
+        local function onComplete()
             if not self.view then
                 print("Error - attempt to destroy user_info_popup with no self.view field")
                 return
             end
             self.view:removeSelf()
             self.view, self.screen, self.background, self.infoTextGroup, self.playButton = nil, nil, nil, nil, nil
-        end})
+        end
+
+        transition.fadeOut(self.view, { time = 1000, onComplete = onComplete, onCancel = onComplete })
     end
 end
 

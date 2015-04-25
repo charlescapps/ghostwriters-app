@@ -6,6 +6,8 @@ local native = require("native")
 local login_common = require("login.login_common")
 local user_search_widget = require("classes.user_search_widget")
 local user_info_popup = require("classes.user_info_popup")
+local game_helpers = require("common.game_helpers")
+
 local scene = composer.newScene()
 scene.sceneName = "scenes.start_multiplayer_scene"
 
@@ -101,6 +103,7 @@ function scene:startGameWithUser(userModel)
         new_game_data.clearAll()
         new_game_data.rival = userModel
         new_game_data.gameType = common_api.TWO_PLAYER
+        composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
     end
 end
