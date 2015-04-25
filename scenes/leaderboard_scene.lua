@@ -33,6 +33,8 @@ function scene:show( event )
         if not self.creds then
             return
         end
+        self.leaderboard:loadRanksNearUser(self.creds.user)
+
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         if not self.creds then
@@ -53,6 +55,10 @@ function scene:hide( event )
         -- Called when the scene is on screen (but is about to go off screen).
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
+        if not self.creds then
+            self.view = nil
+            composer.removeScene(self.sceneName, false)
+        end
     end
 end
 
