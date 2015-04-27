@@ -122,7 +122,7 @@ end
 
 -- Local helpers
 createTitleText = function()
-    local titleText = display.newText( "Ghostwriters", display.contentWidth / 2, 150, "Arial", 64 )
+    local titleText = display.newText( "Ghostwriters", display.contentWidth / 2, 100, "Arial", 64 )
     titleText:setFillColor(0, 0, 0)
     return titleText
 end
