@@ -63,10 +63,8 @@ function scene:hide( event )
         end
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
-        if not self.creds then
-            self.view = nil
-            composer.removeScene(self.sceneName, false)
-        end
+        self.view = nil
+        composer.removeScene(self.sceneName, false)
     end
 end
 
@@ -100,4 +98,3 @@ scene:addEventListener( "destroy", scene )
 -- -------------------------------------------------------------------------------
 
 return scene
-
