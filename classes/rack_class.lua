@@ -283,7 +283,6 @@ getTouchListener = function(rack)
 
 	        -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
 	        if wasOnBoard then
-                print("Tile wasOnBoard, so re-scaling")
 	        	local scale = rack.board.boardGroup.xScale
 	        	event.target.width = event.target.width * scale
 	        	event.target.height = event.target.height * scale

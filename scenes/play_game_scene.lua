@@ -110,9 +110,20 @@ function scene:show(event)
         end
 
         -- Called when the scene is now on screen.
-        self:showGameOverModal()
+        self:showGameInfoModals(true)
 
         self:startPollForGame()
+    end
+end
+
+function scene:showGameInfoModals(didSceneJustLoad)
+    local didShowModal = self:showGameOverModal()
+    if didShowModal then
+        return
+    end
+
+    if not didSceneJustLoad then
+        didShowModal = self:showContinueTurnModal()
     end
 end
 
@@ -180,7 +191,13 @@ function scene:createTitleAreaDisplayGroup(gameModel)
     local isAllowStartNewGame = gameModel.gameResult ~= common_api.IN_PROGRESS
             and gameModel.gameResult ~= common_api.OFFERED
 
-    return game_ui.createVersusDisplayGroup(gameModel, self.creds.user, self, false, nil, nil, nil, 100, nil, nil, isAllowStartNewGame)
+    if not self.creds or not self.creds.user then
+        return
+    end
+
+    local authUser = self.creds.user
+
+    return game_ui.createVersusDisplayGroup(gameModel, authUser, self, false, nil, nil, nil, 100, nil, nil, isAllowStartNewGame)
 end
 
 function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelease, onResetButtonRelease, onPassButtonRelease)
@@ -344,7 +361,7 @@ end
 
 function scene:resetBoardAndShowModals()
     self:reset()
-    self:showGameOverModal()
+    self:showGameInfoModals(false)
 end
 
 function scene:getOpponentUser()
@@ -590,11 +607,15 @@ end
 
 
 function scene:showGameOverModal()
-
     local gameModel = current_game.currentGame
     if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
         print("Not displaying Game Over modal, game result is " .. tostring(gameModel and gameModel.gameResult))
-        return
+        return false
+    end
+
+    if not self.creds or not self.creds.user then
+        print("Not displaying Game Over modal, scene.creds is not defined")
+        return false
     end
 
     self.playMoveButton:setEnabled(false)
@@ -603,11 +624,16 @@ function scene:showGameOverModal()
 
     local gameResult = gameModel.gameResult
 
+    local authUser = self.creds.user
+
+    local isMyWin = gameResult == common_api.PLAYER1_WIN and authUser.id == gameModel.player1 or
+                    gameResult == common_api.PLAYER2_WIN and authUser.id == gameModel.player2
+
     local modalMessage
     if gameResult == common_api.PLAYER1_WIN then
-        modalMessage = gameModel.player1Model.username .. " wins!"
+        modalMessage = isMyWin and "You win!" or gameModel.player1Model.username .. " wins!"
     elseif gameResult == common_api.PLAYER2_WIN then
-        modalMessage = gameModel.player2Model.username .. " wins!"
+        modalMessage = isMyWin and "You win!" or gameModel.player2Model.username .. " wins!"
     elseif gameResult == common_api.PLAYER1_TIMEOUT then
         modalMessage = gameModel.player1Model.username .. " timed out."
     elseif gameResult == common_api.PLAYER2_TIMEOUT then
@@ -617,11 +643,41 @@ function scene:showGameOverModal()
             or "You rejected this challenge."
     else
         print("Invalid game result: " .. tostring(gameResult))
-        return
+        return false
     end
 
     local modal = common_ui.createInfoModal("Game Over", modalMessage, nil, nil, nil)
     self.view:insert(modal)
+    return true
+end
+
+function scene:showContinueTurnModal()
+    local gameModel = current_game.currentGame
+    if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS then
+        print("Not displaying Continue Turn modal, game result is " .. tostring(gameModel and gameModel.gameResult))
+        return false
+    end
+
+    if not self.creds or not game_helpers.isPlayerTurn(gameModel, self.creds.user) then
+        return false
+    end
+
+    local opponentRack = game_helpers.getNotCurrentPlayerRack(gameModel)
+
+    if opponentRack == nil or opponentRack:len() > 0 then
+        print("Not showing Continue Turn modal since opponent's rack isn't empty or it's nil")
+        return false
+    end
+
+    if gameModel.lastMoves == nil or #gameModel.lastMoves > 0 then
+        print("Not showing Continue Turn modal since opponent's lastMoves are present or nil")
+        return false
+    end
+
+    local modal = common_ui.createInfoModal("Keep playing", "Your opponent is out of tiles!")
+    self.view:insert(modal)
+
+    return true
 end
 
 function scene:pass()

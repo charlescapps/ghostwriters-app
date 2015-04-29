@@ -5,6 +5,26 @@ local M = {}
 
 M.START_GAME_FROM_SCENE_KEY = "startGameFromScene"
 
+function M.isPlayerTurn(gameModel, userModel)
+    if not userModel or not userModel.id then
+        print("ERROR - invalid user model passed into game_helpers.isPlayerTurn: " .. json.encode(userModel))
+        return false
+    end
+
+    return gameModel.player1Turn and userModel.id == gameModel.player1 or
+       not gameModel.player1Turn and userModel.id == gameModel.player2
+end
+
+function M.getCurrentPlayerRack(gameModel)
+    return gameModel.player1Turn and gameModel.player1Rack or
+           gameModel.player2Rack
+end
+
+function M.getNotCurrentPlayerRack(gameModel)
+    return gameModel.player1Turn and gameModel.player2Rack or
+           gameModel.player1Rack
+end
+
 function M.isValidGame(game)
     return game and game.id and game.player1 and game.player2 and game.player1Model and game.player2Model and true
 end
