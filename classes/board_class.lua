@@ -736,7 +736,6 @@ end
 function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onComplete)
     local tileIndex = 1
     local r, c = startR, startC
-    local tileWidth = math.floor(self.width / self.N)
     local firstTile = true
     for i = 0, letters:len() - 1 do
         if r < 1 or c < 1 or r > self.N or c > self.N then
@@ -748,7 +747,7 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
 
         if myTile == tile.emptyTile and tileIndex <= tiles:len() then
            local letter = tiles:sub(tileIndex, tileIndex)
-           local newTileImg = tile.draw(letter:upper(), x, y, tileWidth, false, self.gameModel.boardSize)
+           local newTileImg = tile.draw(letter:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
            newTileImg.alpha = 0;
            newTileImg.letter = letter
            self.tilesGroup:insert(newTileImg)
@@ -772,7 +771,7 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
             -- If the existing tile was lowercase, then change the tile to a stone tile
             if myTile:upper() ~= myTile then
                 local myTileImg = self.tileImages[r][c]
-                local stoneTileImg = tile.draw(myTile:upper(), x, y, tileWidth, false, self.gameModel.boardSize)
+                local stoneTileImg = tile.draw(myTile:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
                 stoneTileImg.alpha = 0
                 self.tilesGroup:insert(stoneTileImg)
                 self.tileImages[r][c] = stoneTileImg
