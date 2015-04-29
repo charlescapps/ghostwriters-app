@@ -56,7 +56,7 @@ function scene:create(event)
 
     self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50)
 
-    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 190, 200, 64, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
+    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 75, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
     self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
 
@@ -73,7 +73,7 @@ end
 function scene:createBoard(gameModel)
     local boardWidth = display.contentWidth - 20
     local boardCenterX = display.contentWidth / 2
-    local boardCenterY = display.contentWidth / 2 + 180
+    local boardCenterY = display.contentWidth / 2 + 160
 
     return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, 20, self:getOnGrabTiles())
 end
@@ -197,7 +197,7 @@ function scene:createTitleAreaDisplayGroup(gameModel)
 
     local authUser = self.creds.user
 
-    return game_ui.createVersusDisplayGroup(gameModel, authUser, self, false, nil, nil, nil, 100, nil, nil, isAllowStartNewGame)
+    return game_ui.createVersusDisplayGroup(gameModel, authUser, self, false, nil, nil, nil, 75, nil, nil, isAllowStartNewGame)
 end
 
 function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelease, onResetButtonRelease, onPassButtonRelease)
@@ -227,8 +227,8 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
     self.passButton = widget.newButton {
         x = display.contentWidth / 2 - width - 20,
         y = y,
-        width = 64,
-        height = 64,
+        width = height,
+        height = height,
         defaultFile = "images/pass_button_default.png",
         overFile = "images/pass_button_over.png",
         onRelease = onPassButtonRelease
@@ -238,8 +238,8 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
     self.resetButton = widget.newButton {
         x = display.contentWidth / 2 + width + 20,
         y = y,
-        width = 64,
-        height = 64,
+        width = height,
+        height = height,
         defaultFile = "images/reset_button_default.png",
         overFile = "images/reset_button_over.png",
         onRelease = onResetButtonRelease
