@@ -172,10 +172,13 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
     }
 end
 
-M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
+M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize)
     local group = display.newGroup()
-    group.x, group.y = x or display.contentWidth / 2, y or display.contentHeight / 2
+    group.x, group.y = display.contentWidth / 2, display.contentHeight / 2
     group.alpha = 0
+
+    local background = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+    background:setFillColor(0, 0, 0, 0.5)
 
     local modalImage = display.newImageRect(group, MODAL_IMAGE, 650, 484)
 
@@ -187,7 +190,7 @@ M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
         width = 600,
         height = 125,
         font = native.systemBoldFont,
-        fontSize = 60,
+        fontSize = titleFontSize or 60,
         align = "center"
     }
     modalTitle:setFillColor(0, 0, 0)
@@ -212,17 +215,23 @@ M.createInfoModal = function(titleText, text, onClose, x, y, fontSize)
         group:removeSelf()
     end
 
+    local onCancel = function()
+        group:removeSelf()
+    end
+
+    group:insert(background)
     group:insert(modalImage)
     group:insert(modalTitle)
     group:insert(modalText)
 
-    group:addEventListener("touch", function(event)
+    background:addEventListener("touch", function(event)
         if event.phase == "began" then
             display.getCurrentStage():setFocus(event.target)
         elseif event.phase == "ended" or event.phase == "cancelled" then
             display.getCurrentStage():setFocus(nil)
             transition.fadeOut(group, {
-                onComplete = onComplete
+                onComplete = onComplete,
+                onCancel = onCancel
             })
         end
         return true

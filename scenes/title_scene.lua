@@ -12,10 +12,6 @@ local nav = require("common.nav")
 -- Constants
 scene.sceneName = "scenes.title_scene"
 
--- Pre-defined functions
-local createTitleText
-local createUserInfoText
-
 
 local clickSinglePlayer = function()
 	print("Clicked single player")
@@ -51,7 +47,7 @@ function scene:create(event)
 
 	local sceneGroup = self.view
 	local background = common_ui.createBackground()
-	local titleText = createTitleText()
+	local titleImage = self:createTitleImage()
 	local buttonSinglePlayer = common_ui.createButton("Play Single Player", 350, clickSinglePlayer)
 	local buttonPlayOthers = common_ui.createButton("Play One-on-One", 550, clickOneOnOne)
 	local buttonMyGames = common_ui.createButton("My Games", 750, clickMyGames)
@@ -59,7 +55,7 @@ function scene:create(event)
 	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150, clickLeaderboard)
 
 	sceneGroup:insert( background )
-	sceneGroup:insert( titleText )
+	sceneGroup:insert(titleImage)
 	sceneGroup:insert( buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )
 	sceneGroup:insert( buttonMyGames )
@@ -86,7 +82,7 @@ function scene:show( event )
         if self.userInfoText then
             self.userInfoText:removeSelf()
         end
-        self.userInfoText = createUserInfoText()
+        self.userInfoText = self:createUserInfoText()
         sceneGroup:insert(self.userInfoText)
 
     elseif ( phase == "did" ) then
@@ -121,13 +117,14 @@ function scene:destroy( event )
 end
 
 -- Local helpers
-createTitleText = function()
-    local titleText = display.newText( "Ghostwriters", display.contentWidth / 2, 100, "Arial", 64 )
-    titleText:setFillColor(0, 0, 0)
-    return titleText
+function scene:createTitleImage()
+    local titleImg = display.newImageRect( "images/ghostwriters_title.png", display.contentWidth, 175)
+    titleImg.x = display.contentWidth / 2
+    titleImg.y = 125
+    return titleImg
 end
 
-createUserInfoText = function()
+function scene:createUserInfoText()
     local username = scene.creds.user.username
     local userInfoText = display.newText {
         text = username,
