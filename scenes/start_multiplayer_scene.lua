@@ -26,7 +26,7 @@ function scene:create(event)
     local sceneGroup = self.view
     self.background = common_ui.createBackground()
 
-    self.startGameButton = common_ui.createBookButton("Start a game", "Play a Ghostwriter of similar skill", nil,
+    self.startGameButton = common_ui.createBookButton("Quick start", "Touch to challenge a player at your skill level", nil,
         self:getOnReleaseStartGameListener(), nil, 225)
 
     self.backButton = common_ui.createBackButton(50, 100, "scenes.title_scene")
