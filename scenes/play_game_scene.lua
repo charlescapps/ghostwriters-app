@@ -80,7 +80,7 @@ end
 
 function scene:createRack(gameModel, board, authUser)
     local skipHint = gameModel and gameModel.moveNum and gameModel.moveNum > 2
-    return rack_class.new(gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser, skipHint)
+    return rack_class.new(self, gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser, skipHint)
 end
 
 -- "scene:show()"

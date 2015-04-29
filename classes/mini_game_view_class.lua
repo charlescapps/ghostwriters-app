@@ -177,7 +177,7 @@ end
 function mini_game_view_class:touch(event)
     if event.phase == "began" then
        display.getCurrentStage():setFocus(event.target)
-       self.miniBoardView.boardGroup.alpha = 0.75
+       self.miniBoardView.boardGroup.alpha = 0.5
        return true
     elseif event.phase == "ended" then
         display.getCurrentStage():setFocus(nil)

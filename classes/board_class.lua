@@ -388,6 +388,7 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
     end
 	print ("Inserting tile at row = " .. row .. ", col = " .. col)
 	print ("Inserting tile at x = " .. squareImage.x .. ", y = " .. squareImage.y)
+    transition.cancel(tileImage)
 	self.rackTilesGroup:insert(tileImage)
 	-- modify width to account for scale
 	local scale = self.boardGroup.xScale

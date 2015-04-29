@@ -19,7 +19,7 @@ local TILE_PADDING = 2
 local RACK_WIDTH = display.contentWidth
 local RACK_HEIGHT = 320
 
-function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board, authUser, skipHint)
+function rack_class.new(parentScene, gameModel, tileWidth, startY, numPerRow, padding, board, authUser, skipHint)
 	local rack = gameModel.player1 == authUser.id and gameModel.player1Rack or gameModel.player2Rack
 	local letters = {}
 
@@ -38,6 +38,7 @@ function rack_class.new(gameModel, tileWidth, startY, numPerRow, padding, board,
 		numPerRow = numPerRow, 
 		padding = padding,
 		board = board,
+        parentScene = parentScene,
         gameModel = gameModel,
         skipHint = skipHint
     }
@@ -247,7 +248,9 @@ function rack_class:destroy()
         self.floatingTiles:removeSelf()
         self.floatingTiles = nil
     end
-    self.displayGroup:removeSelf()
+    if self.displayGroup then
+        self.displayGroup:removeSelf()
+    end
     self.displayGroup = nil
     self.tileImages = nil
 end
@@ -259,6 +262,7 @@ getTouchListener = function(rack)
             return true
         end
 		if ( event.phase == "began" ) then
+            print("rack touch listener: began")
 			display.getCurrentStage( ):setFocus( event.target )
 			event.target.isFocus = true
 
@@ -268,8 +272,10 @@ getTouchListener = function(rack)
 	        -- Create a display group to house the floating tiles
             if not rack.floatingTiles then
             	rack.floatingTiles = display.newGroup()
-            	display.currentStage:insert(rack.floatingTiles)
+            	rack.parentScene.view:insert(rack.floatingTiles)
             end
+
+            print("Inserting tile to floating tiles group")
         	rack.floatingTiles:insert(event.target)
 
             -- The floating tiles should be at the front
@@ -277,6 +283,7 @@ getTouchListener = function(rack)
 
 	        -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
 	        if wasOnBoard then
+                print("Tile wasOnBoard, so re-scaling")
 	        	local scale = rack.board.boardGroup.xScale
 	        	event.target.width = event.target.width * scale
 	        	event.target.height = event.target.height * scale
@@ -286,7 +293,8 @@ getTouchListener = function(rack)
         	event.target.y = event.y	
         	transition.to(event.target, {
         		width = rack.drawTileWidth,
-        		height = rack.drawTileWidth
+        		height = rack.drawTileWidth,
+                time = 800
         		})
 	        return true
 	    elseif event.target.isFocus then
@@ -300,7 +308,8 @@ getTouchListener = function(rack)
 		        end
 		        return true
 		    elseif event.phase == "ended" or event.phase == "cancelled" then
-			    -- reset touch focus
+                print("rack touch listener: " .. event.phase)
+                -- reset touch focus
 	            display.getCurrentStage():setFocus( nil )
 	            event.target.isFocus = nil
 
