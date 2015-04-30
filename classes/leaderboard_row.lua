@@ -89,7 +89,7 @@ end
 
 function leaderboard_row:createRatingText(usernameText)
     local ratingText = display.newText {
-        text = "( " .. tostring(game_helpers.getFriendlyRating(self.user.rating)) .. " )",
+        text = "( " .. tostring(self.user.rating) .. " )",
         font = native.systemFont,
         fontSize = 30
     }

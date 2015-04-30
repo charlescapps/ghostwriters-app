@@ -94,6 +94,12 @@ function scene:show(event)
             return
         end
 
+        -- Disable action buttons if the game is finished.
+        local gameModel = current_game.currentGame
+        if gameModel and gameModel.gameResult ~= common_api.IN_PROGRESS and gameModel.gameResult ~= common_api.OFFERED then
+           self:disableActionButtons()
+        end
+
     elseif phase == "did" then
         print("play_game_scene:show() - phase = did")
 
@@ -605,6 +611,14 @@ function scene:getOnReleasePassButton()
     end
 end
 
+function scene:disableActionButtons()
+    self.playMoveButton:setEnabled(false)
+    self.playMoveButton:setFillColor(0.6, 0.6, 0.6)
+    self.resetButton:setEnabled(false)
+    self.resetButton:setFillColor(0.6, 0.6, 0.6)
+    self.passButton:setEnabled(false)
+    self.passButton:setFillColor(0.6, 0.6, 0.6)
+end
 
 function scene:showGameOverModal()
     local gameModel = current_game.currentGame
@@ -618,9 +632,7 @@ function scene:showGameOverModal()
         return false
     end
 
-    self.playMoveButton:setEnabled(false)
-    self.resetButton:setEnabled(false)
-    self.passButton:setEnabled(false)
+    self:disableActionButtons()
 
     local gameResult = gameModel.gameResult
 

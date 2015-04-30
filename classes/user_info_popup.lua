@@ -128,7 +128,7 @@ function user_info_popup:createInfoTextGroup()
     local tiesValue = self:createTextInfo(false, group, tostring(user.ties), SPACING_LARGE * 2 + SPACING_SMALL * 3)
 
     local ratingKey = self:createTextInfo(true, group, "Rating", SPACING_LARGE * 2 + SPACING_SMALL * 4)
-    local ratingValue = self:createTextInfo(false, group, tostring(math.floor(user.rating / 1000)), SPACING_LARGE * 2 + SPACING_SMALL * 4)
+    local ratingValue = self:createTextInfo(false, group, tostring(user.rating), SPACING_LARGE * 2 + SPACING_SMALL * 4)
 
     group:insert(title)
 
