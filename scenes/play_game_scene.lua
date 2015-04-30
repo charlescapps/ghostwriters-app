@@ -658,9 +658,33 @@ function scene:showGameOverModal()
         return false
     end
 
-    local modal = common_ui.createInfoModal("Game Over", modalMessage, nil, nil, nil)
+    local modal = common_ui.createInfoModal("Game Over", modalMessage, function() self:showRatingChangeModal() end)
     self.view:insert(modal)
     return true
+end
+
+function scene:showRatingChangeModal()
+    local gameModel = current_game.currentGame
+    if not gameModel then
+        print("Error - attempt to call showRatingChangeModal but current_game.currentGame isn't defined.")
+        return
+    end
+    if not self.creds or not self.creds.user then
+        print("Error - attempt to call showRatingChangeModal but scene.creds.user isn't defined.")
+        return
+    end
+    local authUser = self.creds.user
+    local updatedRating = authUser.id == gameModel.player1 and gameModel.player1Model.rating or
+                          gameModel.player2Model.rating
+
+    local ratingIncrease = updatedRating - authUser.rating
+    if ratingIncrease <= 0 then
+        print("In showRatingChangeModal, we must be viewing an old game, because the rating increase = " .. tostring(ratingIncrease))
+        return
+    end
+
+    local modal = game_ui.createRatingUpModal(self, ratingIncrease)
+    self.view:insert(modal)
 end
 
 function scene:showContinueTurnModal()

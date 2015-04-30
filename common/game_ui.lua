@@ -1,5 +1,6 @@
 local display = require("display")
 local native = require("native")
+local transition = require("transition")
 local common_api = require("common.common_api")
 local user_info_popup = require("classes.user_info_popup")
 
@@ -186,6 +187,58 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     return group
 end
 
+function M.createRatingUpModal(parentScene, ratingChange)
+    local group = display.newGroup()
+    group.x, group.y = display.contentWidth / 2, display.contentHeight / 2
+    group.alpha = 0
+
+    local background = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+    background:setFillColor(0, 0, 0, 0.5)
+
+    local modalImage = display.newImageRect(group, "images/rating_up_modal.png", 750, 750)
+
+    local ratingText = display.newText {
+        parent = group,
+        x = 0,
+        y = -150,
+        text = "+" .. tostring(ratingChange),
+        width = 300,
+        height = 125,
+        font = native.systemBoldFont,
+        fontSize = 90,
+        align = "center"
+    }
+    ratingText:setFillColor(0, 0, 0)
+
+    local onComplete = function()
+        group:removeSelf()
+    end
+
+    local onCancel = function()
+        group:removeSelf()
+    end
+
+    group:insert(background)
+    group:insert(modalImage)
+    group:insert(ratingText)
+
+    background:addEventListener("touch", function(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(event.target)
+        elseif event.phase == "ended" or event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+            transition.fadeOut(group, {
+                onComplete = onComplete,
+                onCancel = onCancel
+            })
+        end
+        return true
+    end)
+
+    transition.fadeIn(group, { time = 1000 })
+
+    return group
+end
 
 return M
 
