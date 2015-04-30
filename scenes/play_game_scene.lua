@@ -677,8 +677,10 @@ function scene:showRatingChangeModal()
     local updatedRating = authUser.id == gameModel.player1 and gameModel.player1Model.rating or
                           gameModel.player2Model.rating
 
-    local ratingIncrease = updatedRating - authUser.rating
-    if ratingIncrease <= 0 then
+    local ratingIncrease = authUser.id == gameModel.player1 and gameModel.player1RatingIncrease or
+                           authUser.id == gameModel.player2 and gameModel.player2RatingIncrease
+
+    if not ratingIncrease or ratingIncrease <= 0 then
         print("In showRatingChangeModal, we must be viewing an old game, because the rating increase = " .. tostring(ratingIncrease))
         return
     end

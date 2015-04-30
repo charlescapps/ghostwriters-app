@@ -59,4 +59,14 @@ M.logout = function()
     composer.gotoScene("login.logged_out_scene")
 end
 
+M.updateStoredUser = function(updatedUser)
+    local creds = M.fetchCredentials()
+    if not creds or not updatedUser then
+        return
+    end
+    creds.user = updatedUser
+
+    M.saveCreds(creds)
+end
+
 return M
