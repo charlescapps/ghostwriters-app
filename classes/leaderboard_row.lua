@@ -39,7 +39,7 @@ function leaderboard_row:render()
 end
 
 function leaderboard_row:createBookmarkBg()
-    local imgFile = self.index % 2 == 0 and "images/brown_bookmark.png" or "images/red_bookmark.png"
+    local imgFile = self.index % 2 == 0 and "images/bookmark1.png" or "images/bookmark2.png"
     local bookmarkImg = display.newImageRect(imgFile, BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
     bookmarkImg.x = BOOKMARK_WIDTH / 2
     bookmarkImg.y = self.rowHeight / 2
@@ -56,7 +56,7 @@ function leaderboard_row:createRankText()
     rankNumberText.anchorX = 0
     rankNumberText.x = 20
     rankNumberText.y = self.rowHeight / 2
-    rankNumberText:setFillColor(0, 0, 0)
+    rankNumberText:setFillColor(1, 1, 1)
 
     return rankNumberText
 end
@@ -71,7 +71,7 @@ function leaderboard_row:createUsernameText(rankText)
     usernameText.anchorX = 0
     usernameText.x = rankText.x + rankText.contentWidth + 20
     usernameText.y = self.rowHeight / 2
-    usernameText:setFillColor(0, 0, 0)
+    usernameText:setFillColor(1, 1, 1)
 
     local that = self
     function usernameText:touch(event)
@@ -97,7 +97,7 @@ function leaderboard_row:createRatingText(usernameText)
     ratingText.anchorX = 0
     ratingText.x = usernameText.x + usernameText.contentWidth + 40
     ratingText.y = self.rowHeight / 2
-    ratingText:setFillColor(0, 0, 0)
+    ratingText:setFillColor(1, 1, 1)
 
     return ratingText
 end

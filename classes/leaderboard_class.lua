@@ -142,7 +142,7 @@ function leaderboard_class:renderTitle()
         font = native.systemFontBold,
         fontSize = 60
     }
-    title:setFillColor(0, 0, 0)
+    title:setFillColor(1, 1, 1)
     return title
 end
 
