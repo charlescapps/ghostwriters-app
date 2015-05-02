@@ -1,6 +1,6 @@
 local composer = require( "composer" )
 local display = require("display")
-local widget = require( "widget" )
+local slidey_bookmark = require("classes.slidey_bookmark")
 local login_common = require( "login.login_common" )
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
@@ -42,14 +42,47 @@ local clickLeaderboard = function()
     nav.goToSceneFrom(scene.sceneName, "scenes.leaderboard_scene", "fade")
 end
 
+function scene:onFetchGameSummarySuccess()
+    return function(summary)
+        if not summary then
+            print("Error - no summary returned from server!")
+            return
+        end
+        local numGamesMyTurn = summary.numGamesMyTurn
+        local numGamesOffered = summary.numGamesOffered
+
+        print("Found numGamesMyTurn=" .. numGamesMyTurn)
+        print("Found numGamesOffered=" .. numGamesOffered)
+
+        self.myTurnGamesBookmark = slidey_bookmark.new(numGamesMyTurn, 1, 750)
+        self.offeredGamesBookmark = slidey_bookmark.new(numGamesOffered, 2, 950)
+        self.view:insert(self.myTurnGamesBookmark:render())
+        self.view:insert(self.offeredGamesBookmark:render())
+
+        self.myTurnGamesBookmark:slideIn()
+        self.offeredGamesBookmark:slideIn()
+    end
+end
+
+function scene:onFetchGameSummaryFail()
+    return function()
+        -- Silently fail
+        print("ERROR - couldn't get game summary info. Not displaying bookmarks")
+    end
+end
+
+function scene:fetchGameSummaryInfo()
+    common_api.getMyGamesSummary(self:onFetchGameSummarySuccess(), self:onFetchGameSummaryFail(), false)
+end
+
 -- "scene:create()"
 function scene:create(event)
 
 	local sceneGroup = self.view
 	local background = common_ui.createBackground()
 	local titleImage = self:createTitleImage()
-	local buttonSinglePlayer = common_ui.createButton("Play Single Player", 350, clickSinglePlayer)
-	local buttonPlayOthers = common_ui.createButton("Play One-on-One", 550, clickOneOnOne)
+	local buttonSinglePlayer = common_ui.createButton("Single Player", 350, clickSinglePlayer)
+	local buttonPlayOthers = common_ui.createButton("Two Player", 550, clickOneOnOne)
 	local buttonMyGames = common_ui.createButton("My Games", 750, clickMyGames)
 	local buttonMyChallengers = common_ui.createButton("My Challengers", 950, clickMyChallengers)
 	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150, clickLeaderboard)
@@ -84,6 +117,8 @@ function scene:show( event )
         end
         self.userInfoText = self:createUserInfoText()
         sceneGroup:insert(self.userInfoText)
+
+        self:fetchGameSummaryInfo()
 
     elseif ( phase == "did" ) then
         if not self.creds then

@@ -71,7 +71,7 @@ M.createTitle = function(myTitleText, y, rgb, fontSize)
     return title
 end 
 
-M.createButton = function(text, y, onRelease)
+M.createButton = function(text, y, onRelease, width)
 	local button = widget.newButton( {
 		x = display.contentWidth / 2,
 		y = y,
@@ -80,7 +80,7 @@ M.createButton = function(text, y, onRelease)
         font = native.systemFont,
 		fontSize = 46,
 		labelColor = { default = M.BUTTON_LABEL_COLOR_DEFAULT, over = M.BUTTON_LABEL_COLOR_OVER },
-		width = 500,
+		width = width or 450,
 		height = 125,
 		shape = "roundedRect",
 		cornerRadius = 15,
