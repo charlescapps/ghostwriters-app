@@ -60,6 +60,10 @@ M.myGamesURL = function(count, inProgress, includeMoves)
     return url
 end
 
+M.myGamesSummaryURL = function()
+    return SERVER .. "/users/myGamesSummary"
+end
+
 M.gamesOfferedToMeURL = function(count)
     return SERVER .. "/games/offeredToMe?count=" .. tostring(count)
 end

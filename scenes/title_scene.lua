@@ -138,6 +138,10 @@ function scene:createUserInfoText()
     return userInfoText
 end
 
+function scene:addNumGamesMyTurnBookmark(num)
+
+end
+
 
 -- Listener setup
 scene:addEventListener( "create", scene )

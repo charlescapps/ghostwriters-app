@@ -20,12 +20,12 @@ function M.onSuccessListener(jsonResp)
         local deviceId = system.getInfo("deviceID")
         common_api.createNewAccountAndLogin(username, nil, deviceId, M.onLoginSuccess, M.onFailListener)
     else
-        composer.gotoScene("login.logged_out_scene")
-        local logged_out_scene = composer.getScene("login.logged_out_scene", "fade")
+        composer.gotoScene("login.logged_out_scene", "fade")
+        local logged_out_scene = composer.getScene("login.logged_out_scene")
         if logged_out_scene then
             logged_out_scene.nextUsername = jsonResp.nextUsername
         else
-            print("Title scene is nil")
+            print("Error - Logged out scene is nil")
         end
     end
 end

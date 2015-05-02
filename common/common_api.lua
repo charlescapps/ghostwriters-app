@@ -435,4 +435,9 @@ M.getRanksNearMonkey = function(maxResults, onSuccess, onFail, doCreateSpinner)
     M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
+M.getMyGamesSummary = function(onSuccess, onFail, doCreateSpinner)
+    local url = urls.myGamesSummaryURL()
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
+end
+
 return M
