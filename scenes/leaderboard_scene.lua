@@ -4,6 +4,7 @@ local login_common = require("login.login_common")
 local leaderboard_class = require("classes.leaderboard_class")
 local new_game_data = require("globals.new_game_data")
 local common_api = require("common.common_api")
+local display = require("display")
 local game_helpers = require("common.game_helpers")
 
 local scene = composer.newScene()
@@ -17,7 +18,7 @@ function scene:create(event)
     end
 
     local sceneGroup = self.view
-    local background = common_ui.createBackground()
+    local background = self:createBackground()
     self.leaderboard = leaderboard_class.new(self, self.creds.user)
     local leaderboardView = self.leaderboard:render()
     self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene")
@@ -86,6 +87,13 @@ function scene:startGameWithUser(userModel)
         composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
     end
+end
+
+function scene:createBackground()
+    local img = display.newImageRect("images/old_book.png", 1152, 1623)
+    img.x = display.contentWidth / 2
+    img.y = display.contentHeight / 2
+    return img
 end
 
 

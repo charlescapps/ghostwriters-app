@@ -2,7 +2,6 @@ local composer = require("composer")
 local native = require("native")
 local widget = require("widget")
 local display = require("display")
-local word_spinner_class = require("classes.word_spinner_class")
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local nav = require("common.nav")
@@ -151,10 +150,6 @@ end
 
 function scene:getOnGetNextUsernameSuccessListener()
     return function(nextUsername)
-        if self.wordSpinner then
-            self.wordSpinner:stop()
-            self.wordSpinner = nil
-        end
         local username = nextUsername.nextUsername
         local required = nextUsername.required
         if self.usernameTextField then
@@ -168,10 +163,6 @@ end
 
 function scene:getOnGetNextUsernameFailListener()
     return function()
-        if self.wordSpinner then
-            self.wordSpinner:stop()
-            self.wordSpinner = nil
-        end
         native.showAlert("Network Error", "Ghostwriters requires an Internet Connection to play.", { "Try again" })
     end
 end
@@ -181,13 +172,10 @@ local function createGoButton()
 end
 
 function scene:getNextUsername()
-    self.wordSpinner = word_spinner_class.new()
-    self.wordSpinner:start()
-
     local deviceId = system.getInfo("deviceID")
     print("Found device ID: " .. deviceId)
 
-    common_api.getNextUsername(deviceId, self:getOnGetNextUsernameSuccessListener(), self:getOnGetNextUsernameFailListener())
+    common_api.getNextUsername(deviceId, self:getOnGetNextUsernameSuccessListener(), self:getOnGetNextUsernameFailListener(), true)
 end
 
 
@@ -219,7 +207,12 @@ function scene:show(event)
     if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
         self:createUsernameInput()
-        self:getNextUsername()
+        if self.nextUsername and self.usernameTextField then
+            self:setUsernameText(self.nextUsername)
+            self.nextUsername = nil
+        else
+            self:getNextUsername()
+        end
     elseif (phase == "did") then
     end
 end
@@ -236,10 +229,6 @@ function scene:hide(event)
         if self.textProgress then
             self.textProgress:stop()
             self.textProgress = nil
-        end
-        if self.wordSpinner then
-            self.wordSpinner:stop()
-            self.wordSpinner = nil
         end
         transition.cancel()
     elseif (phase == "did") then

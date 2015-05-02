@@ -13,4 +13,4 @@ print("Words with rivals app started...")
 --print("Available fonts: " .. json.encode(native.getFontNames()))
 one_signal_util.initOneSignal()
 
-composer.gotoScene( "scenes.title_scene" , "fade" )
+composer.gotoScene("scenes.loading_scene")
