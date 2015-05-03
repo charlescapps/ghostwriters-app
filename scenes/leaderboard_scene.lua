@@ -90,7 +90,7 @@ function scene:startGameWithUser(userModel)
 end
 
 function scene:createBackground()
-    local img = display.newImageRect("images/old_book.png", 1152, 1623)
+    local img = display.newImageRect("images/old_book.png", 1350, 1948)
     img.x = display.contentWidth / 2
     img.y = display.contentHeight / 2
     return img

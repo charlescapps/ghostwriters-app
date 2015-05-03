@@ -155,7 +155,8 @@ function leaderboard_class:renderTableView()
         onRowRender = self:createOnRowRenderListener(),
         backgroundColor = { 1, 1, 1, 0 },
         hideBackground = true,
-        hideScrollbar = true
+        hideScrollbar = true,
+        noLines = true
     }
 end
 

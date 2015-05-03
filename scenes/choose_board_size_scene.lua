@@ -13,7 +13,7 @@ local createBackButton
 local function getOnReleaseListener(sizeName)
     return function(event)
         new_game_data.boardSize = sizeName
-        nav.goToSceneFrom(scene.sceneName, "scenes.choose_game_density_scene", "fade" )
+        nav.goToSceneFrom(scene.sceneName, "scenes.create_game_scene", "fade" )
     end
 
 end
