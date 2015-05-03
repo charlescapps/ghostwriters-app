@@ -7,6 +7,7 @@ local display = require("display")
 local native = require("native")
 local new_game_data = require("globals.new_game_data")
 local current_game = require("globals.current_game")
+local game_options_modal = require("classes.game_options_modal")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -21,11 +22,15 @@ function scene:create(event)
 
     self.background = common_ui.createBackground()
     self.gearButton = self:createGearButton()
-    self.createGameButton = self:createGameButton()
+    self.gameOptionsModal = game_options_modal.new(self)
+    self.createGameButton = self:createCreateGameButton()
+    self.backButton = common_ui.createBackButton(100, 100, "scenes.choose_board_size_scene")
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.gearButton)
     sceneGroup:insert(self.createGameButton)
+    sceneGroup:insert(self.backButton)
+    sceneGroup:insert(self.gameOptionsModal:render())
 
 end
 
@@ -73,17 +78,22 @@ function scene:destroy( event )
 end
 
 function scene:createGearButton()
+    local function onRelease()
+        self.gameOptionsModal:show()
+    end
+
     return widget.newButton {
         x = display.contentWidth - 100,
         y = display.contentHeight - 300,
         defaultFile = "images/gear-icon.png",
         overFile = "images/gear-icon_over.png",
         width = 100,
-        height = 100
+        height = 100,
+        onRelease = onRelease
     }
 end
 
-function scene:createGameButton()
+function scene:createCreateGameButton()
     return common_ui.createButton("Create Game", 1200, self:onReleaseCreateGameButton(), 425)
 end
 
