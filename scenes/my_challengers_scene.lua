@@ -1,7 +1,4 @@
 local composer = require( "composer" )
-local display = require("display")
-local widget = require("widget")
-local nav = require("common.nav")
 local login_common = require("login.login_common")
 local my_challengers_view_class = require("classes.my_challengers_view_class")
 local new_game_data = require("globals.new_game_data")
@@ -17,10 +14,8 @@ function scene:create(event)
     local sceneGroup = self.view
     local background = common_ui.createBackground()
     self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene")
-    self.goToOfferedGamesButton = self:createGoToOfferedGamesButton()
     sceneGroup:insert(background)
     sceneGroup:insert(self.backButton)
-    sceneGroup:insert(self.goToOfferedGamesButton)
 end
 
 -- "scene:show()"
@@ -104,25 +99,6 @@ function scene:getOnFailCallback()
 
         common_ui.createInfoModal("Oops...", errorMessage)
 
-    end
-end
-
-function scene:createGoToOfferedGamesButton()
-    local button = widget.newButton( {
-        x = display.contentWidth - 100,
-        y = 100,
-        width = 200,
-        height = 150,
-        defaultFile = "images/offered_games_button_default.png",
-        overFile = "images/offered_games_button_over.png",
-        onRelease = self:getOnReleaseGoToOfferedGamesButton()
-    } )
-    return button
-end
-
-function scene:getOnReleaseGoToOfferedGamesButton()
-    return function(event)
-        nav.goToSceneFrom(self.sceneName, "scenes.my_offered_games_scene")
     end
 end
 
