@@ -157,7 +157,7 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
             sceneName = composer.getSceneName("previous")
         end
 
-        composer.gotoScene(sceneName)
+        composer.gotoScene(sceneName, "fade")
 
         if afterTransition then
             afterTransition()

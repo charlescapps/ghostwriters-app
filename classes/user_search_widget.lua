@@ -52,6 +52,23 @@ function user_search_widget:render()
     return self.view
 end
 
+function user_search_widget:hideNativeInput()
+    local searchInput = self.searchAreaGroup and self.searchAreaGroup.searchInput
+    if not searchInput then
+        return
+    end
+    transition.fadeOut(searchInput, { time = 500 })
+end
+
+
+function user_search_widget:showNativeInput()
+    local searchInput = self.searchAreaGroup and self.searchAreaGroup.searchInput
+    if not searchInput then
+        return
+    end
+    transition.fadeIn(searchInput, { time = 500 })
+end
+
 function user_search_widget:destroy()
     if self.view then
         self.view:removeSelf()
@@ -68,14 +85,14 @@ end
 
 function user_search_widget:createBackground()
     local bg = display.newImageRect("images/user_search_widget_bg.png", self.boxWidth, self.boxHeight)
-    bg.x, bg.y = self.boxWidth / 2, self.boxHeight / 2
+    bg.x, bg.y = self.boxWidth / 2, self.boxHeight / 2 + 150
     return bg
 end
 
 function user_search_widget:createTableView()
     local tableView = widget.newTableView {
         x = self.boxWidth / 2,
-        y = self.boxHeight / 2,
+        y = self.boxHeight / 2 + 150,
         width = self.boxWidth - 2 * BOX_SIDE_MARGIN,
         height = self.boxHeight - 2 * BOX_TOP_MARGIN,
         hideBackground = true,
@@ -88,7 +105,7 @@ end
 
 function user_search_widget:createSearchAreaGroup()
     local group = display.newGroup()
-    group.y = self.boxHeight + 75
+    group.y = 75
 
     group.searchInput = native.newTextField( 275, 0, 500, 75 )
     group.searchInput.placeholder = "Search for players"
@@ -164,7 +181,8 @@ function user_search_widget:getOnRowRenderListener()
         end
 
         local user = self.users[index]
-        local rowText = user.username .. " (" .. math.floor(user.rating / 1000) .. ")"
+        local usernameDisplay = user.id == self.authUser.id and "Me" or user.username
+        local rowText = usernameDisplay .. " (" .. tostring(user.rating) .. ")"
         local font = index == self.authUserIndex and native.systemFontBold or native.systemFont
         local rowTitle = display.newText(row, rowText, rowWidth / 2, rowHeight / 2, font, 32)
         rowTitle:setFillColor(0, 0, 0)

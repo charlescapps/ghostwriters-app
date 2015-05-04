@@ -111,12 +111,21 @@ function scene:startGameWithUser(userModel)
 end
 
 function scene:openUserInfoPopup(user)
-    self.userInfoPopup = user_info_popup.new(user, self, self.creds.user, true)
+    local onDestroyPopup = function()
+        local currentScene = composer.getSceneName("current")
+        if currentScene == self.sceneName then
+           if self.userSearchWidget then
+               self.userSearchWidget:showNativeInput()
+           end
+        end
+    end
+    self.userInfoPopup = user_info_popup.new(user, self, self.creds.user, true, onDestroyPopup)
     self.view:insert(self.userInfoPopup:render())
 end
 
 function scene:getOnRowTouchListener()
     return function(user)
+        self.userSearchWidget:hideNativeInput()
         self:openUserInfoPopup(user)
     end
 end

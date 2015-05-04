@@ -335,7 +335,7 @@ M.searchForUsers = function(textEntered, maxResults, onSuccess, onFail, onNetwor
 	end
 
 	-- Sanitize input and construct URL with query params.
-	local url = M.usersURL() .. "?q=" .. urls.escape(textEntered) .. "&maxResults=" .. maxResults
+	local url = urls.usersURL() .. "?q=" .. urls.escape(textEntered) .. "&maxResults=" .. maxResults
 
 	M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail or M.showNetworkError)
 end

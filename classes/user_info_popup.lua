@@ -17,12 +17,13 @@ local SPACING_LARGE = 75
 local SPACING_SMALL = 50
 local TEXT_PADDING = 20
 
-function user_info_popup.new(user, parentScene, authUser, showPlayGame)
+function user_info_popup.new(user, parentScene, authUser, showPlayGame, onDestroy)
     local userInfoPopup = {
         user = user,
         parentScene = parentScene,
         authUser = authUser,
-        showPlayGame = showPlayGame
+        showPlayGame = showPlayGame,
+        onDestroy = onDestroy
     }
     return setmetatable(userInfoPopup, user_info_popup_mt)
 end
@@ -71,6 +72,9 @@ function user_info_popup:destroy()
                 return
             end
             self.view:removeSelf()
+            if self.onDestroy then
+                self.onDestroy()
+            end
             self.view, self.screen, self.background, self.infoTextGroup, self.playButton = nil, nil, nil, nil, nil
         end
 
