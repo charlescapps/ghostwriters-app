@@ -7,6 +7,9 @@ local login_common = require("login.login_common")
 local user_search_widget = require("classes.user_search_widget")
 local user_info_popup = require("classes.user_info_popup")
 local game_helpers = require("common.game_helpers")
+local widget = require("widget")
+local display = require("display")
+local imgs = require("globals.imgs")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.start_multiplayer_scene"
@@ -26,8 +29,7 @@ function scene:create(event)
     local sceneGroup = self.view
     self.background = common_ui.createBackground()
 
-    self.startGameButton = common_ui.createBookButton("Quick start", "Touch to challenge a player at your skill level", nil,
-        self:getOnReleaseStartGameListener(), nil, 225)
+    self.quickStartButton = self:createQuickStartButton()
 
     self.backButton = common_ui.createBackButton(50, 100, "scenes.title_scene")
 
@@ -36,7 +38,7 @@ function scene:create(event)
 
     sceneGroup:insert(self.background)
 
-    sceneGroup:insert(self.startGameButton)
+    sceneGroup:insert(self.quickStartButton)
     sceneGroup:insert(self.backButton)
 end
 
@@ -117,6 +119,19 @@ function scene:getOnRowTouchListener()
     return function(user)
         self:openUserInfoPopup(user)
     end
+end
+
+function scene:createQuickStartButton()
+    local button = widget.newButton {
+        width = imgs.QUICKSTART_BUTTON_WIDTH,
+        height = imgs.QUICKSTART_BUTTON_HEIGHT,
+        defaultFile = imgs.QUICKSTART_BUTTON_DEFAULT,
+        overFile = imgs.QUICKSTART_BUTTON_OVER,
+        onRelease = self:getOnReleaseStartGameListener()
+    }
+    button.x = display.contentWidth / 2
+    button.y = 225
+    return button
 end
 
 -- Listener setup

@@ -21,7 +21,7 @@ function scene:create(event)
     local background = self:createBackground()
     self.leaderboard = leaderboard_class.new(self, self.creds.user)
     local leaderboardView = self.leaderboard:render()
-    self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene")
+    self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene", nil, nil, true)
 
     sceneGroup:insert(background)
     sceneGroup:insert(leaderboardView)

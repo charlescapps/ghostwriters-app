@@ -178,12 +178,19 @@ function scene:getNextUsername()
     common_api.getNextUsername(deviceId, self:getOnGetNextUsernameSuccessListener(), self:getOnGetNextUsernameFailListener(), true)
 end
 
+function scene:createTitleImage()
+    local titleImg = display.newImageRect( "images/ghostwriters_title.png", display.contentWidth, 175)
+    titleImg.x = display.contentWidth / 2
+    titleImg.y = 125
+    return titleImg
+end
+
 
 -- "scene:create()"
 function scene:create(event)
     local sceneGroup = self.view
     local background = common_ui.createBackground()
-    local title = common_ui.createTitle("Ghostwriters", nil, { 0, 0, 0 }, 60)
+    local title = self:createTitleImage()
     self.usernameInputLabel = createUsernameInputLabel()
     self.getNextUsernameButton = self:createGetNextUsernameButton()
     self.goButton = createGoButton()

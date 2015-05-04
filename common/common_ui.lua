@@ -8,10 +8,12 @@ local native = require("native")
 
 local DEFAULT_BACKGROUND = "images/book_texture.jpg"
 
-local DEFAULT_BACK_BUTTON = "images/back-button.png"
-local PRESSED_BACK_BUTTON = "images/back-button-pressed.png"
-local BACK_BTN_WIDTH = 75
-local BACK_BTN_HEIGHT = 75
+local DEFAULT_BACK_BUTTON = "images/back_button_default.png"
+local PRESSED_BACK_BUTTON = "images/back_button_over.png"
+local DEFAULT_BACK_BUTTON2 = "images/back_button2_default.png"
+local PRESSED_BACK_BUTTON2 = "images/back_button2_over.png"
+local BACK_BTN_WIDTH = 100
+local BACK_BTN_HEIGHT = 100
 
 local MODAL_IMAGE = "images/book_modal.png"
 local BOOK_BUTTON_DEFAULT_IMAGE = "images/book_button_default.png"
@@ -144,7 +146,7 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
     return group
 end
 
-M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition)
+M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition, alternate)
 -- Helper to call "beforeTransition", then go to the previous or specified scene, then call "afterTransition"
     local onRelease = function(event)
         if beforeTransition then
@@ -166,8 +168,8 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
         y = y,
         width = BACK_BTN_WIDTH,
         height = BACK_BTN_HEIGHT,
-        defaultFile = DEFAULT_BACK_BUTTON,
-        overFile = PRESSED_BACK_BUTTON,
+        defaultFile = alternate and DEFAULT_BACK_BUTTON2 or DEFAULT_BACK_BUTTON,
+        overFile = alternate and PRESSED_BACK_BUTTON2 or PRESSED_BACK_BUTTON,
         onRelease = onRelease
     }
 end

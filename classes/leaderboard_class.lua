@@ -5,12 +5,14 @@ local transition = require("transition")
 local json = require("json")
 local leaderboard_row = require("classes.leaderboard_row")
 local common_api = require("common.common_api")
+local math = require("math")
 
 local leaderboard_class = {}
 local leaderboard_class_mt = { __index = leaderboard_class }
 
 local TABLE_WIDTH = 750
 local TABLE_HEIGHT = 950
+local MIN_ROWS = 8
 local ROW_HEIGHT = 150
 local BUTTON_PAD = 6
 local BUTTON_SIZE = 180
@@ -104,12 +106,12 @@ function leaderboard_class:getOnLoadRanksSuccessListener()
         local focusedUserIndex
 
         print("Adding rows...")
-        for i = 1, #self.users do
+        for i = 1, math.max(#self.users, MIN_ROWS) do
             print("Inserting row #" .. i)
             local user = self.users[i]
-            if self.userId and self.userId == user.id or
+            if user and (self.userId and self.userId == user.id or
                     self.username and self.username == user.username or
-                    self.highlightIndex and self.highlightIndex == i then
+                    self.highlightIndex and self.highlightIndex == i) then
                 focusedUserIndex = i
             end
             self.leaderboardRows[i] = leaderboard_row.new(i, user, TABLE_WIDTH, ROW_HEIGHT, self.parentScene, self.authUser,
@@ -123,7 +125,9 @@ function leaderboard_class:getOnLoadRanksSuccessListener()
         end
 
         if focusedUserIndex and focusedUserIndex > 3 then
-            self.tableView:scrollToIndex(focusedUserIndex + 3, 1000)
+            local scrollIndex = math.min(focusedUserIndex + 3, self.tableView:getNumRows())
+            print("Focused user index=" .. focusedUserIndex .. ", scrolling to index=" .. scrollIndex)
+            self.tableView:scrollToIndex(scrollIndex, 1000)
         end
     end
 end
@@ -166,12 +170,11 @@ function leaderboard_class:createOnRowRenderListener()
         local leaderboardRow = row and row.params and row.params.leaderboardRow
 
         if not leaderboardRow then
-            print("Leaderboard Row instance is not defined, so not rendering a row.")
+            print("Leaderboard Row instance is not defined, cannot render row..")
             return
         end
 
         local rowView = leaderboardRow:render()
-
 
         row:insert(rowView)
         rowView.alpha = 0

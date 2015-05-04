@@ -26,14 +26,17 @@ end
 function leaderboard_row:render()
     self.view = display.newGroup()
     self.bookmarkBg = self:createBookmarkBg()
-    self.rankText = self:createRankText()
-    self.usernameText = self:createUsernameText(self.rankText)
-    self.ratingText = self:createRatingText(self.usernameText)
-
     self.view:insert(self.bookmarkBg)
-    self.view:insert(self.rankText)
-    self.view:insert(self.usernameText)
-    self.view:insert(self.ratingText)
+
+    if self.user then
+        self.rankText = self:createRankText()
+        self.usernameText = self:createUsernameText(self.rankText)
+        self.ratingText = self:createRatingText(self.usernameText)
+
+        self.view:insert(self.rankText)
+        self.view:insert(self.usernameText)
+        self.view:insert(self.ratingText)
+    end
 
     return self.view
 end
