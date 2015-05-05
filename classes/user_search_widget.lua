@@ -12,16 +12,17 @@ local user_search_widget = {}
 local user_search_widget_mt = { __index = user_search_widget }
 
 -- Constants
-local BOX_TOP_MARGIN = 125
-local BOX_SIDE_MARGIN = 90
+local PADDING = 25
+local SEARCH_BOX_HEIGHT = 150
+local SCROLL_WIDTH = 700
+local SCROLL_HEIGHT = 800
 local ROW_HEIGHT = 80
 local EVEN_ROW_COLOR = { default = { 0.46, 0.78, 1.0, 0.2 }, over = { 0.46, 0.78, 1.0, 0.6 } }
 local ODD_ROW_COLOR = { default = { 0.87, 0.95, 1.0, 0.2 }, over = { 0.67, 0.75, 0.8, 0.6 } }
-local FAKE_ROWS = 1
 
 function user_search_widget.new(authUser, x, y, boxWidth, boxHeight, onRowTouch)
 
-    local numVisibleRows = math.ceil((boxHeight - 2 * BOX_TOP_MARGIN) / ROW_HEIGHT)
+    local numVisibleRows = math.ceil(boxHeight / ROW_HEIGHT)
 
     local userSearchWidget = {
         authUser = authUser,
@@ -57,6 +58,7 @@ function user_search_widget:hideNativeInput()
     if not searchInput then
         return
     end
+    native.setKeyboardFocus(nil)
     transition.fadeOut(searchInput, { time = 500 })
 end
 
@@ -84,17 +86,17 @@ function user_search_widget:destroy()
 end
 
 function user_search_widget:createBackground()
-    local bg = display.newImageRect("images/user_search_widget_bg.png", self.boxWidth, self.boxHeight)
-    bg.x, bg.y = self.boxWidth / 2, self.boxHeight / 2 + 150
+    local bg = display.newImageRect("images/scroll_background.png", SCROLL_WIDTH, SCROLL_HEIGHT)
+    bg.x, bg.y = SCROLL_WIDTH / 2, SCROLL_HEIGHT / 2 + SEARCH_BOX_HEIGHT
     return bg
 end
 
 function user_search_widget:createTableView()
     local tableView = widget.newTableView {
-        x = self.boxWidth / 2,
-        y = self.boxHeight / 2 + 150,
-        width = self.boxWidth - 2 * BOX_SIDE_MARGIN,
-        height = self.boxHeight - 2 * BOX_TOP_MARGIN,
+        x = SCROLL_WIDTH / 2,
+        y = self.boxHeight / 2 + SEARCH_BOX_HEIGHT + 100,
+        width = self.boxWidth,
+        height = self.boxHeight,
         hideBackground = true,
         noLines = true,
         onRowRender = self:getOnRowRenderListener(),
@@ -128,7 +130,7 @@ function user_search_widget:createSearchAreaGroup()
     end)
 
     group.searchButton = common_ui.createImageButton(0, 150, 150, "images/search_button_default.png", "images/search_button_over.png", onReleaseSearchButton)
-    group.searchButton.x = self.boxWidth - 75
+    group.searchButton.x = 625
 
     group:insert(group.searchInput)
     group:insert(group.searchButton)
@@ -144,8 +146,8 @@ end
 
 function user_search_widget:createNoResultsText()
     local noResultsText = display.newText {
-        x = self.boxWidth / 2,
-        y = self.boxHeight / 2,
+        x = SCROLL_WIDTH / 2,
+        y = SCROLL_HEIGHT / 2 + SEARCH_BOX_HEIGHT,
         width = self.boxWidth,
         height = 200,
         font = native.systemFontBold,
@@ -181,14 +183,38 @@ function user_search_widget:getOnRowRenderListener()
         end
 
         local user = self.users[index]
-        local usernameDisplay = user.id == self.authUser.id and "Me" or user.username
-        local rowText = usernameDisplay .. " (" .. tostring(user.rating) .. ")"
+        local usernameDisplay = self:getUsernameDisplay(user)
         local font = index == self.authUserIndex and native.systemFontBold or native.systemFont
-        local rowTitle = display.newText(row, rowText, rowWidth / 2, rowHeight / 2, font, 32)
+        local rowTitle = display.newText(row, usernameDisplay, 20, rowHeight / 2, font, 32)
+        rowTitle.anchorX = 0
         rowTitle:setFillColor(0, 0, 0)
+
+        local ratingText = display.newText {
+            parent = row,
+            x = row.contentWidth / 2,
+            y = row.contentHeight / 2,
+            text = "(" .. tostring(user.rating) .. ")",
+            width = row.contentWidth - 40,
+            align = "right",
+            font = font,
+            fontSize = 32
+        }
+        ratingText:setFillColor(0, 0, 0)
 
         row.alpha = 0
         transition.fadeIn(row, { time = 1000 })
+    end
+end
+
+function user_search_widget:getUsernameDisplay(user)
+    if user.id == self.authUser.id then
+        return "Me"
+    elseif user.username == common_api.MONKEY_USERNAME
+            or user.username == common_api.BOOKWORM_USERNAME
+            or user.username == common_api.PROFESSOR_USERNAME then
+        return user.username .. " (AI)"
+    else
+        return user.username
     end
 end
 
