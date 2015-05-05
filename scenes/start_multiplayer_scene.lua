@@ -15,7 +15,7 @@ local scene = composer.newScene()
 scene.sceneName = "scenes.start_multiplayer_scene"
 
 -- Constants
-local SEARCH_BOX_WIDTH = 500
+local SEARCH_BOX_WIDTH = 450
 local SEARCH_BOX_HEIGHT = 480
 local MARGIN = 25
 

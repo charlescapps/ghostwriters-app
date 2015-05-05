@@ -1,6 +1,7 @@
 local display = require("display")
 local native = require("native")
 local widget = require("widget")
+local custom_text_field = require("classes.custom_text_field")
 local transition = require("transition")
 local json = require("json")
 local math = require("math")
@@ -12,13 +13,12 @@ local user_search_widget = {}
 local user_search_widget_mt = { __index = user_search_widget }
 
 -- Constants
-local PADDING = 25
 local SEARCH_BOX_HEIGHT = 150
 local SCROLL_WIDTH = 700
 local SCROLL_HEIGHT = 800
 local ROW_HEIGHT = 80
-local EVEN_ROW_COLOR = { default = { 0.46, 0.78, 1.0, 0.2 }, over = { 0.46, 0.78, 1.0, 0.6 } }
-local ODD_ROW_COLOR = { default = { 0.87, 0.95, 1.0, 0.2 }, over = { 0.67, 0.75, 0.8, 0.6 } }
+local EVEN_ROW_COLOR = { over = { 0.46, 0.78, 1.0, 0.2 }, default = { 0.46, 0.78, 1.0, 0.6 } }
+local ODD_ROW_COLOR = { over = { 0.87, 0.95, 1.0, 0.2 }, default = { 0.67, 0.75, 0.8, 0.6 } }
 
 function user_search_widget.new(authUser, x, y, boxWidth, boxHeight, onRowTouch)
 
@@ -54,21 +54,18 @@ function user_search_widget:render()
 end
 
 function user_search_widget:hideNativeInput()
-    local searchInput = self.searchAreaGroup and self.searchAreaGroup.searchInput
-    if not searchInput then
-        return
-    end
-    native.setKeyboardFocus(nil)
-    transition.fadeOut(searchInput, { time = 500 })
+    local searchText = self.searchAreaGroup.searchInput:getText()
+    self.searchAreaGroup.searchInput.previousText = searchText
+    self.searchAreaGroup.searchInput:setText("")
+    self.searchAreaGroup.searchInput:setPlaceholder("")
 end
 
 
 function user_search_widget:showNativeInput()
-    local searchInput = self.searchAreaGroup and self.searchAreaGroup.searchInput
-    if not searchInput then
-        return
-    end
-    transition.fadeIn(searchInput, { time = 500 })
+    local previousText = self.searchAreaGroup.searchInput.previousText or ""
+    self.searchAreaGroup.searchInput.previousText = nil
+    self.searchAreaGroup.searchInput:setText(previousText)
+    self.searchAreaGroup.searchInput:setPlaceholder("Search for players")
 end
 
 function user_search_widget:destroy()
@@ -109,13 +106,8 @@ function user_search_widget:createSearchAreaGroup()
     local group = display.newGroup()
     group.y = 75
 
-    group.searchInput = native.newTextField( 275, 0, 500, 75 )
-    group.searchInput.placeholder = "Search for players"
-    group.searchInput.size = 16
-    group.searchInput.isFontSizeScaled = true
-
     local onReleaseSearchButton = function()
-        local txt = group.searchInput.text
+        local txt = group.searchInput:getText()
         if txt and txt:len() < 1 then
             self:queryForUsersWithSimilarRating()
         elseif txt and txt:len() >= 1 then
@@ -123,12 +115,27 @@ function user_search_widget:createSearchAreaGroup()
         end
     end
 
-    group.searchInput:addEventListener("userInput", function(event)
+    local function userInputListener(event)
         if event.phase == "ended" or event.phase == "submitted" then
+            native.setKeyboardFocus(nil)
             onReleaseSearchButton()
         end
-    end)
+    end
 
+    group.searchInput = custom_text_field.newCustomTextField
+        {
+            x = 275,
+            y = 0,
+            width = 500,
+            height = 75,
+            placeholder = "Search for players",
+            fontSize = 24,
+           -- font = "Helvetica",
+            listener = userInputListener,
+            backgroundColor = { 1, 1, 1, 0.6 }
+        }
+
+    -- Create the Magnifying Glass search button
     group.searchButton = common_ui.createImageButton(0, 150, 150, "images/search_button_default.png", "images/search_button_over.png", onReleaseSearchButton)
     group.searchButton.x = 625
 
