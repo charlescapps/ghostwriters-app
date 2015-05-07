@@ -12,11 +12,17 @@ local SHEETS = {
     [common_api.LARGE_SIZE] = graphics.newImageSheet("images/squares_venti.png", squares_venti:getSheet())
 }
 
-M.NORMAL = { num = "1", letterMult = 1, images = nil }
-M.X2 = {num = "2", letterMult = 2, frameIndex = 1}
-M.X3 = {num = "3", letterMult = 3, frameIndex = 2}
-M.X4 = {num = "4", letterMult = 4, frameIndex = 3}
-M.X5 = {num = "5", letterMult = 5, frameIndex = 4}
+local SHEET_MODULES = {
+    [common_api.SMALL_SIZE] = squares_tall,
+    [common_api.MEDIUM_SIZE] = squares_grande,
+    [common_api.LARGE_SIZE] = squares_venti
+}
+
+M.NORMAL = { num = "1", letterMult = 1, frameName = nil }
+M.X2 = {num = "2", letterMult = 2, frameName = "X2"}
+M.X3 = {num = "3", letterMult = 3, frameName = "X3"}
+M.X4 = {num = "4", letterMult = 4, frameName = "X4"}
+M.X5 = {num = "5", letterMult = 5, frameName = "X5"}
 
 local borderRgb = {0, 0, 0, 1}
 local backgroundRgb = {0, 0, 0, 0.01}
@@ -46,9 +52,11 @@ M.draw = function(sqType, x, y, width, boardSize)
 	group.y = y
 	local bg = M.createSquareBackground(0, 0, width)
 	group:insert(bg)
-	if sqType.frameIndex then
+	if sqType.frameName then
         local sheet = SHEETS[boardSize]
-		local img = display.newImageRect(sheet, sqType.frameIndex, width, width)
+        local module = SHEET_MODULES[boardSize]
+        local frameIndex = module:getFrameIndex(sqType.frameName)
+		local img = display.newImageRect(sheet, frameIndex, width, width)
 		group:insert(img)
 	end
 
@@ -63,9 +71,11 @@ M.drawShadedSquare = function(sqType, x, y, width, boardSize)
     group.y = y
     local bg = M.createSquareBackground(0, 0, width, true)
     group:insert(bg)
-    if sqType.frameIndex then
+    if sqType.frameName then
         local sheet = SHEETS[boardSize]
-        local img = display.newImageRect(sheet, sqType.frameIndex, width, width)
+        local module = SHEET_MODULES[boardSize]
+        local frameIndex = module:getFrameIndex(sqType.frameName)
+        local img = display.newImageRect(sheet, frameIndex, width, width)
         group:insert(img)
     end
 

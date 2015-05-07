@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:13c35be7afd797996cdb559030b727f1:9c14beac9f6abd5b7db6ec52260b1740:763e0b3cadae6c60ac1cd1029bdc34b8$
+-- $TexturePacker:SmartUpdate:522fc61649758182a1fe541213961a83:c378b044df5325d9f0e9cdb75e86d816:763e0b3cadae6c60ac1cd1029bdc34b8$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -55,10 +55,10 @@ SheetInfo.sheet =
 SheetInfo.frameIndex =
 {
 
-    ["venti_x2"] = 1,
-    ["venti_x3"] = 2,
-    ["venti_x4"] = 3,
-    ["venti_x5"] = 4,
+    ["X2"] = 1,
+    ["X3"] = 2,
+    ["X4"] = 3,
+    ["X5"] = 4,
 }
 
 function SheetInfo:getSheet()
