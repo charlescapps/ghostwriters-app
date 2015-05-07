@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:372c34de7653166650e038df4210174e:7b01d801cbb2c1d46d07cd98800977c3:d906286d76086e5113c7797a9b336ca8$
+-- $TexturePacker:SmartUpdate:906b2d0401680d5bbb732a9a61952f81:7b01d801cbb2c1d46d07cd98800977c3:09d294fe94c5eb23b3802926c0379182$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -16,49 +16,49 @@ SheetInfo.sheet =
     
         {
             -- X2
-            x=9,
-            y=9,
-            width=90,
-            height=90,
+            x=4,
+            y=4,
+            width=300,
+            height=300,
 
         },
         {
             -- X3
-            x=108,
-            y=9,
-            width=90,
-            height=90,
+            x=308,
+            y=4,
+            width=300,
+            height=300,
 
         },
         {
             -- X4
-            x=207,
-            y=9,
-            width=90,
-            height=90,
+            x=612,
+            y=4,
+            width=300,
+            height=300,
 
         },
         {
             -- X5
-            x=306,
-            y=9,
-            width=90,
-            height=90,
+            x=916,
+            y=4,
+            width=300,
+            height=300,
 
         },
     },
     
-    sheetContentWidth = 405,
-    sheetContentHeight = 108
+    sheetContentWidth = 1220,
+    sheetContentHeight = 308
 }
 
 SheetInfo.frameIndex =
 {
 
-    ["grande_x2"] = 1,
-    ["grande_x3"] = 2,
-    ["grande_x4"] = 3,
-    ["grande_x5"] = 4,
+    ["tall_x2"] = 1,
+    ["tall_x3"] = 2,
+    ["tall_x4"] = 3,
+    ["tall_x5"] = 4,
 }
 
 function SheetInfo:getSheet()

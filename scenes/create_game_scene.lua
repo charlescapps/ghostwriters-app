@@ -8,6 +8,7 @@ local native = require("native")
 local new_game_data = require("globals.new_game_data")
 local current_game = require("globals.current_game")
 local game_options_modal = require("classes.game_options_modal")
+local create_game_options = require("classes.create_game_options")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -24,13 +25,15 @@ function scene:create(event)
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self)
     self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(100, 100, "scenes.choose_board_size_scene")
+    self.backButton = common_ui.createBackButton(80, 80, "scenes.choose_board_size_scene")
+    self.createGameOptions = create_game_options.new()
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.gearButton)
     sceneGroup:insert(self.createGameButton)
     sceneGroup:insert(self.backButton)
     sceneGroup:insert(self.gameOptionsModal:render())
+    sceneGroup:insert(self.createGameOptions:render())
 
 end
 

@@ -4,7 +4,7 @@ local display = require("display")
 local transition = require("transition")
 local native = require("native")
 local widget = require("widget")
-local graphics = require("graphics")
+local game_ui = require("common.game_ui")
 local checkboxes_sheet = require("spritesheets.checkboxes_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local common_api = require("common.common_api")
@@ -14,13 +14,6 @@ local game_options_modal = {}
 local game_options_modal_mt = { __index = game_options_modal }
 
 function game_options_modal.new(parentScene)
-    if not game_options_modal.radioButtonSheet then
-        game_options_modal.radioButtonSheet = graphics.newImageSheet("spritesheets/radio_button_sheet.png", radio_button_sheet:getSheet())
-    end
-
-    if not game_options_modal.checkboxesSheet then
-        game_options_modal.checkboxesSheet = graphics.newImageSheet("spritesheets/checkboxes_sheet.png", checkboxes_sheet:getSheet())
-    end
 
     local gameOptionsModal = {
         parentScene = parentScene
@@ -125,7 +118,7 @@ function game_options_modal:drawGameDensityOptions()
     local sparseRadio = widget.newSwitch {
         initialSwitchState = false,
         style = "radio",
-        sheet = game_options_modal.radioButtonSheet,
+        sheet = game_ui:getRadioButtonSheet(),
         width = 60,
         height = 60,
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
@@ -155,7 +148,7 @@ function game_options_modal:drawGameDensityOptions()
     local regularRadio = widget.newSwitch {
         initialSwitchState = true,
         style = "radio",
-        sheet = game_options_modal.radioButtonSheet,
+        sheet = game_ui:getRadioButtonSheet(),
         width = 60,
         height = 60,
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
@@ -185,7 +178,7 @@ function game_options_modal:drawGameDensityOptions()
     local denseRadio = widget.newSwitch {
         initialSwitchState = false,
         style = "radio",
-        sheet = game_options_modal.radioButtonSheet,
+        sheet = game_ui:getRadioButtonSheet(),
         width = 60,
         height = 60,
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
@@ -236,7 +229,7 @@ function game_options_modal:drawBonusOptions()
     local randomBonusesCheckbox = widget.newSwitch {
         initialSwitchState = new_game_data.bonusesType == common_api.RANDOM_BONUSES,
         style = "checkbox",
-        sheet = game_options_modal.checkboxesSheet,
+        sheet = game_ui:getCheckboxesSheet(),
         width = 60,
         height = 60,
         frameOn = checkboxes_sheet:getFrameIndex("checkbox_checked"),

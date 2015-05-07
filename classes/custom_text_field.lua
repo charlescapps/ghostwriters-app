@@ -59,7 +59,7 @@ function M.newCustomTextField(options)
     local deviceScale = ( display.pixelWidth / display.contentWidth ) * 0.5
     local actualFontSize = opt.fontSize * deviceScale
 
-    field.textField = native.newTextField( 0, actualFontSize / 2, opt.width - opt.cornerRadius, tHeight )
+    field.textField = native.newTextField( 0, opt.fontSize / 2, opt.width - opt.cornerRadius, tHeight )
     field:insert(field.textField)
     field.textField.hasBackground = false
     field.textField.inputType = opt.inputType

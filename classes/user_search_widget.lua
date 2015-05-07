@@ -107,6 +107,7 @@ function user_search_widget:createSearchAreaGroup()
     group.y = 75
 
     local onReleaseSearchButton = function()
+        native.setKeyboardFocus(nil)
         local txt = group.searchInput:getText()
         if txt and txt:len() < 1 then
             self:queryForUsersWithSimilarRating()
@@ -117,7 +118,6 @@ function user_search_widget:createSearchAreaGroup()
 
     local function userInputListener(event)
         if event.phase == "ended" or event.phase == "submitted" then
-            native.setKeyboardFocus(nil)
             onReleaseSearchButton()
         end
     end
@@ -201,7 +201,7 @@ function user_search_widget:getOnRowRenderListener()
             x = row.contentWidth / 2,
             y = row.contentHeight / 2,
             text = "(" .. tostring(user.rating) .. ")",
-            width = row.contentWidth - 40,
+            width = row.contentWidth - 50,
             align = "right",
             font = font,
             fontSize = 32

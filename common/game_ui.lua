@@ -3,6 +3,9 @@ local native = require("native")
 local transition = require("transition")
 local common_api = require("common.common_api")
 local user_info_popup = require("classes.user_info_popup")
+local graphics = require("graphics")
+local checkboxes_sheet = require("spritesheets.checkboxes_sheet")
+local radio_button_sheet = require("spritesheets.radio_button_sheet")
 
 
 local M = {}
@@ -238,6 +241,20 @@ function M.createRatingUpModal(parentScene, ratingChange)
     transition.fadeIn(group, { time = 1000 })
 
     return group
+end
+
+function M:getRadioButtonSheet()
+    if not self.radioButtonSheet then
+        self.radioButtonSheet = graphics.newImageSheet("spritesheets/radio_button_sheet.png", radio_button_sheet:getSheet())
+    end
+    return self.radioButtonSheet
+end
+
+function M:getCheckboxesSheet()
+    if not self.checkboxesSheet then
+        self.checkboxesSheet = graphics.newImageSheet("spritesheets/checkboxes_sheet.png", checkboxes_sheet:getSheet())
+    end
+    return self.checkboxesSheet
 end
 
 return M

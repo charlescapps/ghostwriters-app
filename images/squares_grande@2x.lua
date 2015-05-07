@@ -16,40 +16,40 @@ SheetInfo.sheet =
     
         {
             -- X2
-            x=9,
-            y=9,
-            width=90,
-            height=90,
+            x=18,
+            y=18,
+            width=180,
+            height=180,
 
         },
         {
             -- X3
-            x=108,
-            y=9,
-            width=90,
-            height=90,
+            x=216,
+            y=18,
+            width=180,
+            height=180,
 
         },
         {
             -- X4
-            x=207,
-            y=9,
-            width=90,
-            height=90,
+            x=414,
+            y=18,
+            width=180,
+            height=180,
 
         },
         {
             -- X5
-            x=306,
-            y=9,
-            width=90,
-            height=90,
+            x=612,
+            y=18,
+            width=180,
+            height=180,
 
         },
     },
     
-    sheetContentWidth = 405,
-    sheetContentHeight = 108
+    sheetContentWidth = 810,
+    sheetContentHeight = 216
 }
 
 SheetInfo.frameIndex =
