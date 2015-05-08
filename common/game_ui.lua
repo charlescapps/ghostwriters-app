@@ -6,6 +6,7 @@ local user_info_popup = require("classes.user_info_popup")
 local graphics = require("graphics")
 local checkboxes_sheet = require("spritesheets.checkboxes_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
+local stepper_sheet = require("spritesheets.stepper_sheet")
 
 
 local M = {}
@@ -255,6 +256,13 @@ function M:getCheckboxesSheet()
         self.checkboxesSheet = graphics.newImageSheet("spritesheets/checkboxes_sheet.png", checkboxes_sheet:getSheet())
     end
     return self.checkboxesSheet
+end
+
+function M:getStepperSheet()
+    if not self.stepperSheet then
+       self.stepperSheet = graphics.newImageSheet("spritesheets/stepper_sheet.png", stepper_sheet:getSheet())
+    end
+    return self.stepperSheet
 end
 
 return M

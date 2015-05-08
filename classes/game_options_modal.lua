@@ -40,6 +40,11 @@ function game_options_modal:render()
 end
 
 function game_options_modal:show()
+    if not self.view then
+        return
+    end
+    self.view:toFront()
+
     transition.fadeIn(self.view, {
         time = 800
     })
