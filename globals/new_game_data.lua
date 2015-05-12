@@ -7,6 +7,7 @@ M.gameType = nil
 M.boardSize = nil
 M.bonusesType = nil
 M.gameDensity = nil
+M.specialDict = nil
 M.aiType = nil
 M.startScene = nil
 
@@ -33,7 +34,8 @@ M.getNewGameModel = function(user)
 			player2 = M.rival.id,
 			boardSize = M.boardSize,
 			bonusesType = M.bonusesType,
-			gameDensity = M.gameDensity
+			gameDensity = M.gameDensity,
+            specialDict = M.specialDict
 		}
 	else
 		return {
@@ -42,7 +44,8 @@ M.getNewGameModel = function(user)
 			player1 = user.id,
 			boardSize = M.boardSize,
 			bonusesType = M.bonusesType,
-			gameDensity = M.gameDensity
+			gameDensity = M.gameDensity,
+            specialDict = M.specialDict
 		}
 	end
 end
@@ -55,6 +58,7 @@ M.clearAll = function()
     M.bonusesType = nil
     M.gameDensity = nil
 	M.aiType = nil
+    M.specialDict = nil
     M.startScene = nil
 end
 

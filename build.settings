@@ -16,6 +16,11 @@ settings =
             publisherId = "com.coronalabs",
             supportedPlatforms = { android=true, ["android-kindle"]=true },
         },
+        ["plugin.google.iap.v3"] =
+        {
+            publisherId = "com.coronalabs",
+            supportedPlatforms = { android=true }
+        },
     },
 
     build = {
@@ -34,8 +39,11 @@ settings =
 	excludeFiles =
 	{
 		-- Include only the necessary icon files on each platform
-		iphone = { "Icon-*dpi.png", },
-		android = { "Icon.png", "Icon-Small-*.png", "Icon*@2x.png", },
+		iphone = { "Icon-*dpi.png", "*.iml" },
+		android = { "Icon.png", "Icon-Small-*.png", "Icon*@2x.png", "Icon-60*.png", "Icon-72.png", "Icon-76.png",
+		            "Default-5*.png", "Default-6*.png", "Default-7*.png",
+		            "Default-Portrait@2x.png",
+		            "*.iml"},
 	},
 
 	--
@@ -129,7 +137,8 @@ settings =
 		usesPermissions =
 		{
 			"android.permission.INTERNET",
-			"android.permission.READ\_PHONE\_STATE"
+			"android.permission.READ\_PHONE\_STATE",
+			"com.android.vending.BILLING"
 		},
 		supportsScreens =
         {

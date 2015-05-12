@@ -48,6 +48,11 @@ M.GRAB_TILES = "GRAB_TILES"
 M.PLAY_TILES = "PLAY_WORD"
 M.PASS = "PASS"
 
+-- Special dictionaries
+M.DICT_POE = "POE"
+M.DICT_LOVECRAFT = "LOVECRAFT"
+M.DICT_MYTHOS = "MYTHOS"
+
 M.getPassMove = function(gameModel, playerId)
     return {
         gameId = gameModel.id,

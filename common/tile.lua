@@ -4,12 +4,8 @@ local display = require("display")
 local common_api = require("common.common_api")
 
 local ghostly_tall = require("spritesheets.ghostly_tall")
-local ghostly_grande = require("spritesheets.ghostly_grande")
-local ghostly_venti = require("spritesheets.ghostly_venti")
 
 local stone_tall = require("spritesheets.stone_tall")
-local stone_grande = require("spritesheets.stone_grande")
-local stone_venti = require("spritesheets.stone_venti")
 
 local graphics = require("graphics")
 
@@ -30,20 +26,11 @@ M.EMPTY_TILE = "EMPTY_TILE"
 M.RACK_TILE = "RACK_TILE"
 
 -- Spritesheets
-M.ghostlySheets = {}
-M.stoneSheets = {}
+M.ghostlySheet = nil
+M.stoneSheet = nil
 M.rackSheet = nil
 
-M.ghostlySheetHelpers = {
-    [common_api.SMALL_SIZE] = ghostly_tall,
-    [common_api.MEDIUM_SIZE] = ghostly_grande,
-    [common_api.LARGE_SIZE] = ghostly_venti
-}
-M.stoneSheetHelpers = {
-    [common_api.SMALL_SIZE] = stone_tall,
-    [common_api.MEDIUM_SIZE] = stone_grande,
-    [common_api.LARGE_SIZE] = stone_venti
-}
+
 M.rackSheetHelper = require("spritesheets.rack_sheet")
 
 -- Public functions
@@ -69,15 +56,15 @@ end
 
 -- Local helper functions
 createGhostlyTile = function(letter, boardSize)
-    local helper = M.ghostlySheetHelpers[boardSize]
-    if not M.ghostlySheets[boardSize] then
-        local imageFile = "spritesheets/ghostly_" .. boardSize:lower() .. ".png"
-        M.ghostlySheets[boardSize] = graphics.newImageSheet(imageFile, helper:getSheet())
+    local helper = ghostly_tall
+    if not M.ghostlySheet then
+        local imageFile = "spritesheets/ghostly_tall.png"
+        M.ghostlySheet = graphics.newImageSheet(imageFile, helper:getSheet())
     end
 
 	return {
 		letter = letter,
-		imageSheet = M.ghostlySheets[boardSize],
+		imageSheet = M.ghostlySheet,
 		frameIndex = helper:getFrameIndex(letter:lower() .. "_ghostly"),
         tileType = M.ORIGINAL_TILE
 	}
@@ -99,15 +86,15 @@ createRackTile = function(letter)
 end
 
 createStoneTile = function(letter, boardSize)
-    local helper = M.stoneSheetHelpers[boardSize]
-    if not M.stoneSheets[boardSize] then
-        local imageFile = "spritesheets/stone_" .. boardSize:lower() .. ".png"
-        M.stoneSheets[boardSize] = graphics.newImageSheet(imageFile, helper:getSheet())
+    local helper = stone_tall
+    if not M.stoneSheet then
+        local imageFile = "spritesheets/stone_tall.png"
+        M.stoneSheet = graphics.newImageSheet(imageFile, helper:getSheet())
     end
 
     return {
         letter = letter,
-        imageSheet = M.stoneSheets[boardSize],
+        imageSheet = M.stoneSheet,
         frameIndex = helper:getFrameIndex(letter:lower() .. "_stone"),
         tileType = M.PLAYED_TILE
     }

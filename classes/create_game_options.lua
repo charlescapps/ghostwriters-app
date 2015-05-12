@@ -5,13 +5,14 @@ local game_ui = require("common.game_ui")
 local new_game_data = require("globals.new_game_data")
 local stepper_sheet = require("spritesheets.stepper_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
+local common_api = require("common.common_api")
 
 local M = {}
 
 local Y_SPACING = 80
 local LEFT_COLUMN = 30
 local MID_COLUMN = display.contentCenterX
-local RIGHT_COLUMN = display.contentCenterX + 225
+local RIGHT_COLUMN = display.contentCenterX + 240
 
 local mt = { __index = M }
 
@@ -49,17 +50,17 @@ function M:drawDictionaryOptions()
     }
     title:setFillColor(0, 0, 0)
 
-    self.plainEnglishOption = self:drawDictionaryOption(group, 100, " English", 0, true)
-    self.victorianOption = self:drawDictionaryOption(group, 200, "+Victorian Era", 1, false)
-    self.steampunkOption = self:drawDictionaryOption(group, 300, "+Steampunk", 2, false)
-    self.lovecraftOption = self:drawDictionaryOption(group, 400, "+H.P. Lovecraft", 3, false)
+    self.plainEnglishOption = self:drawDictionaryOption(group, 100, " English", nil, 0, true)
+    self.victorianOption = self:drawDictionaryOption(group, 200, "Edgar Allen Poe", common_api.DICT_POE, 1, false)
+    self.steampunkOption = self:drawDictionaryOption(group, 300, "H.P. Lovecraft", common_api.DICT_LOVECRAFT, 2, false)
+    self.lovecraftOption = self:drawDictionaryOption(group, 400, "Cthulhu Mythos", common_api.DICT_MYTHOS, 3, false)
 
     group:insert(title)
 
     return group
 end
 
-function M:drawDictionaryOption(parent, yPosition, text, numBooks, isSelected)
+function M:drawDictionaryOption(parent, yPosition, text, specialDict, numBooks, isSelected)
     local labelText = display.newText {
         parent = parent,
         text = text,
@@ -84,6 +85,13 @@ function M:drawDictionaryOption(parent, yPosition, text, numBooks, isSelected)
     costText.anchorX = 0
     costText:setFillColor(0, 0, 0)
 
+    local function onRelease(event)
+        if event.target.isOn then
+            print("Radio button for dict " .. tostring(specialDict) .. " selected!")
+            new_game_data.specialDict = specialDict
+        end
+    end
+
     local radioButton = widget.newSwitch {
         initialSwitchState = isSelected,
         style = "radio",
@@ -93,7 +101,8 @@ function M:drawDictionaryOption(parent, yPosition, text, numBooks, isSelected)
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
         frameOff = radio_button_sheet:getFrameIndex("radio_button_off"),
         x = RIGHT_COLUMN,
-        y = yPosition
+        y = yPosition,
+        onRelease = onRelease
     }
     parent:insert(radioButton)
 end

@@ -86,7 +86,7 @@ function scene:createGearButton()
     end
 
     return widget.newButton {
-        x = display.contentWidth - 100,
+        x = display.contentCenterX + 240,
         y = display.contentHeight - 300,
         defaultFile = "images/gear-icon.png",
         overFile = "images/gear-icon_over.png",

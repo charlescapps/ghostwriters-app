@@ -11,7 +11,7 @@ local nav = require("common.nav")
 local MY_SCENE = "scenes.play_game_scene";
 local GAME_MENU_IMG = "images/game_menu_book.jpg"
 local GAME_MENU_WIDTH = 750
-local GAME_MENU_HEIGHT = 895
+local GAME_MENU_HEIGHT = 890
 
 
 function game_menu_class.new(x, y)

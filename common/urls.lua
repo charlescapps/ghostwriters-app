@@ -1,7 +1,7 @@
 local M = {}
 
 local SERVER = "https://ghostwriters.herokuapp.com/api"
---local SERVER = "http://10.0.0.13:8080/api"
+--local SERVER = "http://localhost:8080/api"
 
 M.escape = function(str)
     str = string.gsub (str, "\n", "\r\n")
