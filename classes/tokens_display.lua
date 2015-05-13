@@ -49,6 +49,14 @@ function M:drawTokensInitially()
         self.tokenImages[i] = img
         self.view:insert(img)
     end
+
+    for i = self.numTokens + 1, 10 do
+        local img = display.newImageRect("images/book_token.jpg", TOKEN_WIDTH, TOKEN_HEIGHT)
+        img.x, img.y = self:computeTokenPos(i)
+        img:setFillColor(1, 1, 1, 0.5)
+        self.tokenImages[i] = img
+        self.view:insert(img)
+    end
 end
 
 
