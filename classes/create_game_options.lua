@@ -16,9 +16,9 @@ local RIGHT_COLUMN = display.contentCenterX + 240
 
 local mt = { __index = M }
 
-function M.new()
+function M.new(onUpdateCost)
     local createGameOptions = {
-
+        onUpdateCost = onUpdateCost
     }
 
     return setmetatable(createGameOptions, mt)
@@ -40,7 +40,7 @@ end
 
 function M:drawDictionaryOptions()
     local group = display.newGroup()
-    group.y = 150
+    group.y = 255
 
     local title = display.newText {
         text = "Choose Dictionary",
@@ -51,13 +51,27 @@ function M:drawDictionaryOptions()
     title:setFillColor(0, 0, 0)
 
     self.plainEnglishOption = self:drawDictionaryOption(group, 100, " English", nil, 0, true)
-    self.victorianOption = self:drawDictionaryOption(group, 200, "Edgar Allen Poe", common_api.DICT_POE, 1, false)
-    self.steampunkOption = self:drawDictionaryOption(group, 300, "H.P. Lovecraft", common_api.DICT_LOVECRAFT, 2, false)
-    self.lovecraftOption = self:drawDictionaryOption(group, 400, "Cthulhu Mythos", common_api.DICT_MYTHOS, 3, false)
+    self.poeOption = self:drawDictionaryOption(group, 200, "Edgar Allen Poe", common_api.DICT_POE, 1, false)
+    self.lovecraftOption = self:drawDictionaryOption(group, 300, "H.P. Lovecraft", common_api.DICT_LOVECRAFT, 1, false)
+    self.mythosOption = self:drawDictionaryOption(group, 400, "Cthulhu Mythos", common_api.DICT_MYTHOS, 2, false)
 
     group:insert(title)
 
     return group
+end
+
+function M:getDictionaryCost()
+    if self.plainEnglishOption.isOn then
+        return 0
+    elseif self.poeOption.isOn then
+        return 1
+    elseif self.lovecraftOption.isOn then
+        return 1
+    elseif self.mythosOption.isOn then
+        return 2
+    end
+    print("Error - none of the Dictionary options had isOn == true.")
+    return 0
 end
 
 function M:drawDictionaryOption(parent, yPosition, text, specialDict, numBooks, isSelected)
@@ -89,6 +103,7 @@ function M:drawDictionaryOption(parent, yPosition, text, specialDict, numBooks, 
         if event.target.isOn then
             print("Radio button for dict " .. tostring(specialDict) .. " selected!")
             new_game_data.specialDict = specialDict
+            self.onUpdateCost()
         end
     end
 
@@ -105,11 +120,12 @@ function M:drawDictionaryOption(parent, yPosition, text, specialDict, numBooks, 
         onRelease = onRelease
     }
     parent:insert(radioButton)
+    return radioButton
 end
 
 function M.drawBonusOptions()
     local group = display.newGroup()
-    group.y = 700
+    group.y = 750
 
     local title = display.newText {
         text = "Choose Bonuses",

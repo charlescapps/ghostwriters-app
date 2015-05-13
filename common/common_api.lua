@@ -65,6 +65,19 @@ M.getPassMove = function(gameModel, playerId)
     }
 end
 
+M.getTokenCost = function(boardSize)
+    if boardSize == M.SMALL_SIZE then
+        return 1
+    elseif boardSize == M.MEDIUM_SIZE then
+        return 3
+    elseif boardSize == M.LARGE_SIZE then
+        return 5
+    end
+
+    print("ERROR - invalid board size passed into getTokenCost: " .. tostring(boardSize))
+    return 0
+end
+
 -- Game results
 M.OFFERED = "OFFERED"
 M.IN_PROGRESS = "IN_PROGRESS"

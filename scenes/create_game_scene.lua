@@ -9,6 +9,8 @@ local new_game_data = require("globals.new_game_data")
 local current_game = require("globals.current_game")
 local game_options_modal = require("classes.game_options_modal")
 local create_game_options = require("classes.create_game_options")
+local tokens_display = require("classes.tokens_display")
+local token_cost_info = require("classes.token_cost_info")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -25,8 +27,8 @@ function scene:create(event)
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self)
     self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(80, 80, "scenes.choose_board_size_scene")
-    self.createGameOptions = create_game_options.new()
+    self.backButton = common_ui.createBackButton(80, 255, "scenes.choose_board_size_scene")
+    self.createGameOptions = create_game_options.new(self:getOnUpdateCostListener())
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.gearButton)
@@ -35,6 +37,22 @@ function scene:create(event)
     sceneGroup:insert(self.gameOptionsModal:render())
     sceneGroup:insert(self.createGameOptions:render())
 
+    local currentCost = self:getCurrentCost()
+    self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
+    sceneGroup:insert(self.tokenCostInfo:render())
+end
+
+function scene:getOnUpdateCostListener()
+    return function()
+        local updatedCost = self:getCurrentCost()
+        self.tokenCostInfo:updateCost(updatedCost)
+    end
+end
+
+function scene:getCurrentCost()
+    local boardSizeCost = common_api.getTokenCost(new_game_data.boardSize)
+    local dictionaryCost = self.createGameOptions:getDictionaryCost()
+    return boardSizeCost + dictionaryCost
 end
 
 -- "scene:show()"
@@ -46,6 +64,12 @@ function scene:show( event )
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
         self.creds = login_common.fetchCredentials()
+        if not self.creds then
+            return
+        end
+
+        self.tokensDisplay = tokens_display.new(display.contentCenterX, 120, self.creds.user.tokens)
+        sceneGroup:insert(self.tokensDisplay:render())
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         if not self.creds then
@@ -86,8 +110,8 @@ function scene:createGearButton()
     end
 
     return widget.newButton {
-        x = display.contentCenterX + 240,
-        y = display.contentHeight - 300,
+        x = display.contentCenterX + 250,
+        y = 1200,
         defaultFile = "images/gear-icon.png",
         overFile = "images/gear-icon_over.png",
         width = 100,
@@ -97,7 +121,9 @@ function scene:createGearButton()
 end
 
 function scene:createCreateGameButton()
-    return common_ui.createButton("Create Game", 1200, self:onReleaseCreateGameButton(), 425)
+    local button = common_ui.createButton("Create Game", 1200, self:onReleaseCreateGameButton(), 425)
+    button.x = display.contentCenterX - 60
+    return button
 end
 
 function scene:onReleaseCreateGameButton()
