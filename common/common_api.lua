@@ -69,9 +69,9 @@ M.getTokenCost = function(boardSize)
     if boardSize == M.SMALL_SIZE then
         return 1
     elseif boardSize == M.MEDIUM_SIZE then
-        return 3
+        return 2
     elseif boardSize == M.LARGE_SIZE then
-        return 5
+        return 3
     end
 
     print("ERROR - invalid board size passed into getTokenCost: " .. tostring(boardSize))

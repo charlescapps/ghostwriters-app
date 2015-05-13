@@ -30,8 +30,8 @@ function M:render()
     group.x, group.y = self.x, self.y
     self.view = group
 
-    self.bg = self:drawBackground()
-    self.view:insert(self.bg)
+    --self.bg = self:drawBackground()
+    --self.view:insert(self.bg)
 
     self:drawTokensInitially()
 

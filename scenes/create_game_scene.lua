@@ -150,6 +150,7 @@ function scene.onCreateGameSuccess(gameModel)
     if currentScene == scene.sceneName then
         new_game_data.clearAll()
         current_game.currentGame = gameModel
+        login_common.updateStoredUser(gameModel.player1Model)
         composer.gotoScene( "scenes.play_game_scene", "fade" )
     else
         print("ERROR - Attempt to start a new game from create_game_scene, but current scene is now: " .. currentScene)
