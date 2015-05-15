@@ -19,6 +19,11 @@ scene.sceneName = "scenes.create_game_scene"
 function scene:create(event)
     local sceneGroup = self.view
 
+    self.creds = login_common.fetchCredentials()
+    if not self.creds then
+        return
+    end
+
     -- Set the default values for the game density & bonuses layout
     new_game_data.gameDensity = common_api.MEDIUM_DENSITY
     new_game_data.bonusesType = common_api.RANDOM_BONUSES
@@ -29,6 +34,7 @@ function scene:create(event)
     self.createGameButton = self:createCreateGameButton()
     self.backButton = common_ui.createBackButton(80, 255, "scenes.choose_board_size_scene")
     self.createGameOptions = create_game_options.new(self:getOnUpdateCostListener())
+    self.tokensDisplay = tokens_display.new(display.contentCenterX, 120, self.creds.user.tokens)
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.gearButton)
@@ -36,10 +42,25 @@ function scene:create(event)
     sceneGroup:insert(self.backButton)
     sceneGroup:insert(self.gameOptionsModal:render())
     sceneGroup:insert(self.createGameOptions:render())
+    sceneGroup:insert(self.tokensDisplay:render())
 
     local currentCost = self:getCurrentCost()
     self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
     sceneGroup:insert(self.tokenCostInfo:render())
+
+    -- Fetch updated user model
+    common_api.getSelf(self:onGetSelfSuccess(), self:onGetSelfFail())
+end
+
+function scene:onGetSelfSuccess()
+    return function(userModel)
+        login_common.updateStoredUser(userModel)
+        self.tokensDisplay:updateNumTokens(userModel.tokens)
+    end
+end
+
+function scene:onGetSelfFail()
+    print("An error occurred getting an updated user model for the current user.")
 end
 
 function scene:getOnUpdateCostListener()
@@ -63,13 +84,8 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
-        self.creds = login_common.fetchCredentials()
-        if not self.creds then
-            return
-        end
 
-        self.tokensDisplay = tokens_display.new(display.contentCenterX, 120, self.creds.user.tokens)
-        sceneGroup:insert(self.tokensDisplay:render())
+
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
         if not self.creds then

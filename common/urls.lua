@@ -21,6 +21,10 @@ M.usersURL = function()
     return SERVER .. "/users"
 end
 
+M.getSelfURL = function()
+    return SERVER .. "/users/me"
+end
+
 M.nextUsernameURL = function(deviceId)
     local url =  M.usersURL() .. "/nextUsername"
     if deviceId then

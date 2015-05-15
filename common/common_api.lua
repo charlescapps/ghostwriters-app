@@ -458,4 +458,9 @@ M.getMyGamesSummary = function(onSuccess, onFail, doCreateSpinner)
     M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
+M.getSelf = function(onSuccess, onFail, doCreateSpinner)
+    local url = urls.getSelfURL()
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, false)
+end
+
 return M
