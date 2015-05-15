@@ -102,7 +102,7 @@ function M:computeTokenPos(tokenIndex)
     local i = tokenIndex - 1
     local firstX = -ALL_TOKENS_WIDTH / 2
     local x = firstX + (i % 10) * DISPLAY_TOKEN_WIDTH
-    return x, -5
+    return x, 0
 end
 
 function M:updateNumTokens(updatedNumTokens)
