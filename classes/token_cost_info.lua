@@ -44,7 +44,7 @@ function M:drawTitle()
 end
 
 function M:drawTokenSymbol()
-    local img = display.newImageRect("images/book_token.jpg", 64, 88)
+    local img = display.newImageRect("images/currency_book.png", 90, 90)
     img.x, img.y = 130, 0
     return img
 end

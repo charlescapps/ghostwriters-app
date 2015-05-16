@@ -13,8 +13,8 @@ local BG_HEIGHT = 133
 
 local ALL_TOKENS_WIDTH = 500
 
-local TOKEN_WIDTH = 64
-local TOKEN_HEIGHT = 88
+local TOKEN_WIDTH = 90
+local TOKEN_HEIGHT = 90
 
 local PLUS_WIDTH = 100
 local PLUS_HEIGHT = 100
@@ -83,14 +83,14 @@ end
 
 function M:drawTokens()
     for i = 1, math.min(pay_helpers.MAX_TOKENS, self.numTokens) do
-        local img = display.newImageRect("images/book_token.jpg", TOKEN_WIDTH, TOKEN_HEIGHT)
+        local img = display.newImageRect("images/currency_book.png", TOKEN_WIDTH, TOKEN_HEIGHT)
         img.x, img.y = self:computeTokenPos(i)
         self.tokenImages[i] = img
         self.view:insert(img)
     end
 
     for i = self.numTokens + 1, pay_helpers.MAX_TOKENS do
-        local img = display.newImageRect("images/book_token.jpg", TOKEN_WIDTH, TOKEN_HEIGHT)
+        local img = display.newImageRect("images/currency_book.png", TOKEN_WIDTH, TOKEN_HEIGHT)
         img.x, img.y = self:computeTokenPos(i)
         img:setFillColor(1, 1, 1, 0.5)
         self.tokenImages[i] = img
