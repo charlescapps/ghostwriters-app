@@ -23,6 +23,7 @@ local drawOptionsButton
 local tilesToStr
 local createGrabMoveJson
 local getMoveDescription
+local getBonusMoveDescription
 
 scene.sceneName = "scenes.play_game_scene"
 
@@ -365,6 +366,19 @@ getMoveDescription = function(moveJson)
     end
 end
 
+getBonusMoveDescription = function(move)
+    local dict = move.dict
+    if not dict then
+        return getMoveDescription(move)
+    end
+
+    local dictName = common_api.getDictName(dict)
+    local bonusPoints = common_api.getBonusPoints(dict)
+
+    return "played a bonus word from the " .. dictName .. " dictionary for " .. bonusPoints .. " extra points!\n" ..
+            "Total is " .. move.points .. " points"
+end
+
 function scene:resetBoardAndShowModals()
     self:reset()
     self:showGameInfoModals(false)
@@ -403,9 +417,7 @@ function scene:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
     print("Calling applyOpponentsMove. Applying the last move: " .. json.encode(self.movesToDisplay))
 
     local firstMove = table.remove(self.movesToDisplay, 1)
-    local moveDescr = getMoveDescription(firstMove)
-    local opponent = self:getOpponentUser()
-    common_ui.createInfoModal(opponent.username, moveDescr, function()
+    self:showMoveModal(firstMove, current_game.currentGame, function()
         if self.board then
             self.board:applyMove(firstMove, self.rack, firstMove.playerId == self.creds.user.id, function()
                 self:applyOpponentMoves()
@@ -416,14 +428,12 @@ end
 
 function scene:getOnSendMoveSuccess()
     return function(updatedGameModel)
-        local myMove = self.myMove
+        local myMove = updatedGameModel.myMove
 
         if myMove then
             -- if self.myMove is set, then apply my move, before applying opponent's moves (if present)
             print("Applying my move...")
-            local moveDescr = getMoveDescription(myMove)
-
-            common_ui.createInfoModal("You", moveDescr, function()
+            self:showMoveModal(myMove, updatedGameModel, function()
                 self.board:applyMove(myMove, self.rack, true, function()
                     self.myMove = nil
                     local currentScene = composer.getSceneName("current")
@@ -438,6 +448,52 @@ function scene:getOnSendMoveSuccess()
             self:applyUpdatedGame(updatedGameModel, false)
         end
     end
+end
+
+function scene:showMoveModal(move, game, onModalClose)
+    if move.dict then
+        print("Found special dict on move: " .. tostring(move.dict) .. ", showing bonus modal")
+        self:showBonusMoveModal(move, game, onModalClose)
+    else
+        print("Found no special dict on move, showing ordinary modal. Dict was: " .. tostring(move.dict))
+        self:showNormalMoveModal(move, game, onModalClose)
+    end
+end
+
+function scene:showNormalMoveModal(move, game, onModalClose)
+    if not self.creds or not self.creds.user then
+        print "Errror - creds not defined in play_game_scene."
+        return
+    end
+    local moveDescr = getMoveDescription(move)
+    local moveUsername
+    if move.playerId == self.creds.user.id then
+        moveUsername = "You"
+    elseif move.playerId == game.player1 then
+        moveUsername = game.player1Model.username
+    else
+        moveUsername = game.player2Model.username
+    end
+
+    common_ui.createInfoModal(moveUsername, moveDescr, onModalClose)
+end
+
+function scene:showBonusMoveModal(move, game, onModalClose)
+    if not self.creds or not self.creds.user then
+        print "Errror - creds not defined in play_game_scene."
+        return
+    end
+    local moveDescr = getBonusMoveDescription(move)
+    local moveUsername
+    if move.playerId == self.creds.user.id then
+        moveUsername = "You"
+    elseif move.playerId == game.player1 then
+        moveUsername = game.player1Model.username
+    else
+        moveUsername = game.player2Model.username
+    end
+
+    common_ui.createInfoModal(moveUsername, moveDescr, onModalClose)
 end
 
 function scene:getOnRefreshGameSuccess()

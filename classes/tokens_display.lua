@@ -53,12 +53,12 @@ function M:render()
 end
 
 function M:addTouchListener(group)
-    local numTokens = self.numTokens
+    local tokensDisplay = self
     function group:touch(event)
         if event.phase == "began" then
 
         elseif event.phase == "ended" then
-            common_ui.createInfoModal("", "You own " .. tostring(numTokens) .. " books.", nil, nil, 50)
+            common_ui.createInfoModal("", "You own " .. tostring(tokensDisplay.numTokens) .. " books.", nil, nil, 50)
         elseif event.phase == "cancelled" then
         end
     end

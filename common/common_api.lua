@@ -78,6 +78,35 @@ M.getTokenCost = function(boardSize)
     return 0
 end
 
+M.getBonusPoints = function(specialDict)
+    if not specialDict then
+        return 0
+    end
+
+    if specialDict == M.DICT_POE or specialDict == M.DICT_LOVECRAFT then
+        return 25
+    else
+        return 50
+    end
+end
+
+M.getDictName = function(specialDict)
+    if not specialDict then
+        return "English"
+    end
+
+    if specialDict == M.DICT_POE then
+        return "Edgar Allan Poe"
+    elseif specialDict == M.DICT_LOVECRAFT then
+        return "H.P. Lovecraft"
+    elseif specialDict == M.DICT_MYTHOS then
+        return "Cthulhu Mythos"
+    else
+        print ("Error - invalid dictionary type: " .. tostring(specialDict))
+        return "English"
+    end
+end
+
 -- Game results
 M.OFFERED = "OFFERED"
 M.IN_PROGRESS = "IN_PROGRESS"
