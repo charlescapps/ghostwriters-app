@@ -4,8 +4,8 @@ local json = require("json")
 local current_game = require("globals.current_game")
 local nav = require("common.nav")
 local common_api = require("common.common_api")
-local login_common = require("login.login_common")
 local app_state = require("globals.app_state")
+local toast = require("classes.toast")
 
 local M = {}
 
@@ -31,16 +31,16 @@ function M.onReceiveNotification(message, additionalData, isActive)
     print("app_state:isAppLoaded = " .. tostring(app_state:isAppLoaded()))
     if app_state:isAppLoaded() then
          print("App is loaded - calling handlePushNotification directly!")
-         M.handlePushNotification(isActive, additionalData)
+         M.handlePushNotification(isActive, additionalData, message)
     else
         print("App is not loaded - setting callback for after logged in successfully.")
         app_state:setMainMenuListener(function()
-            M.handlePushNotification(isActive, additionalData)
+            M.handlePushNotification(isActive, additionalData, message)
         end)
     end
 end
 
-function M.handlePushNotification(isActive, additionalData)
+function M.handlePushNotification(isActive, additionalData, message)
     local updatedGameId = additionalData.updatedGameId
     local currentGame = current_game.currentGame
     local currentSceneName = composer.getSceneName("current")
@@ -49,13 +49,13 @@ function M.handlePushNotification(isActive, additionalData)
 
     -- If the push notification is for a New Game offer, then accept the offer and load the game
     if additionalData.isGameOffer == "true" then
-        M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName)
+        M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName, message)
     else
-        M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName)
+        M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName, message)
     end
 end
 
-function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName)
+function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName, message)
 
     -- If the current scene is the play_game_scene for the same Game ID, then just update the game in view
     if currentSceneName == "scenes.play_game_scene" then
@@ -70,7 +70,12 @@ function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName
     end
 
     if isActive then
-        print("App was active, but not in the game for the push notification, so not sending user to the game with the move...")
+        print("Showing toast for user to touch and go to the game...")
+        local toastText = message .. "\n(Touch to go)"
+        toast.new(toastText, nil, function()
+            print("Going to play_game_scene with updatedGameId: " .. updatedGameId)
+            M.goToGameByIdFrom(updatedGameId, currentSceneName)
+        end)
         -- TODO: Can we have some kind of "toast" message in this case?
     else
         print("Going to play_game_scene with updatedGameId: " .. updatedGameId)
@@ -78,11 +83,15 @@ function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName
     end
 end
 
-function M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName)
+function M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName, message)
 
     if isActive then
     -- If the game is active, then create a "toast" here
-        
+        print("Showing toast for new game offer.")
+        local toastText = message .. "\n(Touch to accept)"
+        toast.new(toastText, nil, function()
+            M.acceptThenGoToGameById(updatedGameId, currentSceneName)
+        end)
     else
     -- If the game wasn't active, this means the user clicked on the push notice, so just accept the offer
         M.acceptThenGoToGameById(updatedGameId, currentSceneName)

@@ -66,7 +66,7 @@ function M:updateCost(cost)
     end
 
     if oldTitle and oldTitle.removeSelf then
-        transition.fadeOut(oldTitle, { time = 300, onComplete = removeOldTitle, onCancelled = removeOldTitle})
+        transition.fadeOut(oldTitle, { time = 300, onComplete = removeOldTitle, onCancel = removeOldTitle})
     end
 end
 
