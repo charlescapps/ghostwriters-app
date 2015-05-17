@@ -8,6 +8,7 @@ local scene = composer.newScene()
 local json = require("json")
 local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
+local app_state = require("globals.app_state")
 
 -- Constants
 scene.sceneName = "scenes.title_scene"
@@ -124,6 +125,8 @@ function scene:show( event )
         if not self.creds then
             login_common.logout()
         end
+
+        app_state:setAppLoaded()
     end
 end
 

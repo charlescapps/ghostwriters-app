@@ -2,6 +2,7 @@ local common_api = require("common.common_api")
 local system = require("system")
 local composer = require("composer")
 local GameThrive = require("plugin.GameThrivePushNotifications")
+local app_state = require("globals.app_state")
 
 local M = {}
 
@@ -9,7 +10,11 @@ function M.getNextUsernameAndLoginIfDeviceFound()
     local deviceId = system.getInfo("deviceID")
     print("Found device ID: " .. deviceId)
 
-    common_api.getNextUsername(deviceId, M.onSuccessListener, M.onFailListener)
+    if not app_state:isAppLoaded() then
+        common_api.getNextUsername(deviceId, M.onSuccessListener, M.onFailListener)
+    else
+        app_state:callMainMenuListener()
+    end
 end
 
 function M.onSuccessListener(jsonResp)
@@ -37,6 +42,7 @@ end
 function M.onLoginSuccess(user)
     composer.gotoScene("scenes.title_scene", "fade")
     GameThrive.TagPlayer("ghostwriters_id", user.id)
+    app_state:callMainMenuListener()
 end
 
 return M

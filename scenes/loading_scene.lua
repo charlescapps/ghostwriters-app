@@ -19,9 +19,9 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
-        main_actions.getNextUsernameAndLoginIfDeviceFound()
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
+        main_actions.getNextUsernameAndLoginIfDeviceFound()
     end
 end
 

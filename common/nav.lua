@@ -1,5 +1,6 @@
 local composer = require("composer")
 local current_game = require("globals.current_game")
+local app_state = require("globals.app_state")
 
 local M = {}
 
@@ -19,12 +20,19 @@ function M.goToGame(gameModel, fromScene)
         return
     end
     local currentScene = composer.getSceneName("current")
-    if fromScene and currentScene ~= fromScene or currentScene == "scenes.play_game_scene" then
+    if fromScene and currentScene ~= fromScene then
         print("Cannot go to game from current scene '" .. currentScene .. "', expected " .. fromScene)
         return
+    elseif currentScene == "scenes.play_game_scene" then
+        app_state:setMainMenuListener(function()
+            current_game.currentGame = gameModel
+            composer.gotoScene("scenes.play_game_scene", "fade")
+        end)
+        composer.gotoScene("scenes.loading_scene")
+    else
+        current_game.currentGame = gameModel
+        composer.gotoScene("scenes.play_game_scene", "fade")
     end
-    current_game.currentGame = gameModel
-    composer.gotoScene("scenes.play_game_scene", "fade")
 end
 
 

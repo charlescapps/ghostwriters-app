@@ -5,6 +5,7 @@ local current_game = require("globals.current_game")
 local nav = require("common.nav")
 local common_api = require("common.common_api")
 local login_common = require("login.login_common")
+local app_state = require("globals.app_state")
 
 local M = {}
 
@@ -18,64 +19,76 @@ end
 
 function M.onReceiveNotification(message, additionalData, isActive)
     local additionalDataStr = json.encode(additionalData)
-    print("Received notification:message=" .. message)
+    print("Received notification, message=" .. message)
     print("additionalData=" .. additionalDataStr)
-    if not additionalData or not additionalData.updatedGame then
-        print("Received push notification without updatedGame field: " .. additionalDataStr)
+    if not additionalData or not additionalData.updatedGameId then
+        print("Received push notification without updatedGameId field: " .. additionalDataStr)
         return
     end
-
-    local creds = login_common.fetchCredentials()
-    if not creds then
-        login_common.logout()
-        local loggedOutScene = composer.getScene("login.logged_out_scene")
-        loggedOutScene.pushData = additionalData
-        return
+    
+    -- If the app hasn't logged in yet to the main menu (it just started up), then store the callback to be executed later.
+    print("one_signal_util - about to process push notification...")
+    print("app_state:isAppLoaded = " .. tostring(app_state:isAppLoaded()))
+    if app_state:isAppLoaded() then
+         print("App is loaded - calling handlePushNotification directly!")
+         M.handlePushNotification(isActive, additionalData)
+    else
+        print("App is not loaded - setting callback for after logged in successfully.")
+        app_state:setMainMenuListener(function()
+            M.handlePushNotification(isActive, additionalData)
+        end)
     end
+end
 
-    local updatedGame = additionalData.updatedGame
-    print("updatedGame='" .. tostring(updatedGame) .. "'")
-
+function M.handlePushNotification(isActive, additionalData)
+    local updatedGameId = additionalData.updatedGameId
     local currentGame = current_game.currentGame
-    print("currentGame.id='" .. tostring(currentGame and currentGame.id) .. "'")
-
     local currentSceneName = composer.getSceneName("current")
+    print("updatedGameId ID from push= " .. tostring(updatedGameId))
+    print("currentGameId= " .. tostring(currentGame and currentGame.id))
 
-    -- If the current scene is the play_game_scene, then just update the game in view
+    -- If the push notification is for a New Game offer, then accept the offer and load the game
+    if additionalData.isGameOffer == "true" then
+        M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName)
+    else
+        M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName)
+    end
+end
+
+function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName)
+
+    -- If the current scene is the play_game_scene for the same Game ID, then just update the game in view
     if currentSceneName == "scenes.play_game_scene" then
         local playGameScene = composer.getScene("scenes.play_game_scene")
         if playGameScene and playGameScene:isValidGameScene() then
-            if currentGame and tostring(currentGame.id) == updatedGame then
+            if currentGame and tostring(currentGame.id) == updatedGameId then
                 print("Current scene is play_game_scene, and it's valid, so updating existing game.")
                 playGameScene:refreshGameFromServer()
                 return
-            else
-                print("Current game doesn't match game id. Current = '" .. tostring(currentGame.id) .. "', from push = '" .. updatedGame .. "'")
             end
         end
-    else
-        print("Current scene is not play_game_scene, so going to play_game_scene:" .. currentSceneName)
     end
 
     if isActive then
         print("App was active, but not in the game for the push notification, so not sending user to the game with the move...")
         -- TODO: Can we have some kind of "toast" message in this case?
-        return
-    end
-
-    M.actOnPushData(additionalData, currentSceneName)
-end
-
-function M.actOnPushData(additionalData, currentSceneName)
-
-    if additionalData.isGameOffer == "true" then
-        print("Accepting game offer, then going to the game")
-        M.acceptThenGoToGameById(additionalData.updatedGame, currentSceneName)
     else
-        print("Going to play_game_scene with updatedGame: " .. additionalData.updatedGame)
-        M.goToGameByIdFrom(additionalData.updatedGame, currentSceneName)
+        print("Going to play_game_scene with updatedGameId: " .. updatedGameId)
+        M.goToGameByIdFrom(updatedGameId, currentSceneName)
     end
 end
+
+function M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName)
+
+    if isActive then
+    -- If the game is active, then create a "toast" here
+        
+    else
+    -- If the game wasn't active, this means the user clicked on the push notice, so just accept the offer
+        M.acceptThenGoToGameById(updatedGameId, currentSceneName)
+    end
+end
+
 
 function M.goToGameByIdFrom(gameId, fromScene)
     local function onFailToGetGame(jsonResp)

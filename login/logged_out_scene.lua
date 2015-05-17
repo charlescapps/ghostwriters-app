@@ -126,10 +126,6 @@ function scene:getOnCreateAccountSuccessListener()
         if self.textProgress then
             self.textProgress:stop()
         end
-        if self.pushData then
-            one_signal_util.actOnPushData(self.pushData, self.sceneName)
-            return
-        end
         nav.goToSceneFrom(self.sceneName, "scenes.title_scene", "fade")
         -- Tag the player in Game Thrive (OneSignal) with the user ID.
         GameThrive.TagPlayer("ghostwriters_id", user.id)
