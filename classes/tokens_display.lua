@@ -1,13 +1,14 @@
 local display = require("display")
 local common_ui = require("common.common_ui")
 local math = require("math")
-local pay_helpers = require("common.pay_helpers")
 local table = require("table")
 
 local M = {}
 local meta = { __index = M }
 
 -- Constants
+local MAX_TOKENS = 10
+
 local BG_WIDTH = 650
 local BG_HEIGHT = 133
 
@@ -19,7 +20,7 @@ local TOKEN_HEIGHT = 90
 local PLUS_WIDTH = 100
 local PLUS_HEIGHT = 100
 
-local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / pay_helpers.MAX_TOKENS  -- 50
+local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
 function M.new(x, y, numTokens)
     local tokensDisplay = {
@@ -71,7 +72,7 @@ function M:drawBackground()
 end
 
 function M:drawPlusIcon()
-    local imgFile = self.numTokens > pay_helpers.MAX_TOKENS and "images/plus_icon.png"
+    local imgFile = self.numTokens > MAX_TOKENS and "images/plus_icon.png"
         or "images/plus_icon_hidden.png"
 
     print("Plus icon file=" .. imgFile)
@@ -82,14 +83,14 @@ function M:drawPlusIcon()
 end
 
 function M:drawTokens()
-    for i = 1, math.min(pay_helpers.MAX_TOKENS, self.numTokens) do
+    for i = 1, math.min(MAX_TOKENS, self.numTokens) do
         local img = display.newImageRect("images/currency_book.png", TOKEN_WIDTH, TOKEN_HEIGHT)
         img.x, img.y = self:computeTokenPos(i)
         self.tokenImages[i] = img
         self.view:insert(img)
     end
 
-    for i = self.numTokens + 1, pay_helpers.MAX_TOKENS do
+    for i = self.numTokens + 1, MAX_TOKENS do
         local img = display.newImageRect("images/currency_book.png", TOKEN_WIDTH, TOKEN_HEIGHT)
         img.x, img.y = self:computeTokenPos(i)
         img:setFillColor(1, 1, 1, 0.5)

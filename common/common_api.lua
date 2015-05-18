@@ -362,6 +362,15 @@ M.doGetWithSpinner = function(url, onSuccess, onFail, onNetworkFail, doCreateSpi
     M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail, spinner)
 end
 
+M.doPostWithSpinner = function(url, jsonTable, expectedStatus, onSuccess, onFail, onNetworkFail, doCreateSpinner)
+    local spinner
+    if doCreateSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
+    M.doApiRequest(url, "POST", json.encode(jsonTable), expectedStatus or 200, onSuccess, onFail, onNetworkFail, spinner)
+end
+
 M.isValidUsernameChars = function(text)
 	if not string.match( text, "[a-zA-Z0-9_ \\-]+" ) then
 		return {
@@ -389,12 +398,7 @@ end
 
 M.createNewGame = function(newGameInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 	local url = urls.gamesURL()
-    local spinner
-    if doMakeSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
-    end
-	M.doApiRequest(url, "POST", json.encode(newGameInput), 201, onSuccess, onFail, onNetworkFail or M.showNetworkError, spinner)
+    M.doPostWithSpinner(url, newGameInput, 201, onSuccess, onFail, onNetworkFail or M.showNetworkError, doMakeSpinner)
 end
 
 M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
@@ -490,6 +494,11 @@ end
 M.getSelf = function(onSuccess, onFail, doCreateSpinner)
     local url = urls.getSelfURL()
     M.doGetWithSpinner(url, onSuccess, onFail, onFail, false)
+end
+
+M.registerPurchase = function(purchase, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getPurchaseURL()
+    M.doPostWithSpinner(url, purchase, 200, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
 return M

@@ -116,5 +116,9 @@ M.getRanksNearMonkeyURL = function(maxResults)
     return SERVER .. "/users/monkeyRank?maxResults=" .. tostring(maxResults)
 end
 
+M.getPurchaseURL = function()
+    return SERVER .. "/tokens/purchase"
+end
+
 return M
 

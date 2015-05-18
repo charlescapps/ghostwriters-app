@@ -11,6 +11,7 @@ local game_options_modal = require("classes.game_options_modal")
 local create_game_options = require("classes.create_game_options")
 local tokens_display = require("classes.tokens_display")
 local token_cost_info = require("classes.token_cost_info")
+local in_app_purchase_popup = require("classes.in_app_purchase_popup")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -35,6 +36,7 @@ function scene:create(event)
     self.backButton = common_ui.createBackButton(80, 255, "scenes.choose_board_size_scene")
     self.createGameOptions = create_game_options.new(self:getOnUpdateCostListener())
     self.tokensDisplay = tokens_display.new(display.contentCenterX, 120, self.creds.user.tokens)
+    self.purchaseButton = self:drawPurchaseButton()
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.gearButton)
@@ -43,6 +45,7 @@ function scene:create(event)
     sceneGroup:insert(self.gameOptionsModal:render())
     sceneGroup:insert(self.createGameOptions:render())
     sceneGroup:insert(self.tokensDisplay:render())
+    sceneGroup:insert(self.purchaseButton)
 
     local currentCost = self:getCurrentCost()
     self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
@@ -50,6 +53,25 @@ function scene:create(event)
 
     -- Fetch updated user model
     common_api.getSelf(self:onGetSelfSuccess(), self:onGetSelfFail())
+end
+
+function scene:drawPurchaseButton()
+    local function onRelease()
+        local popup = in_app_purchase_popup.new()
+        self.view:insert(popup:render())
+        popup:show()
+    end
+
+    local button = widget.newButton {
+        width = 90,
+        height = 90,
+        x = 100,
+        y = 1050,
+        defaultFile = "images/purchase_button_default.png",
+        overFile = "images/purchase_button_over.png",
+        onRelease = onRelease
+    }
+    return button
 end
 
 function scene:onGetSelfSuccess()
