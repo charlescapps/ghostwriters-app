@@ -57,7 +57,7 @@ function scene:create(event)
 
     self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50)
 
-    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 75, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
+    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 80, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
     self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
 

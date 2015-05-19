@@ -1,8 +1,12 @@
 local display = require("display")
 local transition = require("transition")
+local native = require("native")
+local widget = require("widget")
 
 local M = {}
 local meta = { __index = M }
+
+local BUTTON_SIZE = 200
 
 function M.new()
     local popup = {
@@ -21,11 +25,23 @@ function M:render()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
+
+    -- Draw the products
+    self.bookpack1_row = self:drawRow("10 books", 300, "images/book_pack1.png", "images/book_pack1_over.png")
+    self.bookpack2_row = self:drawRow("25 books", 550, "images/book_pack2.png", "images/book_pack2_over.png")
+    self.bookpack3_row = self:drawRow("60 books", 800, "images/book_pack3.png", "images/book_pack3_over.png")
+    self.bookpack4_row = self:drawRow("Infinite books", 1050, "images/book_pack_infinite.png", "images/book_pack_infinite_over.png")
+
+    self.view:insert(self.bookpack1_row)
+    self.view:insert(self.bookpack2_row)
+    self.view:insert(self.bookpack3_row)
+    self.view:insert(self.bookpack4_row)
+
     return self.view
 end
 
 function M:drawBackground()
-    local bg = display.newImageRect("images/purchase_modal_bg.png", 750, 900)
+    local bg = display.newImageRect("images/purchase_modal_bg.png", 750, 1100)
     bg.x = display.contentCenterX
     bg.y = display.contentCenterY
     return bg
@@ -53,6 +69,35 @@ function M:drawScreen()
     end)
 
     return screen
+end
+
+function M:drawRow(text, y, buttonImgDefault, buttonImgOver, productName)
+    local group = display.newGroup()
+    group.y = y
+
+    local text = display.newText {
+        text = text,
+        font = native.systemFontBold,
+        fontSize = 40,
+        x = 100,
+        y = 0
+    }
+    text.anchorX = 0
+    text:setFillColor(0, 0, 0)
+
+    local button = widget.newButton {
+        defaultFile = buttonImgDefault,
+        overFile = buttonImgOver,
+        width = BUTTON_SIZE,
+        height = BUTTON_SIZE
+    }
+    button.x = 525
+    button.y = 0
+
+    group:insert(text)
+    group:insert(button)
+
+    return group
 end
 
 function M:show()
