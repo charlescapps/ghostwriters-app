@@ -86,8 +86,8 @@ function scene:createGetNextUsernameButton()
         onRelease = function() self:getNextUsername() end,
         width = 80,
         height = 80,
-        defaultFile = "images/refresh_username_icon.png",
-        overFile = "images/refresh_username_icon_dark.png"
+        defaultFile = "images/reset_button_default.png",
+        overFile = "images/reset_button_over.png"
     }
 end
 
