@@ -138,7 +138,8 @@ settings =
 		{
 			"android.permission.INTERNET",
 			"android.permission.READ\_PHONE\_STATE",
-			"com.android.vending.BILLING"
+			"com.android.vending.BILLING",
+			"com.android.vending.CHECK\_LICENSE"
 		},
 		supportsScreens =
         {

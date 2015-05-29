@@ -31,7 +31,6 @@ function M.new(x, y, numTokens)
     }
 
     print("Created tokens_display with numTokens = " .. tostring(tokensDisplay.numTokens))
-    print("type(numTokens)=" .. type(tokensDisplay.numTokens))
 
     return setmetatable(tokensDisplay, meta)
 
@@ -74,8 +73,6 @@ end
 function M:drawPlusIcon()
     local imgFile = self.numTokens > MAX_TOKENS and "images/plus_icon.png"
         or "images/plus_icon_hidden.png"
-
-    print("Plus icon file=" .. imgFile)
 
     local img = display.newImageRect(imgFile, PLUS_WIDTH, PLUS_HEIGHT)
     img.x = ALL_TOKENS_WIDTH / 2 + 32

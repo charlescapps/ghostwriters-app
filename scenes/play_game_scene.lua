@@ -144,6 +144,12 @@ function scene:getPollForGameListener()
             print("Not polling for game since it's the auth user's turn.")
             return
         end
+        local currentGame = current_game.currentGame
+        if currentGame and currentGame.gameResult and
+                currentGame.gameResult ~= common_api.IN_PROGRESS and currentGame.gameResult ~= common_api.OFFERED then
+           print("Not polling for game since game result is: " .. currentGame.gameResult)
+           return
+        end
         self:refreshGameFromServer()
     end
 end
@@ -420,7 +426,7 @@ function scene:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
     self:showMoveModal(firstMove, current_game.currentGame, function()
         if self.board then
             self.board:applyMove(firstMove, self.rack, firstMove.playerId == self.creds.user.id, function()
-                self:applyOpponentMoves()
+                self:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
             end)
         end
     end)

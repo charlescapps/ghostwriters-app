@@ -12,6 +12,7 @@ local create_game_options = require("classes.create_game_options")
 local tokens_display = require("classes.tokens_display")
 local token_cost_info = require("classes.token_cost_info")
 local in_app_purchase_popup = require("classes.in_app_purchase_popup")
+local pay_helpers = require("common.pay_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -53,11 +54,15 @@ function scene:create(event)
 
     -- Fetch updated user model
     common_api.getSelf(self:onGetSelfSuccess(), self:onGetSelfFail())
+
+    -- Fetch product list and consume purchases if present.
+    pay_helpers.loadStoreProducts()
+    pay_helpers.consumeAllPurchases()
 end
 
 function scene:drawPurchaseButton()
     local function onRelease()
-        local popup = in_app_purchase_popup.new()
+        local popup = in_app_purchase_popup.new(self:getUpdateUserListener())
         self.view:insert(popup:render())
         popup:show()
     end
@@ -82,7 +87,26 @@ function scene:onGetSelfSuccess()
 end
 
 function scene:onGetSelfFail()
-    print("An error occurred getting an updated user model for the current user.")
+    return function()
+        print("An error occurred getting an updated user model for the current user.")
+    end
+end
+
+function scene:getUpdateUserListener()
+    return function()
+        if not self.tokensDisplay then
+            return
+        end
+
+        local updatedCreds = login_common.fetchCredentials()
+        if not updatedCreds then
+            return
+        end
+
+        self.creds = updatedCreds
+
+        self.tokensDisplay:updateNumTokens(updatedCreds.user.tokens)
+    end
 end
 
 function scene:getOnUpdateCostListener()
@@ -129,6 +153,7 @@ function scene:hide( event )
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
         self.view = nil
+        self.tokensDisplay = nil
         composer.removeScene(self.sceneName)
     end
 end
