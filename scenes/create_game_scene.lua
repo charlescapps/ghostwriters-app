@@ -13,6 +13,7 @@ local tokens_display = require("classes.tokens_display")
 local token_cost_info = require("classes.token_cost_info")
 local in_app_purchase_popup = require("classes.in_app_purchase_popup")
 local pay_helpers = require("common.pay_helpers")
+local purchase_store = require("common.purchase_store")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -52,16 +53,30 @@ function scene:create(event)
     self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
     sceneGroup:insert(self.tokenCostInfo:render())
 
-    -- Fetch updated user model
-    common_api.getSelf(self:onGetSelfSuccess(), self:onGetSelfFail())
+    -- Fetch updated user model if there are no pending purchases
+    local purchaseJSON = purchase_store.loadPurchaseTable()
+    if #purchaseJSON.purchases <= 0 then
+        print("0 purchases present, updating user model.")
+        common_api.getSelf(self:onGetSelfSuccess(), self:onGetSelfFail())
+    else
+        -- Register purchases with Ghostwriters backend, if present.
+        print("Purchases are present! Registering with ghostwriters.")
+        pay_helpers.registerAllPurchases()
+    end
 
-    -- Fetch product list and consume purchases if present.
-    pay_helpers.loadStoreProducts()
-    pay_helpers.consumeAllPurchases()
+    --pay_helpers.loadStoreProducts()
 end
 
 function scene:drawPurchaseButton()
     local function onRelease()
+        local user = self.creds and self.creds.user
+        if not user then
+            return
+        end
+        if user.infiniteBooks then
+            common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
+            return
+        end
         local popup = in_app_purchase_popup.new(self:getUpdateUserListener())
         self.view:insert(popup:render())
         popup:show()

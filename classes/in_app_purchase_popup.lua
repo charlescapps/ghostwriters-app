@@ -14,7 +14,7 @@ function M.new(destroyListener)
         destroyListener = destroyListener
     }
     print("Creating new in-app purchase popup")
-    pay_helpers.consumeAllPurchases()
+    pay_helpers.registerAllPurchases()
     return setmetatable(popup, meta)
 end
 

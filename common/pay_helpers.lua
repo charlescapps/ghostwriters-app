@@ -1,8 +1,9 @@
 local system = require("system")
-local table = require("table")
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 local login_common = require("login.login_common")
 local json = require("json")
+local purchase_store = require("common.purchase_store")
 local store
 local googleIAP = false
 local productList
@@ -41,11 +42,16 @@ function M.transactionListener(event)
         print("transactionIdentifier", transaction.identifier)
         print("date", transaction.date)
 
-        if googleIAP then
-            M.handleGooglePurchase(transaction, true)
-        else
-            M.handleApplePurchase(transaction, true)
-        end
+        local purchaseModel = {
+            isGoogle = googleIAP,
+            product = transaction.productIdentifier,
+            identifier = transaction.identifier,
+            signature = transaction.signature
+        }
+
+        purchase_store.addPurchase(purchaseModel)
+
+        M.registerAllPurchases()
 
     elseif transaction.state == "consumed" then
         print("Product consumed: " .. transaction.productIdentifier)
@@ -63,23 +69,6 @@ function M.transactionListener(event)
     store.finishTransaction(event.transaction)
 end
 
-function M.consumeListener(event)
-    print("Event in consumeListener=" .. json.encode(event))
-    if not event then
-        return
-    end
-    local transaction = event.transaction
-    if not transaction then
-        print("No transaction in consumeListener!")
-        return
-    end
-
-    print("Consume listener transaction state = " .. tostring(transaction.state))
-    if transaction.state == "consumed" then
-        print("Product consumed: " .. transaction.productIdentifier)
-        M.handleGooglePurchase(transaction, false)
-    end
-end
 
 function M.loadStoreProducts()
     print("Loading store products...")
@@ -106,55 +95,60 @@ function M.purchase(productIdentifier)
         print("No store has been initialized...cannot purchase in-app product")
         return
     end
+    local creds = login_common.fetchCredentials()
+    if creds and creds.user and creds.user.infiniteBooks then
+        common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
+        return
+    end
+
+    -- Try to register existing purchases (and consume them for Google).
+    M.registerAllPurchases()
+
     print("Calling store.purchase() on product: " .. productIdentifier)
     store.purchase(productIdentifier)
 end
 
-function M.handleGooglePurchase(transaction, doConsume)
-    print("Handling Google purchase...")
-    local productIdentifier = transaction.productIdentifier
-    if table.indexOf(googleProductList, productIdentifier) == nil then
-        print("ERROR - product '" .. tostring(productIdentifier) .. "' isn't a valid product!")
-        return
-    end
 
-    local purchaseModel = {
-        isGoogle = true,
-        product = productIdentifier,
-        identifier = transaction.identifier,
-        signature = transaction.signature
-    }
-
-    local function onSuccess(updatedUserModel)
-        print("Register Purchase SUCCESS - received updated user model from server.")
-        if doConsume then
-            store.consumePurchase({productIdentifier}, M.transactionListener)
-        end
-        login_common.updateStoredUser(updatedUserModel)
-    end
-
-    local function onFail()
-        print("Register Purchase FAIL")
-    end
-
-    common_api.registerPurchase(purchaseModel, onSuccess, onFail)
-end
-
-function M.consumeAllPurchases()
+function M.registerAllPurchases()
     if not store or not store.isActive then
         print("Store not initialized, cannot consume purchases")
         return
     end
-    if not googleIAP then
-        print("Can only consume Google purchases")
+
+    print("Registering all purchases stored locally with the Ghostwriters server...")
+    local purchaseJSON = purchase_store.loadPurchaseTable()
+    local purchases = purchaseJSON.purchases
+
+    if #purchases <= 0 then
+        print("No stored purchases. Nothing to register.")
         return
     end
-    print("Calling store.consumePurchase()")
-    store.consumePurchase({"book_pack_1", "book_pack_2", "book_pack_3"}, M.consumeListener)
-end
 
-function M.handleApplePurchase(transaction)
-    local productIdentifier = transaction.productIdentifier
+    local firstPurchase = purchases[1]
+
+    local function onSuccess(updatedUserModel)
+        print("Register Purchase SUCCESS - received updated user model from server.")
+        login_common.updateStoredUser(updatedUserModel)
+        local updatedJSON = purchase_store.removePurchase(firstPurchase)
+        -- Must consume Google purchases
+        if googleIAP then
+            print("Consuming Google Purchase for product: " .. firstPurchase.product)
+            store.consumePurchase({ firstPurchase.product }, M.transactionListener)
+        end
+
+        -- If we successfully removed something from the purchase store, but there are more purchases to register..
+        -- then continue registering purchases recursively.
+        if #updatedJSON.purchases < #purchases and #updatedJSON.purchases > 0 then
+           M.registerAllPurchases()
+        end
+    end
+
+    local function onFail()
+        print("Failure registering purchase...not consuming / removing from local purchase store.")
+    end
+
+    common_api.registerPurchase(firstPurchase, onSuccess, onFail)
+
 end
 
 -- Initialize the "store" object
