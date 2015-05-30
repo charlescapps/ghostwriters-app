@@ -8,8 +8,8 @@ local nav = require("common.nav")
 local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
 local GameThrive = require("plugin.GameThrivePushNotifications")
-local one_signal_util = require("push.one_signal_util")
 local transition = require("transition")
+local custom_text_field = require("classes.custom_text_field")
 
 local scene = composer.newScene()
 
@@ -26,7 +26,7 @@ function scene:createSecondaryDeviceLink()
 end
 
 function scene:createAccountAndGo()
-    local username = self.storedUsername or self.usernameTextField.text
+    local username = self.storedUsername or self.usernameTextField and self.usernameTextField:getText()
     local deviceId = system.getInfo("deviceID")
     if not username or username:len() <= 0 then
         native.showAlert("Oops...", "Please enter a username", { "OK" })
@@ -50,16 +50,7 @@ end
 
 function scene:createUsernameInput()
 
-    self.usernameTextField = native.newTextField(display.contentWidth / 2, 400, 475, 80)
-
-    self.usernameTextField.isFontSizeScaled = true
-    self.usernameTextField.size = 16
-    self.usernameTextField.placeholder = "e.g. Ghosty McFee"
-    self.usernameTextField:setReturnKey("done")
-
-    self.usernameTextField.align = "center"
-
-    self.usernameTextField:addEventListener("userInput", function(event)
+    local function inputListener(event)
         if event.phase == "editing" then
             if event.text and event.text:len() > MAX_USERNAME_LEN then
                 self:setUsernameText(event.text:sub(1, MAX_USERNAME_LEN))
@@ -69,13 +60,30 @@ function scene:createUsernameInput()
         elseif event.phase == "submitted" then
             self:createAccountAndGo()
         end
-    end)
+    end
+
+    local usernameTextField = custom_text_field.newCustomTextField
+        {
+            x = display.contentWidth / 2,
+            y = 400,
+            width = 500,
+            height = 80,
+            placeholder = "e.g. Ghosty McFee",
+            fontSize = nil,  -- Will resize automatically.
+            -- font = "Helvetica",
+            backgroundColor = { 1, 1, 1, 0.6 },
+            align = "center",
+            listener = inputListener
+        }
+
+    usernameTextField.textField:setReturnKey("done")
+    return usernameTextField
 end
 
 -- Store the username in the text field AND a member field,
 -- because the text field doesn't update immediately on Android due to how Corona works with multi-threading
 function scene:setUsernameText(newUsername)
-    self.usernameTextField.text = newUsername
+    self.usernameTextField:setText(newUsername)
     self.storedUsername = newUsername
 end
 
@@ -89,16 +97,6 @@ function scene:createGetNextUsernameButton()
         defaultFile = "images/reset_button_default.png",
         overFile = "images/reset_button_over.png"
     }
-end
-
-function scene:removeNativeInputs()
-    if self.usernameTextField then
-        local function removeMe()
-            self.usernameTextField:removeSelf()
-            self.usernameTextField = nil
-        end
-        transition.fadeOut(self.usernameTextField, { time = 1000, onComplete = removeMe, onCancel = removeMe})
-    end
 end
 
 local function createUsernameInputLabel()
@@ -209,7 +207,8 @@ function scene:show(event)
 
     if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
-        self:createUsernameInput()
+        self.usernameTextField = self:createUsernameInput()
+        sceneGroup:insert(self.usernameTextField)
         if self.nextUsername and self.usernameTextField then
             self:setUsernameText(self.nextUsername)
             self.nextUsername = nil
@@ -228,7 +227,9 @@ function scene:hide(event)
     local phase = event.phase
 
     if (phase == "will") then
-        self:removeNativeInputs()
+        if self.usernameTextField then
+           self.usernameTextField:removeSelf()
+        end
         if self.textProgress then
             self.textProgress:stop()
             self.textProgress = nil

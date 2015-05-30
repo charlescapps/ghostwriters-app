@@ -109,6 +109,7 @@ function M.purchase(productIdentifier)
 end
 
 
+
 function M.registerAllPurchases()
     if not store or not store.isActive then
         print("Store not initialized, cannot consume purchases")
@@ -121,6 +122,9 @@ function M.registerAllPurchases()
 
     if #purchases <= 0 then
         print("No stored purchases. Nothing to register.")
+        if googleIAP then
+           store.consumePurchase(googleProductList, M.transactionListener)
+        end
         return
     end
 

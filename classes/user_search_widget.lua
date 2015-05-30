@@ -129,7 +129,7 @@ function user_search_widget:createSearchAreaGroup()
             width = 500,
             height = 75,
             placeholder = "Search for players",
-            fontSize = 24,
+            fontSize = nil,  -- Will resize automatically.
            -- font = "Helvetica",
             listener = userInputListener,
             backgroundColor = { 1, 1, 1, 0.6 }

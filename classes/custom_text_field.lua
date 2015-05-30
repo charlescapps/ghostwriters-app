@@ -1,18 +1,21 @@
 local system = require("system")
 local native = require("native")
 local display = require("display")
+local math = require("math")
 
 local M = {}
 
 function M.newCustomTextField(options)
     local customOptions = options or {}
     local opt = {}
+    opt.align = customOptions.align
     opt.left = customOptions.left or 0
     opt.top = customOptions.top or 0
     opt.x = customOptions.x or 0
     opt.y = customOptions.y or 0
     opt.width = customOptions.width or (display.contentWidth * 0.75)
     opt.height = customOptions.height or 20
+    opt.padding = customOptions.passing or math.floor(opt.height / 8)
     opt.id = customOptions.id
     opt.listener = customOptions.listener or nil
     opt.placeholder = customOptions.placeholder or ""
@@ -49,6 +52,8 @@ function M.newCustomTextField(options)
 
     -- Native UI element
     local tHeight = opt.height - opt.strokeWidth * 2
+    tHeight = tHeight - opt.padding * 2
+
     if "Android" == system.getInfo("platformName") then
         --
         -- Older Android devices have extra "chrome" that needs to be compesnated for.
@@ -56,15 +61,14 @@ function M.newCustomTextField(options)
         tHeight = tHeight + 10
     end
 
-    local deviceScale = ( display.pixelWidth / display.contentWidth ) * 0.5
-    local actualFontSize = opt.fontSize * deviceScale
 
-    field.textField = native.newTextField( 0, opt.fontSize / 2, opt.width - opt.cornerRadius, tHeight )
+    field.textField = native.newTextField( 0, 0, opt.width - opt.cornerRadius, tHeight )
     field:insert(field.textField)
     field.textField.hasBackground = false
     field.textField.inputType = opt.inputType
     field.textField.text = opt.text
     field.textField.placeholder = opt.placeholder
+    field.isFontSizeScaled = true
     print( opt.listener, type(opt.listener) )
     if ( opt.listener and type(opt.listener) == "function" ) then
         print("Adding userInput listener!")
@@ -72,11 +76,14 @@ function M.newCustomTextField(options)
     end
 
     field.textField.font = opt.font and native.newFont( opt.font ) or native.systemFont
-    field.textField.size = actualFontSize
+    field.textField.size = opt.fontSize
+    field.textField.align = opt.align
 
     -- Remove from screen when the parent is hidden
     function field:finalize( event )
-        event.target.textField:removeSelf()
+        if event.target.textField and event.target.textField.removeSelf then
+            event.target.textField:removeSelf()
+        end
     end
     field:addEventListener( "finalize" )
 
@@ -91,6 +98,8 @@ function M.newCustomTextField(options)
     function field:setPlaceholder(text)
         self.textField.placeholder = text
     end
+
+    field.textField:resizeFontToFitHeight()
 
     return field
 end

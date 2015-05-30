@@ -4,6 +4,9 @@ local main_actions = require("common.main_actions")
 local scene = composer.newScene()
 scene.sceneName = "scenes.loading_scene"
 
+local BG_WIDTH = 750
+local BG_HEIGHT = 1000
+
 -- "scene:create()"
 function scene:create(event)
     local sceneGroup = self.view
@@ -50,10 +53,21 @@ end
 
 -- Helpers
 function scene:createLoadingBackground()
-    local img = display.newImageRect("images/LoadingBackground.jpg", 750, 1000)
+    local width, height = self:computeBgDimensions()
+    local img = display.newImageRect("images/LoadingBackground.jpg", width, height)
     img.x = display.contentWidth / 2
     img.y = display.contentHeight / 2
     return img
+end
+
+function scene:computeBgDimensions()
+    local bgWidth = display.actualContentWidth
+    local bgHeight = (bgWidth / BG_WIDTH) * BG_HEIGHT
+    return bgWidth, bgHeight
+end
+
+function scene:computeBgHeight()
+
 end
 
 
