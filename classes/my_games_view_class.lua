@@ -1,5 +1,6 @@
 local widget = require("widget")
 local common_ui = require("common.common_ui")
+local fonts = require("globals.fonts")
 local display = require("display")
 local native = require("native")
 local transition = require("transition")
@@ -87,7 +88,7 @@ function my_games_view_class:renderTitle()
         y = 120,
         width = display.contentWidth,
         align = "center",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40
     }
     title:setFillColor(0, 0, 0)

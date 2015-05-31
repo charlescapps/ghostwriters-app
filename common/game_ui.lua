@@ -7,6 +7,7 @@ local graphics = require("graphics")
 local checkboxes_sheet = require("spritesheets.checkboxes_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local stepper_sheet = require("spritesheets.stepper_sheet")
+local fonts = require("globals.fonts")
 
 
 local M = {}
@@ -44,11 +45,11 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     end
 
     if isAuthUserTurn then
-        leftFont = native.systemFontBold
+        leftFont = fonts.BOLD_FONT
         rightFont = native.systemFont
     else
         leftFont = native.systemFont
-        rightFont = native.systemFontBold
+        rightFont = fonts.BOLD_FONT
     end
 
     local group = display.newGroup( )
@@ -99,18 +100,18 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     rightPlayerText:addEventListener("touch")
 
     -- Create vs. text
-    local versusText = display.newText("vs.", centerX, firstRowY, native.systemFontBold, 50 )
+    local versusText = display.newText("vs.", centerX, firstRowY, fonts.BOLD_FONT, 50 )
     versusText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
 
     local pointsY = firstRowY + 50
     -- Create point displays
-    local leftPointsText = display.newText( leftPoints .. " points", leftX, pointsY, native.systemFontBold, 30 )
+    local leftPointsText = display.newText( leftPoints .. " points", leftX, pointsY, fonts.BOLD_FONT, 30 )
     leftPointsText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
     function leftPointsText:setPoints(points)
         self.text = points .. " points"
     end
 
-    local rightPointsText = display.newText( rightPoints .. " points", rightX, pointsY, native.systemFontBold, 30 )
+    local rightPointsText = display.newText( rightPoints .. " points", rightX, pointsY, fonts.BOLD_FONT, 30 )
     rightPointsText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
     function rightPointsText:setPoints(points)
         self.text = points .. " points"
@@ -167,7 +168,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
 
         local tieText = display.newText {
             text = "TIE!",
-            font = native.systemFontBold,
+            font = fonts.BOLD_FONT,
             fontSize = 40,
             x = centerX,
             y = pointsY

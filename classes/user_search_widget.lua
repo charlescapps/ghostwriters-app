@@ -8,6 +8,7 @@ local math = require("math")
 
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
+local fonts = require("globals.fonts")
 
 local user_search_widget = {}
 local user_search_widget_mt = { __index = user_search_widget }
@@ -157,7 +158,7 @@ function user_search_widget:createNoResultsText()
         y = SCROLL_HEIGHT / 2 + SEARCH_BOX_HEIGHT,
         width = self.boxWidth,
         height = 200,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 36,
         text = "Oops...no results!",
         align = "center"
@@ -191,7 +192,7 @@ function user_search_widget:getOnRowRenderListener()
 
         local user = self.users[index]
         local usernameDisplay = self:getUsernameDisplay(user)
-        local font = index == self.authUserIndex and native.systemFontBold or native.systemFont
+        local font = index == self.authUserIndex and fonts.BOLD_FONT or native.systemFont
         local rowTitle = display.newText(row, usernameDisplay, 20, rowHeight / 2, font, 32)
         rowTitle.anchorX = 0
         rowTitle:setFillColor(0, 0, 0)

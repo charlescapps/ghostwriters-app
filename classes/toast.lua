@@ -2,7 +2,7 @@ local display = require("display")
 local transition = require("transition")
 local easing = require("easing")
 local timer = require("timer")
-local native = require("native")
+local fonts = require("globals.fonts")
 
 local M = {}
 local meta = { __index = M }
@@ -53,7 +53,7 @@ function M:drawBookmarkText()
         text = self.text,
         x = -30,
         y = 0,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = self.fontSize,
         align = "center"
     }

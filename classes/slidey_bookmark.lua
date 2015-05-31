@@ -1,7 +1,7 @@
 local display = require("display")
 local transition = require("transition")
 local easing = require("easing")
-local native = require("native")
+local fonts = require("globals.fonts")
 
 local slidey_bookmark = {}
 local slidey_bookmark_mt = { __index = slidey_bookmark }
@@ -47,7 +47,7 @@ function slidey_bookmark:drawNumberBubble()
         text = tostring(self.num),
         x = 20,
         y = 0,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40
     }
 end

@@ -1,6 +1,6 @@
 local display = require("display")
 local native = require("native")
-local game_helpers = require("common.game_helpers")
+local fonts = require("globals.fonts")
 local user_info_popup = require("classes.user_info_popup")
 
 local leaderboard_row = {}
@@ -52,7 +52,7 @@ end
 function leaderboard_row:createRankText()
     local rankNumberText = display.newText {
         text = "#" .. tostring(self.user.rank),
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40
     }
 
@@ -67,7 +67,7 @@ end
 function leaderboard_row:createUsernameText(rankText)
     local usernameText = display.newText {
         text = self.user.username,
-        font = self.isHighlighted and native.systemFontBold or native.systemFont,
+        font = self.isHighlighted and fonts.BOLD_FONT or native.systemFont,
         fontSize = self.isHighlighted and 36 or 32
     }
 

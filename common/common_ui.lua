@@ -5,6 +5,7 @@ local composer = require("composer")
 local transition = require("transition")
 local display = require("display")
 local native = require("native")
+local fonts = require("globals.fonts")
 
 local DEFAULT_BACKGROUND = "images/book_texture.jpg"
 
@@ -54,32 +55,13 @@ M.createBackground = function(imageFile)
     return background
 end
 
-M.createTitle = function(myTitleText, y, rgb, fontSize)
-	local useFontSize = fontSize or 48
-	if not y then
-		y = 150  -- default y position for titles.
-	end
-	if not rgb then
-		rgb = {0, 0, 0}
-	end
-    local title = display.newText( { 
-        text = myTitleText, 
-        x = display.contentWidth / 2, 
-        y = y, 
-        font = native.systemBoldFont, 
-        fontSize = useFontSize
-        } )
-    title:setFillColor(rgb[1], rgb[2], rgb[3])
-    return title
-end 
-
 M.createButton = function(text, y, onRelease, width)
 	local button = widget.newButton( {
 		x = display.contentWidth / 2,
 		y = y,
 		emboss = true,
 		label = text,
-        font = native.systemFont,
+        font = fonts.DEFAULT_FONT,
 		fontSize = 46,
 		labelColor = { default = M.BUTTON_LABEL_COLOR_DEFAULT, over = M.BUTTON_LABEL_COLOR_OVER },
 		width = width or 450,
@@ -122,8 +104,8 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
     	y = imgY + size / 2 + 25,
     	width = display.contentWidth, 
     	height = 50, 
-    	font = native.systemFontBold, 
-    	fontSize = 35,
+    	font = fonts.BOLD_FONT,
+    	fontSize = 40,
     	align = "center"
     	} 
 
@@ -133,11 +115,11 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
     	parent = group, 
     	text = subtitle, 
     	x = display.contentWidth / 2, 
-    	y = imgY + size / 2 + 60,
+    	y = imgY + size / 2 + 65,
     	width = display.contentWidth, 
     	height = 40, 
-    	font = native.systemFont, 
-    	fontSize = 30,
+    	font = fonts.DEFAULT_FONT,
+    	fontSize = 36,
     	align = "center" }
     subtitleText:setFillColor(0, 0, 0)
 
@@ -191,7 +173,7 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize)
         text = titleText,
         width = 600,
         height = 125,
-        font = native.systemBoldFont,
+        font = fonts.BOLD_FONT,
         fontSize = titleFontSize or 60,
         align = "center"
     }
@@ -204,7 +186,7 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize)
         text = text,
         width = 600,
         height = 250,
-        font = native.systemBoldFont,
+        font = fonts.DEFAULT_FONT,
         fontSize = fontSize or 40,
         align = "center"
     }
@@ -244,59 +226,12 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize)
     return group
 end
 
-M.createBookButton = function(titleText, text, fontSize, onRelease, x, y)
-    local group = display.newGroup()
-    group.x, group.y = x or display.contentWidth / 2, y or display.contentWidth / 2
-
-    local imgButton = widget.newButton({
-        x = 0,
-        y = 0,
-        width = BOOK_BUTTON_WIDTH,
-        height = BOOK_BUTTON_HEIGHT,
-        defaultFile = BOOK_BUTTON_DEFAULT_IMAGE,
-        overFile = BOOK_BUTTON_OVER_IMAGE,
-        onRelease = onRelease
-    })
-
-    local buttonTitle = display.newText {
-        parent = group,
-        x = 0,
-        y = -75,
-        text = titleText,
-        width = BOOK_BUTTON_WIDTH - 120,
-        height = 100,
-        font = native.systemBoldFont,
-        fontSize = 50,
-        align = "center"
-    }
-    buttonTitle:setFillColor(0, 0, 0)
-
-    local buttonText = display.newText {
-        parent = group,
-        x = 0,
-        y = 75,
-        text = text,
-        width = BOOK_BUTTON_WIDTH - 100,
-        height = 175,
-        font = native.systemBoldFont,
-        fontSize = fontSize or 32,
-        align = "center"
-    }
-    buttonText:setFillColor(0, 0, 0)
-
-    group:insert(imgButton)
-    group:insert(buttonTitle)
-    group:insert(buttonText)
-
-    return group
-end
-
 function M.createLink(linkText, x, y, fontSize, onPress)
     local LINK_COLOR = {0, 0.43, 1 }
     local LINK_OVER_COLOR = { 0, 0.2, 0.6 }
     local link = display.newText {
         text = linkText,
-        font = native.systemFont,
+        font = fonts.DEFAULT_FONT,
         fontSize = fontSize or 36,
         x = x or display.contentWidth / 2,
         y = y or display.contentHeight / 2,

@@ -1,8 +1,8 @@
 local display = require("display")
 local native = require("native")
 local json = require("json")
-local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
+local fonts = require("globals.fonts")
 local game_ui = require("common.game_ui")
 local nav = require("common.nav")
 local composer = require("composer")
@@ -140,7 +140,7 @@ function mini_game_view_class:renderAcceptAndRejectButtons()
         y = self.height / 2,
         emboss = true,
         label = "Accept",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 42,
         width = self.width / 3,
         height = self.height / 6,
@@ -158,7 +158,7 @@ function mini_game_view_class:renderAcceptAndRejectButtons()
         y = self.height / 2,
         emboss = true,
         label = "Reject",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 42,
         width = self.width / 3,
         height = self.height / 6,

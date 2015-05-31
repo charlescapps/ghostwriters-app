@@ -1,5 +1,5 @@
 local display = require("display")
-local native = require("native")
+local fonts = require("globals.fonts")
 local widget = require("widget")
 local transition = require("transition")
 local json = require("json")
@@ -143,7 +143,7 @@ function leaderboard_class:renderTitle()
         y = 75,
         width = display.contentWidth,
         align = "center",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 60
     }
     title:setFillColor(1, 1, 1)

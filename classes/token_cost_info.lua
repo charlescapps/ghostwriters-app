@@ -1,5 +1,5 @@
 local display = require("display")
-local native = require("native")
+local fonts = require("globals.fonts")
 local transition = require("transition")
 
 local M = {}
@@ -33,7 +33,7 @@ function M:drawTitle()
         x = 100,
         y = 0,
         text = "Cost = " .. self.cost .. " x ",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 48,
         align = "right"
     }

@@ -6,6 +6,7 @@ local new_game_data = require("globals.new_game_data")
 local stepper_sheet = require("spritesheets.stepper_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local common_api = require("common.common_api")
+local fonts = require("globals.fonts")
 
 local M = {}
 
@@ -44,13 +45,13 @@ function M:drawDictionaryOptions()
 
     local title = display.newText {
         text = "Choose Dictionary",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 44,
         x = display.contentCenterX
     }
     title:setFillColor(0, 0, 0)
 
-    self.plainEnglishOption = self:drawDictionaryOption(group, 100, " English", nil, 0, true)
+    self.plainEnglishOption = self:drawDictionaryOption(group, 100, "English", nil, 0, true)
     self.poeOption = self:drawDictionaryOption(group, 200, "Edgar Allen Poe", common_api.DICT_POE, 1, false)
     self.lovecraftOption = self:drawDictionaryOption(group, 300, "H.P. Lovecraft", common_api.DICT_LOVECRAFT, 1, false)
     self.mythosOption = self:drawDictionaryOption(group, 400, "Cthulhu Mythos", common_api.DICT_MYTHOS, 2, false)
@@ -93,7 +94,7 @@ function M:drawDictionaryOption(parent, yPosition, text, specialDict, numBooks, 
         text = costText,
         x = MID_COLUMN,
         y = yPosition,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 36
     }
     costText.anchorX = 0
@@ -129,7 +130,7 @@ function M.drawBonusOptions()
 
     local title = display.newText {
         text = "Choose Bonuses",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 44,
         x = display.contentCenterX
     }
@@ -159,7 +160,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue)
         text = 0,
         x = MID_COLUMN,
         y = yPosition,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40
     }
     stepperValue.anchorX = 0

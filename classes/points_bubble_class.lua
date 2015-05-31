@@ -9,7 +9,7 @@ local POINTS = require("common.points")
 local TILE = require("common.tile")
 local math = require("math")
 local display = require("display")
-local native = require("native")
+local fonts = require("globals.fonts")
 local transition = require("transition")
 local timer = require("timer")
 
@@ -192,7 +192,7 @@ function points_bubble_class:drawBubble(points, x, y, rotateDegrees, textY, flip
 
     local pointsText = display.newText {
         text = points .. "\npoints!",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40,
         align = "center",
         width = 3 * BUBBLE_WIDTH / 4,

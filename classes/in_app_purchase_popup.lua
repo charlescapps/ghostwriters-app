@@ -1,8 +1,8 @@
 local display = require("display")
 local transition = require("transition")
-local native = require("native")
 local widget = require("widget")
 local pay_helpers = require("common.pay_helpers")
+local fonts = require("globals.fonts")
 
 local M = {}
 local meta = { __index = M }
@@ -80,7 +80,7 @@ function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)
 
     local text = display.newText {
         text = text,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40,
         x = 100,
         y = 0

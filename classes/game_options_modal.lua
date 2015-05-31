@@ -9,6 +9,7 @@ local checkboxes_sheet = require("spritesheets.checkboxes_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
+local fonts = require("globals.fonts")
 
 local game_options_modal = {}
 local game_options_modal_mt = { __index = game_options_modal }
@@ -98,7 +99,7 @@ function game_options_modal:drawGameDensityOptions()
     -- Word density title
     local wordDensityTitle = display.newText {
         text = "Word Density",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40
     }
     wordDensityTitle.anchorX = 0
@@ -207,7 +208,7 @@ function game_options_modal:drawBonusOptions()
     -- Bonuses title
     local bonusOptionsTitle = display.newText {
         text = "Bonus Squares",
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 40
     }
     bonusOptionsTitle.anchorX = 0

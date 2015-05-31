@@ -6,6 +6,7 @@ local os = require("os")
 local math = require("math")
 
 local common_ui = require("common.common_ui")
+local fonts = require("globals.fonts")
 
 local user_info_popup = {}
 local user_info_popup_mt = { __index = user_info_popup }
@@ -144,7 +145,7 @@ function user_info_popup:createTitle(parent, text, y)
         parent = parent,
         y = y,
         text = text,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 48
     }
     usernameText:setFillColor(1, 1, 1)
@@ -156,7 +157,7 @@ function user_info_popup:createTextInfo(isKey, parent, text, y, font, fontSize)
         parent = parent,
         y = y,
         text = text,
-        font = font or isKey and native.systemFontBold or native.systemFont,
+        font = font or isKey and fonts.BOLD_FONT or native.systemFont,
         fontSize = fontSize or 32,
     }
     text.anchorX = isKey and 1.0 or 0.0
