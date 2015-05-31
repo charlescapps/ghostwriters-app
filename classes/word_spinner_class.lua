@@ -1,23 +1,18 @@
 local display = require("display")
 local widget = require("widget")
 local graphics = require("graphics")
+local ghostly_tall = require("spritesheets.ghostly_tall")
 
 local word_spinner_class = {}
 local word_spinner_class_mt = { __index = word_spinner_class }
 
 -- Constants
-local IMAGE_SHEET = "images/large_spinner_tile.png"
+local IMAGE_SHEET = "spritesheets/ghostly_tall.png"
 local WIDTH = 300
 
 function word_spinner_class.new(x, y)
 
-    local options = {
-        width = WIDTH,
-        height = WIDTH,
-        numFrames = 1,
-        sheetContentWidth = WIDTH,
-        sheetContentHeight = WIDTH
-    }
+    local options = ghostly_tall:getSheet()
 
     local spinnerSingleSheet = graphics.newImageSheet( IMAGE_SHEET, options )
 
@@ -29,7 +24,7 @@ function word_spinner_class.new(x, y)
             width = WIDTH,
             height = WIDTH,
             sheet = spinnerSingleSheet,
-            startFrame = 1,
+            startFrame = ghostly_tall:getFrameIndex("g_ghostly"),
             count = 1,
             deltaAngle = 10,
             incrementEvery = 40
