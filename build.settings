@@ -57,6 +57,10 @@ settings =
 			UIPrerenderedIcon = true, -- set to false for "shine" overlay
 			--UIApplicationExitsOnSuspend = true, -- uncomment to quit app on suspend
 			MinimumOSVersion = "6.0",
+			UIAppFonts = {
+                "GlacialIndifference-Regular.otf",
+                "GlacialIndifference-Bold.otf"
+			},
 
 			CFBundleIconFiles =
 			{

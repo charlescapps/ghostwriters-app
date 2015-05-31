@@ -9,6 +9,7 @@ local json = require("json")
 local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
 local app_state = require("globals.app_state")
+local fonts = require("globals.fonts")
 
 -- Constants
 scene.sceneName = "scenes.title_scene"
@@ -166,7 +167,7 @@ function scene:createUserInfoText()
     local username = scene.creds.user.username
     local userInfoText = display.newText {
         text = username,
-        font = native.systemFontBold,
+        font = fonts.BOLD_FONT,
         fontSize = 48,
         x = display.contentWidth / 2,
         y = 225,
