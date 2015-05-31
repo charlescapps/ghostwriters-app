@@ -41,8 +41,6 @@ function M:render()
     group.x, group.y = self.x, self.y
     self.view = group
     self:addTouchListener(group)
-    --self.bg = self:drawBackground()
-    --self.view:insert(self.bg)
 
     self:drawTokens()
 
@@ -64,10 +62,6 @@ function M:addTouchListener(group)
     end
 
     group:addEventListener("touch")
-end
-
-function M:drawBackground()
-    return display.newImageRect("images/tokens_bg.png", BG_WIDTH, BG_HEIGHT)
 end
 
 function M:drawPlusIcon()

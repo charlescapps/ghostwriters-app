@@ -6,6 +6,7 @@ local new_game_data = require("globals.new_game_data")
 local stepper_sheet = require("spritesheets.stepper_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local common_api = require("common.common_api")
+local pretty_picker = require("classes.pretty_picker")
 local fonts = require("globals.fonts")
 
 local M = {}
@@ -51,10 +52,42 @@ function M:drawDictionaryOptions()
     }
     title:setFillColor(0, 0, 0)
 
-    self.plainEnglishOption = self:drawDictionaryOption(group, 100, "English", nil, 0, true)
+   --[[ self.plainEnglishOption = self:drawDictionaryOption(group, 100, "English", nil, 0, true)
     self.poeOption = self:drawDictionaryOption(group, 200, "Edgar Allen Poe", common_api.DICT_POE, 1, false)
     self.lovecraftOption = self:drawDictionaryOption(group, 300, "H.P. Lovecraft", common_api.DICT_LOVECRAFT, 1, false)
-    self.mythosOption = self:drawDictionaryOption(group, 400, "Cthulhu Mythos", common_api.DICT_MYTHOS, 2, false)
+    self.mythosOption = self:drawDictionaryOption(group, 400, "Cthulhu Mythos", common_api.DICT_MYTHOS, 2, false)]]
+
+    local rows = {
+        {
+            text1 = "English",
+            text2 = "Free!",
+            value = nil
+        },
+        {
+            text1 = "Edgar Allan Poe",
+            text2 = "1 book",
+            value = common_api.DICT_POE
+        },
+        {
+            text1 = "H.P. Lovecraft",
+            text2 = "1 book",
+            value = common_api.DICT_LOVECRAFT
+        },
+        {
+            text1 = "Cthulhu Mythos",
+            text2 = "1 book",
+            value = common_api.DICT_MYTHOS
+        }
+    }
+
+    self.dictionaryPicker = pretty_picker.new {
+        rows = rows,
+        column1Left = LEFT_COLUMN,
+        column2Left = MID_COLUMN,
+        column3Center = RIGHT_COLUMN,
+        bgImage = "images/",
+        rowHeight = 100
+    }
 
     group:insert(title)
 
@@ -62,7 +95,8 @@ function M:drawDictionaryOptions()
 end
 
 function M:getDictionaryCost()
-    if self.plainEnglishOption.isOn then
+    return 0
+   --[[ if self.plainEnglishOption.isOn then
         return 0
     elseif self.poeOption.isOn then
         return 1
@@ -72,7 +106,7 @@ function M:getDictionaryCost()
         return 2
     end
     print("Error - none of the Dictionary options had isOn == true.")
-    return 0
+    return 0]]
 end
 
 function M:drawDictionaryOption(parent, yPosition, text, specialDict, numBooks, isSelected)
