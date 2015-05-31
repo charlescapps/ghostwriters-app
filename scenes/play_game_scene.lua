@@ -270,8 +270,8 @@ drawOptionsButton = function(x, y, width)
         y = y,
         width = width,
         height = width,
-        defaultFile = "images/options-button.png",
-        overFile = "images/options-button-pressed.png",
+        defaultFile = "images/question_button_default.png",
+        overFile = "images/question_button_over.png",
         onPress = nil,
         onRelease = scene:getOnReleaseOptionsButton()
     })
