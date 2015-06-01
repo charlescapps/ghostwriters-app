@@ -2,19 +2,17 @@ local display = require("display")
 local native = require("native")
 local widget = require("widget")
 local game_ui = require("common.game_ui")
-local new_game_data = require("globals.new_game_data")
 local stepper_sheet = require("spritesheets.stepper_sheet")
-local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local common_api = require("common.common_api")
 local pretty_picker = require("classes.pretty_picker")
 local fonts = require("globals.fonts")
+local imgs = require("globals.imgs")
 
 local M = {}
 
-local Y_SPACING = 80
-local LEFT_COLUMN = 30
+local LEFT_COLUMN = 50
 local MID_COLUMN = display.contentCenterX
-local RIGHT_COLUMN = display.contentCenterX + 240
+local RIGHT_COLUMN = display.contentCenterX + 250
 
 local mt = { __index = M }
 
@@ -42,20 +40,15 @@ end
 
 function M:drawDictionaryOptions()
     local group = display.newGroup()
-    group.y = 255
 
     local title = display.newText {
-        text = "Choose Dictionary",
+        text = "Dictionary",
         font = fonts.BOLD_FONT,
         fontSize = 44,
-        x = display.contentCenterX
+        x = display.contentCenterX,
+        y = 500
     }
     title:setFillColor(0, 0, 0)
-
-   --[[ self.plainEnglishOption = self:drawDictionaryOption(group, 100, "English", nil, 0, true)
-    self.poeOption = self:drawDictionaryOption(group, 200, "Edgar Allen Poe", common_api.DICT_POE, 1, false)
-    self.lovecraftOption = self:drawDictionaryOption(group, 300, "H.P. Lovecraft", common_api.DICT_LOVECRAFT, 1, false)
-    self.mythosOption = self:drawDictionaryOption(group, 400, "Cthulhu Mythos", common_api.DICT_MYTHOS, 2, false)]]
 
     local rows = {
         {
@@ -82,88 +75,42 @@ function M:drawDictionaryOptions()
 
     self.dictionaryPicker = pretty_picker.new {
         rows = rows,
+        pickerY = 600,
+        pickerY = 600,
         column1Left = LEFT_COLUMN,
         column2Left = MID_COLUMN,
         column3Center = RIGHT_COLUMN,
-        bgImage = "images/",
-        rowHeight = 100
+        bgImage = imgs.OLD_BOOK,
+        bgWidth = imgs.OLD_BOOK_WIDTH,
+        bgHeight = imgs.OLD_BOOK_HEIGHT,
+        rowWidth = imgs.OLD_BOOK_WIDTH,
+        rowHeight = 100,
+        onUpdate = self.onUpdateCost
     }
 
     group:insert(title)
+    group:insert(self.dictionaryPicker:render())
 
     return group
 end
 
 function M:getDictionaryCost()
-    return 0
-   --[[ if self.plainEnglishOption.isOn then
+    local selectedValue = self.dictionaryPicker:getValue()
+
+    if not selectedValue then
         return 0
-    elseif self.poeOption.isOn then
+    else
         return 1
-    elseif self.lovecraftOption.isOn then
-        return 1
-    elseif self.mythosOption.isOn then
-        return 2
     end
-    print("Error - none of the Dictionary options had isOn == true.")
-    return 0]]
 end
 
-function M:drawDictionaryOption(parent, yPosition, text, specialDict, numBooks, isSelected)
-    local labelText = display.newText {
-        parent = parent,
-        text = text,
-        x = LEFT_COLUMN,
-        y = yPosition,
-        font = native.systemFont,
-        fontSize = 36
-    }
-    labelText.anchorX = 0
-    labelText:setFillColor(0, 0, 0)
-
-    local costText = numBooks == 0 and "Free!" or
-                tostring(numBooks) .. " books"
-    local costText = display.newText {
-        parent = parent,
-        text = costText,
-        x = MID_COLUMN,
-        y = yPosition,
-        font = fonts.BOLD_FONT,
-        fontSize = 36
-    }
-    costText.anchorX = 0
-    costText:setFillColor(0, 0, 0)
-
-    local function onRelease(event)
-        if event.target.isOn then
-            print("Radio button for dict " .. tostring(specialDict) .. " selected!")
-            new_game_data.specialDict = specialDict
-            self.onUpdateCost()
-        end
-    end
-
-    local radioButton = widget.newSwitch {
-        initialSwitchState = isSelected,
-        style = "radio",
-        sheet = game_ui:getRadioButtonSheet(),
-        width = 60,
-        height = 60,
-        frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
-        frameOff = radio_button_sheet:getFrameIndex("radio_button_off"),
-        x = RIGHT_COLUMN,
-        y = yPosition,
-        onRelease = onRelease
-    }
-    parent:insert(radioButton)
-    return radioButton
-end
 
 function M.drawBonusOptions()
     local group = display.newGroup()
     group.y = 750
 
     local title = display.newText {
-        text = "Choose Bonuses",
+        text = "Bonuses",
         font = fonts.BOLD_FONT,
         fontSize = 44,
         x = display.contentCenterX
