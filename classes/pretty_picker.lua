@@ -123,6 +123,9 @@ function M:drawOptionsModal()
     group.y = display.contentCenterY
     group.alpha = 0
 
+    local screen = self:drawScreen(group)
+    group:insert(screen)
+
     local bg = display.newImageRect(self.bgImage, self.bgWidth, self.bgHeight)
     group:insert(bg)
 
@@ -131,6 +134,36 @@ function M:drawOptionsModal()
     end
 
     return group
+end
+
+function M:drawScreen(group)
+    local screen = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+    screen:setFillColor(0, 0, 0, 0.5)
+
+    local function onComplete()
+        transition.fadeOut(group, {
+            time = 1000
+        })
+    end
+
+    screen:addEventListener("touch", function(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(event.target)
+        elseif event.phase == "ended" or event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+            transition.fadeOut(group, {
+                onComplete = onComplete,
+                onCancel = onComplete
+            })
+        end
+        return true
+    end)
+
+    screen:addEventListener("tap", function(event)
+        return true
+    end)
+
+    return screen
 end
 
 function M:drawOptionRow(index, parent)

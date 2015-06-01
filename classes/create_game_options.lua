@@ -12,7 +12,7 @@ local new_game_data = require("globals.new_game_data")
 local M = {}
 
 local LEFT_COLUMN = 50
-local MID_COLUMN = display.contentCenterX
+local MID_COLUMN = display.contentCenterX - 10
 local RIGHT_COLUMN = display.contentCenterX + 250
 
 local mt = { __index = M }
