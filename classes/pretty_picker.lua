@@ -127,6 +127,9 @@ function M:drawOptionsModal()
     group:insert(screen)
 
     local bg = display.newImageRect(self.bgImage, self.bgWidth, self.bgHeight)
+    bg:addEventListener("touch", function()
+        return true
+    end)
     group:insert(bg)
 
     for i = 1, #self.rows do
