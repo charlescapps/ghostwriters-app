@@ -36,7 +36,7 @@ function scene:create(event)
     self.gameOptionsModal = game_options_modal.new(self)
     self.createGameButton = self:createCreateGameButton()
     self.backButton = common_ui.createBackButton(80, 255, "scenes.choose_board_size_scene")
-    self.createGameOptions = create_game_options.new(self:getOnUpdateCostListener())
+    self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener())
     self.tokensDisplay = tokens_display.new(display.contentCenterX, 120, self.creds.user.tokens)
     self.purchaseButton = self:drawPurchaseButton()
 
@@ -124,16 +124,20 @@ function scene:getUpdateUserListener()
     end
 end
 
-function scene:getOnUpdateCostListener()
+function scene:getOnUpdateOptionsListener()
     return function()
+        local boardSize = self.createGameOptions:getBoardSizeOption()
+        local specialDict = self.createGameOptions:getDictionaryOption()
+        new_game_data.boardSize = boardSize
+        new_game_data.specialDict = specialDict
         local updatedCost = self:getCurrentCost()
         self.tokenCostInfo:updateCost(updatedCost)
     end
 end
 
 function scene:getCurrentCost()
-    local boardSizeCost = common_api.getTokenCost(new_game_data.boardSize)
-    local dictionaryCost = self.createGameOptions:getDictionaryCost()
+    local boardSizeCost = common_api.getBoardSizeCost(new_game_data.boardSize)
+    local dictionaryCost = common_api.getDictCost(new_game_data.specialDict)
     return boardSizeCost + dictionaryCost
 end
 

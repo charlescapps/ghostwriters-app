@@ -65,16 +65,30 @@ M.getPassMove = function(gameModel, playerId)
     }
 end
 
-M.getTokenCost = function(boardSize)
+M.getBoardSizeCost = function(boardSize)
     if boardSize == M.SMALL_SIZE then
         return 1
     elseif boardSize == M.MEDIUM_SIZE then
-        return 2
-    elseif boardSize == M.LARGE_SIZE then
         return 3
+    elseif boardSize == M.LARGE_SIZE then
+        return 5
     end
 
     print("ERROR - invalid board size passed into getTokenCost: " .. tostring(boardSize))
+    return 0
+end
+
+M.getDictCost = function(dict)
+    if not dict then
+        return 0
+    elseif dict == M.DICT_POE then
+        return 1
+    elseif dict == M.DICT_LOVECRAFT then
+        return 1
+    elseif dict == M.DICT_MYTHOS then
+        return 1
+    end
+    print("Err - invalid dictionary: " .. tostring(dict))
     return 0
 end
 

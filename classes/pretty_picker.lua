@@ -169,8 +169,6 @@ function M:drawOptionRow(index, parent)
             self.pickerRow = self:drawPickerRow()
             self.view:insert(self.pickerRow)
 
-            new_game_data.specialDict = self:getValue()
-
             if self.onUpdate then
                 self.onUpdate()
             end

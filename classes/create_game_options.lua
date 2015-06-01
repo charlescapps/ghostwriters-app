@@ -7,6 +7,7 @@ local common_api = require("common.common_api")
 local pretty_picker = require("classes.pretty_picker")
 local fonts = require("globals.fonts")
 local imgs = require("globals.imgs")
+local new_game_data = require("globals.new_game_data")
 
 local M = {}
 
@@ -16,9 +17,9 @@ local RIGHT_COLUMN = display.contentCenterX + 250
 
 local mt = { __index = M }
 
-function M.new(onUpdateCost)
+function M.new(onUpdateOptions)
     local createGameOptions = {
-        onUpdateCost = onUpdateCost
+        onUpdateOptions = onUpdateOptions
     }
 
     return setmetatable(createGameOptions, mt)
@@ -27,13 +28,74 @@ end
 function M:render()
     local group = display.newGroup()
 
+    local boardSizeOptions = self:drawBoardSizeOptions()
     local dictionaryOptions = self:drawDictionaryOptions()
     local bonusOptions = self:drawBonusOptions()
 
+    group:insert(boardSizeOptions)
     group:insert(dictionaryOptions)
     group:insert(bonusOptions)
 
     M.view = group
+
+    return group
+end
+
+function M:drawBoardSizeOptions()
+    local group = display.newGroup()
+
+    local title = display.newText {
+        text = "Board Size",
+        font = fonts.BOLD_FONT,
+        fontSize = 44,
+        x = display.contentCenterX,
+        y = 300
+    }
+    title:setFillColor(0, 0, 0)
+
+    local rows = {
+        {
+            text1 = "Small (5x5)",
+            text2 = "1 book",
+            value = common_api.SMALL_SIZE
+        },
+        {
+            text1 = "Medium (9x9)",
+            text2 = "3 books",
+            value = common_api.MEDIUM_SIZE
+        },
+        {
+            text1 = "Large (13x13)",
+            text2 = "5 books",
+            value = common_api.LARGE_SIZE
+        }
+    }
+    local startIndex = 1
+    if new_game_data.boardSize == common_api.SMALL_SIZE then
+        startIndex = 1
+    elseif new_game_data.boardSize == common_api.MEDIUM_SIZE then
+        startIndex = 2
+    elseif new_game_data.boardSize == common_api.LARGE_SIZE then
+        startIndex = 3
+    end
+
+    self.boardSizePicker = pretty_picker.new {
+        rows = rows,
+        selectedIndex = startIndex,
+        pickerY = 400,
+        column1Left = LEFT_COLUMN,
+        column2Left = MID_COLUMN,
+        column3Center = RIGHT_COLUMN,
+        bgImage = imgs.OLD_BOOK,
+        bgWidth = imgs.OLD_BOOK_WIDTH,
+        bgHeight = imgs.OLD_BOOK_HEIGHT,
+        rowWidth = imgs.OLD_BOOK_WIDTH,
+        rowHeight = 100,
+        onUpdate = self.onUpdateOptions
+    }
+
+    group:insert(title)
+    group:insert(self.boardSizePicker:render())
 
     return group
 end
@@ -46,7 +108,7 @@ function M:drawDictionaryOptions()
         font = fonts.BOLD_FONT,
         fontSize = 44,
         x = display.contentCenterX,
-        y = 500
+        y = 525
     }
     title:setFillColor(0, 0, 0)
 
@@ -75,8 +137,7 @@ function M:drawDictionaryOptions()
 
     self.dictionaryPicker = pretty_picker.new {
         rows = rows,
-        pickerY = 600,
-        pickerY = 600,
+        pickerY = 625,
         column1Left = LEFT_COLUMN,
         column2Left = MID_COLUMN,
         column3Center = RIGHT_COLUMN,
@@ -85,7 +146,7 @@ function M:drawDictionaryOptions()
         bgHeight = imgs.OLD_BOOK_HEIGHT,
         rowWidth = imgs.OLD_BOOK_WIDTH,
         rowHeight = 100,
-        onUpdate = self.onUpdateCost
+        onUpdate = self.onUpdateOptions
     }
 
     group:insert(title)
@@ -94,16 +155,13 @@ function M:drawDictionaryOptions()
     return group
 end
 
-function M:getDictionaryCost()
-    local selectedValue = self.dictionaryPicker:getValue()
-
-    if not selectedValue then
-        return 0
-    else
-        return 1
-    end
+function M:getBoardSizeOption()
+    return self.boardSizePicker:getValue()
 end
 
+function M:getDictionaryOption()
+    return self.dictionaryPicker:getValue()
+end
 
 function M.drawBonusOptions()
     local group = display.newGroup()
