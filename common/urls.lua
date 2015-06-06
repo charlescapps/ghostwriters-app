@@ -120,5 +120,9 @@ M.getPurchaseURL = function()
     return SERVER .. "/tokens/purchase"
 end
 
+M.getDictionaryURL = function(specialDict)
+    return SERVER .. "/dictionary/" .. specialDict
+end
+
 return M
 

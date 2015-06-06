@@ -515,4 +515,9 @@ M.registerPurchase = function(purchase, onSuccess, onFail, doCreateSpinner)
     M.doPostWithSpinner(url, purchase, 200, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
+M.getDictionary = function(specialDict, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getDictionaryURL(specialDict)
+    M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
+end
+
 return M

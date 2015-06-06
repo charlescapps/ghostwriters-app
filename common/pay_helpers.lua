@@ -10,13 +10,23 @@ local productList
 local productsFromStore
 
 local M = {}
+local BOOK_PACK_1 = "book_pack_1"
+local BOOK_PACK_2 = "book_pack_2"
+local BOOK_PACK_3 = "book_pack_3"
+local INFINITE_BOOKS = "infinite_books"
 
 -- List of Ghostwriters "products" for IAP
-local googleProductList = {
-    "book_pack_1",
-    "book_pack_2",
-    "book_pack_3",
-    "infinite_books"
+local PRODUCT_LIST = {
+    BOOK_PACK_1,
+    BOOK_PACK_2,
+    BOOK_PACK_3,
+    INFINITE_BOOKS
+}
+
+local consumableProductList = {
+    BOOK_PACK_1,
+    BOOK_PACK_2,
+    BOOK_PACK_3
 }
 
 function M.transactionListener(event)
@@ -82,7 +92,7 @@ function M.loadStoreProducts()
         print("Consuming previous purchases only necessary for Google IAP.")
         return
     end
-    store.loadProducts(googleProductList, function(products)
+    store.loadProducts(PRODUCT_LIST, function(products)
         print("Loaded Products:")
         local jsonStr = json.encode(products)
         print(jsonStr)
@@ -105,10 +115,8 @@ function M.purchase(productIdentifier)
     M.registerAllPurchases()
 
     print("Calling store.purchase() on product: " .. productIdentifier)
-    store.purchase(productIdentifier)
+    store.purchase( { productIdentifier } )
 end
-
-
 
 function M.registerAllPurchases()
     if not store or not store.isActive then
@@ -123,7 +131,7 @@ function M.registerAllPurchases()
     if #purchases <= 0 then
         print("No stored purchases. Nothing to register.")
         if googleIAP then
-           store.consumePurchase(googleProductList, M.transactionListener)
+           store.consumePurchase(consumableProductList, M.transactionListener)
         end
         return
     end
@@ -159,12 +167,12 @@ end
 if (system.getInfo("platformName") == "Android") then
     store = require("plugin.google.iap.v3")
     googleIAP = true
-    productList = googleProductList
+    productList = PRODUCT_LIST
     store.init("google", M.transactionListener)
 elseif (system.getInfo("platformName") == "iPhone OS") then
     store = require("store")
     googleIAP = false
-    productList = googleProductList -- Change this for Apple?
+    productList = PRODUCT_LIST -- Change this for Apple?
     store.init("apple", M.transactionListener)
 else
     print("In-app purchases are not supported in the Corona Simulator.")
