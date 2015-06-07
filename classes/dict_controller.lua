@@ -68,7 +68,7 @@ function M:computeTotalPlayed()
     local numPlayed = 0
     for i = 1, #allWords do
        local word = allWords[i]
-        if word.played then
+        if word.p then
             numPlayed = numPlayed + 1
         end
     end

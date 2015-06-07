@@ -50,7 +50,7 @@ function scene:show( event )
             native.showAlert("Network Error", "An network error occurred getting the dictionary.", { "Try again" })
         end
 
-        common_api.getDictionary(specialDict, onSuccess, onFail)
+        common_api.getDictionary(specialDict, onSuccess, onFail, true)
 
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.

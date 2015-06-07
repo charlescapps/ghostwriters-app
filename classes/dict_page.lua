@@ -1,6 +1,7 @@
 local display = require("display")
 local widget = require("widget")
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 local fonts = require("globals.fonts")
 local math = require("math")
 local json = require("json")
@@ -11,6 +12,10 @@ local meta = { __index = M }
 
 local TABLE_WIDTH = display.contentWidth
 local TABLE_HEIGHT = 900
+
+local ROW_HEIGHT = 75
+local EVEN_ROW_COLOR = { over = { 0.46, 0.78, 1.0, 0.2 }, default = { 0.46, 0.78, 1.0, 0.6 } }
+local ODD_ROW_COLOR =  { over = { 0.87, 0.95, 1.0, 0.2 }, default = { 0.67, 0.75, 0.8, 0.6 } }
 
 function M.new(specialDict, words, pageNum, totalPages, numPlayed, totalWords, onReleaseNextPage, onReleasePrevPage)
     local dictPage = {
@@ -32,16 +37,14 @@ end
 function M:render()
     self.view = display.newGroup()
     self.title = self:renderTitle()
-    print("Rendering words played info...")
     self.wordsPlayedInfo = self:renderWordsPlayedInfo()
-    print("Finished rendering words played info.")
-    print("Rendering page controls...")
     self.pageControls = self:renderPageControls()
-    print("Finished rendering page controls.")
+    self.wordsTable = self:renderWordsTable()
 
     self.view:insert(self.title)
     self.view:insert(self.wordsPlayedInfo)
     self.view:insert(self.pageControls)
+    self.view:insert(self.wordsTable)
 
     return self.view
 end
@@ -55,7 +58,7 @@ function M:renderTitle()
         height = 200,
         align = "center",
         font = fonts.BOLD_FONT,
-        fontSize = 48
+        fontSize = 52
     }
     title:setFillColor(0, 0, 0)
 
@@ -83,17 +86,80 @@ end
 
 function M:renderWordsTable()
     local function onRowRender(event)
+        local row = event.row
+        local word = row.params.word
+        local wordText = display.newText {
+            text = word.w,
+            x = 50,
+            y = row.height / 2,
+            align = "left",
+            fontSize = 40,
+            font = fonts.DEFAULT_FONT
 
+        }
+        wordText:setFillColor(0, 0, 0)
+        wordText.anchorX = 0
+
+        if word.d then
+           local defLink = display.newText {
+               text = "def.",
+               x = 50 + wordText.contentWidth + 25,
+               y = row.height / 2,
+               align = "left",
+               fontSize = 40,
+               font = fonts.BOLD_FONT
+           }
+           defLink:setFillColor(0, 0.6, 0)
+           defLink.anchorX = 0
+
+           local function onTouch(event)
+               local phase = event.phase
+
+               if "began" == phase then
+                   display.getCurrentStage():setFocus(event.target)
+               elseif "ended" == phase then
+                   display.getCurrentStage():setFocus(nil)
+                   common_ui.createInfoModal(word.w, word.d)
+               elseif "cancelled" == phase then
+                   display.getCurrentStage():setFocus(nil)
+               end
+               return true
+           end
+
+            row:addEventListener("touch", onTouch)
+            row:insert(defLink)
+        end
+
+        if word.p then
+            local check = display.newImageRect("images/check.png", row.height - 20, row.height - 20)
+            check.x = row.width - 150
+            check.y = row.height / 2
+
+            row:insert(check)
+        end
+
+        row:insert(wordText)
     end
 
     local table = widget.newTableView {
-        top = 300,
+        top = 250,
         x = display.contentCenterX,
         width = TABLE_WIDTH,
         height = TABLE_HEIGHT,
-
-
+        isLocked = true,
+        noLines = true,
+        hideBackground = true,
+        onRowRender = onRowRender
     }
+
+    for i = 1, #self.words do
+       table:insertRow {
+           rowHeight = 75,
+           rowColor = i % 2 == 0 and EVEN_ROW_COLOR or ODD_ROW_COLOR,
+           params = { word = self.words[i] }
+       }
+
+    end
 
     return table
 end
@@ -111,7 +177,7 @@ end
 function M:renderPageControls()
     local group = display.newGroup()
     group.x = display.contentCenterX
-    group.y = display.contentHeight - 150
+    group.y = display.contentHeight - 120
 
     local pageNums = display.newText {
         x = 0,
