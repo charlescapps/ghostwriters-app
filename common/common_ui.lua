@@ -55,17 +55,17 @@ M.createBackground = function(imageFile)
     return background
 end
 
-M.createButton = function(text, y, onRelease, width)
+M.createButton = function(text, y, onRelease, width, height, fontSize)
 	local button = widget.newButton( {
 		x = display.contentWidth / 2,
 		y = y,
 		emboss = true,
 		label = text,
         font = fonts.DEFAULT_FONT,
-		fontSize = 46,
+		fontSize = fontSize or 46,
 		labelColor = { default = M.BUTTON_LABEL_COLOR_DEFAULT, over = M.BUTTON_LABEL_COLOR_OVER },
 		width = width or 450,
-		height = 125,
+		height = height or 125,
 		shape = "roundedRect",
 		cornerRadius = 15,
 		fillColor = { default = M.BUTTON_FILL_COLOR_DEFAULT, over = M.BUTTON_FILL_COLOR_OVER },

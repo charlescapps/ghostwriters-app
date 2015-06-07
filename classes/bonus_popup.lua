@@ -1,4 +1,5 @@
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 local display = require("display")
 local transition = require("transition")
 local easing = require("easing")
@@ -10,14 +11,14 @@ local meta = { __index = M }
 
 local POE_TEXT_COLOR = { 0.73, 0.89, 0.89 }
 local LOVECRAFT_TEXT_COLOR = { 0.83, 0.78, 0.71 }
-local MYTHOS_TEXT_COLOR = { 0.83, 0.78, 0.71 }
+local MYTHOS_TEXT_COLOR = { 0.655, 0.706, 0.665 }
 
 function M.new(specialDict, word, isCurrentPlayer, onModalClose)
     local bonusPopup = {
         specialDict = specialDict,
         word = word,
         isCurrentPlayer = isCurrentPlayer,
-        onModalClose
+        onModalClose = onModalClose
     }
 
     print("Created new bonus_popup: " .. json.encode(bonusPopup))
@@ -36,11 +37,13 @@ function M:render()
     self.whoPlayedText = self:drawWhoPlayed(textColor)
     self.titleText = self:drawTitleText(textColor)
     self.bonusPointsText = self:drawBonusPointsText(textColor)
+    self.button = self:drawButton()
 
     self.view:insert(self.background)
     self.view:insert(self.whoPlayedText)
     self.view:insert(self.titleText)
     self.view:insert(self.bonusPointsText)
+    self.view:insert(self.button)
 
     return self.view
 end
@@ -131,6 +134,18 @@ function M:drawBonusPointsText(textColor)
     return bonusText
 end
 
+function M:drawButton()
+    local text = self:getButtonText()
+    local function onRelease()
+        self:destroy()
+        return true
+    end
+
+    local button = common_ui.createButton(text, display.contentHeight - 200, onRelease, 500)
+
+    return button
+end
+
 function M:getTextColor()
     if self.specialDict == common_api.DICT_POE then
         return POE_TEXT_COLOR
@@ -138,6 +153,16 @@ function M:getTextColor()
         return LOVECRAFT_TEXT_COLOR
     elseif self.specialDict == common_api.DICT_MYTHOS then
         return MYTHOS_TEXT_COLOR
+    end
+end
+
+function M:getButtonText()
+    if self.specialDict == common_api.DICT_POE then
+        return "How fustian!"
+    elseif self.specialDict == common_api.DICT_LOVECRAFT then
+        return "So eldritch."
+    elseif self.specialDict == common_api.DICT_MYTHOS then
+        return "Cthulhu fhtagn!"
     end
 end
 
