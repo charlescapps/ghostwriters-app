@@ -96,10 +96,11 @@ M.getBonusPoints = function(specialDict)
     if not specialDict then
         return 0
     end
-
-    if specialDict == M.DICT_POE or specialDict == M.DICT_LOVECRAFT then
+    if specialDict == M.DICT_POE then
         return 25
-    else
+    elseif specialDict == M.DICT_LOVECRAFT then
+        return 25
+    elseif specialDict == M.DICT_MYTHOS then
         return 50
     end
 end

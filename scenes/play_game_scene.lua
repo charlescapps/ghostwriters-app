@@ -16,6 +16,7 @@ local table = require("table")
 local GameThrive = require("plugin.GameThrivePushNotifications")
 local timer = require("timer")
 local transition = require("transition")
+local bonus_popup = require("classes.bonus_popup")
 local scene = composer.newScene()
 
 -- Local helpers pre-declaration
@@ -459,7 +460,7 @@ end
 function scene:showMoveModal(move, game, onModalClose)
     if move.dict then
         print("Found special dict on move: " .. tostring(move.dict) .. ", showing bonus modal")
-        self:showBonusMoveModal(move, game, onModalClose)
+        self:showBonusMoveModal(move, onModalClose)
     else
         print("Found no special dict on move, showing ordinary modal. Dict was: " .. tostring(move.dict))
         self:showNormalMoveModal(move, game, onModalClose)
@@ -484,22 +485,23 @@ function scene:showNormalMoveModal(move, game, onModalClose)
     common_ui.createInfoModal(moveUsername, moveDescr, onModalClose)
 end
 
-function scene:showBonusMoveModal(move, game, onModalClose)
+function scene:showBonusMoveModal(move, onModalClose)
     if not self.creds or not self.creds.user then
-        print "Errror - creds not defined in play_game_scene."
+        print "Error - creds not defined in play_game_scene."
         return
     end
-    local moveDescr = getBonusMoveDescription(move)
-    local moveUsername
-    if move.playerId == self.creds.user.id then
-        moveUsername = "You"
-    elseif move.playerId == game.player1 then
-        moveUsername = game.player1Model.username
-    else
-        moveUsername = game.player2Model.username
+    local dict = move.dict
+    if not dict then
+        return
     end
 
-    common_ui.createInfoModal(moveUsername, moveDescr, onModalClose)
+    local isCurrentPlayer = move.playerId == self.creds.user.id
+
+    local bonusPopup = bonus_popup.new(dict, move.letters, isCurrentPlayer, onModalClose)
+    bonusPopup:render()
+    self.view:insert(bonusPopup.view)
+
+    bonusPopup:show()
 end
 
 function scene:getOnRefreshGameSuccess()
