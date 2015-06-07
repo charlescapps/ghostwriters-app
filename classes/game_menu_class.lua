@@ -105,9 +105,7 @@ end
 
 function game_menu_class:createBackToMenuButton()
     local backToMenuButton = self:createMenuButton("Back to Main Menu", function()
-        local currentScene = composer.getSceneName("current")
         nav.goToSceneFrom(MY_SCENE, "scenes.title_scene", "fade")
-        composer.removeScene(currentScene, false)
     end)
 
     self.displayGroup:insert(backToMenuButton)
@@ -117,7 +115,7 @@ end
 
 function game_menu_class:createDictionaryButton()
     local dictionaryButton = self:createMenuButton("Dictionary", function()
-        -- TODO: Create an endpoint to lookup word definitions
+        nav.goToSceneFrom(MY_SCENE, "scenes.dictionary_scene", "fade")
     end)
 
     self.displayGroup:insert(dictionaryButton)
