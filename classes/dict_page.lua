@@ -194,7 +194,7 @@ function M:renderPageControls()
         y = 0,
         defaultFile = "images/left_arrow_default.png",
         overFile = "images/left_arrow_over.png",
-        width = 150,
+        width = 130,
         height = 75,
         isEnabled = self.pageNum > 1,
         onRelease = self.onReleasePrevPage
@@ -209,7 +209,7 @@ function M:renderPageControls()
         y = 0,
         defaultFile = "images/right_arrow_default.png",
         overFile = "images/right_arrow_over.png",
-        width = 150,
+        width = 130,
         height = 75,
         isEnabled = self.pageNum < self.totalPages,
         onRelease = self.onReleaseNextPage
