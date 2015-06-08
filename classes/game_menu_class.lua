@@ -1,7 +1,8 @@
 local game_menu_class = {}
 local game_menu_class_mt = { __index = game_menu_class }
 
-local composer = require("composer")
+local common_ui = require("common.common_ui")
+local current_game = require("globals.current_game")
 local display = require("display")
 local widget = require("widget")
 local transition = require("transition")
@@ -109,17 +110,22 @@ function game_menu_class:createBackToMenuButton()
     end)
 
     self.displayGroup:insert(backToMenuButton)
-    backToMenuButton.x, backToMenuButton.y = 0, -200
+    backToMenuButton.x, backToMenuButton.y = 0, 0
     return backToMenuButton
 end
 
 function game_menu_class:createDictionaryButton()
     local dictionaryButton = self:createMenuButton("Dictionary", function()
+        local currentGame = current_game
+        if not currentGame or not currentGame.specialDict then
+           common_ui.createInfoModal("No Dictionary!", "This is a plain English game.")
+           return
+        end
         nav.goToSceneFrom(MY_SCENE, "scenes.dictionary_scene", "fade")
     end)
 
     self.displayGroup:insert(dictionaryButton)
-    dictionaryButton.x, dictionaryButton.y = 0, 0
+    dictionaryButton.x, dictionaryButton.y = 0, -200
     return dictionaryButton
 end
 
