@@ -81,13 +81,14 @@ function game_menu_class:createScreen()
     return screen
 end
 
-function game_menu_class:createMenuButton(text, onRelease)
+function game_menu_class:createMenuButton(text, isEnabled, onRelease)
+    local labelColor = isEnabled and {0.9, 0.9, 0.9} or {0.4, 0.4, 0.4}
     return widget.newButton {
         emboss = true,
         label = text,
         fontSize = 60,
         labelColor = {
-            default = {0.9, 0.9, 0.9},
+            default = labelColor,
             over = { 1, 1, 1 }
         },
         width = 500,
@@ -105,7 +106,7 @@ function game_menu_class:createMenuButton(text, onRelease)
 end
 
 function game_menu_class:createBackToMenuButton()
-    local backToMenuButton = self:createMenuButton("Back to Main Menu", function()
+    local backToMenuButton = self:createMenuButton("Back to Main Menu", true, function()
         nav.goToSceneFrom(MY_SCENE, "scenes.title_scene", "fade")
     end)
 
@@ -115,7 +116,13 @@ function game_menu_class:createBackToMenuButton()
 end
 
 function game_menu_class:createDictionaryButton()
-    local dictionaryButton = self:createMenuButton("Dictionary", function()
+    local currentGame = current_game
+    local isEnabled = true
+    if not currentGame or not currentGame.specialDict then
+        isEnabled = false
+    end
+
+    local dictionaryButton = self:createMenuButton("Dictionary", isEnabled, function()
         local currentGame = current_game
         if not currentGame or not currentGame.specialDict then
            common_ui.createInfoModal("No Dictionary!", "This is a plain English game.")
