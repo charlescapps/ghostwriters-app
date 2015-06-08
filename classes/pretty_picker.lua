@@ -4,7 +4,7 @@ local widget = require("widget")
 local game_ui = require("common.game_ui")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local transition = require("transition")
-local new_game_data = require("globals.new_game_data")
+local common_ui = require("common.common_ui")
 
 local M = {}
 
@@ -136,7 +136,35 @@ function M:drawOptionsModal()
         self:drawOptionRow(i, group)
     end
 
+    local button = self:drawButton()
+    group:insert(button)
+
     return group
+end
+
+function M:drawButton()
+
+    local function onRelease()
+        local optionsModal = self.optionsModal
+        if optionsModal then
+            transition.fadeOut(optionsModal, { time = 1000 })
+
+            if self.pickerRow and self.pickerRow.removeSelf then
+                self.pickerRow:removeSelf()
+            end
+
+            self.pickerRow = self:drawPickerRow()
+            self.view:insert(self.pickerRow)
+
+            if self.onUpdate then
+                self.onUpdate()
+            end
+        end
+    end
+
+    local button = common_ui.createButton("Done", 300, onRelease)
+    button.x = 0
+    return button
 end
 
 function M:drawScreen(group)
