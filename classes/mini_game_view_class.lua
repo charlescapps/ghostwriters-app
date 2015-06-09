@@ -1,6 +1,7 @@
 local display = require("display")
 local native = require("native")
 local json = require("json")
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local fonts = require("globals.fonts")
 local game_ui = require("common.game_ui")
@@ -71,6 +72,11 @@ function mini_game_view_class:render()
     group:insert(dateView)
     group:insert(miniBoardView)
 
+    local dictIndicator = self:drawDictIndicator()
+    if dictIndicator then
+        group:insert(dictIndicator)
+    end
+
     if self.isOfferedGame then
         -- Render the accept/reject buttons
         self.acceptButton, self.rejectButton = self:renderAcceptAndRejectButtons()
@@ -81,6 +87,31 @@ function mini_game_view_class:render()
     self.view = group
 
     return group
+end
+
+function mini_game_view_class:drawDictIndicator()
+    print("Drawing dict indicator...")
+    local imgFile = self:getDictImage()
+    print("imgFile = " .. tostring(imgFile))
+    if not imgFile then
+        return nil
+    end
+    local img = display.newImageRect(imgFile, 200, 233)
+    img.x, img.y = img.contentWidth / 2, self.height / 2
+    return img
+end
+
+function mini_game_view_class:getDictImage()
+    local SPECIAL_DICT = self.gameModel and self.gameModel.specialDict
+    if not SPECIAL_DICT then
+        return nil
+    elseif SPECIAL_DICT == common_api.DICT_POE then
+        return "images/head_poe.png"
+    elseif SPECIAL_DICT == common_api.DICT_LOVECRAFT then
+        return "images/head_lovecraft.png"
+    elseif SPECIAL_DICT == common_api.DICT_MYTHOS then
+        return "images/head_cthulhu.png"
+    end
 end
 
 function mini_game_view_class:destroy()
