@@ -16,6 +16,7 @@ local lists = require("common.lists")
 
 -- Constants
 local APPLY_MOVE_TAG = "apply_move_tag"
+local DRAG_BOARD_TAG = "drag_board_tag"
 local TILE_PADDING = 2
 
 -- Pre-declaration of functions
@@ -207,21 +208,30 @@ function board_class:getTilesGroupTouchListener()
             if not myTile then
                 return true
             end
+
+            self:dragZoomedBoardOnTouch(event)
+
             -- If this is another moved event on the same tile, then just return.
             local lastTile = self.grabbed and self.grabbed[#(self.grabbed)]
             if lastTile and lastTile.row == myTile.row and lastTile.col == myTile.col then
                 return true
             end
+            if table.indexOf(self.grabbed, myTile) then
+               return true
+            end
             if myTile.tileType ~= tile.ORIGINAL_TILE then
                 print ("User grabbed a non-grabbable tile, cancelling grab: " .. myTile.letter)
+                self:cancelDragging()
                 self:cancelGrab()
                 return true
             end
+
             self:addGrabEffect(myTile)
             self.grabbed[#(self.grabbed) + 1] = myTile
 
         elseif event.phase == "ended" or event.phase == "cancelled" then
             display.getCurrentStage():setFocus(nil)
+            self:cancelDragging()
             if not self.isGrabbing or not isConnected(self.grabbed) then
                 self:cancelGrab()
                 return true
@@ -230,6 +240,62 @@ function board_class:getTilesGroupTouchListener()
         end
         return true
     end
+end
+
+function board_class:dragZoomedBoardOnTouch(event)
+    if not self.isZoomed then
+        return
+    end
+
+    local xLocal, yLocal = self.boardContainer:contentToLocal(event.x, event.y)
+    local width, padding = self.width, self.padding
+    local ZOOM_MARGIN = 150
+    local xDelta, yDelta = 0, 0
+    local xStart, yStart = self.boardGroup.x, self.boardGroup.y
+
+    local scale = self:getZoomScale()
+
+    if math.abs(yLocal) < width / 2 + padding then
+        if math.abs(xLocal - width / 2) < ZOOM_MARGIN then
+            xDelta = -xStart - scale * width / 2
+        elseif math.abs(xLocal + width / 2) < ZOOM_MARGIN then
+            xDelta = -xStart + scale * width / 2
+        end
+    end
+    if xDelta == 0 and math.abs(xLocal) < width / 2 + padding then
+        if math.abs(yLocal - width / 2) < ZOOM_MARGIN then
+            yDelta = -yStart - scale * width / 2
+        elseif math.abs(yLocal + width / 2) < ZOOM_MARGIN then
+            yDelta = -yStart + scale * width / 2
+        end
+    end
+
+
+    if xDelta == 0 and yDelta == 0 then
+        self:cancelDragging()
+        return
+    elseif self.isDragging then
+        return
+    end
+
+    local function onComplete()
+        self.isDragging = false
+    end
+    local xTarget, yTarget = self:restrictX(xStart + xDelta, scale), self:restrictX(yStart + yDelta, scale)
+    transition.to(self.boardGroup, {
+        x = xTarget,
+        y = yTarget,
+        tag = DRAG_BOARD_TAG,
+        time = 5000 * (math.abs(xTarget - xStart) + math.abs(yTarget - yStart)) / (scale * width),
+        onComplete = onComplete,
+        onCancel = onComplete
+    })
+    self.isDragging = true
+end
+
+function board_class:cancelDragging()
+    self.isDragging = false
+    transition.cancel(DRAG_BOARD_TAG)
 end
 
 function board_class:rowColForCoords(xContent, yContent)
