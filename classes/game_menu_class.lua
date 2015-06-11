@@ -116,14 +116,14 @@ function game_menu_class:createBackToMenuButton()
 end
 
 function game_menu_class:createDictionaryButton()
-    local currentGame = current_game
+    local currentGame = current_game.currentGame
     local isEnabled = true
     if not currentGame or not currentGame.specialDict then
         isEnabled = false
     end
 
     local dictionaryButton = self:createMenuButton("Dictionary", isEnabled, function()
-        local currentGame = current_game
+        local currentGame = current_game.currentGame
         if not currentGame or not currentGame.specialDict then
            common_ui.createInfoModal("No Dictionary!", "This is a plain English game.")
            return
