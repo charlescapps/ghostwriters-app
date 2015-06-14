@@ -10,7 +10,7 @@ local transition = require("transition")
 local M = {}
 local meta = { __index = M }
 
-local TABLE_WIDTH = display.contentWidth
+local TABLE_WIDTH = display.contentWidth - 100
 local TABLE_HEIGHT = 900
 
 local ROW_HEIGHT = 75
@@ -119,7 +119,7 @@ function M:renderWordsTable()
                    display.getCurrentStage():setFocus(event.target)
                elseif "ended" == phase then
                    display.getCurrentStage():setFocus(nil)
-                   common_ui.createInfoModal(word.w, word.d)
+                   common_ui.createInfoModal(word.w, word.d, nil, nil, nil, {1, 1, 1}, "images/book_popup.jpg", 750, 1024, 50, -300, "left", 550)
                elseif "cancelled" == phase then
                    display.getCurrentStage():setFocus(nil)
                end
@@ -132,7 +132,7 @@ function M:renderWordsTable()
 
         if word.p then
             local check = display.newImageRect("images/check.png", row.height - 20, row.height - 20)
-            check.x = row.width - 150
+            check.x = row.width - 100
             check.y = row.height / 2
 
             row:insert(check)

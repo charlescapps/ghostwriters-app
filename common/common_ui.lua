@@ -156,41 +156,44 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
     }
 end
 
-M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize)
+M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, fontColor, imgFile, imgWidth, imgHeight, textCenterX, textCenterY, align, textWidth)
     local group = display.newGroup()
-    group.x, group.y = display.contentWidth / 2, display.contentHeight / 2
+    group.x, group.y = display.contentCenterX, display.contentCenterY
     group.alpha = 0
+
+    fontColor = fontColor or {0, 0, 0}
 
     local background = display.newRect(0, 0, display.contentWidth, display.contentHeight)
     background:setFillColor(0, 0, 0, 0.5)
 
-    local modalImage = display.newImageRect(group, MODAL_IMAGE, 650, 484)
+    local modalImage = display.newImageRect(group, imgFile or MODAL_IMAGE, imgWidth or 650, imgHeight or 484)
 
     local modalTitle = display.newText {
         parent = group,
-        x = 0,
-        y = -100,
+        x = textCenterX or 0,
+        y = textCenterY or -100,
         text = titleText,
-        width = 600,
+        width = textWidth or 600,
         height = 125,
         font = fonts.BOLD_FONT,
         fontSize = titleFontSize or 60,
         align = "center"
     }
-    modalTitle:setFillColor(0, 0, 0)
+    modalTitle:setFillColor(fontColor[1], fontColor[2], fontColor[3])
 
     local modalText = display.newText {
         parent = group,
-        x = 0,
-        y = 75,
+        x = textCenterX or 0,
+        y = (textCenterY + 25) or 75,
         text = text,
-        width = 600,
-        height = 250,
+        width = textWidth or 600,
+        height = 600,
         font = fonts.DEFAULT_FONT,
         fontSize = fontSize or 40,
-        align = "center"
+        align = align or "center"
     }
-    modalText:setFillColor(0, 0, 0)
+    modalText.anchorY = 0
+    modalText:setFillColor(fontColor[1], fontColor[2], fontColor[3])
 
     local onComplete = function()
         if onClose then

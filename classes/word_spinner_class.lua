@@ -19,8 +19,8 @@ function word_spinner_class.new(x, y)
     -- Create the widget
     local spinner = widget.newSpinner
         {
-            x = x or display.contentWidth / 2,
-            y = y or display.contentHeight / 2,
+            x = x or display.contentCenterX,
+            y = y or display.contentCenterY,
             width = WIDTH,
             height = WIDTH,
             sheet = spinnerSingleSheet,
@@ -39,17 +39,20 @@ end
 
 function word_spinner_class:start()
     self.screen = self:createScreen()
-    self.spinner.parent:insert(self.screen)
+    self.screen:toFront()
     self.spinner:toFront()
     self.spinner:start()
 end
 
 function word_spinner_class:stop()
     print("Stopping word spinner...")
-    self.spinner:removeSelf()
-    self.spinner:stop()
-    if self.screen then
+    if self.spinner and self.spinner.removeSelf then
+        self.spinner:removeSelf()
+        self.spinner = nil
+    end
+    if self.screen and self.screen.removeSelf then
         self.screen:removeSelf()
+        self.screen = nil
     end
 end
 
