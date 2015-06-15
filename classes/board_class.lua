@@ -11,6 +11,7 @@ local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local transition = require("transition")
 local table = require("table")
+local letter_picker = require("classes.letter_picker")
 
 local lists = require("common.lists")
 
@@ -454,7 +455,7 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
     end
 	print ("Inserting tile at row = " .. row .. ", col = " .. col)
 	print ("Inserting tile at x = " .. squareImage.x .. ", y = " .. squareImage.y)
-    transition.cancel(tileImage)
+    transition.cancel(tileImage)  -- cancel outstanding animations on the tile.
 	self.rackTilesGroup:insert(tileImage)
 	-- modify width to account for scale
 	local scale = self.boardGroup.xScale
@@ -465,6 +466,10 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 	tileImage.row = row
 	tileImage.col = col
 	self.rackTileImages[row][col] = tileImage
+    if letter == "*" then
+       -- Ask the user to choose the letter
+        self:promptUserToChooseWildcardLetter(tileImage)
+    end
 	transition.to(tileImage, {
 		width = squareImage.squareBg.width - 2 * TILE_PADDING,
 		height = squareImage.squareBg.height - 2 * TILE_PADDING,
@@ -474,9 +479,19 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
             self.pointsBubble:drawPointsBubble()
 		end
 		})
-	
+
 	return true
 
+end
+
+function board_class:promptUserToChooseWildcardLetter(tileImage)
+    local function onSelectLetter(letter)
+        tileImage.chosenLetter = letter
+    end
+
+    local letterPicker = letter_picker.new(onSelectLetter)
+    letterPicker:render()
+    letterPicker:show()
 end
 
 function board_class:removeRackTileFromBoard(tileImage)

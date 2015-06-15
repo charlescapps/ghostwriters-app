@@ -78,6 +78,11 @@ function game_menu_class:createScreen()
         gameMenu:close()
         return true -- Don't allow touches propagating to underneath the menu
     end)
+
+    screen:addEventListener("tap", function(event)
+        return true
+    end)
+
     return screen
 end
 
