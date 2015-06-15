@@ -122,8 +122,9 @@ buildRackTileTable = function()
     -- Rack tiles are always uppercase
     for i = 1, 26 do
         local letter = string.char(64 + i)
-        tileTable[letter] = createRackTile(letter, i)
+        tileTable[letter] = createRackTile(letter)
     end
+    tileTable["*"] = createRackTile("*")  -- for wildcard tiles (displayed as "?" in player's rack)
     return tileTable
 end
 

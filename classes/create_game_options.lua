@@ -175,14 +175,17 @@ function M.drawBonusOptions()
     }
     title:setFillColor(0, 0, 0)
 
-    M.drawBonusOptionRow(group, "Blank Tiles", 100, 4)
+    local function onUpdateNumBlank(val)
+        new_game_data.initialBlankTiles = val
+    end
+    M.drawBonusOptionRow(group, "Blank Tiles", 100, 4, onUpdateNumBlank)
     M.drawBonusOptionRow(group, "Double Words", 200, 2)
 
     group:insert(title)
     return group
 end
 
-function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue)
+function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVal)
     local label = display.newText {
         parent = parent,
         x = LEFT_COLUMN,
@@ -209,6 +212,9 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue)
         if event.phase == "increment" or event.phase == "decrement" then
            local val = event.value
            stepperValue.text = tostring(val)
+            if onUpdateVal then
+                onUpdateVal(val)
+            end
         end
     end
 

@@ -10,6 +10,7 @@ M.gameDensity = nil
 M.specialDict = nil
 M.aiType = nil
 M.startScene = nil
+M.initialBlankTiles = nil
 
 M.getNewGameModel = function(user)
 	if M.gameType == common_api.SINGLE_PLAYER then
@@ -35,7 +36,8 @@ M.getNewGameModel = function(user)
 			boardSize = M.boardSize,
 			bonusesType = M.bonusesType,
 			gameDensity = M.gameDensity,
-            specialDict = M.specialDict
+            specialDict = M.specialDict,
+            player1Rack = M.getInitialRack()
 		}
 	else
 		return {
@@ -45,7 +47,8 @@ M.getNewGameModel = function(user)
 			boardSize = M.boardSize,
 			bonusesType = M.bonusesType,
 			gameDensity = M.gameDensity,
-            specialDict = M.specialDict
+            specialDict = M.specialDict,
+            player1Rack = M.getInitialRack()
 		}
 	end
 end
@@ -60,6 +63,18 @@ M.clearAll = function()
 	M.aiType = nil
     M.specialDict = nil
     M.startScene = nil
+    M.initialBlankTiles = nil
+end
+
+function M.getInitialRack()
+    if not M.initialBlankTiles then
+        return nil
+    end
+    local rackStr = ""
+    for i = 1, M.initialBlankTiles do
+       rackStr = rackStr .. "*"
+    end
+    return rackStr
 end
 
 return M
