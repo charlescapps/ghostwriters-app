@@ -115,7 +115,7 @@ function points_bubble_class:getPerpPoints(r, c, letter, dir, board)
         points = points + POINTS.getLetterPoints(ch)
     end
     local square = board.squares[r][c]
-    points = points + self:getPointsForRackLetter(r, c, letter) * square.num
+    points = points + self:getPointsForRackLetter(r, c, letter)
 
     return points
 end
