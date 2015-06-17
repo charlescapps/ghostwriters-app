@@ -26,11 +26,16 @@ function M.parseTiles(str, N)
         tiles[i] = {}
     end
 
+    local pos = 1
     for i = 1, str:len() do
         local c = str:sub(i, i)
-        local row = math.floor((i - 1) / N) + 1
-        local col = (i - 1) % N + 1
-        tiles[row][col] = c
+        if c ~= "*" then
+           -- Wildcard tiles are prefixed with a '*', but we are ignoring them for now.
+            local row = math.floor((pos - 1) / N) + 1
+            local col = (pos - 1) % N + 1
+            tiles[row][col] = c
+            pos = pos + 1
+        end
     end
 
     return tiles

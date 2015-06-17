@@ -502,10 +502,14 @@ end
 function board_class:removeRackTileFromBoard(tileImage)
     local row, col = tileImage.row, tileImage.col
 	if row and col then
-        local wasRackTile = self.rackTileImages[row][col] ~= nil
+        local rackTile = self.rackTileImages[row][col]
 		self.rackTileImages[row][col] = nil
-        if wasRackTile then
+        if rackTile then
             self.pointsBubble:drawPointsBubble()
+            if rackTile.chosenLetterImage and rackTile.chosenLetterImage.removeSelf then
+                rackTile.chosenLetterImage:removeSelf()
+                rackTile.chosenLetter, rackTile.chosenLetterImage = nil, nil
+            end
         end
 	end
 	tileImage.row = nil
@@ -582,7 +586,11 @@ function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTi
 			elseif tileImages[r][j] then
 				letters = letters .. tileImages[r][j].letter
 			elseif includeRackTiles and rackTileImages[r][j] then
-				letters = letters .. rackTileImages[r][j].letter
+                local rackLetter = rackTileImages[r][j].letter
+                if rackLetter == "*" then
+                    rackLetter = rackTileImages[r][j].chosenLetter
+                end
+				letters = letters .. rackLetter
 			end
 		end
 		return letters
@@ -594,15 +602,25 @@ function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTi
 			elseif tileImages[i][c] then
 				letters = letters .. tileImages[i][c].letter
 			elseif includeRackTiles and rackTileImages[i][c] then
-				letters = letters .. rackTileImages[i][c].letter
+                local rackLetter = rackTileImages[i][c].letter
+                if rackLetter == "*" then
+                    rackLetter = rackTileImages[i][c].chosenLetter
+                end
+				letters = letters .. rackLetter
 			end
 		end
 		return letters
 	else
 		if tileImages[startR][startC] then
 			return tileImages[startR][startC].letter
-		else
-			return rackTileImages[startR][startC].letter
+		elseif not includeRackTiles then
+            return ""
+        else
+			local rackLetter = rackTileImages[startR][startC].letter
+            if rackLetter == "*" then
+                rackLetter = rackTileImages[startR][startC].chosenLetter
+            end
+            return rackLetter
 		end
 	end
 
@@ -833,6 +851,11 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
 
         if myTile == tile.emptyTile and tileIndex <= tiles:len() then
            local letter = tiles:sub(tileIndex, tileIndex)
+           if letter == "*" then
+               local rackTileImage = self.rackTileImages[r][c]
+               letter = rackTileImage.chosenLetter
+               print("Applying BLANK tile at r,c = " .. r .. ", " .. c .. ", letter = " .. letter)
+           end
            local newTileImg = tile.draw(letter:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
            newTileImg.alpha = 0;
            newTileImg.letter = letter
@@ -847,11 +870,29 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
            end
            tileIndex = tileIndex + 1
            if self.rackTileImages and self.rackTileImages[r][c] then
-             local rackTile = self.rackTileImages[r][c]
-             self.rackTileImages[r][c] = nil
-             transition.fadeOut(rackTile, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = function(obj)
-                 obj:removeSelf()
-              end})
+               local rackTile = self.rackTileImages[r][c]
+               self.rackTileImages[r][c] = nil
+               local function onComplete(obj)
+                   if obj and obj.removeSelf then
+                       obj:removeSelf()
+                   end
+               end
+
+               transition.fadeOut(rackTile, {
+                   tag = APPLY_MOVE_TAG,
+                   time = 2000,
+                   onComplete = onComplete,
+                   onCancel = onComplete
+               })
+
+               if rackTile.letter == "*" and rackTile.chosenLetterImage then
+                   transition.fadeOut(rackTile.chosenLetterImage, {
+                       tag = APPLY_MOVE_TAG,
+                       time = 2000,
+                       onComplete = onComplete,
+                       onCancel = onComplete
+                   })
+               end
            end
         else
             -- If the existing tile was lowercase, then change the tile to a stone tile
