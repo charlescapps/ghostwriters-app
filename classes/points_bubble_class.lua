@@ -44,12 +44,13 @@ function points_bubble_class:computePoints(playMove)
             if tile and tile ~= TILE.emptyTile then
                points = points + POINTS.getLetterPoints(tile)
             else
-                local square = self.board.squares[startR][c]
                 local rackLetter = rackTiles:sub(rackTilesIndex, rackTilesIndex)
                 rackTilesIndex = rackTilesIndex + 1
-                points = points + POINTS.getLetterPoints(rackLetter) * square.num
+
+                points = points + self:getPointsForRackLetter(startR, c, rackLetter)
 
                 local perpPoints = self:getPerpPoints(startR, c, rackLetter, "E", board)
+
                 points = points + perpPoints
             end
 
@@ -60,10 +61,10 @@ function points_bubble_class:computePoints(playMove)
             if tile and tile ~= TILE.emptyTile then
                 points = points + POINTS.getLetterPoints(tile)
             else
-                local square = self.board.squares[r][startC]
                 local rackLetter = rackTiles:sub(rackTilesIndex, rackTilesIndex)
                 rackTilesIndex = rackTilesIndex + 1
-                points = points + POINTS.getLetterPoints(rackLetter) * square.num
+
+                points = points + self:getPointsForRackLetter(r, startC, rackLetter)
 
                 local perpPoints = self:getPerpPoints(r, startC, rackLetter, "S", board)
                 points = points + perpPoints
@@ -73,6 +74,20 @@ function points_bubble_class:computePoints(playMove)
     end
 
     return points
+end
+
+function points_bubble_class:getPointsForRackLetter(r, c, rackLetter)
+    local letterPoints
+    if rackLetter == "*" then
+        local rackTileImg = self.board.rackTileImages[r][c]
+        letterPoints = POINTS.getLetterPoints(rackTileImg.chosenLetter)
+    else
+        letterPoints = POINTS.getLetterPoints(rackLetter)
+    end
+
+    local square = self.board.squares[r][c]
+
+    return letterPoints * square.num
 end
 
 function points_bubble_class:getPerpPoints(r, c, letter, dir, board)
@@ -100,7 +115,7 @@ function points_bubble_class:getPerpPoints(r, c, letter, dir, board)
         points = points + POINTS.getLetterPoints(ch)
     end
     local square = board.squares[r][c]
-    points = points + POINTS.getLetterPoints(letter) * square.num
+    points = points + self:getPointsForRackLetter(r, c, letter) * square.num
 
     return points
 end

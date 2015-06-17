@@ -466,17 +466,18 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 	tileImage.row = row
 	tileImage.col = col
 	self.rackTileImages[row][col] = tileImage
-    if letter == "*" then
-       -- Ask the user to choose the letter
-        self:promptUserToChooseWildcardLetter(tileImage)
-    end
 	transition.to(tileImage, {
 		width = squareImage.squareBg.width - 2 * TILE_PADDING,
 		height = squareImage.squareBg.height - 2 * TILE_PADDING,
         time = 250,
 		onComplete = function(event)
 			print("Finished adding letter " .. letter .. " to the board")
-            self.pointsBubble:drawPointsBubble()
+            if letter == "*" then
+                -- Ask the user to choose the letter
+                self:promptUserToChooseWildcardLetter(tileImage, squareImage)
+            else
+                self.pointsBubble:drawPointsBubble()
+            end
 		end
 		})
 
@@ -484,9 +485,13 @@ function board_class:addTileFromRack(contentX, contentY, tileImage)
 
 end
 
-function board_class:promptUserToChooseWildcardLetter(tileImage)
+function board_class:promptUserToChooseWildcardLetter(tileImage, squareImage)
     local function onSelectLetter(letter)
         tileImage.chosenLetter = letter
+        tileImage.chosenLetterImage = tile.draw(letter, tileImage.x, tileImage.y, tileImage.width, true, self.gameModel.boardSize)
+        self.rackTilesGroup:insert(tileImage.chosenLetterImage)
+        tileImage.chosenLetterImage:toFront()
+        self.pointsBubble:drawPointsBubble()
     end
 
     local letterPicker = letter_picker.new(onSelectLetter)

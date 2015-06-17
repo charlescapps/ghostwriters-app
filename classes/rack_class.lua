@@ -287,6 +287,10 @@ getTouchListener = function(rack)
 	        	event.target.width = event.target.width * scale
 	        	event.target.height = event.target.height * scale
                 rack.board:removeRackTileFromBoard(event.target)
+                if event.target.chosenLetterImage then
+                    event.target.chosenLetterImage:removeSelf()
+                    event.target.chosenLetter, event.target.chosenLetterImage = nil, nil
+                end
 	        end
 	        event.target.x = event.x
         	event.target.y = event.y	

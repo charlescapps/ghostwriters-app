@@ -46,6 +46,7 @@ end
 
 function word_spinner_class:stop()
     print("Stopping word spinner...")
+    self.isStopped = true
     if self.spinner and self.spinner.removeSelf then
         self.spinner:removeSelf()
         self.spinner = nil
@@ -57,13 +58,16 @@ function word_spinner_class:stop()
 end
 
 function word_spinner_class:createScreen()
-    local screen = display.newRect(0, 0, display.contentWidth, display.contentHeight)
+    local x, y = display.contentCenterX, display.contentCenterY
+    local screen = display.newRect(x, y, display.contentWidth, display.contentHeight)
     screen:setFillColor(0, 0, 0)
     screen.alpha = 0.3
-    local x, y = display.contentWidth / 2, display.contentHeight / 2
-    screen.x, screen.y = x, y
 
     screen:addEventListener("touch", function(event)
+        return true
+    end)
+
+    screen:addEventListener("tap", function(event)
         return true
     end)
 
