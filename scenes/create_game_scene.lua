@@ -128,8 +128,12 @@ function scene:getOnUpdateOptionsListener()
     return function()
         local boardSize = self.createGameOptions:getBoardSizeOption()
         local specialDict = self.createGameOptions:getDictionaryOption()
+        local numBlankTiles = self.createGameOptions:getNumBlankTiles()
+
         new_game_data.boardSize = boardSize
         new_game_data.specialDict = specialDict
+        new_game_data.initialBlankTiles = numBlankTiles
+        
         local updatedCost = self:getCurrentCost()
         self.tokenCostInfo:updateCost(updatedCost)
     end
@@ -138,7 +142,8 @@ end
 function scene:getCurrentCost()
     local boardSizeCost = common_api.getBoardSizeCost(new_game_data.boardSize)
     local dictionaryCost = common_api.getDictCost(new_game_data.specialDict)
-    return boardSizeCost + dictionaryCost
+    local blankTilesCost = new_game_data.initialBlankTiles or 0
+    return boardSizeCost + dictionaryCost + blankTilesCost
 end
 
 -- "scene:show()"

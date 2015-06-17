@@ -48,8 +48,6 @@ function M:createScreen()
     screen:setFillColor(0, 0, 0)
     screen.alpha = 0.5
 
-    local letterPicker = self
-
     screen:addEventListener("touch", function(event)
         return true -- Don't allow touches propagating to underneath the menu
     end)

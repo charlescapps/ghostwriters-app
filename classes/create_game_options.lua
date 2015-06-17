@@ -163,7 +163,11 @@ function M:getDictionaryOption()
     return self.dictionaryPicker:getValue()
 end
 
-function M.drawBonusOptions()
+function M:getNumBlankTiles()
+    return self.blankTilesStepper:getValue()
+end
+
+function M:drawBonusOptions()
     local group = display.newGroup()
     group.y = 750
 
@@ -175,11 +179,8 @@ function M.drawBonusOptions()
     }
     title:setFillColor(0, 0, 0)
 
-    local function onUpdateNumBlank(val)
-        new_game_data.initialBlankTiles = val
-    end
-    M.drawBonusOptionRow(group, "Blank Tiles", 100, 4, onUpdateNumBlank)
-    M.drawBonusOptionRow(group, "Double Words", 200, 2)
+    self.blankTilesStepper = M.drawBonusOptionRow(group, "Blank Tiles", 100, 4, self.onUpdateOptions)
+    self.doubleWordsStepper = M.drawBonusOptionRow(group, "Double Words", 200, 2)
 
     group:insert(title)
     return group
@@ -233,7 +234,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
         plusActiveFrame = stepper_sheet:getFrameIndex("stepper_plus_active")
     }
     parent:insert(stepper)
-
+    return stepper
 end
 
 
