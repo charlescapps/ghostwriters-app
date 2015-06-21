@@ -133,7 +133,7 @@ function scene:getOnUpdateOptionsListener()
         new_game_data.boardSize = boardSize
         new_game_data.specialDict = specialDict
         new_game_data.initialBlankTiles = numBlankTiles
-        
+
         local updatedCost = self:getCurrentCost()
         self.tokenCostInfo:updateCost(updatedCost)
     end

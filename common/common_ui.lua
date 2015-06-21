@@ -270,4 +270,19 @@ function M.truncateName(username, maxLen)
     return username:sub(1, maxLen) .. ".."
 end
 
+function M.drawScreen()
+    local screen = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+    screen:setFillColor(0, 0, 0, 0.5)
+
+    screen:addEventListener("touch", function(event)
+        return true
+    end)
+
+    screen:addEventListener("tap", function(event)
+        return true
+    end)
+
+    return screen
+end
+
 return M

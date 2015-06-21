@@ -19,7 +19,7 @@ local TILE_PADDING = 2
 local RACK_WIDTH = display.contentWidth
 local RACK_HEIGHT = 320
 
-function rack_class.new(parentScene, gameModel, tileWidth, startY, numPerRow, padding, board, authUser, skipHint)
+function rack_class.new(parentScene, gameModel, tileWidth, startY, numPerRow, padding, board, authUser)
 	local rack = gameModel.player1 == authUser.id and gameModel.player1Rack or gameModel.player2Rack
 	local letters = {}
 
@@ -39,15 +39,11 @@ function rack_class.new(parentScene, gameModel, tileWidth, startY, numPerRow, pa
 		padding = padding,
 		board = board,
         parentScene = parentScene,
-        gameModel = gameModel,
-        skipHint = skipHint
+        gameModel = gameModel
     }
 
 	newRack = setmetatable( newRack, rack_class_mt )
 	newRack:createRackDisplayGroup()
-    if rack:len() <= 0 then
-       newRack:showGhostlyTilesHint()
-    end
 	return newRack
 end
 
@@ -120,28 +116,6 @@ function rack_class:addTiles(tilesStr)
 	return true
 end
 
-function rack_class:showGhostlyTilesHint()
-    if self.showedHint or self.skipHint then
-        return
-    end
-
-    if not self.ghostlyHint then
-        self.ghostlyHint = display.newImageRect("images/grab_tiles_hint.png", RACK_WIDTH, RACK_HEIGHT)
-        self.ghostlyHint.alpha = 0
-        self.ghostlyHint.x, self.ghostlyHint.y = RACK_WIDTH / 2 - self.padding, 150
-        self.displayGroup:insert(self.ghostlyHint)
-    end
-
-    transition.fadeIn(self.ghostlyHint, { time = 1000 })
-    self.showedHint = true
-end
-
-function rack_class:hideGhostlyTilesHint()
-    if self.ghostlyHint and self.ghostlyHint.alpha > 0 then
-        transition.fadeOut(self.ghostlyHint, { time = 1000 })
-    end
-end
-
 function rack_class:computeTileX(i)
 	local width = self.tileWidth
 	local col = (i - 1) % self.numPerRow
@@ -180,7 +154,6 @@ function rack_class:computeIndexFromContentCoords(xContent, yContent)
 end
 
 function rack_class:addTileImage(tileImage, onComplete)
-    self:hideGhostlyTilesHint()
     for i = 1, MAX_TILES do
        if not self.tileImages[i] then
            self.tileImages[i] = tileImage

@@ -17,6 +17,8 @@ local GameThrive = require("plugin.GameThrivePushNotifications")
 local timer = require("timer")
 local transition = require("transition")
 local bonus_popup = require("classes.bonus_popup")
+local grab_tiles_tip = require("tips.grab_tiles_tip")
+
 local scene = composer.newScene()
 
 -- Local helpers pre-declaration
@@ -121,6 +123,8 @@ function scene:show(event)
         self:showGameInfoModals(true)
 
         self:startPollForGame()
+
+        grab_tiles_tip.triggerTipOnCondition(self.board)
     end
 end
 
