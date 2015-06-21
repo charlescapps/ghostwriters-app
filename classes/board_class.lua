@@ -641,6 +641,23 @@ function board_class:getLastOccupied(row, col, dir)
 	return r - dir[1], c - dir[2]
 end
 
+-- Returns the start image and end image
+function board_class:getWordCenteredAt(row, col, dir)
+    if row < 1 or row > self.N or
+            col < 1 or col > self.N or
+            self.tileImages[row][col] == nil then
+        return nil
+    end
+
+    local neg = {-dir[1], -dir[2]}
+    local startR, startC = self:getLastOccupied(row, col, neg)
+    local endR, endC = self:getLastOccupied(row, col, dir)
+    if startR == endR and startC == endC then
+        return nil
+    end
+    return { startR, startC, endR, endC }
+end
+
 function board_class:findFirstRackTile()
     local N = self.N
     local rackTileImages = self.rackTileImages
