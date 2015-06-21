@@ -285,4 +285,10 @@ function M.drawScreen()
     return screen
 end
 
+function M.safeRemove(displayObj)
+    if displayObj and displayObj.removeSelf then
+        displayObj:removeSelf()
+    end
+end
+
 return M

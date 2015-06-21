@@ -58,6 +58,8 @@ function scene:create(event)
 
     self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
+    self.grabTilesTip = grab_tiles_tip.new(self.board)
+
     self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50)
 
     self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 80, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
@@ -124,7 +126,8 @@ function scene:show(event)
 
         self:startPollForGame()
 
-        grab_tiles_tip.triggerTipOnCondition(self.board)
+
+        self.grabTilesTip:triggerTipOnCondition()
     end
 end
 
@@ -609,6 +612,10 @@ function scene:getOnGrabTiles()
             common_ui.createInfoModal("Oops...", "It's not your turn")
             self.board:cancelGrab()
             return
+        end
+
+        if self.grabTilesTip then
+           self.grabTilesTip:stopTip()
         end
 
         local lettersStr = tilesToStr(tiles, ", ")
