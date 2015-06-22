@@ -6,6 +6,7 @@ local math = require("math")
 local json = require("json")
 local transition = require("transition")
 local timer = require("timer")
+local table = require("table")
 
 local M = {}
 local meta = { __index = M }
@@ -66,43 +67,39 @@ end
 
 function M:animateArrows(board, wordPos)
     print("wordPos(1,2,3,4)=" .. wordPos[1] .. "," .. wordPos[2] .. "," .. wordPos[3] .. "," .. wordPos[4])
-    local startTile = board.tileImages[wordPos[1]][wordPos[2]]
-    local endTile = board.tileImages[wordPos[3]][wordPos[4]]
+    local startSquare = board.squareImages[wordPos[1]][wordPos[2]]
+    local endSquare = board.squareImages[wordPos[3]][wordPos[4]]
 
     local dir = wordPos[1] == wordPos[3] and "E" or "S"
 
     local wordLen = dir == "E" and (wordPos[4] - wordPos[2] + 1) or (wordPos[3] - wordPos[1] + 1)
 
     -- Draw the arrows, initially invisible.
-    local numArrows = wordLen - 1
-    for i = 1, numArrows do
-       self.arrowImages[i] = self:drawArrow(startTile, dir)
+    local callback = function()
+        self:startArrow(dir, startSquare, endSquare, wordLen)
     end
-
-    for i = 1, numArrows do
-        local arrowImg = self.arrowImages[i]
-        local callback = function()
-            self:startArrow(arrowImg, startTile, endTile, wordLen)
-        end
-        timer.performWithDelay((i - 1) * MS_PER_TILE, callback)
-    end
-
-
+    self.timerObj = timer.performWithDelay( MS_PER_TILE, callback, -1 )
 end
 
-function M:startArrow(arrowImg, startTile, endTile, wordLen)
+function M:startArrow(dir, startSquare, endSquare, wordLen)
+
+    local arrowImg = self:drawArrow(startSquare, dir)
+
+    self.arrowImages[#self.arrowImages + 1] = arrowImg
 
     local function onComplete(img)
-        img.x, img.y = startTile.x, startTile.y
-        img.alpha = 0
-        self:startArrow(img, startTile, endTile, wordLen)
+        common_ui.safeRemove(img)
+        local index = table.indexOf(self.arrowImages, img)
+        if index then
+            table.remove(self.arrowImages, index)
+        end
     end
 
     transition.to(arrowImg, {
         tag = GRAB_TILES_TIP_TAG,
-        x = endTile.x,
-        y = endTile.y,
-        alpha = 1,
+        x = endSquare.x,
+        y = endSquare.y,
+        alpha = 0.9,
         time = MS_PER_TILE * (wordLen - 1),
         onComplete = onComplete
     })
@@ -110,18 +107,26 @@ end
 
 function M:stopTip()
     transition.cancel(GRAB_TILES_TIP_TAG)
+    local timerObj = self.timerObj
+    if timerObj then
+        timer.cancel(self.timerObj)
+        self.timerObj = nil
+    end
+
     for i = 1, #self.arrowImages do
         common_ui.safeRemove(self.arrowImages[i])
     end
+    self.arrowImages = {}
 end
 
-function M:drawArrow(startTile, dir)
+function M:drawArrow(startSquare, dir)
     local imgFile = dir == "E" and "images/arrow-east.png" or "images/arrow-south.png"
-    local width = startTile.width * 0.8
+    local width = startSquare.width * 0.8
     local img = display.newImageRect(imgFile, width, width)
-    img.x, img.y = startTile.x, startTile.y
+    img.x, img.y = startSquare.x, startSquare.y
     img.alpha = 0
-    self.board.tilesGroup:insert(img)
+    self.board.boardGroup:insert(img)
+    img:toFront()
     return img
 end
 

@@ -239,6 +239,10 @@ getTouchListener = function(rack)
 			display.getCurrentStage( ):setFocus( event.target )
 			event.target.isFocus = true
 
+            if rack.parentScene and rack.parentScene.grabTilesTip and rack.parentScene.grabTilesTip.stopTip then
+                rack.parentScene.grabTilesTip:stopTip()
+            end
+
 	        --Insert tile into the root display group so it can move freely.
 	        local wasOnBoard = event.target.parent == rack.board.rackTilesGroup
 

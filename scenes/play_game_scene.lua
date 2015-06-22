@@ -126,7 +126,6 @@ function scene:show(event)
 
         self:startPollForGame()
 
-
         self.grabTilesTip:triggerTipOnCondition()
     end
 end
@@ -176,6 +175,9 @@ function scene:hide(event)
         -- Set self.view to nil, so that create() will be called each time we load this scene.
         self.view = nil
         composer.removeScene(self.sceneName, false)
+        if self.grabTilesTip then
+            self.grabTilesTip:stopTip()
+        end
     end
 end
 
@@ -614,10 +616,6 @@ function scene:getOnGrabTiles()
             return
         end
 
-        if self.grabTilesTip then
-           self.grabTilesTip:stopTip()
-        end
-
         local lettersStr = tilesToStr(tiles, ", ")
 
         native.showAlert("Grab tiles?", "Grab tiles: " .. lettersStr .. "?", { "OK", "Nope" },
@@ -625,6 +623,9 @@ function scene:getOnGrabTiles()
                 if event.action == "clicked" then
                     local i = event.index
                     if i == 1 then
+                        if self.grabTilesTip then
+                            self.grabTilesTip:stopTip()
+                        end
                         self.rack:returnAllTiles()
                         self.board:disableInteraction()
                         self.rack:disableInteraction()
