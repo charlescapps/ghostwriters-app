@@ -60,7 +60,9 @@ function scene:create(event)
 
     self.grabTilesTip = grab_tiles_tip.new(self.board)
 
-    self.gameMenu = game_menu_class.new(self, display.contentWidth / 2, display.contentHeight / 2 - 50)
+    local isGameOver = game_helpers.isGameOver(gameModel)
+
+    self.gameMenu = game_menu_class.new(self, display.contentWidth / 2, display.contentHeight / 2 - 50, isGameOver)
 
     self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 80, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 

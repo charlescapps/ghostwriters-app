@@ -1,4 +1,5 @@
 local json = require("json")
+local common_api = require("common.common_api")
 local math = require("math")
 
 local M = {}
@@ -56,20 +57,14 @@ function M.doesAuthUserMatchGame(gameModel, authUser)
     return true
 end
 
-function M.getFriendlyRating(rating)
-    return math.round(rating / 1000)
-end
-
-function M.getUsernameOrYou(authUser, gameModel, playerId)
-    if authUser.id == playerId then
-        return "You"
-    elseif playerId == gameModel.player1 then
-        return gameModel.player1Model.username
-    else
-        return gameModel.player2Model.username
+function M.isGameOver(gameModel)
+    if not gameModel or not gameModel.gameResult then
+        print("ERROR - nil gameModel or gameModel.gameResult passed into game_helpers#isGameOver()")
+        return false
     end
-
+    return gameModel.gameResult ~= common_api.IN_PROGRESS and gameModel.gameResult ~= common_api.OFFERED
 end
+
 
 return M
 

@@ -17,10 +17,11 @@ local GAME_MENU_WIDTH = 750
 local GAME_MENU_HEIGHT = 890
 
 
-function game_menu_class.new(playGameScene, x, y)
+function game_menu_class.new(playGameScene, x, y, isGameOver)
 
     local gameMenu = setmetatable( {
         playGameScene = playGameScene,
+        isGameOver = isGameOver
     }, game_menu_class_mt )
 
     local displayGroup = display.newGroup()
@@ -142,9 +143,14 @@ function game_menu_class:createResignButton()
         end
     end
 
-    local resignButton = self:createMenuButton("Resign match", true, function()
+    local isEnabled = self.isGameOver ~= true
+    local resignButton = self:createMenuButton("Resign match", isEnabled, function()
         native.showAlert("Resign?", "Are you sure you want to resign?", { "YES", "NO" }, alertListener)
     end)
+
+    if not isEnabled then
+        resignButton:setEnabled(false)
+    end
 
     self.displayGroup:insert(resignButton)
 
