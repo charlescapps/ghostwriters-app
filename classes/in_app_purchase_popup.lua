@@ -8,6 +8,7 @@ local M = {}
 local meta = { __index = M }
 
 local BUTTON_SIZE = 200
+local CLOSE_X_WIDTH = 90
 
 function M.new(destroyListener)
     local popup = {
@@ -25,9 +26,11 @@ function M:render()
 
     self.screen = self:drawScreen()
     self.background = self:drawBackground()
+    self.closeX = self:drawCloseX()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
+    self.view:insert(self.closeX)
 
     -- Draw the products
     self.bookpack1_row = self:drawRow("book_pack_1", "10 books", 300, "images/book_pack1.png", "images/book_pack1_over.png")
@@ -47,6 +50,14 @@ function M:drawBackground()
     local bg = display.newImageRect("images/purchase_modal_bg.png", 750, 1100)
     bg.x = display.contentCenterX
     bg.y = display.contentCenterY
+
+    bg:addEventListener("touch", function(event)
+        return true
+    end)
+
+    bg:addEventListener("tap", function(event)
+        return true
+    end)
     return bg
 end
 
@@ -72,6 +83,24 @@ function M:drawScreen()
     end)
 
     return screen
+end
+
+function M:drawCloseX()
+    local function onRelease()
+        self:destroy()
+    end
+    local x = display.contentCenterX - self.background.contentWidth / 2 + CLOSE_X_WIDTH + 20
+    local y = display.contentCenterY - self.background.contentHeight / 2 + CLOSE_X_WIDTH
+    local closeX = widget.newButton {
+        x = x,
+        y = y,
+        width = CLOSE_X_WIDTH,
+        height = CLOSE_X_WIDTH,
+        defaultFile = "images/close_x_default.png",
+        overFile = "images/close_x_over.png",
+        onRelease = onRelease
+    }
+    return closeX
 end
 
 function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)

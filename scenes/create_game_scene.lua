@@ -37,8 +37,7 @@ function scene:create(event)
     self.createGameButton = self:createCreateGameButton()
     self.backButton = common_ui.createBackButton(80, 255, "scenes.choose_board_size_scene")
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener())
-    self.tokensDisplay = tokens_display.new(display.contentCenterX, 120, self.creds.user.tokens)
-    self.purchaseButton = self:drawPurchaseButton()
+    self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 120, self.creds.user, self:getUpdateUserListener())
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.gearButton)
@@ -47,7 +46,6 @@ function scene:create(event)
     sceneGroup:insert(self.gameOptionsModal:render())
     sceneGroup:insert(self.createGameOptions:render())
     sceneGroup:insert(self.tokensDisplay:render())
-    sceneGroup:insert(self.purchaseButton)
 
     local currentCost = self:getCurrentCost()
     self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
@@ -67,32 +65,6 @@ function scene:create(event)
     --pay_helpers.loadStoreProducts()
 end
 
-function scene:drawPurchaseButton()
-    local function onRelease()
-        local user = self.creds and self.creds.user
-        if not user then
-            return
-        end
-        if user.infiniteBooks then
-            common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
-            return
-        end
-        local popup = in_app_purchase_popup.new(self:getUpdateUserListener())
-        self.view:insert(popup:render())
-        popup:show()
-    end
-
-    local button = widget.newButton {
-        width = 90,
-        height = 90,
-        x = 100,
-        y = 1050,
-        defaultFile = "images/purchase_button_default.png",
-        overFile = "images/purchase_button_over.png",
-        onRelease = onRelease
-    }
-    return button
-end
 
 function scene:onGetSelfSuccess()
     return function(userModel)
@@ -120,7 +92,7 @@ function scene:getUpdateUserListener()
 
         self.creds = updatedCreds
 
-        self.tokensDisplay:updateNumTokens(updatedCreds.user.tokens)
+        self.tokensDisplay:updateUser(updatedCreds.user)
     end
 end
 
