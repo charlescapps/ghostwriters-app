@@ -147,16 +147,16 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         group:insert(leftCircle)
         group:insert(rightCircle)
 
-    elseif authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER1_WIN or
-            not authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER2_WIN then
+    elseif authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER1_WIN or gameModel.gameResult == common_api.PLAYER2_RESIGN) or
+            not authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER2_WIN or gameModel.gameResult == common_api.PLAYER1_RESIGN) then
         -- draw the trophy on the left player
         local trophyImg = display.newImageRect("images/trophy.png", 64, 64)
         trophyImg.x = 60
         trophyImg.y = pointsY
         group:insert(trophyImg)
 
-    elseif authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER2_WIN or
-            not authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER1_WIN then
+    elseif authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER2_WIN or gameModel.gameResult == common_api.PLAYER1_RESIGN) or
+            not authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER1_WIN or gameModel.gameResult == common_api.PLAYER2_RESIGN) then
 
         -- draw the trophy on the right player
         local trophyImg = display.newImageRect("images/trophy.png", 64, 64)

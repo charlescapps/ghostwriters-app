@@ -60,7 +60,7 @@ function scene:create(event)
 
     self.grabTilesTip = grab_tiles_tip.new(self.board)
 
-    self.gameMenu = game_menu_class.new(display.contentWidth / 2, display.contentHeight / 2 - 50)
+    self.gameMenu = game_menu_class.new(self, display.contentWidth / 2, display.contentHeight / 2 - 50)
 
     self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 80, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
@@ -379,6 +379,8 @@ getMoveDescription = function(moveJson)
         return "played \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
     elseif moveJson.moveType == common_api.PASS then
         return "passed."
+    elseif moveJson.moveType == common_api.RESIGN then
+        return "resigned."
     end
 end
 
@@ -714,8 +716,8 @@ function scene:showGameOverModal()
 
     local authUser = self.creds.user
 
-    local isMyWin = gameResult == common_api.PLAYER1_WIN and authUser.id == gameModel.player1 or
-                    gameResult == common_api.PLAYER2_WIN and authUser.id == gameModel.player2
+    local isMyWin = (gameResult == common_api.PLAYER1_WIN or gameResult == common_api.PLAYER2_RESIGN) and authUser.id == gameModel.player1 or
+                    (gameResult == common_api.PLAYER2_WIN or gameResult == common_api.PLAYER1_RESIGN) and authUser.id == gameModel.player2
 
     local modalMessage
     if gameResult == common_api.PLAYER1_WIN then
@@ -726,6 +728,10 @@ function scene:showGameOverModal()
         modalMessage = gameModel.player1Model.username .. " timed out."
     elseif gameResult == common_api.PLAYER2_TIMEOUT then
         modalMessage = gameModel.player2Model.username .. " timed out."
+    elseif gameResult == common_api.PLAYER1_RESIGN then
+        modalMessage = isMyWin and gameModel.player1Model.username .. " resigned." or "You resigned."
+    elseif gameResult == common_api.PLAYER2_RESIGN then
+        modalMessage = isMyWin and gameModel.player2Model.username .. " resigned." or "You resigned."
     elseif gameResult == common_api.REJECTED then
         modalMessage = self.creds and self.creds.user and self.creds.user.id == gameModel.player1 and "Your challenge was rejected. Try again!"
             or "You rejected this challenge."
@@ -798,6 +804,12 @@ function scene:pass()
     local passMove = common_api.getPassMove(current_game.currentGame, self.creds.user.id)
     self.myMove = passMove
     common_api.sendMove(passMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+end
+
+function scene:resign()
+    local resignMove = common_api.getResignMove(current_game.currentGame, self.creds.user.id)
+    self.myMove = resignMove
+    common_api.sendMove(resignMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
 end
 
 function scene:showPassModal()

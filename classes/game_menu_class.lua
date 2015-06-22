@@ -1,12 +1,14 @@
 local game_menu_class = {}
 local game_menu_class_mt = { __index = game_menu_class }
 
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local current_game = require("globals.current_game")
 local display = require("display")
 local widget = require("widget")
 local transition = require("transition")
 local nav = require("common.nav")
+local native = require("native")
 
 -- Constants
 local MY_SCENE = "scenes.play_game_scene";
@@ -15,19 +17,22 @@ local GAME_MENU_WIDTH = 750
 local GAME_MENU_HEIGHT = 890
 
 
-function game_menu_class.new(x, y)
+function game_menu_class.new(playGameScene, x, y)
 
-    local gameMenu = setmetatable( {  }, game_menu_class_mt )
+    local gameMenu = setmetatable( {
+        playGameScene = playGameScene,
+    }, game_menu_class_mt )
 
     local displayGroup = display.newGroup()
     displayGroup.x, displayGroup.y = x, y
-    displayGroup.alpha = 0.0 -- start invisible
+    displayGroup.alpha = 0 -- start invisible
 
     gameMenu.displayGroup = displayGroup
     gameMenu.screen = gameMenu:createScreen()
     gameMenu.menuBackground = gameMenu:createMenuBackground()
-    gameMenu.backToMenuButton = gameMenu:createBackToMenuButton()
     gameMenu.dictionaryButton = gameMenu:createDictionaryButton()
+    gameMenu.resignButton = gameMenu:createResignButton()
+    gameMenu.backToMenuButton = gameMenu:createBackToMenuButton()
 
     return gameMenu
 
@@ -45,14 +50,12 @@ function game_menu_class:close()
 	local that = self
     transition.fadeOut(that.displayGroup, {
         time = 1000
-        --transition = easing.inExpo
     })
 end
 
 function game_menu_class:open()
     transition.fadeIn(self.displayGroup, {
         time = 1000
-        --transition = easing.inExpo
     })
 end
 
@@ -110,16 +113,6 @@ function game_menu_class:createMenuButton(text, isEnabled, onRelease)
     }
 end
 
-function game_menu_class:createBackToMenuButton()
-    local backToMenuButton = self:createMenuButton("Back to Main Menu", true, function()
-        nav.goToSceneFrom(MY_SCENE, "scenes.title_scene", "fade")
-    end)
-
-    self.displayGroup:insert(backToMenuButton)
-    backToMenuButton.x, backToMenuButton.y = 0, 0
-    return backToMenuButton
-end
-
 function game_menu_class:createDictionaryButton()
     local currentGame = current_game.currentGame
     local isEnabled = true
@@ -141,5 +134,32 @@ function game_menu_class:createDictionaryButton()
     return dictionaryButton
 end
 
+function game_menu_class:createResignButton()
+    local function alertListener(event)
+        if event.action == "clicked" and event.index == 1 then
+            self:close()
+            self.playGameScene:resign()
+        end
+    end
+
+    local resignButton = self:createMenuButton("Resign match", true, function()
+        native.showAlert("Resign?", "Are you sure you want to resign?", { "YES", "NO" }, alertListener)
+    end)
+
+    self.displayGroup:insert(resignButton)
+
+    resignButton.x, resignButton.y = 0, 0
+    return resignButton
+end
+
+function game_menu_class:createBackToMenuButton()
+    local backToMenuButton = self:createMenuButton("Back to Main Menu", true, function()
+        nav.goToSceneFrom(MY_SCENE, "scenes.title_scene", "fade")
+    end)
+
+    self.displayGroup:insert(backToMenuButton)
+    backToMenuButton.x, backToMenuButton.y = 0, 200
+    return backToMenuButton
+end
 
 return game_menu_class

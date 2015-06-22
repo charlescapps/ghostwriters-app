@@ -47,6 +47,7 @@ M.PROFESSOR_USERNAME = "Professor"
 M.GRAB_TILES = "GRAB_TILES"
 M.PLAY_TILES = "PLAY_WORD"
 M.PASS = "PASS"
+M.RESIGN = "RESIGN"
 
 -- Special dictionaries
 M.DICT_POE = "POE"
@@ -58,6 +59,18 @@ M.getPassMove = function(gameModel, playerId)
         gameId = gameModel.id,
         playerId = playerId,
         moveType = M.PASS,
+        start = {r = 0, c = 0},
+        dir = "E",
+        letters = "",
+        tiles = ""
+    }
+end
+
+M.getResignMove = function(gameModel, playerId)
+    return {
+        gameId = gameModel.id,
+        playerId = playerId,
+        moveType = M.RESIGN,
         start = {r = 0, c = 0},
         dir = "E",
         letters = "",
@@ -131,6 +144,8 @@ M.PLAYER2_WIN = "PLAYER2_WIN"
 M.TIE = "TIE"
 M.PLAYER1_TIMEOUT = "PLAYER1_TIMEOUT"
 M.PLAYER2_TIMEOUT = "PLAYER2_TIMEOUT"
+M.PLAYER1_RESIGN = "PLAYER1_RESIGN"
+M.PLAYER2_RESIGN = "PLAYER2_RESIGN"
 
 -- Predeclared functions
 M.showNetworkError = function()

@@ -60,5 +60,16 @@ function M.getFriendlyRating(rating)
     return math.round(rating / 1000)
 end
 
+function M.getUsernameOrYou(authUser, gameModel, playerId)
+    if authUser.id == playerId then
+        return "You"
+    elseif playerId == gameModel.player1 then
+        return gameModel.player1Model.username
+    else
+        return gameModel.player2Model.username
+    end
+
+end
+
 return M
 

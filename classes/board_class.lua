@@ -821,7 +821,7 @@ function board_class:destroy()
 end
 
 function board_class:applyMove(move, rack, isCurrentUser, onComplete)
-    if move.moveType == common_api.PASS then
+    if move.moveType == common_api.PASS or move.moveType == common_api.RESIGN then
         print("Board applying PASS move, doing nothing...")
         if onComplete then
             onComplete()

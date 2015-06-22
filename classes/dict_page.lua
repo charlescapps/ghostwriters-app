@@ -10,7 +10,7 @@ local transition = require("transition")
 local M = {}
 local meta = { __index = M }
 
-local TABLE_WIDTH = display.contentWidth - 100
+local TABLE_WIDTH = display.contentWidth - 50
 local TABLE_HEIGHT = 900
 
 local ROW_HEIGHT = 75
