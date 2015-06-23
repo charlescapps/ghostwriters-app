@@ -2,6 +2,7 @@ local widget = require("widget")
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local fonts = require("globals.fonts")
+local game_helpers = require("common.game_helpers")
 local display = require("display")
 local native = require("native")
 local transition = require("transition")
@@ -189,7 +190,7 @@ function my_challengers_view_class:getOnAcceptGameSuccessListener(index)
             print("Error - no game found with index: " .. tostring(index))
             return
         end
-        nav.goToGame(game, self.scene.sceneName)
+        game_helpers.acceptChallenge(game)
     end
 end
 

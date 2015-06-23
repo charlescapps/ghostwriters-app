@@ -1,6 +1,8 @@
 local json = require("json")
 local common_api = require("common.common_api")
-local math = require("math")
+local current_game = require("globals.current_game")
+local new_game_data = require("globals.new_game_data")
+local composer = require("composer")
 
 local M = {}
 
@@ -63,6 +65,12 @@ function M.isGameOver(gameModel)
         return false
     end
     return gameModel.gameResult ~= common_api.IN_PROGRESS and gameModel.gameResult ~= common_api.OFFERED
+end
+
+function M.acceptChallenge(game)
+    current_game.currentGame = game
+    new_game_data.isAcceptGame = true
+    composer.gotoScene("scenes.create_game_scene", "fade")
 end
 
 

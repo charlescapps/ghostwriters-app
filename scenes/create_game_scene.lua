@@ -11,7 +11,6 @@ local game_options_modal = require("classes.game_options_modal")
 local create_game_options = require("classes.create_game_options")
 local tokens_display = require("classes.tokens_display")
 local token_cost_info = require("classes.token_cost_info")
-local in_app_purchase_popup = require("classes.in_app_purchase_popup")
 local pay_helpers = require("common.pay_helpers")
 local purchase_store = require("common.purchase_store")
 
@@ -33,7 +32,7 @@ function scene:create(event)
 
     self.background = common_ui.createBackground()
     self.gearButton = self:createGearButton()
-    self.gameOptionsModal = game_options_modal.new(self)
+    self.gameOptionsModal = game_options_modal.new(self, new_game_data.isAcceptGame)
     self.createGameButton = self:createCreateGameButton()
     self.backButton = common_ui.createBackButton(80, 255, "scenes.choose_board_size_scene")
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener())
@@ -180,7 +179,8 @@ function scene:createGearButton()
 end
 
 function scene:createCreateGameButton()
-    local button = common_ui.createButton("Create Game", 1200, self:onReleaseCreateGameButton(), 425)
+    local text = new_game_data.isAcceptGame and "Join Game" or "Create Game"
+    local button = common_ui.createButton(text, 1200, self:onReleaseCreateGameButton(), 425)
     button.x = display.contentCenterX - 60
     return button
 end

@@ -252,11 +252,25 @@ function M:getRadioButtonSheet()
     return self.radioButtonSheet
 end
 
+function M:getRadioButtonSheetDisabled()
+    if not self.radioButtonSheetDisabled then
+        self.radioButtonSheetDisabled = graphics.newImageSheet("spritesheets/radio_button_sheet_disabled.png", radio_button_sheet:getSheet())
+    end
+    return self.radioButtonSheetDisabled
+end
+
 function M:getCheckboxesSheet()
     if not self.checkboxesSheet then
         self.checkboxesSheet = graphics.newImageSheet("spritesheets/checkboxes_sheet.png", checkboxes_sheet:getSheet())
     end
     return self.checkboxesSheet
+end
+
+function M:getCheckboxesSheetDisabled()
+    if not self.checkboxesSheetDisabled then
+        self.checkboxesSheetDisabled = graphics.newImageSheet("spritesheets/checkboxes_sheet_disabled.png", checkboxes_sheet:getSheet())
+    end
+    return self.checkboxesSheetDisabled
 end
 
 function M:getStepperSheet()

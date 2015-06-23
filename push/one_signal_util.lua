@@ -6,6 +6,7 @@ local nav = require("common.nav")
 local common_api = require("common.common_api")
 local app_state = require("globals.app_state")
 local toast = require("classes.toast")
+local game_helpers = require("common.game_helpers")
 
 local M = {}
 
@@ -117,9 +118,26 @@ function M.goToGameByIdFrom(gameId, fromScene)
     common_api.getGameById(gameId, true, nil, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
 end
 
+function M.acceptGameByIdFrom(gameId, fromScene)
+    local function onFailToGetGame(jsonResp)
+        print("Error fetching game with id '" .. tostring(gameId) .. "'")
+        print("Response: " .. tostring(jsonResp))
+    end
+
+    local function onSuccessToGetGame(gameModel)
+        if not gameModel or not gameModel.id then
+            print("Invalid game model received from server:" .. json.encode(gameModel))
+            return
+        end
+        game_helpers.acceptChallenge(gameModel)
+    end
+
+    common_api.getGameById(gameId, true, nil, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
+end
+
 function M.acceptThenGoToGameById(gameId, fromScene)
     local function onAcceptGameOfferSuccess()
-        M.goToGameByIdFrom(gameId, fromScene)
+        M.acceptGameByIdFrom(gameId, fromScene)
     end
 
     local function onAcceptGameOfferFail()

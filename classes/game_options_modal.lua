@@ -14,10 +14,11 @@ local fonts = require("globals.fonts")
 local game_options_modal = {}
 local game_options_modal_mt = { __index = game_options_modal }
 
-function game_options_modal.new(parentScene)
+function game_options_modal.new(parentScene, isAcceptGame)
 
     local gameOptionsModal = {
-        parentScene = parentScene
+        parentScene = parentScene,
+        isAcceptGame = isAcceptGame
     }
     return setmetatable(gameOptionsModal, game_options_modal_mt)
 end
@@ -122,9 +123,9 @@ function game_options_modal:drawGameDensityOptions()
     end
 
     local sparseRadio = widget.newSwitch {
-        initialSwitchState = false,
+        initialSwitchState = new_game_data.gameDensity == common_api.LOW_DENSITY,
         style = "radio",
-        sheet = game_ui:getRadioButtonSheet(),
+        sheet = self:getRadioButtonSheet(),
         width = 60,
         height = 60,
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
@@ -134,6 +135,7 @@ function game_options_modal:drawGameDensityOptions()
         onRelease = onReleaseSparse
     }
     radioGroup:insert(sparseRadio)
+    self:setRadioButtonEnabledState(sparseRadio, radioGroup)
 
     -- Regular density text and radio button
     local regularText = display.newText {
@@ -152,9 +154,9 @@ function game_options_modal:drawGameDensityOptions()
     end
 
     local regularRadio = widget.newSwitch {
-        initialSwitchState = true,
+        initialSwitchState = new_game_data.gameDensity == common_api.MEDIUM_DENSITY,
         style = "radio",
-        sheet = game_ui:getRadioButtonSheet(),
+        sheet = self:getRadioButtonSheet(),
         width = 60,
         height = 60,
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
@@ -164,6 +166,7 @@ function game_options_modal:drawGameDensityOptions()
         onRelease = onReleaseRegular
     }
     radioGroup:insert(regularRadio)
+    self:setRadioButtonEnabledState(regularRadio, radioGroup)
 
     -- Dense density text and radio button
     local denseText = display.newText {
@@ -182,9 +185,9 @@ function game_options_modal:drawGameDensityOptions()
     end
 
     local denseRadio = widget.newSwitch {
-        initialSwitchState = false,
+        initialSwitchState = new_game_data.gameDensity == common_api.HIGH_DENSITY,
         style = "radio",
-        sheet = game_ui:getRadioButtonSheet(),
+        sheet = self:getRadioButtonSheet(),
         width = 60,
         height = 60,
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
@@ -194,9 +197,28 @@ function game_options_modal:drawGameDensityOptions()
         onRelease = onReleaseDense
     }
     radioGroup:insert(denseRadio)
+    self:setRadioButtonEnabledState(denseRadio, radioGroup)
 
     return group
 
+end
+
+function game_options_modal:getRadioButtonSheet()
+    return self.isAcceptGame and game_ui:getRadioButtonSheetDisabled() or game_ui:getRadioButtonSheet()
+end
+
+function game_options_modal:getCheckboxesSheet()
+    return self.isAcceptGame and game_ui:getCheckboxesSheet() or game_ui:getCheckboxesSheetDisabled()
+end
+
+function game_options_modal:setRadioButtonEnabledState(radioButton, radioGroup)
+    if self.isAcceptGame then
+        local hackScreen = common_ui.drawScreen()
+        hackScreen.x, hackScreen.y = radioButton.x, radioButton.y
+        hackScreen.width, hackScreen.height = radioButton.width, radioButton.height
+        hackScreen:setFillColor(0.5, 0.5, 0.5, 0.01)
+        radioGroup:insert(hackScreen)
+    end
 end
 
 function game_options_modal:drawBonusOptions()
@@ -235,7 +257,7 @@ function game_options_modal:drawBonusOptions()
     local randomBonusesCheckbox = widget.newSwitch {
         initialSwitchState = new_game_data.bonusesType == common_api.RANDOM_BONUSES,
         style = "checkbox",
-        sheet = game_ui:getCheckboxesSheet(),
+        sheet = self:getCheckboxesSheet(),
         width = 60,
         height = 60,
         frameOn = checkboxes_sheet:getFrameIndex("checkbox_checked"),
@@ -245,6 +267,7 @@ function game_options_modal:drawBonusOptions()
         onRelease = onReleaseCheckbox
     }
     group:insert(randomBonusesCheckbox)
+    self:setRadioButtonEnabledState(randomBonusesCheckbox, group)
 
     return group
 
