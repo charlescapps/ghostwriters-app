@@ -208,7 +208,7 @@ function game_options_modal:getRadioButtonSheet()
 end
 
 function game_options_modal:getCheckboxesSheet()
-    return self.isAcceptGame and game_ui:getCheckboxesSheet() or game_ui:getCheckboxesSheetDisabled()
+    return self.isAcceptGame and game_ui:getCheckboxesSheetDisabled() or game_ui:getCheckboxesSheet()
 end
 
 function game_options_modal:setRadioButtonEnabledState(radioButton, radioGroup)

@@ -91,7 +91,8 @@ function M:drawBoardSizeOptions()
         bgHeight = imgs.OLD_BOOK_HEIGHT,
         rowWidth = imgs.OLD_BOOK_WIDTH,
         rowHeight = 100,
-        onUpdate = self.onUpdateOptions
+        onUpdate = self.onUpdateOptions,
+        isDisabled = new_game_data.isAcceptGame
     }
 
     group:insert(title)
@@ -146,7 +147,8 @@ function M:drawDictionaryOptions()
         bgHeight = imgs.OLD_BOOK_HEIGHT,
         rowWidth = imgs.OLD_BOOK_WIDTH,
         rowHeight = 100,
-        onUpdate = self.onUpdateOptions
+        onUpdate = self.onUpdateOptions,
+        isDisabled = new_game_data.isAcceptGame
     }
 
     group:insert(title)

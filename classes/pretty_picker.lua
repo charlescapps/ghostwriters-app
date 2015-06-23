@@ -44,7 +44,8 @@ function M.new(opts)
         bgWidth = opts.bgWidth,
         bgHeight = opts.bgHeight,
         fontSize = opts.fontSize or 40,
-        onUpdate = opts.onUpdate
+        onUpdate = opts.onUpdate,
+        isDisabled = opts.isDisabled
     }
 
     prettyPicker.view.left = prettyPicker.left
@@ -103,9 +104,10 @@ function M:drawPickerRow()
     local pickerButton = widget.newButton {
         width = buttonSize,
         height = buttonSize,
-        defaultFile = "images/picker_default.png",
-        overFile = "images/picker_over.png",
-        onRelease = onRelease
+        defaultFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_default.png",
+        overFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_over.png",
+        onRelease = onRelease,
+        isEnabled = not self.isDisabled
     }
     pickerButton.x = self.column3Center
     pickerButton.y = 0
