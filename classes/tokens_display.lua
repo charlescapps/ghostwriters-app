@@ -100,6 +100,13 @@ function M:drawPurchaseButton()
 end
 
 function M:drawTokens()
+    if self.numTokens > 10 then
+        self.ghostlySmoke = display.newImageRect("images/ghostly_smoke.png", 750, 243)
+        self.ghostlySmoke.x = 0
+        self.ghostlySmoke.y = 0
+        self.view:insert(self.ghostlySmoke)
+    end
+
     for i = 1, math.min(MAX_TOKENS, self.numTokens) do
         local img = display.newImageRect("images/currency_book.png", TOKEN_WIDTH, TOKEN_HEIGHT)
         img.x, img.y = self:computeTokenPos(i)
@@ -145,6 +152,11 @@ function M:updateUser(updatedUser)
 end
 
 function M:removeAllImages()
+    if self.ghostlySmoke and self.ghostlySmoke.removeSelf then
+        self.ghostlySmoke:removeSelf()
+        self.ghostlySmoke = nil
+    end
+
     while #self.tokenImages > 0 do
         local img = self.tokenImages[1]
         table.remove(self.tokenImages, 1)
