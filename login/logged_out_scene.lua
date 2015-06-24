@@ -7,7 +7,7 @@ local common_api = require("common.common_api")
 local nav = require("common.nav")
 local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
-local GameThrive = require("plugin.GameThrivePushNotifications")
+local OneSignal = require("plugin.OneSignal")
 local transition = require("transition")
 local custom_text_field = require("classes.custom_text_field")
 
@@ -126,7 +126,7 @@ function scene:getOnCreateAccountSuccessListener()
         end
         nav.goToSceneFrom(self.sceneName, "scenes.title_scene", "fade")
         -- Tag the player in Game Thrive (OneSignal) with the user ID.
-        GameThrive.TagPlayer("ghostwriters_id", user.id)
+        OneSignal.TagPlayer("ghostwriters_id", user.id)
     end
 end
 

@@ -7,9 +7,9 @@ settings =
 {
     plugins =
     {
-        ["plugin.GameThrivePushNotifications"] =
+        ["plugin.OneSignal"] =
         {
-            publisherId = "com.gamethrive",
+            publisherId = "com.onesignal",
         },
         ["plugin.google.play.services"] =
         {

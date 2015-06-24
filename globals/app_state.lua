@@ -12,11 +12,11 @@ function M:isAppLoaded()
    return self.appLoaded
 end
 
-function M:setMainMenuListener(listener)
+function M:setAppLoadedListener(listener)
     self.mainMenuListener = listener
 end
 
-function M:callMainMenuListener()
+function M:callAppLoadedListener()
     if self.mainMenuListener then
         local listener = self.mainMenuListener
         self.mainMenuListener = nil

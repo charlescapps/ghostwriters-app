@@ -13,7 +13,7 @@ local login_common = require("login.login_common")
 local game_menu_class = require("classes.game_menu_class")
 local new_game_data = require("globals.new_game_data")
 local table = require("table")
-local GameThrive = require("plugin.GameThrivePushNotifications")
+local OneSignal = require("plugin.OneSignal")
 local timer = require("timer")
 local transition = require("transition")
 local bonus_popup = require("classes.bonus_popup")
@@ -117,7 +117,7 @@ function scene:show(event)
             return
         end
 
-        GameThrive.RegisterForNotifications()
+        OneSignal.RegisterForNotifications()
 
         if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
             self.movesToDisplay = table.copy(self.board.gameModel.lastMoves)

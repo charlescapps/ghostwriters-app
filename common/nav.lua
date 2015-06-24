@@ -24,7 +24,7 @@ function M.goToGame(gameModel, fromScene)
         print("Cannot go to game from current scene '" .. currentScene .. "', expected " .. fromScene)
         return
     elseif currentScene == "scenes.play_game_scene" then
-        app_state:setMainMenuListener(function()
+        app_state:setAppLoadedListener(function()
             current_game.currentGame = gameModel
             composer.gotoScene("scenes.play_game_scene", "fade")
         end)

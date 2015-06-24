@@ -128,6 +128,7 @@ function scene:show( event )
         end
 
         app_state:setAppLoaded()
+        app_state:callAppLoadedListener()
     end
 end
 

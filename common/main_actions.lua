@@ -1,7 +1,7 @@
 local common_api = require("common.common_api")
 local system = require("system")
 local composer = require("composer")
-local GameThrive = require("plugin.GameThrivePushNotifications")
+local OneSignal = require("plugin.OneSignal")
 local app_state = require("globals.app_state")
 
 local M = {}
@@ -13,7 +13,7 @@ function M.getNextUsernameAndLoginIfDeviceFound()
     if not app_state:isAppLoaded() then
         common_api.getNextUsername(deviceId, M.onSuccessListener, M.onFailListener)
     else
-        app_state:callMainMenuListener()
+        app_state:callAppLoadedListener()
     end
 end
 
@@ -41,8 +41,8 @@ end
 
 function M.onLoginSuccess(user)
     composer.gotoScene("scenes.title_scene", "fade")
-    GameThrive.TagPlayer("ghostwriters_id", user.id)
-    app_state:callMainMenuListener()
+    OneSignal.TagPlayer("ghostwriters_id", user.id)
+    app_state:callAppLoadedListener()
 end
 
 return M

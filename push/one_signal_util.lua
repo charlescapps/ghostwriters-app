@@ -1,4 +1,4 @@
-local GameThrive = require("plugin.GameThrivePushNotifications")
+local OneSignal = require("plugin.OneSignal")
 local composer = require("composer")
 local json = require("json")
 local current_game = require("globals.current_game")
@@ -14,8 +14,8 @@ M.ONE_SIGNAL_APP_ID = "479f3518-dbfa-11e4-ac8e-a310507ee73c"
 M.ANDROID_PROJECT_NUM = "9329334853"
 
 function M.initOneSignal()
-    GameThrive.DisableAutoRegister()
-    GameThrive.Init(M.ONE_SIGNAL_APP_ID, M.ANDROID_PROJECT_NUM, M.onReceiveNotification)
+    OneSignal.DisableAutoRegister()
+    OneSignal.Init(M.ONE_SIGNAL_APP_ID, M.ANDROID_PROJECT_NUM, M.onReceiveNotification)
 end
 
 function M.onReceiveNotification(message, additionalData, isActive)
@@ -35,7 +35,7 @@ function M.onReceiveNotification(message, additionalData, isActive)
          M.handlePushNotification(isActive, additionalData, message)
     else
         print("App is not loaded - setting callback for after logged in successfully.")
-        app_state:setMainMenuListener(function()
+        app_state:setAppLoadedListener(function()
             M.handlePushNotification(isActive, additionalData, message)
         end)
     end
@@ -99,6 +99,7 @@ function M.handleGameOffer(isActive, data, message)
         end)
     else
     -- If ghostwriters isn't active, this means the user clicked on the push notice, so just accept the offer
+        print("Push notification - ghostwriters not active - going to accept game scene directly.")
         game_helpers.goToAcceptGameScene(data.updatedGameId,
             data.boardSize,
             data.specialDict,
