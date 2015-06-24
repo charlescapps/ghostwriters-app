@@ -17,9 +17,10 @@ local RIGHT_COLUMN = display.contentCenterX + 250
 
 local mt = { __index = M }
 
-function M.new(onUpdateOptions)
+function M.new(onUpdateOptions, isReadOnly)
     local createGameOptions = {
-        onUpdateOptions = onUpdateOptions
+        onUpdateOptions = onUpdateOptions,
+        isReadOnly = isReadOnly
     }
 
     return setmetatable(createGameOptions, mt)
@@ -92,7 +93,7 @@ function M:drawBoardSizeOptions()
         rowWidth = imgs.OLD_BOOK_WIDTH,
         rowHeight = 100,
         onUpdate = self.onUpdateOptions,
-        isDisabled = new_game_data.isAcceptGame
+        isDisabled = self.isReadOnly
     }
 
     group:insert(title)
@@ -136,6 +137,15 @@ function M:drawDictionaryOptions()
         }
     }
 
+    local selectedIndex = nil
+    for i = 1, #rows do
+        local row = rows[i]
+        if row.value == new_game_data.specialDict then
+            selectedIndex = i
+            break
+        end
+    end
+
     self.dictionaryPicker = pretty_picker.new {
         rows = rows,
         pickerY = 625,
@@ -148,7 +158,8 @@ function M:drawDictionaryOptions()
         rowWidth = imgs.OLD_BOOK_WIDTH,
         rowHeight = 100,
         onUpdate = self.onUpdateOptions,
-        isDisabled = new_game_data.isAcceptGame
+        isDisabled = self.isReadOnly,
+        selectedIndex = selectedIndex
     }
 
     group:insert(title)

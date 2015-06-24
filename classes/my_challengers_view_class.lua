@@ -183,17 +183,6 @@ function my_challengers_view_class:getGameAtIndex(index)
     return self.games and self.games.list and self.games.list[index]
 end
 
-function my_challengers_view_class:getOnAcceptGameSuccessListener(index)
-    return function()
-        local game = self:getGameAtIndex(index)
-        if not game then
-            print("Error - no game found with index: " .. tostring(index))
-            return
-        end
-        game_helpers.acceptChallenge(game)
-    end
-end
-
 function my_challengers_view_class:getOnRejectGameSuccessListener(index)
     return function()
         self.tableView:deleteRows({ index }, { slideLeftTransitionTime = 1000 })
@@ -207,7 +196,11 @@ function my_challengers_view_class:getAcceptGameListener(index)
             print("Error - no game found with index: " .. tostring(index))
             return
         end
-        common_api.acceptGameOffer(game.id, self:getOnAcceptGameSuccessListener(index), common_api.showNetworkError, true)
+        game_helpers.goToAcceptGameScene(game.id,
+                                         game.boardSize,
+                                         game.specialDict,
+                                         game.gameDensity,
+                                         game.bonusesType)
     end
 end
 

@@ -471,8 +471,8 @@ M.getUsersWithSimilarRating = function(maxResults, onSuccess, onFail, doCreateSp
     M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
-M.acceptGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
-    local url = urls.getAcceptGameURL(gameId)
+M.acceptGameOffer = function(gameId, numBlankTiles, numScryTiles, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getAcceptGameURL(gameId, numBlankTiles, numScryTiles)
     local spinner
     if doCreateSpinner then
         spinner = word_spinner_class.new()

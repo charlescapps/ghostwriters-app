@@ -67,10 +67,18 @@ function M.isGameOver(gameModel)
     return gameModel.gameResult ~= common_api.IN_PROGRESS and gameModel.gameResult ~= common_api.OFFERED
 end
 
-function M.acceptChallenge(game)
-    current_game.currentGame = game
+function M.goToAcceptGameScene(gameId, boardSize, specialDict, gameDensity, bonusesType)
+    if not gameId then
+        print("ERROR - no gameId in goToAcceptGameScene")
+        return
+    end
     new_game_data.isAcceptGame = true
-    composer.gotoScene("scenes.create_game_scene", "fade")
+    new_game_data.gameId = gameId
+    new_game_data.boardSize = boardSize
+    new_game_data.specialDict = specialDict
+    new_game_data.gameDensity = gameDensity
+    new_game_data.bonusesType = bonusesType
+    composer.gotoScene("scenes.accept_game_scene", "fade")
 end
 
 

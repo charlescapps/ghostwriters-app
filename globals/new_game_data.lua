@@ -12,6 +12,7 @@ M.aiType = nil
 M.startScene = nil
 M.initialBlankTiles = nil
 M.isAcceptGame = nil
+M.gameId = nil
 
 M.getNewGameModel = function(user)
 	if M.gameType == common_api.SINGLE_PLAYER then
@@ -66,6 +67,7 @@ M.clearAll = function()
     M.startScene = nil
     M.initialBlankTiles = nil
     M.isAcceptGame = nil
+    M.gameId = nil
 end
 
 function M.getInitialRack()

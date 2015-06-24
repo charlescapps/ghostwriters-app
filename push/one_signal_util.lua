@@ -50,7 +50,7 @@ function M.handlePushNotification(isActive, additionalData, message)
 
     -- If the push notification is for a New Game offer, then accept the offer and load the game
     if additionalData.isGameOffer == "true" then
-        M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName, message)
+        M.handleGameOffer(isActive, additionalData, message)
     else
         M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName, message)
     end
@@ -84,21 +84,28 @@ function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName
     end
 end
 
-function M.handleGameOffer(isActive, updatedGameId, currentGame, currentSceneName, message)
+function M.handleGameOffer(isActive, data, message)
 
     if isActive then
-    -- If the game is active, then create a "toast" here
+    -- If ghostwriters is active, then create a "toast" so as to not suddenly interrupt what the player is doing.
         print("Showing toast for new game offer.")
         local toastText = message .. "\n(Touch to accept)"
         toast.new(toastText, nil, function()
-            M.acceptThenGoToGameById(updatedGameId, currentSceneName)
+            game_helpers.goToAcceptGameScene(data.updatedGameId,
+                                             data.boardSize,
+                                             data.specialDict,
+                                             data.gameDensity,
+                                             data.bonusesType)
         end)
     else
-    -- If the game wasn't active, this means the user clicked on the push notice, so just accept the offer
-        M.acceptThenGoToGameById(updatedGameId, currentSceneName)
+    -- If ghostwriters isn't active, this means the user clicked on the push notice, so just accept the offer
+        game_helpers.goToAcceptGameScene(data.updatedGameId,
+            data.boardSize,
+            data.specialDict,
+            data.gameDensity,
+            data.bonusesType)
     end
 end
-
 
 function M.goToGameByIdFrom(gameId, fromScene)
     local function onFailToGetGame(jsonResp)
@@ -116,36 +123,6 @@ function M.goToGameByIdFrom(gameId, fromScene)
     end
 
     common_api.getGameById(gameId, true, nil, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
-end
-
-function M.acceptGameByIdFrom(gameId, fromScene)
-    local function onFailToGetGame(jsonResp)
-        print("Error fetching game with id '" .. tostring(gameId) .. "'")
-        print("Response: " .. tostring(jsonResp))
-    end
-
-    local function onSuccessToGetGame(gameModel)
-        if not gameModel or not gameModel.id then
-            print("Invalid game model received from server:" .. json.encode(gameModel))
-            return
-        end
-        game_helpers.acceptChallenge(gameModel)
-    end
-
-    common_api.getGameById(gameId, true, nil, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
-end
-
-function M.acceptThenGoToGameById(gameId, fromScene)
-    local function onAcceptGameOfferSuccess()
-        M.acceptGameByIdFrom(gameId, fromScene)
-    end
-
-    local function onAcceptGameOfferFail()
-        print("Error accepting game, attempting to go to the 'My Challengers' scene")
-        nav.goToSceneFrom(fromScene, "scenes.my_challengers_scene", "fade")
-    end
-
-    common_api.acceptGameOffer(gameId, onAcceptGameOfferSuccess, onAcceptGameOfferFail, true)
 end
 
 return M

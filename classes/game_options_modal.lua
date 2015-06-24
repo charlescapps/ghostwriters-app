@@ -14,11 +14,11 @@ local fonts = require("globals.fonts")
 local game_options_modal = {}
 local game_options_modal_mt = { __index = game_options_modal }
 
-function game_options_modal.new(parentScene, isAcceptGame)
+function game_options_modal.new(parentScene, isReadOnly)
 
     local gameOptionsModal = {
         parentScene = parentScene,
-        isAcceptGame = isAcceptGame
+        isReadOnly = isReadOnly
     }
     return setmetatable(gameOptionsModal, game_options_modal_mt)
 end
@@ -204,15 +204,15 @@ function game_options_modal:drawGameDensityOptions()
 end
 
 function game_options_modal:getRadioButtonSheet()
-    return self.isAcceptGame and game_ui:getRadioButtonSheetDisabled() or game_ui:getRadioButtonSheet()
+    return self.isReadOnly and game_ui:getRadioButtonSheetDisabled() or game_ui:getRadioButtonSheet()
 end
 
 function game_options_modal:getCheckboxesSheet()
-    return self.isAcceptGame and game_ui:getCheckboxesSheetDisabled() or game_ui:getCheckboxesSheet()
+    return self.isReadOnly and game_ui:getCheckboxesSheetDisabled() or game_ui:getCheckboxesSheet()
 end
 
 function game_options_modal:setRadioButtonEnabledState(radioButton, radioGroup)
-    if self.isAcceptGame then
+    if self.isReadOnly then
         local hackScreen = common_ui.drawScreen()
         hackScreen.x, hackScreen.y = radioButton.x, radioButton.y
         hackScreen.width, hackScreen.height = radioButton.width, radioButton.height

@@ -88,8 +88,21 @@ M.getUsersWithSimilarRatingURL = function(maxResults)
     return SERVER .. "/users/similarRating?maxResults=" .. tostring(maxResults)
 end
 
-M.getAcceptGameURL = function(gameId)
-    return SERVER .. "/games/" .. tostring(gameId) .. "/accept"
+M.getAcceptGameURL = function(gameId, numBlankTiles, numScryTiles)
+    numBlankTiles = numBlankTiles or 0
+    numScryTiles = numScryTiles or 0
+    local myUrl = SERVER .. "/games/" .. tostring(gameId) .. "/accept"
+    if numBlankTiles > 0 or numScryTiles > 0 then
+        local rack = ""
+        for i = 1, numBlankTiles do
+           rack = rack .. "*"
+        end
+        for i = 1, numScryTiles do
+            rack = rack .. "^"
+        end
+        myUrl = myUrl .. "?rack=" .. M.escape(rack)
+    end
+    return myUrl
 end
 
 M.getRejectGameURL = function(gameId)

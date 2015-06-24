@@ -13,9 +13,10 @@ local tokens_display = require("classes.tokens_display")
 local token_cost_info = require("classes.token_cost_info")
 local pay_helpers = require("common.pay_helpers")
 local purchase_store = require("common.purchase_store")
+local json = require("json")
 
 local scene = composer.newScene()
-scene.sceneName = "scenes.create_game_scene"
+scene.sceneName = "scenes.accept_game_scene"
 
 -- "scene:create()"
 function scene:create(event)
@@ -27,15 +28,15 @@ function scene:create(event)
     end
 
     -- Set the default values for the game density & bonuses layout
-    new_game_data.gameDensity = common_api.MEDIUM_DENSITY
-    new_game_data.bonusesType = common_api.RANDOM_BONUSES
+    new_game_data.gameDensity = new_game_data.gameDensity or common_api.MEDIUM_DENSITY
+    new_game_data.bonusesType = new_game_data.bonusesType or common_api.RANDOM_BONUSES
 
     self.background = common_ui.createBackground()
     self.gearButton = self:createGearButton()
-    self.gameOptionsModal = game_options_modal.new(self, false)
-    self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(80, 255, "scenes.choose_board_size_scene")
-    self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), false)
+    self.gameOptionsModal = game_options_modal.new(self, true)
+    self.createGameButton = self:createJoinGameButton()
+    self.backButton = common_ui.createBackButton(80, 255, "scenes.my_challengers_scene")
+    self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), true)
     self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 120, self.creds.user, self:getUpdateUserListener())
 
     sceneGroup:insert(self.background)
@@ -111,10 +112,8 @@ function scene:getOnUpdateOptionsListener()
 end
 
 function scene:getCurrentCost()
-    local boardSizeCost = common_api.getBoardSizeCost(new_game_data.boardSize)
-    local dictionaryCost = common_api.getDictCost(new_game_data.specialDict)
     local blankTilesCost = new_game_data.initialBlankTiles or 0
-    return boardSizeCost + dictionaryCost + blankTilesCost
+    return blankTilesCost
 end
 
 -- "scene:show()"
@@ -178,45 +177,49 @@ function scene:createGearButton()
     }
 end
 
-function scene:createCreateGameButton()
-    local text = "Create Game"
-    local button = common_ui.createButton(text, 1200, self:onReleaseCreateGameButton(), 425)
+function scene:createJoinGameButton()
+    local text = "Join Game"
+    local button = common_ui.createButton(text, 1200, self:onReleaseJoinGameButton(), 425)
     button.x = display.contentCenterX - 60
     return button
 end
 
-function scene:onReleaseCreateGameButton()
+function scene:onReleaseJoinGameButton()
     return function(event)
         local currentScene = composer.getSceneName("current")
         if currentScene == scene.sceneName then
-            local newGameModel = new_game_data.getNewGameModel(scene.creds.user)
+            local numBlankTiles = new_game_data.initialBlankTiles or 0
+            local numScryTiles = new_game_data.initialScryTiles or 0
+            local gameId = new_game_data.gameId
 
-            if not newGameModel then
-                print ("Error - newGameModel not defined: " .. tostring(newGameModel))
-                composer.gotoScene("scenes.title_scene")
+            if not gameId then
+                print("ERROR - the gameId isn't defined in accept_game_scene.")
                 return
             end
 
-            -- Create a new game via the API
-            common_api.createNewGame(newGameModel, scene.onCreateGameSuccess, scene.onCreateGameFail, nil, true)
+            -- Accept the game via the API
+            common_api.acceptGameOffer(gameId, numBlankTiles, numScryTiles, self.onAcceptGameSuccess, self.onAcceptGameFail, true)
         end
     end
 end
 
-function scene.onCreateGameSuccess(gameModel)
+function scene.onAcceptGameSuccess(gameModel)
     local currentScene = composer.getSceneName("current")
 
+    print("Received gameModel...")
+    print(json.encode(gameModel))
     if currentScene == scene.sceneName then
-        new_game_data.clearAll()
+        print("Going to play_game_scene...")
         current_game.currentGame = gameModel
-        login_common.updateStoredUser(gameModel.player1Model)
+        login_common.updateStoredUser(gameModel.player2Model)
         composer.gotoScene( "scenes.play_game_scene", "fade" )
+        new_game_data.clearAll()
     else
         print("ERROR - Attempt to start a new game from create_game_scene, but current scene is now: " .. currentScene)
     end
 end
 
-function scene.onCreateGameFail(jsonResp)
+function scene.onAcceptGameFail(jsonResp)
     local msg = jsonResp and jsonResp["errorMessage"] or "Network error. Please try again"
     native.showAlert( "Error creating game", msg, { "OK" } )
 end

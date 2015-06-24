@@ -105,6 +105,7 @@ function scene:show(event)
         -- Disable action buttons if the game is finished.
         local gameModel = current_game.currentGame
         if gameModel and gameModel.gameResult ~= common_api.IN_PROGRESS and gameModel.gameResult ~= common_api.OFFERED then
+           print("Disabling game with gameResult = '" .. tostring(gameModel.gameResult) .. "'")
            self:disableActionButtons()
         end
 
