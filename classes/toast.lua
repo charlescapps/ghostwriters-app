@@ -7,7 +7,7 @@ local fonts = require("globals.fonts")
 local M = {}
 local meta = { __index = M }
 
-local BOOKMARK_WIDTH = 750
+local BOOKMARK_WIDTH = 800
 local BOOKMARK_HEIGHT = 150
 local AUTO_DESTROY_DELAY = 10000
 
@@ -44,7 +44,7 @@ function M:render()
 end
 
 function M:drawBookmark()
-    self.bookmark = display.newImageRect("images/bookmark2.png", BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
+    self.bookmark = display.newImageRect("images/bookmark_toast.png", BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
     return self.bookmark
 end
 
@@ -52,10 +52,12 @@ function M:drawBookmarkText()
     local bookmarkText = display.newText {
         text = self.text,
         x = -30,
-        y = 0,
+        y = 32,
         font = fonts.BOLD_FONT,
         fontSize = self.fontSize,
-        align = "center"
+        align = "center",
+        width = BOOKMARK_WIDTH,
+        height = BOOKMARK_HEIGHT
     }
     return bookmarkText
 end
@@ -87,6 +89,9 @@ function M:show()
 end
 
 function M:hideAndDestroy()
+    if not self.view or not self.view.removeSelf then
+        return
+    end
     local function onComplete()
         self:destroy()
     end
