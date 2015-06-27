@@ -536,4 +536,9 @@ M.getDictionary = function(specialDict, onSuccess, onFail, doCreateSpinner)
     M.doGetWithSpinner(url, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
+M.doScryTileAction = function(gameId, onSuccess, onFail, doCreateSpinner)
+    local url = urls.getScryActionURL(gameId)
+    M.doPostWithSpinner(url, nil, 200, onSuccess, onFail, doCreateSpinner)
+end
+
 return M

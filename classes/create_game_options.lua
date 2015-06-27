@@ -180,6 +180,10 @@ function M:getNumBlankTiles()
     return self.blankTilesStepper:getValue()
 end
 
+function M:getNumScryTiles()
+    return self.scryTilesStepper:getValue()
+end
+
 function M:drawBonusOptions()
     local group = display.newGroup()
     group.y = 750
@@ -192,8 +196,8 @@ function M:drawBonusOptions()
     }
     title:setFillColor(0, 0, 0)
 
-    self.blankTilesStepper = M.drawBonusOptionRow(group, "Blank Tiles", 100, 4, self.onUpdateOptions)
-    self.doubleWordsStepper = M.drawBonusOptionRow(group, "Double Words", 200, 2)
+    self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 100, 4, self.onUpdateOptions)
+    self.scryTilesStepper = M.drawBonusOptionRow(group, "Scry Tiles", 200, 2, self.onUpdateOptions)
 
     group:insert(title)
     return group

@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:2f4545791693f84e9ea6be915da317e0:9e9db70aeffe1c3c29d183d7d47abdb0:62dbf8b33b72019ae5e806a9f356ac53$
+-- $TexturePacker:SmartUpdate:bccd8f73d6153d5fa421c0d28d6461af:91819ce3d06c998e6e5072a2a2678609:d2a112ae8c79eb284d2d03fc5d1c95c6$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -40,16 +40,16 @@ SheetInfo.sheet =
         },
         {
             -- c_rack
-            x=154,
-            y=2,
+            x=2,
+            y=458,
             width=150,
             height=150,
 
         },
         {
             -- d_rack
-            x=154,
-            y=154,
+            x=2,
+            y=610,
             width=150,
             height=150,
 
@@ -57,47 +57,47 @@ SheetInfo.sheet =
         {
             -- e_rack
             x=154,
-            y=306,
+            y=2,
             width=150,
             height=150,
 
         },
         {
             -- f_rack
-            x=306,
-            y=2,
+            x=154,
+            y=154,
             width=150,
             height=150,
 
         },
         {
             -- g_rack
-            x=306,
-            y=154,
-            width=150,
-            height=150,
-
-        },
-        {
-            -- h_rack
-            x=306,
+            x=154,
             y=306,
             width=150,
             height=150,
 
         },
         {
+            -- h_rack
+            x=154,
+            y=458,
+            width=150,
+            height=150,
+
+        },
+        {
             -- i_rack
-            x=458,
-            y=2,
+            x=154,
+            y=610,
             width=150,
             height=150,
 
         },
         {
             -- j_rack
-            x=458,
-            y=154,
+            x=306,
+            y=2,
             width=150,
             height=150,
 
@@ -105,7 +105,7 @@ SheetInfo.sheet =
         {
             -- k_rack
             x=458,
-            y=306,
+            y=2,
             width=150,
             height=150,
 
@@ -120,55 +120,63 @@ SheetInfo.sheet =
         },
         {
             -- m_rack
-            x=610,
-            y=154,
+            x=762,
+            y=2,
             width=150,
             height=150,
 
         },
         {
             -- n_rack
-            x=610,
-            y=306,
-            width=150,
-            height=150,
-
-        },
-        {
-            -- o_rack
-            x=762,
-            y=2,
-            width=150,
-            height=150,
-
-        },
-        {
-            -- p_rack
-            x=762,
+            x=306,
             y=154,
             width=150,
             height=150,
 
         },
         {
-            -- q_rack
-            x=762,
+            -- o_rack
+            x=306,
             y=306,
             width=150,
             height=150,
 
         },
         {
+            -- p_rack
+            x=306,
+            y=458,
+            width=150,
+            height=150,
+
+        },
+        {
+            -- q_rack
+            x=306,
+            y=610,
+            width=150,
+            height=150,
+
+        },
+        {
             -- r_rack
-            x=914,
-            y=2,
+            x=458,
+            y=154,
             width=150,
             height=150,
 
         },
         {
             -- s_rack
-            x=914,
+            x=610,
+            y=154,
+            width=150,
+            height=150,
+
+        },
+        {
+            -- scry_rack
+            x=762,
             y=154,
             width=150,
             height=150,
@@ -176,7 +184,7 @@ SheetInfo.sheet =
         },
         {
             -- t_rack
-            x=914,
+            x=458,
             y=306,
             width=150,
             height=150,
@@ -184,31 +192,31 @@ SheetInfo.sheet =
         },
         {
             -- u_rack
-            x=1066,
-            y=2,
+            x=458,
+            y=458,
             width=150,
             height=150,
 
         },
         {
             -- v_rack
-            x=1218,
-            y=2,
+            x=458,
+            y=610,
             width=150,
             height=150,
 
         },
         {
             -- w_rack
-            x=1066,
-            y=154,
+            x=610,
+            y=306,
             width=150,
             height=150,
 
         },
         {
             -- x_rack
-            x=1066,
+            x=762,
             y=306,
             width=150,
             height=150,
@@ -216,30 +224,30 @@ SheetInfo.sheet =
         },
         {
             -- y_rack
-            x=1218,
-            y=154,
+            x=610,
+            y=458,
             width=150,
             height=150,
 
         },
         {
             -- z_rack
-            x=1218,
-            y=306,
+            x=610,
+            y=610,
             width=150,
             height=150,
 
         },
     },
     
-    sheetContentWidth = 1370,
-    sheetContentHeight = 458
+    sheetContentWidth = 914,
+    sheetContentHeight = 762
 }
 
 SheetInfo.frameIndex =
 {
 
-    ["*_rack"] = 1,
+    ["?_rack"] = 1,
     ["a_rack"] = 2,
     ["b_rack"] = 3,
     ["c_rack"] = 4,
@@ -259,13 +267,14 @@ SheetInfo.frameIndex =
     ["q_rack"] = 18,
     ["r_rack"] = 19,
     ["s_rack"] = 20,
-    ["t_rack"] = 21,
-    ["u_rack"] = 22,
-    ["v_rack"] = 23,
-    ["w_rack"] = 24,
-    ["x_rack"] = 25,
-    ["y_rack"] = 26,
-    ["z_rack"] = 27,
+    ["scry_rack"] = 21,
+    ["t_rack"] = 22,
+    ["u_rack"] = 23,
+    ["v_rack"] = 24,
+    ["w_rack"] = 25,
+    ["x_rack"] = 26,
+    ["y_rack"] = 27,
+    ["z_rack"] = 28,
 }
 
 function SheetInfo:getSheet()

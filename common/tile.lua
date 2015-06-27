@@ -77,10 +77,12 @@ createRackTile = function(letter)
         M.rackSheet = graphics.newImageSheet(imageFile, helper:getSheet())
     end
 
+    local prefix = letter == "^" and "scry" or letter:lower()
+
     return {
         letter = letter,
         imageSheet = M.rackSheet,
-        frameIndex = helper:getFrameIndex(letter:lower() .. "_rack"),
+        frameIndex = helper:getFrameIndex(prefix .. "_rack"),
         tileType = M.RACK_TILE
     }
 end
@@ -125,6 +127,7 @@ buildRackTileTable = function()
         tileTable[letter] = createRackTile(letter)
     end
     tileTable["*"] = createRackTile("*")  -- for wildcard tiles (displayed as "?" in player's rack)
+    tileTable["^"] = createRackTile("^")
     return tileTable
 end
 

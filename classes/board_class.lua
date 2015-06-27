@@ -12,6 +12,7 @@ local common_ui = require("common.common_ui")
 local transition = require("transition")
 local table = require("table")
 local letter_picker = require("classes.letter_picker")
+local game_helpers = require("common.game_helpers")
 
 local lists = require("common.lists")
 
@@ -441,13 +442,19 @@ function board_class:cancelGrab()
 	self.isGrabbing = false
 end
 
-function board_class:addTileFromRack(contentX, contentY, tileImage)
+function board_class:addTileFromRack(contentX, contentY, tileImage, rack)
 	local letter = tileImage.letter
 	local squareImage = self:squareForCoords(contentX, contentY)
 	if not squareImage or not letter then
 		print("Not adding letter " .. tostring(letter) .. " to board at x = " .. contentX .. ", y = " .. contentY)
 		return false
-	end
+    end
+
+    if letter == "^" then
+        game_helpers.promptScryTileAction(self, rack, tileImage)
+        return true
+    end
+
 	local row, col = squareImage.row, squareImage.col
     if self.tileImages[row][col] or self.rackTileImages[row][col] then
         print("Tile already present at (" .. row .. ", " .. col .. ")")

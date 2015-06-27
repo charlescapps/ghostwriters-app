@@ -9,6 +9,7 @@ local display = require("display")
 local transition = require("transition")
 local easing = require("easing")
 local lists = require("common.lists")
+local table = require("table")
 local MAX_TILES = 20
 local NUM_ROWS = 3
 
@@ -163,6 +164,25 @@ function rack_class:addTileImage(tileImage, onComplete)
     end
 end
 
+function rack_class:getFirstRackTileForLetter(letter)
+    for i = 1, MAX_TILES do
+        local img = self.tileImages[i]
+        if img and img.letter == letter then
+            return img
+        end
+    end
+end
+
+function rack_class:removeTileImage(tileImage, onComplete)
+    local index = lists.indexOf(self.tileImages, tileImage, MAX_TILES)
+    if not index then
+        print("Cannot remove tile image from rack. Is not present in rack's tile images.")
+        return
+    end
+
+    table.remove(self.tileImages, index)
+end
+
 function rack_class:returnTileImage(tileImage, onComplete)
     if not tileImage then
         return
@@ -228,6 +248,23 @@ function rack_class:destroy()
     self.tileImages = nil
 end
 
+function rack_class:floatTile(rackTileImg)
+    if not rackTileImg then
+        print("Error - rackTileImg is nil in rack_class:floatTile")
+        return
+    end
+
+    -- Create a display group to house the floating tiles
+    if not self.floatingTiles then
+        self.floatingTiles = display.newGroup()
+        self.parentScene.view:insert(self.floatingTiles)
+    end
+
+    print("Inserting tile to floating tiles group")
+    self.floatingTiles:insert(rackTileImg)
+    self.floatingTiles:toFront()
+end
+
 -- Local functions
 getTouchListener = function(rack)
 	return function(event)
@@ -246,17 +283,7 @@ getTouchListener = function(rack)
 	        --Insert tile into the root display group so it can move freely.
 	        local wasOnBoard = event.target.parent == rack.board.rackTilesGroup
 
-	        -- Create a display group to house the floating tiles
-            if not rack.floatingTiles then
-            	rack.floatingTiles = display.newGroup()
-            	rack.parentScene.view:insert(rack.floatingTiles)
-            end
-
-            print("Inserting tile to floating tiles group")
-        	rack.floatingTiles:insert(event.target)
-
-            -- The floating tiles should be at the front
-            rack.floatingTiles:toFront()
+	        rack:floatTile(event.target)
 
 	        -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
 	        if wasOnBoard then
@@ -294,7 +321,7 @@ getTouchListener = function(rack)
 	            event.target.isFocus = nil
 
 		        -- See if tile is above an empty tile on the board, and try to place it there
-		        local wasPlacedOnBoard = rack.board:addTileFromRack(event.x, event.y, event.target)
+		        local wasPlacedOnBoard = rack.board:addTileFromRack(event.x, event.y, event.target, rack)
                 if wasPlacedOnBoard then
                     return true
                 end

@@ -11,6 +11,7 @@ M.specialDict = nil
 M.aiType = nil
 M.startScene = nil
 M.initialBlankTiles = nil
+M.initialScryTiles = nil
 M.isAcceptGame = nil
 M.gameId = nil
 
@@ -66,18 +67,23 @@ M.clearAll = function()
     M.specialDict = nil
     M.startScene = nil
     M.initialBlankTiles = nil
+    M.initialScryTiles = nil
     M.isAcceptGame = nil
     M.gameId = nil
 end
 
 function M.getInitialRack()
-    if not M.initialBlankTiles then
-        return nil
-    end
+    local numBlank = M.initialBlankTiles or 0
+    local numScry = M.initialScryTiles or 0
     local rackStr = ""
-    for i = 1, M.initialBlankTiles do
+    for i = 1, numBlank do
        rackStr = rackStr .. "*"
     end
+
+    for i = 1, numScry do
+       rackStr = rackStr .. "^"
+    end
+
     return rackStr
 end
 

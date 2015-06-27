@@ -137,5 +137,9 @@ M.getDictionaryURL = function(specialDict)
     return SERVER .. "/dictionary/" .. specialDict
 end
 
+M.getScryActionURL = function(gameId)
+    return SERVER .. "/specialActions/scry?gameId=" .. tostring(gameId)
+end
+
 return M
 
