@@ -350,7 +350,9 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
                 spinner:stop()
             end
 			if event.isError or not event.response then
-                onNetworkFail(event)
+                if onNetworkFail then
+                    onNetworkFail(event)
+                end
 				print ("Network error with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				return
 			end
@@ -361,7 +363,9 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
                 login_common.logout()
                 return
 			elseif jsonResp == nil then
-                onNetworkFail()
+                if onNetworkFail then
+                    onNetworkFail(event)
+                end
 				print("Error - no response returned with " .. method .. " to " .. url .. ": " .. json.encode(event));
 				return
 			end
@@ -538,7 +542,7 @@ end
 
 M.doScryTileAction = function(gameId, onSuccess, onFail, doCreateSpinner)
     local url = urls.getScryActionURL(gameId)
-    M.doPostWithSpinner(url, nil, 200, onSuccess, onFail, doCreateSpinner)
+    M.doPostWithSpinner(url, nil, 200, onSuccess, onFail, M.showNetworkError, doCreateSpinner)
 end
 
 return M

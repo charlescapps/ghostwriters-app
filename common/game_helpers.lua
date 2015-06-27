@@ -118,9 +118,14 @@ function M.executeScryTileAction(board, rack, tileImage)
         M.stageMove(board, rack, move)
     end
 
-    local function onFail()
+    local function onFail(jsonResp)
         print("FAIL to get scry move from server.")
-        native.showAlert("Error", "A network error occurred. Try again soon.", {"OK"})
+        if jsonResp and jsonResp.errorMessage then
+            native.showAlert("Oops...", jsonResp.errorMessage, {"OK"})
+        else
+            common_api.showNetworkError()
+        end
+
         rack:returnTileImage(tileImage, nil)
     end
 
@@ -132,7 +137,7 @@ function M.stageMove(board, rack, move)
     local cStart = move.start.c + 1
     local start = { rStart, cStart }
 
-    local dirVec = M.dirToDirVector(move.dir)
+    local dirVec = M.dirToVector(move.dir)
 
     local tiles = move.tiles
 
@@ -140,11 +145,17 @@ function M.stageMove(board, rack, move)
 
     local excludedTiles = { }
 
-    for i = 0, tiles:len() - 1 do
-        local pos = M.go(start, dirVec, i)
-        local letter = tiles:sub(i + 1, i + 1)
-        local rackTile = M.dragTileFromRackToBoard(board, rack, letter, pos, excludedTiles)
-        excludedTiles[#excludedTiles + 1] = rackTile
+    local i = 1
+    local diff = 0
+    while i <= tiles:len() do
+        local pos = M.go(start, dirVec, diff)
+        diff = diff + 1
+        if board.tileImages[pos[1]][pos[2]] == nil then
+            local letter = tiles:sub(i, i)
+            local rackTile = M.dragTileFromRackToBoard(board, rack, letter, pos, excludedTiles)
+            excludedTiles[#excludedTiles + 1] = rackTile
+            i = i + 1
+        end
     end
 
 end
@@ -168,7 +179,7 @@ function M.go(start, dirVec, num)
     return { start[1] + dirVec[1] * num, start[2] + dirVec[2] * num }
 end
 
-function M.dirToDirVector(dir)
+function M.dirToVector(dir)
     return dir == "E" and { 0, 1 } or { 1, 0 }
 end
 
