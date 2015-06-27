@@ -317,4 +317,12 @@ function M.fadeOutThenRemove(displayObj, opts, afterRemoval)
     transition.fadeOut(displayObj, opts)
 end
 
+function M.getContentCoords(displayObj)
+    if displayObj.parent and displayObj.parent.localToContent then
+        return displayObj.parent:localToContent(displayObj.x, displayObj.y)
+    else
+        return displayObj.x, displayObj.y
+    end
+end
+
 return M

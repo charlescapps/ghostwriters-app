@@ -3,6 +3,7 @@ local rack_class_mt = { __index = rack_class }
 
 local native = require("native")
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 local tile = require("common.tile")
 local math = require("math")
 local display = require("display")
@@ -250,10 +251,14 @@ function rack_class:destroy()
     self.tileImages = nil
 end
 
-function rack_class:floatTile(rackTileImg)
+function rack_class:floatTile(rackTileImg, contentX, contentY)
     if not rackTileImg then
         print("Error - rackTileImg is nil in rack_class:floatTile")
         return
+    end
+
+    if nil == contentX or nil == contentY then
+        contentX, contentY = common_ui.getContentCoords(rackTileImg)
     end
 
     -- Create a display group to house the floating tiles
@@ -264,7 +269,28 @@ function rack_class:floatTile(rackTileImg)
 
     print("Inserting tile to floating tiles group")
     self.floatingTiles:insert(rackTileImg)
+    rackTileImg.x, rackTileImg.y = contentX, contentY
     self.floatingTiles:toFront()
+
+    -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
+    local wasOnBoard = rackTileImg.parent == self.board.rackTilesGroup
+
+    if wasOnBoard then
+        local scale = self.board.boardGroup.xScale
+        rackTileImg.width = rackTileImg.width * scale
+        rackTileImg.height = rackTileImg.height * scale
+        self.board:removeRackTileFromBoard(rackTileImg)
+        if rackTileImg.chosenLetterImage then
+            rackTileImg.chosenLetterImage:removeSelf()
+            rackTileImg.chosenLetter, rackTileImg.chosenLetterImage = nil, nil
+        end
+    end
+
+    transition.to(rackTileImg, {
+        width = self.drawTileWidth,
+        height = self.drawTileWidth,
+        time = 800
+    })
 end
 
 -- Local functions
@@ -282,29 +308,9 @@ getTouchListener = function(rack)
                 rack.parentScene.grabTilesTip:stopTip()
             end
 
-	        --Insert tile into the root display group so it can move freely.
-	        local wasOnBoard = event.target.parent == rack.board.rackTilesGroup
+	        --Insert tile into the floating tiles display group so it can move freely.
+	        rack:floatTile(event.target, event.x, event.y)
 
-	        rack:floatTile(event.target)
-
-	        -- Modify width to account for scale so tile doesn't suddenly become 2x smaller.
-	        if wasOnBoard then
-	        	local scale = rack.board.boardGroup.xScale
-	        	event.target.width = event.target.width * scale
-	        	event.target.height = event.target.height * scale
-                rack.board:removeRackTileFromBoard(event.target)
-                if event.target.chosenLetterImage then
-                    event.target.chosenLetterImage:removeSelf()
-                    event.target.chosenLetter, event.target.chosenLetterImage = nil, nil
-                end
-	        end
-	        event.target.x = event.x
-        	event.target.y = event.y	
-        	transition.to(event.target, {
-        		width = rack.drawTileWidth,
-        		height = rack.drawTileWidth,
-                time = 800
-        		})
 	        return true
 	    elseif event.target.isFocus then
 	     	if ( event.phase == "moved" ) then
