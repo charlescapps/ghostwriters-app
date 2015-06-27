@@ -164,10 +164,12 @@ function rack_class:addTileImage(tileImage, onComplete)
     end
 end
 
-function rack_class:getFirstRackTileForLetter(letter)
+function rack_class:getFirstRackTileForLetter(letter, excludedTiles)
     for i = 1, MAX_TILES do
         local img = self.tileImages[i]
-        if img and img.letter == letter then
+        local isExcluded = img and excludedTiles and table.indexOf(excludedTiles, img)
+
+        if img and img.letter == letter and not isExcluded then
             return img
         end
     end

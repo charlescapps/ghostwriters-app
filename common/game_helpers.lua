@@ -5,6 +5,7 @@ local current_game = require("globals.current_game")
 local new_game_data = require("globals.new_game_data")
 local composer = require("composer")
 local native = require("native")
+local table = require("table")
 local transition = require("transition")
 
 local M = {}
@@ -137,16 +138,19 @@ function M.stageMove(board, rack, move)
 
     rack:returnAllTiles()
 
+    local excludedTiles = { }
+
     for i = 0, tiles:len() - 1 do
         local pos = M.go(start, dirVec, i)
         local letter = tiles:sub(i + 1, i + 1)
-        M.dragTileFromRackToBoard(board, rack, letter, pos)
+        local rackTile = M.dragTileFromRackToBoard(board, rack, letter, pos, excludedTiles)
+        excludedTiles[#excludedTiles + 1] = rackTile
     end
 
 end
 
-function M.dragTileFromRackToBoard(board, rack, letter, pos)
-    local rackTile = rack:getFirstRackTileForLetter(letter)
+function M.dragTileFromRackToBoard(board, rack, letter, pos, excludedTiles)
+    local rackTile = rack:getFirstRackTileForLetter(letter, excludedTiles)
     local square = board.squareImages[pos[1]][pos[2]]
     local squareContentX, squareContentY = square.parent:localToContent(square.x, square.y)
 
@@ -155,9 +159,9 @@ function M.dragTileFromRackToBoard(board, rack, letter, pos)
     end
 
     rack:floatTile(rackTile)
-    rack:removeTileImage(rackTile)
 
     transition.to(rackTile, { time = 2000, x = squareContentX, y = squareContentY, onComplete = onMoveComplete } )
+    return rackTile
 end
 
 function M.go(start, dirVec, num)
