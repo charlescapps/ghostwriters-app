@@ -68,7 +68,7 @@ end
 function scene:onGetSelfSuccess()
     return function(userModel)
         login_common.updateStoredUser(userModel)
-        self.tokensDisplay:updateNumTokens(userModel.tokens)
+        self.tokensDisplay:updateUser(userModel)
     end
 end
 

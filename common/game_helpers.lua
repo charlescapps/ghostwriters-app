@@ -121,7 +121,7 @@ function M.executeScryTileAction(board, rack, tileImage)
     local function onFail(jsonResp)
         print("FAIL to get scry move from server.")
         if jsonResp and jsonResp.errorMessage then
-            native.showAlert("Oops...", jsonResp.errorMessage, {"OK"})
+            common_ui.createInfoModal("Oops...", jsonResp.errorMessage)
         else
             common_api.showNetworkError()
         end
