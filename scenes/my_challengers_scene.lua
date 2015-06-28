@@ -5,6 +5,7 @@ local new_game_data = require("globals.new_game_data")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local game_helpers = require("common.game_helpers")
+local scene_helpers = require("common.scene_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.my_challengers_scene"
@@ -41,6 +42,7 @@ function scene:show( event )
         if not self.creds then
            login_common.logout()
         end
+        scene_helpers.onDidShowScene(self)
     end
 end
 
@@ -52,7 +54,7 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-
+        scene_helpers.onWillHideScene()
     elseif ( phase == "did" ) then
         if self.myChallengersView then
             self.myChallengersView:destroy()

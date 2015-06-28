@@ -83,6 +83,7 @@ function M.newCustomTextField(options)
     function field:finalize( event )
         if event.target.textField and event.target.textField.removeSelf then
             event.target.textField:removeSelf()
+            event.target.textField = nil
         end
     end
     field:addEventListener( "finalize" )

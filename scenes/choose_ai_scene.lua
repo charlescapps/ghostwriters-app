@@ -3,6 +3,8 @@ local common_api = require( "common.common_api" )
 local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
+local scene_helpers = require("common.scene_helpers")
+
 local scene = composer.newScene()
 
 scene.sceneName = "scenes.choose_ai_scene"
@@ -18,7 +20,7 @@ end
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.createBackground()
-    local backButton = common_ui.createBackButton(100, 100, "scenes.title_scene", function()
+    self.backButton = common_ui.createBackButton(100, 100, "scenes.title_scene", function()
         new_game_data.clearAll()
     end)
 
@@ -27,7 +29,7 @@ function scene:create(event)
     local professorAiGrp = common_ui.createImageButtonWithText("images/professor_default.png", "images/professor_over.png", 1075, "Professor", "(Difficult opponent)", getOnReleaseListener(common_api.PROFESSOR_AI), 325)
 
     sceneGroup:insert(background)
-    sceneGroup:insert(backButton)
+    sceneGroup:insert(self.backButton)
     sceneGroup:insert(randomAiGrp)
     sceneGroup:insert(bookwormAiGrp)
     sceneGroup:insert(professorAiGrp)
@@ -43,6 +45,7 @@ function scene:show( event )
         -- Called when the scene is still off screen (but is about to come on screen).
         new_game_data.aiType = nil
     elseif ( phase == "did" ) then
+        scene_helpers.onDidShowScene(self)
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
         -- Example: start timers, begin animation, play audio, etc.

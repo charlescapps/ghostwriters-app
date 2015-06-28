@@ -10,6 +10,7 @@ local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
 local app_state = require("globals.app_state")
 local fonts = require("globals.fonts")
+local scene_helpers = require("common.scene_helpers")
 
 -- Constants
 scene.sceneName = "scenes.title_scene"
@@ -90,7 +91,7 @@ function scene:create(event)
 	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150, clickLeaderboard)
 
 	sceneGroup:insert( background )
-	sceneGroup:insert(titleImage)
+	sceneGroup:insert( titleImage )
 	sceneGroup:insert( buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )
 	sceneGroup:insert( buttonMyGames )
@@ -140,7 +141,7 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-
+        scene_helpers.onWillHideScene()
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
         self.view = nil

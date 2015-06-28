@@ -13,6 +13,7 @@ local tokens_display = require("classes.tokens_display")
 local token_cost_info = require("classes.token_cost_info")
 local pay_helpers = require("common.pay_helpers")
 local purchase_store = require("common.purchase_store")
+local scene_helpers = require("common.scene_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -136,6 +137,8 @@ function scene:show( event )
             login_common.logout()
             return
         end
+
+        scene_helpers.onDidShowScene(self)
     end
 end
 
@@ -148,6 +151,7 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is on screen (but is about to go off screen).
+        scene_helpers.onWillHideScene()
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
         self.view = nil

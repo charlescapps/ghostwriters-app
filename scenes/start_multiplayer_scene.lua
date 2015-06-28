@@ -10,6 +10,7 @@ local game_helpers = require("common.game_helpers")
 local widget = require("widget")
 local display = require("display")
 local imgs = require("globals.imgs")
+local scene_helpers = require("common.scene_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.start_multiplayer_scene"
@@ -59,6 +60,7 @@ function scene:show( event )
             login_common.logout()
             return
         end
+        scene_helpers.onDidShowScene(self)
     end
 end
 
@@ -70,6 +72,7 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
+        scene_helpers.onWillHideScene()
         if self.userSearchWidget then
             self.userSearchWidget:destroy()
         end

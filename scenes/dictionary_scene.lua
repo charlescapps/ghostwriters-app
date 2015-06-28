@@ -5,6 +5,8 @@ local common_ui = require("common.common_ui")
 local current_game = require("globals.current_game")
 local dict_controller = require("classes.dict_controller")
 local native = require("native")
+local scene_helpers = require("common.scene_helpers")
+
 local scene = composer.newScene()
 
 scene.sceneName = "scenes.dictionary_scene"
@@ -58,6 +60,7 @@ function scene:show( event )
             login_common.logout()
             return
         end
+        scene_helpers.onDidShowScene(self)
     end
 end
 
@@ -70,6 +73,7 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is on screen (but is about to go off screen).
+        scene_helpers.onWillHideScene()
     elseif ( phase == "did" ) then
         -- Set self.view to nil, so that create() will be called each time we load this scene.
         self.view = nil

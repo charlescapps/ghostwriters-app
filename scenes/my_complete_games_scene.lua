@@ -6,6 +6,7 @@ local login_common = require("login.login_common")
 local my_games_view_class = require("classes.my_games_view_class")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
+local scene_helpers = require("common.scene_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.my_complete_games_scene"
@@ -41,9 +42,9 @@ function scene:show( event )
         if not self.creds then
             login_common.logout()
         end
+        scene_helpers.onDidShowScene(self)
     end
 end
-
 
 -- "scene:hide()"
 function scene:hide( event )
@@ -52,7 +53,7 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-
+        scene_helpers.onWillHideScene(self)
     elseif ( phase == "did" ) then
         if self.myGamesView then
             self.myGamesView:destroy()

@@ -4,6 +4,7 @@ local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
 local game_helpers = require("common.game_helpers")
+local scene_helpers = require("common.scene_helpers")
 local scene = composer.newScene()
 
 scene.sceneName = "scenes.choose_board_size_scene"
@@ -21,14 +22,14 @@ end
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.createBackground()
-    local backButton = createBackButton()
+    self.backButton = createBackButton()
 
     local smallBoardGrp = common_ui.createImageButtonWithText("images/small_board.png", "images/small_board_over.png", 225, "Short story", "(5x5 board)", getOnReleaseListener(common_api.SMALL_SIZE), 250)
     local mediumBoardGrp = common_ui.createImageButtonWithText("images/medium_board.png", "images/medium_board_over.png", 620, "Novel", "(9x9 board)", getOnReleaseListener(common_api.MEDIUM_SIZE), 300)
     local largeBoardGrp = common_ui.createImageButtonWithText("images/large_board.png", "images/large_board_over.png", 1050, "Tome", "(13x13 board)", getOnReleaseListener(common_api.LARGE_SIZE), 350)
 
     sceneGroup:insert(background)
-    sceneGroup:insert(backButton)
+    sceneGroup:insert(self.backButton)
     sceneGroup:insert(smallBoardGrp)
     sceneGroup:insert(mediumBoardGrp)
     sceneGroup:insert(largeBoardGrp)
@@ -45,8 +46,7 @@ function scene:show( event )
         new_game_data.boardSize = nil
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+        scene_helpers.onDidShowScene(self)
     end
 end
 
@@ -59,8 +59,7 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is on screen (but is about to go off screen).
-        -- Insert code here to "pause" the scene.
-        -- Example: stop timers, stop animation, stop audio, etc.
+        scene_helpers.onWillHideScene()
     elseif ( phase == "did" ) then
         -- Set self.view to nil, so that create() will be called each time we load this scene.
         self.view = nil

@@ -11,9 +11,10 @@ local one_signal_util = require("push.one_signal_util")
 
 print("Words with rivals app started...")
 
---print("Available fonts: " .. json.encode(native.getFontNames()))
 one_signal_util.initOneSignal()
 
+-- There are too many issues with retaining previous scenes in memory
+composer.recycleOnSceneChange = true
 composer.gotoScene("scenes.loading_scene")
 
-back_button_setup.setupBackButtonListener(nil, nil)
+back_button_setup.setupDefaultBackListener()

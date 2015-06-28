@@ -6,6 +6,7 @@ local new_game_data = require("globals.new_game_data")
 local common_api = require("common.common_api")
 local display = require("display")
 local game_helpers = require("common.game_helpers")
+local scene_helpers = require("common.scene_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.leaderboard_scene"
@@ -47,6 +48,8 @@ function scene:show( event )
             login_common.logout()
             return
         end
+
+        scene_helpers.onDidShowScene(self)
     end
 end
 
@@ -58,6 +61,7 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
+        scene_helpers.onWillHideScene()
         -- Called when the scene is on screen (but is about to go off screen).
         if self.userInfoPopup then
             self.userInfoPopup:destroy()

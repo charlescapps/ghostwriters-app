@@ -5,7 +5,7 @@ local M = {}
 
 M.currentBackListener = nil
 
-function M.setupBackButtonListener(backButton, onRelease)
+function M.setupBackButtonListener(backButton)
 
     if system.getInfo("platformName") ~= "Android" then
         return
@@ -22,8 +22,8 @@ function M.setupBackButtonListener(backButton, onRelease)
         print("Key event: " .. json.encode(event))
         if event.phase == "up" and event.keyName == "back" then
             print("SUCCESS - Key event for phase == 'up' and keyName == 'back'!")
-            if M.isBackButtonValid(backButton) and onRelease then
-                onRelease()
+            if M.isBackButtonValid(backButton) then
+                backButton.onReleaseListener()
             end
         end
         return true
@@ -33,6 +33,10 @@ function M.setupBackButtonListener(backButton, onRelease)
 end
 
 function M.setupDefaultBackListener()
+    if system.getInfo("platformName") ~= "Android" then
+        return
+    end
+
     M.removeOldBackButtonListener()
 
     M.currentBackListener = function(event)
@@ -43,7 +47,7 @@ function M.setupDefaultBackListener()
 end
 
 function M.isBackButtonValid(backButton)
-    return backButton and backButton.parent and backButton.removeSelf and true
+    return backButton and backButton.parent and backButton.removeSelf and backButton.onReleaseListener and true
 end
 
 

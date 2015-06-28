@@ -1,25 +1,13 @@
-local composer = require("composer")
+local back_button_setup = require("android.back_button_setup")
 
 local M = {}
 
-function M.onSceneDidShow(scene)
-    if scene.creds then
-        return
-    end
-
-    composer.gotoScene("login.logged_out_scene", "fade")
+function M.onDidShowScene(scene)
+    back_button_setup.setupBackButtonListener(scene.backButton)
 end
 
-function M.onSceneDidHide(scene)
-    if scene.creds then
-        return
-    end
-
-    if scene.sceneName then
-        scene.view = nil --This way we guarantee that scene:create() is called again.
-        composer.removeScene(scene.sceneName, false)
-    end
-
+function M.onWillHideScene()
+    back_button_setup.setupDefaultBackListener()
 end
 
 return M

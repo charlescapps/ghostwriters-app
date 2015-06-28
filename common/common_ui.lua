@@ -154,6 +154,7 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
             afterTransition()
         end
     end
+
     local backButton = widget.newButton {
         x = x,
         y = y,
@@ -164,7 +165,12 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
         onRelease = onRelease
     }
 
-    back_button_setup.setupBackButtonListener(backButton, onRelease)
+    backButton.onReleaseListener = onRelease
+
+    backButton:addEventListener("finalize", function(event)
+        back_button_setup.setupDefaultBackListener()
+    end)
+
     return backButton
 end
 
