@@ -12,9 +12,7 @@ local function getOnReleaseListener(aiType)
         new_game_data.aiType = aiType
         nav.goToSceneFrom( scene.sceneName, "scenes.choose_board_size_scene", "fade" )
     end
-
 end
-
 
 -- "scene:create()"
 function scene:create(event)
@@ -63,7 +61,9 @@ function scene:hide( event )
         -- Insert code here to "pause" the scene.
         -- Example: stop timers, stop animation, stop audio, etc.
     elseif ( phase == "did" ) then
-        -- Called immediately after scene goes off screen.
+        -- Set self.view to nil, so that create() will be called each time we load this scene.
+        self.view = nil
+        composer.removeScene(self.sceneName, false)
     end
 end
 

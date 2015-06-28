@@ -61,7 +61,6 @@ function user_search_widget:hideNativeInput()
     self.searchAreaGroup.searchInput:setPlaceholder("")
 end
 
-
 function user_search_widget:showNativeInput()
     local previousText = self.searchAreaGroup.searchInput.previousText or ""
     self.searchAreaGroup.searchInput.previousText = nil

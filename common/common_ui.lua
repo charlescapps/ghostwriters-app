@@ -1,10 +1,10 @@
 local M = {}
 
+local back_button_setup = require("android.back_button_setup")
 local widget = require("widget")
 local composer = require("composer")
 local transition = require("transition")
 local display = require("display")
-local native = require("native")
 local fonts = require("globals.fonts")
 
 local DEFAULT_BACKGROUND = "images/book_texture.jpg"
@@ -130,7 +130,16 @@ end
 
 M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition, alternate)
 -- Helper to call "beforeTransition", then go to the previous or specified scene, then call "afterTransition"
+    local startScene = composer.getSceneName("current")
     local onRelease = function(event)
+
+        local currentSceneName = composer.getSceneName("current")
+
+        if currentSceneName ~= startScene then
+            print("ERROR - current scene is " .. currentSceneName .. ", but start scene = " .. startScene)
+            return
+        end
+
         if beforeTransition then
             beforeTransition()
         end
@@ -145,7 +154,7 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
             afterTransition()
         end
     end
-    return widget.newButton {
+    local backButton = widget.newButton {
         x = x,
         y = y,
         width = BACK_BTN_WIDTH,
@@ -154,6 +163,9 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
         overFile = alternate and PRESSED_BACK_BUTTON2 or PRESSED_BACK_BUTTON,
         onRelease = onRelease
     }
+
+    back_button_setup.setupBackButtonListener(backButton, onRelease)
+    return backButton
 end
 
 M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, fontColor, imgFile, imgWidth, imgHeight, textCenterX, textCenterY, align, textWidth)
