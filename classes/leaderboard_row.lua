@@ -2,6 +2,7 @@ local display = require("display")
 local native = require("native")
 local fonts = require("globals.fonts")
 local user_info_popup = require("classes.user_info_popup")
+local format_helpers = require("common.format_helpers")
 
 local leaderboard_row = {}
 local leaderboard_row_mt = { __index = leaderboard_row }
@@ -92,13 +93,13 @@ end
 
 function leaderboard_row:createRatingText(usernameText)
     local ratingText = display.newText {
-        text = "( " .. tostring(self.user.rating) .. " )",
+        text = format_helpers.comma_value(self.user.rating),
         font = native.systemFont,
         fontSize = 30
     }
 
-    ratingText.anchorX = 0
-    ratingText.x = usernameText.x + usernameText.contentWidth + 40
+    ratingText.anchorX = 1
+    ratingText.x = self.rowWidth - 150
     ratingText.y = self.rowHeight / 2
     ratingText:setFillColor(1, 1, 1)
 
