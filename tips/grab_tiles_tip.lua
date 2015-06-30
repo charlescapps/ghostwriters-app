@@ -15,29 +15,35 @@ local TIP_NAME = "grab_tiles_tip"
 local GRAB_TILES_TIP_TAG = "grab_tiles_anim"
 local MS_PER_TILE = 500
 
-function M.new(board)
+function M.new(playGameScene)
     local grabTilesTip = {
-        board = board,
+        playGameScene = playGameScene,
         arrowImages = {}
     }
     return setmetatable(grabTilesTip, meta)
 end
 
 function M:triggerTipOnCondition()
-    if not self:isBoardValid(self.board) then
-        print("ERROR - invalid game model, cannot trigger grab tiles tip.")
+    if not self:isSceneValid(self.playGameScene) then
+        print("ERROR - invalid play game scene, cannot trigger grab tiles tip.")
         return
     end
 
-    if self.board.gameModel.moveNum == 1 then
-        print("Triggering grab tiles tipe because moveNum == 1.")
-        self:showTip()
+    local gameModel = self.playGameScene.board.gameModel
+    local user = self.playGameScene.creds.user
+
+    if gameModel.moveNum == 1 or
+       gameModel.moveNum == 2 and user.id == gameModel.player2 then
+        print("Triggering grab tiles tipe because it's the user's first turn of the game.")
+        return self:showTip()
     end
 end
 
 function M:showTip()
-    local board = self.board
+    local board = self.playGameScene.board
+    local showedModal = false
     if not tips_persist.isTipViewed(TIP_NAME) then
+        showedModal = true
         local function onClose()
             tips_persist.recordViewedTip(TIP_NAME)
         end
@@ -45,7 +51,12 @@ function M:showTip()
     end
 
     self:addAnimationToBoard()
+    return showedModal
+end
 
+function M:isSceneValid(playGameScene)
+   return playGameScene and self:isBoardValid(playGameScene.board) and
+          playGameScene.creds and playGameScene.creds.user and playGameScene.creds.user.id and true
 end
 
 function M:isBoardValid(board)
@@ -53,7 +64,7 @@ function M:isBoardValid(board)
 end
 
 function M:addAnimationToBoard()
-    local board = self.board
+    local board = self.playGameScene.board
     local wordPos = self:getWordToAnimate()
     if not wordPos then
         print("ERROR - word found to animate is nil")
@@ -125,13 +136,13 @@ function M:drawArrow(startSquare, dir)
     local img = display.newImageRect(imgFile, width, width)
     img.x, img.y = startSquare.x, startSquare.y
     img.alpha = 0
-    self.board.boardGroup:insert(img)
+    self.playGameScene.board.boardGroup:insert(img)
     img:toFront()
     return img
 end
 
 function M:getWordToAnimate()
-    local board = self.board
+    local board = self.playGameScene.board
     local N = board.N
     local longestLen = 0
     local chosenWord

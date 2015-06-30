@@ -18,6 +18,7 @@ local timer = require("timer")
 local transition = require("transition")
 local bonus_popup = require("classes.bonus_popup")
 local grab_tiles_tip = require("tips.grab_tiles_tip")
+local scry_tile_tip = require("tips.scry_tile_tip")
 
 local scene = composer.newScene()
 
@@ -58,7 +59,7 @@ function scene:create(event)
 
     self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
-    self.grabTilesTip = grab_tiles_tip.new(self.board)
+    self.grabTilesTip = grab_tiles_tip.new(self)
 
     local isGameOver = game_helpers.isGameOver(gameModel)
 
@@ -129,7 +130,10 @@ function scene:show(event)
 
         self:startPollForGame()
 
-        self.grabTilesTip:triggerTipOnCondition()
+        local didShowModal = self.grabTilesTip:triggerTipOnCondition()
+        if not didShowModal then
+           scry_tile_tip.new(self):triggerTipOnCondition()
+        end
     end
 end
 
