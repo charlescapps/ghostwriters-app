@@ -116,7 +116,8 @@ end
 
 function scene:getCurrentCost()
     local blankTilesCost = new_game_data.initialBlankTiles or 0
-    return blankTilesCost
+    local scryTilesCost = new_game_data.initialScryTiles or 0
+    return blankTilesCost + scryTilesCost
 end
 
 -- "scene:show()"
