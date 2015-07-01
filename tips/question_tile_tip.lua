@@ -4,13 +4,13 @@ local tips_persist = require("tips.tips_persist")
 local M = {}
 local meta = { __index = M }
 
-local TIP_NAME = "scry_tile_tip"
+local TIP_NAME = "question_tile_tip"
 
 function M.new(playGameScene)
-    local scryTileTip = {
+    local questionTileTip = {
         playGameScene = playGameScene
     }
-    return setmetatable(scryTileTip, meta)
+    return setmetatable(questionTileTip, meta)
 end
 
 function M:triggerTipOnCondition()
@@ -22,9 +22,9 @@ function M:triggerTipOnCondition()
     local gameModel = self.playGameScene.board.gameModel
     local user = self.playGameScene.creds.user
 
-    if gameModel.player1Rack:find("^", 1, true) and gameModel.player1Turn and gameModel.player1 == user.id or
-       gameModel.player2Rack:find("^", 1, true) and not gameModel.player1Turn and gameModel.player2 == user.id then
-        print("Triggering scry tile tip b/c current player has a scry tile.")
+    if gameModel.player1Rack:find("*", 1, true) and gameModel.player1Turn and gameModel.player1 == user.id or
+       gameModel.player2Rack:find("*", 1, true) and not gameModel.player1Turn and gameModel.player2 == user.id then
+        print("Triggering question tile tip b/c current player has a question tile.")
         self:showTip()
     end
 end
@@ -35,8 +35,10 @@ function M:showTip()
         local function onClose()
             tips_persist.recordViewedTip(TIP_NAME)
         end
-        local tipsModal = tips_modal.new("Drag Scry tiles from your hand to the board.", nil, onClose,
-            "images/scry_tip.png", 250, 250, 0, -40)
+        local tipsModal = tips_modal.new(
+            "Drag a question tile to the board, then you can select a letter.\n\n" ..
+            "A question tile is worth the full points of the chosen letter.",
+            nil, onClose)
         tipsModal:show()
     end
 

@@ -14,6 +14,7 @@ local token_cost_info = require("classes.token_cost_info")
 local pay_helpers = require("common.pay_helpers")
 local purchase_store = require("common.purchase_store")
 local scene_helpers = require("common.scene_helpers")
+local currency_tip = require("tips.currency_tip")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -139,6 +140,8 @@ function scene:show( event )
         end
 
         scene_helpers.onDidShowScene(self)
+
+        currency_tip.new():triggerTipOnCondition()
     end
 end
 
