@@ -16,7 +16,7 @@ end
 function M:triggerTipOnCondition()
     if not self:isSceneValid(self.playGameScene) then
         print("ERROR - invalid play game scene, cannot trigger scry tile tip.")
-        return
+        return false
     end
 
     local gameModel = self.playGameScene.board.gameModel
@@ -25,12 +25,13 @@ function M:triggerTipOnCondition()
     if gameModel.player1Rack:find("^", 1, true) and gameModel.player1Turn and gameModel.player1 == user.id or
        gameModel.player2Rack:find("^", 1, true) and not gameModel.player1Turn and gameModel.player2 == user.id then
         print("Triggering scry tile tip b/c current player has a scry tile.")
-        self:showTip()
+        return self:showTip()
     end
+
+    return false
 end
 
 function M:showTip()
-    local board = self.playGameScene.board
     if not tips_persist.isTipViewed(TIP_NAME) then
         local function onClose()
             tips_persist.recordViewedTip(TIP_NAME)
@@ -38,8 +39,9 @@ function M:showTip()
         local tipsModal = tips_modal.new("Drag Scry tiles from your hand to the board.", nil, onClose,
             "images/scry_tip.png", 250, 250, 0, -40)
         tipsModal:show()
+        return true
     end
-
+    return false
 end
 
 function M:isSceneValid(playGameScene)

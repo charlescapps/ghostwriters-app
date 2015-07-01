@@ -132,6 +132,7 @@ function scene:show(event)
         self:startPollForGame()
 
         local didShowModal = self.grabTilesTip:triggerTipOnCondition()
+
         if not didShowModal then
            didShowModal = scry_tile_tip.new(self):triggerTipOnCondition() or didShowModal
         end

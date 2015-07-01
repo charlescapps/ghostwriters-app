@@ -16,21 +16,21 @@ end
 function M:triggerTipOnCondition()
     if not self:isSceneValid(self.playGameScene) then
         print("ERROR - invalid play game scene, cannot trigger scry tile tip.")
-        return
+        return false
     end
 
     local gameModel = self.playGameScene.board.gameModel
     local user = self.playGameScene.creds.user
 
     if gameModel.player1Rack:find("*", 1, true) and gameModel.player1Turn and gameModel.player1 == user.id or
-       gameModel.player2Rack:find("*", 1, true) and not gameModel.player1Turn and gameModel.player2 == user.id then
+        gameModel.player2Rack:find("*", 1, true) and not gameModel.player1Turn and gameModel.player2 == user.id then
         print("Triggering question tile tip b/c current player has a question tile.")
-        self:showTip()
+        return self:showTip()
     end
+    return false
 end
 
 function M:showTip()
-    local board = self.playGameScene.board
     if not tips_persist.isTipViewed(TIP_NAME) then
         local function onClose()
             tips_persist.recordViewedTip(TIP_NAME)
@@ -40,8 +40,9 @@ function M:showTip()
             "A question tile is worth the full points of the chosen letter.",
             nil, onClose)
         tipsModal:show()
+        return true
     end
-
+    return false
 end
 
 function M:isSceneValid(playGameScene)
