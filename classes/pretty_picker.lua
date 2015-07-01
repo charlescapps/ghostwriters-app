@@ -78,14 +78,19 @@ function M:drawPickerRow()
     text1.anchorX = 0
     text1:setFillColor(0, 0, 0)
 
-    local text2 = display.newText {
-        text = row.text2,
-        fontSize = self.fontSize,
-        font = self.column2Font,
-        x = self.column2Left
-    }
-    text2.anchorX = 0
-    text2:setFillColor(0, 0, 0)
+    group:insert(text1)
+
+    if not self.isDisabled then
+        local text2 = display.newText {
+            text = row.text2,
+            fontSize = self.fontSize,
+            font = self.column2Font,
+            x = self.column2Left
+        }
+        text2.anchorX = 0
+        text2:setFillColor(0, 0, 0)
+        group:insert(text2)
+    end
 
     local function onRelease()
         --Draw the options modal
@@ -100,21 +105,21 @@ function M:drawPickerRow()
 
     end
 
-    local buttonSize = self.rowHeight * .75
-    local pickerButton = widget.newButton {
-        width = buttonSize,
-        height = buttonSize,
-        defaultFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_default.png",
-        overFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_over.png",
-        onRelease = onRelease,
-        isEnabled = not self.isDisabled
-    }
-    pickerButton.x = self.column3Center
-    pickerButton.y = 0
+    if not self.isDisabled then
+        local buttonSize = self.rowHeight * .75
+        local pickerButton = widget.newButton {
+            width = buttonSize,
+            height = buttonSize,
+            defaultFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_default.png",
+            overFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_over.png",
+            onRelease = onRelease,
+            isEnabled = not self.isDisabled
+        }
+        pickerButton.x = self.column3Center
+        pickerButton.y = 0
 
-    group:insert(text1)
-    group:insert(text2)
-    group:insert(pickerButton)
+        group:insert(pickerButton)
+    end
 
     return group
 end

@@ -133,11 +133,11 @@ function scene:show(event)
 
         local didShowModal = self.grabTilesTip:triggerTipOnCondition()
         if not didShowModal then
-           didShowModal = scry_tile_tip.new(self):triggerTipOnCondition()
+           didShowModal = scry_tile_tip.new(self):triggerTipOnCondition() or didShowModal
         end
 
         if not didShowModal then
-           didShowModal = question_tile_tip.new(self):triggerTipOnCondition()
+           didShowModal = question_tile_tip.new(self):triggerTipOnCondition() or didShowModal
         end
     end
 end
