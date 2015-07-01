@@ -3,6 +3,7 @@ local native = require("native")
 local fonts = require("globals.fonts")
 local user_info_popup = require("classes.user_info_popup")
 local format_helpers = require("common.format_helpers")
+local common_api = require("common.common_api")
 
 local leaderboard_row = {}
 local leaderboard_row_mt = { __index = leaderboard_row }
@@ -66,8 +67,16 @@ function leaderboard_row:createRankText()
 end
 
 function leaderboard_row:createUsernameText(rankText)
+    local username = self.user.username
+    if username == common_api.MONKEY_USERNAME then
+       username = common_api.MONKEY_USERNAME .. " (AI)"
+    elseif username == common_api.PROFESSOR_USERNAME then
+        username = common_api.PROFESSOR_USERNAME .. " (AI)"
+    elseif username == common_api.BOOKWORM_USERNAME then
+        username = common_api.BOOKWORM_USERNAME .. " (AI)"
+    end
     local usernameText = display.newText {
-        text = self.user.username,
+        text = username,
         font = self.isHighlighted and fonts.BOLD_FONT or native.systemFont,
         fontSize = self.isHighlighted and 36 or 32
     }
@@ -91,7 +100,7 @@ function leaderboard_row:createUsernameText(rankText)
     return usernameText
 end
 
-function leaderboard_row:createRatingText(usernameText)
+function leaderboard_row:createRatingText()
     local ratingText = display.newText {
         text = format_helpers.comma_value(self.user.rating),
         font = native.systemFont,
