@@ -8,6 +8,7 @@ local pretty_picker = require("classes.pretty_picker")
 local fonts = require("globals.fonts")
 local imgs = require("globals.imgs")
 local new_game_data = require("globals.new_game_data")
+local sheet_helpers = require("globals.sheet_helpers")
 
 local M = {}
 
@@ -196,14 +197,17 @@ function M:drawBonusOptions()
     }
     title:setFillColor(0, 0, 0)
 
-    self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 100, 4, self.onUpdateOptions)
-    self.scryTilesStepper = M.drawBonusOptionRow(group, "Scry Tiles", 200, 2, self.onUpdateOptions)
+    local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
+    local questionIndex = sheetObj.module:getFrameIndex("?_rack")
+    local scryIndex = sheetObj.module:getFrameIndex("scry_rack")
+    self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 100, 4, self.onUpdateOptions, sheetObj.imageSheet, questionIndex)
+    self.scryTilesStepper = M.drawBonusOptionRow(group, "Scry Tiles", 200, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
 
     group:insert(title)
     return group
 end
 
-function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVal)
+function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVal, sheet, frameIndex)
     local label = display.newText {
         parent = parent,
         x = LEFT_COLUMN,
@@ -225,6 +229,11 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
     }
     stepperValue.anchorX = 0
     stepperValue:setFillColor(0, 0, 0)
+
+    local iconImg = display.newImageRect(parent, sheet, frameIndex, 75, 75)
+    iconImg.anchorX = 0
+    iconImg.x = stepperValue.x + stepperValue.contentWidth + 25
+    iconImg.y = yPosition
 
     local onPress = function(event)
         if event.phase == "increment" or event.phase == "decrement" then

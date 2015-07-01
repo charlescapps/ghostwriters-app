@@ -11,9 +11,6 @@ local meta = { __index = M }
 -- Constants
 local MAX_TOKENS = 10
 
-local BG_WIDTH = 650
-local BG_HEIGHT = 133
-
 local ALL_TOKENS_WIDTH = 500
 
 local TOKEN_WIDTH = 90
@@ -90,7 +87,7 @@ function M:drawPurchaseButton()
     local button = widget.newButton {
         width = PLUS_WIDTH,
         height = PLUS_HEIGHT,
-        x = ALL_TOKENS_WIDTH / 2 + 32,
+        x = ALL_TOKENS_WIDTH / 2 + 40,
         y = 0,
         defaultFile = "images/purchase_button_default.png",
         overFile = "images/purchase_button_over.png",

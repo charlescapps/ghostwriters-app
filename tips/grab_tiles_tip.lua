@@ -135,7 +135,7 @@ function M:drawArrow(startSquare, dir)
     local width = startSquare.width * 0.8
     local img = display.newImageRect(imgFile, width, width)
     img.x, img.y = startSquare.x, startSquare.y
-    img.alpha = 0
+    img.alpha = 0.3
     self.playGameScene.board.boardGroup:insert(img)
     img:toFront()
     return img
