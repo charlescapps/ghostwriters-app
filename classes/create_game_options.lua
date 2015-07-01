@@ -50,7 +50,7 @@ function M:drawBoardSizeOptions()
         font = fonts.BOLD_FONT,
         fontSize = 44,
         x = display.contentCenterX,
-        y = 300
+        y = 250
     }
     title:setFillColor(0, 0, 0)
 
@@ -83,7 +83,7 @@ function M:drawBoardSizeOptions()
     self.boardSizePicker = pretty_picker.new {
         rows = rows,
         selectedIndex = startIndex,
-        pickerY = 400,
+        pickerY = 350,
         column1Left = LEFT_COLUMN,
         column2Left = MID_COLUMN,
         column3Center = RIGHT_COLUMN,
@@ -110,7 +110,7 @@ function M:drawDictionaryOptions()
         font = fonts.BOLD_FONT,
         fontSize = 44,
         x = display.contentCenterX,
-        y = 525
+        y = 450
     }
     title:setFillColor(0, 0, 0)
 
@@ -148,7 +148,7 @@ function M:drawDictionaryOptions()
 
     self.dictionaryPicker = pretty_picker.new {
         rows = rows,
-        pickerY = 625,
+        pickerY = 550,
         column1Left = LEFT_COLUMN,
         column2Left = MID_COLUMN,
         column3Center = RIGHT_COLUMN,
@@ -186,7 +186,7 @@ end
 
 function M:drawBonusOptions()
     local group = display.newGroup()
-    group.y = 750
+    group.y = 650
 
     local title = display.newText {
         text = "Bonuses",
