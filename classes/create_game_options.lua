@@ -49,7 +49,7 @@ function M:drawBoardSizeOptions()
     local title = display.newText {
         text = "Board Size",
         font = fonts.BOLD_FONT,
-        fontSize = 44,
+        fontSize = 50,
         x = display.contentCenterX,
         y = 250
     }
@@ -109,7 +109,7 @@ function M:drawDictionaryOptions()
     local title = display.newText {
         text = "Dictionary",
         font = fonts.BOLD_FONT,
-        fontSize = 44,
+        fontSize = 50,
         x = display.contentCenterX,
         y = 450
     }
@@ -192,7 +192,7 @@ function M:drawBonusOptions()
     local title = display.newText {
         text = "Bonuses",
         font = fonts.BOLD_FONT,
-        fontSize = 44,
+        fontSize = 50,
         x = display.contentCenterX
     }
     title:setFillColor(0, 0, 0)
