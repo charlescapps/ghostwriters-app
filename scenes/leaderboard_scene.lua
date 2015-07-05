@@ -21,7 +21,16 @@ function scene:create(event)
 
     local sceneGroup = self.view
     local background = self:createBackground()
-    self.leaderboard = leaderboard_class.new(self, self.creds.user)
+
+    local function onLoadSuccess()
+        ranking_tip.new():triggerTipOnCondition()
+    end
+
+    local function onLoadFail()
+        composer.gotoScene("scenes.title_scene", "fade")
+    end
+
+    self.leaderboard = leaderboard_class.new(self, self.creds.user, onLoadSuccess, onLoadFail)
     local leaderboardView = self.leaderboard:render()
     self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene", nil, nil, true)
 
@@ -52,7 +61,6 @@ function scene:show( event )
 
         scene_helpers.onDidShowScene(self)
 
-        ranking_tip.new():triggerTipOnCondition()
     end
 end
 

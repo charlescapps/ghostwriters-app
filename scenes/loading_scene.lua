@@ -66,10 +66,6 @@ function scene:computeBgDimensions()
     return bgWidth, bgHeight
 end
 
-function scene:computeBgHeight()
-
-end
-
 
 -- Listener setup
 scene:addEventListener( "create", scene )

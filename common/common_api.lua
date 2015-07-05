@@ -296,9 +296,8 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 				return
 			end
 			if user["errorMessage"] then
-				native.showAlert("Error creating new user", user["errorMessage"], {"OK"})
 				print("An error occurred logging in: " .. user["errorMessage"]);
-				onFail()
+				onFail(user)
 				return
 			end
 			if not M.isValidUser(user) then

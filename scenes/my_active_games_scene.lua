@@ -105,7 +105,11 @@ function scene:getOnFailCallback()
             errorMessage = "A network error occurred. Please try again."
         end
 
-        common_ui.createInfoModal("Oops...", errorMessage)
+        local function onClose()
+            composer.gotoScene("scenes.title_scene", "fade")
+        end
+
+        common_ui.createInfoModal("Oops...", errorMessage, onClose)
 
     end
 end

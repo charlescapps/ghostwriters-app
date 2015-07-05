@@ -13,8 +13,8 @@ print("Words with rivals app started...")
 
 one_signal_util.initOneSignal()
 
+back_button_setup.setupDefaultBackListener()
+
 -- There are too many issues with retaining previous scenes in memory
 composer.recycleOnSceneChange = true
 composer.gotoScene("scenes.loading_scene")
-
-back_button_setup.setupDefaultBackListener()

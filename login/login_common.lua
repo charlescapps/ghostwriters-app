@@ -12,18 +12,10 @@ local CREDS_KEY = "USER_CREDENTIALS_KEY"
 M.CREDS_KEY = CREDS_KEY
 
 M.fetchCredentials = function()
-    local creds = composer.getVariable(CREDS_KEY)
-
-    if not M.isValidCreds(creds) then
-        print ("Server creds not found in composer variable or missing data. Falling back to loading from file...")
-        local path = system.pathForFile(CREDS_FILE, system.DocumentsDirectory)
-        print("Path to creds file: " .. path)
-	    creds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
-        composer.setVariable(CREDS_KEY, creds or {})
-    end
+    local creds = M.fetchCredentialsRaw()
 
 	if not M.isValidCreds(creds) then
-		print("No ghostWritersUserCreds.json file found, or data is corrupt.")
+		print("No ghostWritersUserCreds.json file found, or data is missing username/cookie.")
         print("Data found = " .. json.encode(creds))
         loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
 		creds = nil
@@ -32,12 +24,24 @@ M.fetchCredentials = function()
 	return creds
 end
 
+M.fetchCredentialsRaw = function()
+    local creds = composer.getVariable(CREDS_KEY)
+
+    if not M.isValidCreds(creds) then
+        print ("Server creds not found in composer variable or missing data. Falling back to loading from file...")
+        creds = loadsave.loadTable(CREDS_FILE, system.DocumentsDirectory)
+        composer.setVariable(CREDS_KEY, creds or {})
+    end
+
+    return creds
+end
+
 M.isValidCreds = function(creds)
-   return creds and creds["user"] and creds["cookie"]
+   return creds and M.isValidUser(creds["user"]) and creds["cookie"] and true
 end
 
 M.dumpToLoggedOutScene = function(fromScene)
-    nav.goToSceneFrom(fromScene, "login.logged_out_scene")
+    nav.goToSceneFrom(fromScene, "login.create_user_scene")
 end
 
 M.saveCreds = function(creds)
@@ -46,18 +50,24 @@ M.saveCreds = function(creds)
 end
 
 M.getUser = function()
-	local creds = M.fetchCredentials()
-    return creds and creds["user"]
+	local creds = M.fetchCredentialsRaw()
+    return creds and M.isValidUser(creds["user"]) and creds["user"]
 end
 
 M.getCookie = function()
-    local creds = M.fetchCredentials()
+    local creds = M.fetchCredentialsRaw()
     return creds and creds["cookie"]
 end
 
 M.logout = function()
-    M.saveCreds({})
-    composer.gotoScene("login.logged_out_scene")
+    local oldUser = M.getUser()
+    M.saveCreds({ cookie = nil, user = oldUser })
+
+    if oldUser then
+        composer.gotoScene("login.welcome_scene")
+    else
+        composer.gotoScene("login.create_user_scene")
+    end
 end
 
 M.updateStoredUser = function(updatedUser)
@@ -68,6 +78,10 @@ M.updateStoredUser = function(updatedUser)
     creds.user = updatedUser
 
     M.saveCreds(creds)
+end
+
+M.isValidUser = function(user)
+    return user and user.id and (user.tokens ~= nil) and user.username and true
 end
 
 return M

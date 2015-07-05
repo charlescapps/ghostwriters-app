@@ -13,17 +13,11 @@ local custom_text_field = require("classes.custom_text_field")
 
 local scene = composer.newScene()
 
-scene.sceneName = "login.logged_out_scene"
+scene.sceneName = "login.create_user_scene"
 
 -- Constants
 local MIN_USERNAME_LEN = 4
 local MAX_USERNAME_LEN = 16
-
-function scene:createSecondaryDeviceLink()
-    return common_ui.createLink("Sign in as user from another device?", nil, 900, nil, function()
-        nav.goToSceneFrom(self.sceneName, "login.login_existing_user_scene")
-    end)
-end
 
 function scene:createAccountAndGo()
     local username = self.storedUsername or self.usernameTextField and self.usernameTextField:getText()
@@ -106,7 +100,7 @@ local function createUsernameInputLabel()
         y = 300,
         font = native.systemFont,
         fontSize = 50,
-        text = "Choose your name!"
+        text = "Choose your name"
     }
 
     usernameLabel:setFillColor(0, 0, 0)
@@ -131,14 +125,17 @@ function scene:getOnCreateAccountSuccessListener()
 end
 
 function scene:getOnCreateAccountFailListener()
-    return function()
+    return function(jsonResp)
         print("Login failed...re-enabling the Go Button.")
         self.goButton:setEnabled(true)
 
         if self.textProgress then
             self.textProgress:stop()
         end
-        native.showAlert("Network Error", "Ghostwriters requires an Internet Connection to play.", { "Try again" })
+
+        if jsonResp and jsonResp["errorMessage"] then
+            native.showAlert("Error creating new user", jsonResp["errorMessage"], {"OK"})
+        end
     end
 end
 
@@ -188,14 +185,12 @@ function scene:create(event)
     self.usernameInputLabel = createUsernameInputLabel()
     self.getNextUsernameButton = self:createGetNextUsernameButton()
     self.goButton = createGoButton()
-    local secondDeviceButton = self:createSecondaryDeviceLink()
 
     sceneGroup:insert(background)
     sceneGroup:insert(title)
     sceneGroup:insert(self.usernameInputLabel)
     sceneGroup:insert(self.getNextUsernameButton)
     sceneGroup:insert(self.goButton)
-    sceneGroup:insert(secondDeviceButton)
 
 end
 

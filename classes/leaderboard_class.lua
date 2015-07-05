@@ -5,6 +5,7 @@ local transition = require("transition")
 local json = require("json")
 local leaderboard_row = require("classes.leaderboard_row")
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 local math = require("math")
 
 local leaderboard_class = {}
@@ -17,12 +18,14 @@ local ROW_HEIGHT = 150
 local BUTTON_PAD = 6
 local BUTTON_SIZE = 180
 
-function leaderboard_class.new(parentScene, authUser)
+function leaderboard_class.new(parentScene, authUser, onLoadSuccess, onLoadFail)
     local leaderBoard = {
         users = {},
         leaderboardRows = {},
         parentScene = parentScene,
-        authUser = authUser
+        authUser = authUser,
+        onLoadSuccess = onLoadSuccess,
+        onLoadFail = onLoadFail
     }
     return setmetatable(leaderBoard, leaderboard_class_mt)
 end
@@ -129,11 +132,25 @@ function leaderboard_class:getOnLoadRanksSuccessListener()
             print("Focused user index=" .. focusedUserIndex .. ", scrolling to index=" .. scrollIndex)
             self.tableView:scrollToIndex(scrollIndex, 1000)
         end
+
+        if self.onLoadSuccess then
+            self.onLoadSuccess()
+        end
     end
 end
 
 function leaderboard_class:getOnLoadRanksFailListener()
-    return common_api.showNetworkError
+    return function(resp)
+        local errorMsg = resp and resp["errorMessage"] or "A network error occurred"
+
+        local function onClose()
+            if self.onLoadFail then
+                self.onLoadFail()
+            end
+        end
+
+        common_ui.createInfoModal("Oops...", errorMsg, onClose)
+    end
 end
 
 function leaderboard_class:renderTitle()
