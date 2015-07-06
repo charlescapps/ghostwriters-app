@@ -150,7 +150,7 @@ function scene:showGameInfoModals(didSceneJustLoad)
     end
 
     if not didSceneJustLoad then
-        didShowModal = self:showContinueTurnModal()
+        didShowModal = didShowModal or self:showContinueTurnModal()
     end
 end
 
@@ -803,7 +803,7 @@ function scene:showContinueTurnModal()
     end
 
     if gameModel.lastMoves == nil or #gameModel.lastMoves > 0 then
-        print("Not showing Continue Turn modal since opponent's lastMoves are present or nil")
+        print("Not showing Continue Turn modal since opponent's lastMoves == nil or non-empty")
         return false
     end
 
