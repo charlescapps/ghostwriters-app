@@ -35,6 +35,8 @@ function my_challengers_view_class:setGames(games)
 end
 
 function my_challengers_view_class:render()
+    common_ui.safeRemove(self.view)
+
     print("Rendering My Games view...")
     local group = display.newGroup()
 
@@ -87,11 +89,11 @@ function my_challengers_view_class:renderTitle()
     local title = display.newText {
         text = titleText,
         x = display.contentWidth / 2,
-        y = 120,
+        y = 100,
         width = display.contentWidth,
         align = "center",
         font = fonts.BOLD_FONT,
-        fontSize = 40
+        fontSize = 52
     }
     title:setFillColor(0, 0, 0)
     return title
@@ -117,7 +119,7 @@ function my_challengers_view_class:renderEmptyGamesGroup()
     messageText:setFillColor(0, 0, 0)
 
     local linkText = common_ui.createLink("Start a new game!", 0, 100, nil, function()
-        composer.gotoScene("scenes.title_scene")
+        composer.gotoScene("scenes.start_multiplayer_scene", "fade")
     end)
 
     group:insert(messageText)

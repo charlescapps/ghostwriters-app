@@ -296,7 +296,7 @@ end
 
 function user_search_widget:getOnQueryFailListener()
     return function()
-        native.showAlert("Network error", "A network error occurred, please tap the magnifying glass to search for opponents again.", { "Try again" })
+        common_ui.createInfoModal("Network error", "Tap the magnifying glass to search for opponents again.")
     end
 end
 

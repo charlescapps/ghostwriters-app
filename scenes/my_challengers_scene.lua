@@ -35,6 +35,7 @@ function scene:show( event )
             self.myChallengersView:destroy()
         end
         self.myChallengersView = my_challengers_view_class.new(user, true, self)
+        self.view:insert(self.myChallengersView:render())
 
         common_api.getGamesOfferedToMe(common_api.MAX_GAMES_IN_PROGRESS, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 
