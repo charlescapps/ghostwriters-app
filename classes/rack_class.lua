@@ -140,7 +140,6 @@ end
 
 function rack_class:computeIndexFromContentCoords(xContent, yContent)
     local r, c = self:computeRowColFromContentCoords(xContent, yContent)
-    print("Computed r, c = " .. r .. ", " .. c .. ", for content coords " .. xContent .. ", " .. yContent)
     if c < 1 or c > self.numPerRow or r < 1 or r > NUM_ROWS then
         return nil
     end
@@ -257,6 +256,10 @@ function rack_class:floatTile(rackTileImg, contentX, contentY)
         return
     end
 
+    if self.board then
+        self.board:removeRackTileFromBoard(rackTileImg)
+    end
+
     if nil == contentX or nil == contentY then
         contentX, contentY = common_ui.getContentCoords(rackTileImg)
     end
@@ -299,8 +302,7 @@ getTouchListener = function(rack)
         if rack.interactionDisabled then
             return true
         end
-		if ( event.phase == "began" ) then
-            print("rack touch listener: began")
+		if  event.phase == "began"  then
 			display.getCurrentStage( ):setFocus( event.target )
 			event.target.isFocus = true
 
@@ -323,7 +325,6 @@ getTouchListener = function(rack)
 		        end
 		        return true
 		    elseif event.phase == "ended" or event.phase == "cancelled" then
-                print("rack touch listener: " .. event.phase)
                 -- reset touch focus
 	            display.getCurrentStage():setFocus( nil )
 	            event.target.isFocus = nil

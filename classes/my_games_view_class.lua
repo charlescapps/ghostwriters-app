@@ -27,7 +27,6 @@ function my_games_view_class.new(authUser, inProgress, scene)
 end
 
 function my_games_view_class:setGames(games)
-    print("my_games_view_class:setting games to array of size: " .. #(games.list))
     self.games = games
 end
 
@@ -35,7 +34,6 @@ function my_games_view_class:render()
     -- Remove any existing view.
     common_ui.safeRemove(self.view)
 
-    print("Rendering My Games view...")
     local group = display.newGroup()
 
     local title = self:renderTitle()
@@ -44,7 +42,6 @@ function my_games_view_class:render()
         self.tableView = self:renderTableView()
         self:createMiniGames()
         for i = 1, #(self.games.list) do
-            print("Inserting row: " .. i)
             self.tableView:insertRow {
                 rowHeight = MINI_GAME_HEIGHT + PAD,
                 isCategory = false,

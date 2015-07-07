@@ -119,7 +119,7 @@ function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)
 
     local function getOnReleaseListener(productName)
         return function()
-            print("Clicked button to purchase product: '" .. productName .. "'")
+            print("Clicked button to purchase product: '" .. tostring(productName) .. "'")
             pay_helpers.purchase(productName)
         end
     end

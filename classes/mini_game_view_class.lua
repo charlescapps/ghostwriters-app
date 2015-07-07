@@ -25,7 +25,7 @@ function mini_game_view_class.new(index, gameModel, authUser, width, height, min
     end
 
     if authUser.id ~= gameModel.player1Model.id and authUser.id ~= gameModel.player2Model.id then
-        print("The logged in user (" .. authUser.username .. ") isn't player 1 or player 2 in the given game: " .. json.encode(gameModel))
+        print("The logged in user (" .. tostring(authUser.username) .. ") isn't player 1 or player 2 in the given game: " .. json.encode(gameModel))
         return nil
     end
 
@@ -90,9 +90,7 @@ function mini_game_view_class:render()
 end
 
 function mini_game_view_class:drawDictIndicator()
-    print("Drawing dict indicator...")
     local imgFile = self:getDictImage()
-    print("imgFile = " .. tostring(imgFile))
     if not imgFile then
         return nil
     end

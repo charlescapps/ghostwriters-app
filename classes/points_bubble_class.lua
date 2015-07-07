@@ -36,7 +36,6 @@ function points_bubble_class:computePoints(playMove)
     local board = self.board
     local startR, startC, dir, letters, rackTiles = playMove.start.r + 1, playMove.start.c + 1, playMove.dir, playMove.letters, playMove.tiles
     local points = 0
-    print("startR, startC, dir, letters, rackTiles=" .. startR .. "," .. startC .. "," .. dir .. "," .. letters .. "," .. rackTiles)
     local rackTilesIndex = 1
     if dir == "E" then
         for c = startC, startC + letters:len() - 1 do

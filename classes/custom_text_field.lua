@@ -69,7 +69,6 @@ function M.newCustomTextField(options)
     field.textField.text = opt.text
     field.textField.placeholder = opt.placeholder
     field.isFontSizeScaled = true
-    print( opt.listener, type(opt.listener) )
     if ( opt.listener and type(opt.listener) == "function" ) then
         print("Adding userInput listener!")
         field.textField:addEventListener( "userInput", opt.listener )

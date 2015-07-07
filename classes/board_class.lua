@@ -446,7 +446,6 @@ function board_class:addTileFromRack(contentX, contentY, tileImage, rack)
 	local letter = tileImage.letter
 	local squareImage = self:squareForCoords(contentX, contentY)
 	if not squareImage or not letter then
-		print("Not adding letter " .. tostring(letter) .. " to board at x = " .. contentX .. ", y = " .. contentY)
 		return false
     end
 
@@ -457,11 +456,10 @@ function board_class:addTileFromRack(contentX, contentY, tileImage, rack)
 
 	local row, col = squareImage.row, squareImage.col
     if self.tileImages[row][col] or self.rackTileImages[row][col] then
-        print("Tile already present at (" .. row .. ", " .. col .. ")")
+        print("Tile already present at (" .. tostring(row) .. ", " .. tostring(col) .. ")")
         return false
     end
-	print ("Inserting tile at row = " .. row .. ", col = " .. col)
-	print ("Inserting tile at x = " .. squareImage.x .. ", y = " .. squareImage.y)
+	print ("Inserting tile at row = " .. tostring(row) .. ", col = " .. tostring(col))
     transition.cancel(tileImage)  -- cancel outstanding animations on the tile.
 	self.rackTilesGroup:insert(tileImage)
 	-- modify width to account for scale
@@ -709,8 +707,6 @@ function board_class:getOrderedRackTiles()
 	end
 
 	if tileToEast and tileToSouth then
-        print("Found tile to E at (" .. tileToEast.row .. "," .. tileToEast.col .. "): " .. tileToEast.letter)
-        print("Found tile to S at (" .. tileToSouth.row .. "," .. tileToSouth.col .. "): " .. tileToSouth.letter)
 		return {errorMsg = "You must place tiles in the same row or column with no empty spaces in between"}
 	end
 
@@ -867,7 +863,7 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
     local firstTile = true
     for i = 0, letters:len() - 1 do
         if r < 1 or c < 1 or r > self.N or c > self.N then
-            print("Error - invalid row or column reached in applyPlayTilesMoves: " .. r .. ", " .. c)
+            print("Error - invalid row or column reached in applyPlayTilesMoves: " .. tostring(r) .. ", " .. tostring(c))
             return
         end
         local myTile = self.tiles[r][c]

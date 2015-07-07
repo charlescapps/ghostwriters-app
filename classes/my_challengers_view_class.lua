@@ -30,7 +30,6 @@ function my_challengers_view_class.new(authUser, challengedToMe, scene)
 end
 
 function my_challengers_view_class:setGames(games)
-    print("my_challengers_view_class:setting games to array of size: " .. #(games.list))
     self.games = games
 end
 
