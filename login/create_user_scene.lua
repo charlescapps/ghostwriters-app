@@ -20,40 +20,51 @@ local MIN_USERNAME_LEN = 4
 local MAX_USERNAME_LEN = 16
 
 function scene:createAccountAndGo()
+    if self.createInProgress then
+        print("Request already in progress to create new user.")
+        return
+    end
+
     local username = self.storedUsername or self.usernameTextField and self.usernameTextField:getText()
     local deviceId = system.getInfo("deviceID")
     if not username or username:len() <= 0 then
-        native.showAlert("Oops...", "Please enter a username", { "OK" })
+        common_ui.createInfoModal("Oops...", "Please enter a username")
     elseif username:len() < MIN_USERNAME_LEN then
-        native.showAlert("Oops...", "Usernames must be at least " .. MIN_USERNAME_LEN .. " characters long.", { "OK" })
+        common_ui.createInfoModal("Oops...", "Usernames must be at least " .. MIN_USERNAME_LEN .. " letters.")
     elseif username:len() > MAX_USERNAME_LEN then
-        native.showAlert("Oops...", "Usernames can't be longer than " .. MAX_USERNAME_LEN .. " characters long.", { "OK" })
+        common_ui.createInfoModal("Oops...", "Usernames can't be more than " .. MAX_USERNAME_LEN .. " letters.")
     else
         local currentScene = composer.getSceneName("current")
         if currentScene == self.sceneName then
-            self.textProgress = self:createTextProgress()
-            self.textProgress:start()
             if self.goButton then
                 self.goButton:setEnabled(false)
             end
+            self:createTextProgress()
+            self.createInProgress = true
             common_api.createNewAccountAndLogin(username, nil, deviceId,
                 self:getOnCreateAccountSuccessListener(), self:getOnCreateAccountFailListener())
+            native.setKeyboardFocus(nil)
         end
     end
 end
 
 function scene:createUsernameInput()
-
     local function inputListener(event)
-        if event.phase == "editing" then
+        if event.phase == "began" then
+
+        elseif event.phase == "editing" then
             if event.text and event.text:len() > MAX_USERNAME_LEN then
                 self:setUsernameText(event.text:sub(1, MAX_USERNAME_LEN))
             else
                 self:setUsernameText(event.text)
             end
         elseif event.phase == "submitted" then
+            print("Submitted username input...")
             self:createAccountAndGo()
+            native.setKeyboardFocus(nil)
+        elseif event.phase == "ended" then
         end
+        return true
     end
 
     local usernameTextField = custom_text_field.newCustomTextField
@@ -109,33 +120,42 @@ local function createUsernameInputLabel()
 end
 
 function scene:createTextProgress()
-    return text_progress_class.new(self.view, display.contentWidth / 2, display.contentHeight / 2,
-        "Signing in...", 75, 0.8)
+    print("Creating text progress...")
+    self:destroyTextProgress()
+    self.textProgress = text_progress_class.new(self.view, display.contentWidth / 2, display.contentHeight / 2,
+        "Creating user...", 75, 0.8)
+    self.textProgress:start()
 end
 
 function scene:getOnCreateAccountSuccessListener()
     return function(user)
-        if self.textProgress then
-            self.textProgress:stop()
-        end
+        self:destroyTextProgress()
         nav.goToSceneFrom(self.sceneName, "scenes.title_scene", "fade")
         -- Tag the player in Game Thrive (OneSignal) with the user ID.
         OneSignal.TagPlayer("ghostwriters_id", user.id)
+        self.createInProgress = nil
+    end
+end
+
+function scene:destroyTextProgress()
+    if self.textProgress then
+        self.textProgress:stop()
+        self.textProgress = nil
     end
 end
 
 function scene:getOnCreateAccountFailListener()
     return function(jsonResp)
-        print("Login failed...re-enabling the Go Button.")
+        print("Login failed...destroying text progress widget and re-enabling the Go Button.")
+        self:destroyTextProgress()
+
         self.goButton:setEnabled(true)
 
-        if self.textProgress then
-            self.textProgress:stop()
+        if jsonResp and jsonResp["errorMessage"] then
+            common_ui.createInfoModal("Error creating user", jsonResp["errorMessage"], nil, 48)
         end
 
-        if jsonResp and jsonResp["errorMessage"] then
-            native.showAlert("Error creating new user", jsonResp["errorMessage"], {"OK"})
-        end
+        self.createInProgress = nil
     end
 end
 
@@ -221,13 +241,10 @@ function scene:hide(event)
     local sceneGroup = self.view
     local phase = event.phase
 
-    if (phase == "will") then
+    if phase == "will" then
+        self:destroyTextProgress()
         if self.usernameTextField then
            self.usernameTextField:removeSelf()
-        end
-        if self.textProgress then
-            self.textProgress:stop()
-            self.textProgress = nil
         end
         transition.cancel()
     elseif (phase == "did") then

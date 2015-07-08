@@ -13,7 +13,7 @@ function text_progress_class.new(sceneViewGroup, x, y, text, fontSize, alpha)
         text = text,
         fontSize = fontSize,
         alpha = alpha,
-        displayGroup = displayGroup,
+        displayGroup = displayGroup
     }
 
     textProgress = setmetatable(textProgress, text_progress_class_mt)
@@ -22,26 +22,27 @@ function text_progress_class.new(sceneViewGroup, x, y, text, fontSize, alpha)
     textProgress.screen, textProgress.textObj = screen, textObj
     displayGroup:insert(screen)
     displayGroup:insert(textObj)
+    sceneViewGroup:insert(displayGroup)
     return textProgress
 end
 
 function text_progress_class:start()
-    self.sceneViewGroup:insert(self.displayGroup)
     self.displayGroup:toFront()
     transition.fadeIn(self.displayGroup, { time = 500 })
 end
 
 function text_progress_class:stop(onComplete)
     print("Stopping progress text...")
-    local function destroy()
-        if self.displayGroup then
+    transition.cancel(self.displayGroup)
+    local function onFadeOutComplete()
+        if self.displayGroup and self.displayGroup.removeSelf then
             self.displayGroup:removeSelf()
         end
         if onComplete then
             onComplete()
         end
     end
-    transition.fadeOut(self.displayGroup, { time = 500, onComplete = destroy, onCancel = destroy })
+    transition.fadeOut(self.displayGroup, { time = 250, onComplete = onFadeOutComplete, onCancel = onFadeOutComplete })
 end
 
 function text_progress_class:createTextObj(x, y, text, fontSize, alpha)

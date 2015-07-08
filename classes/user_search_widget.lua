@@ -117,9 +117,10 @@ function user_search_widget:createSearchAreaGroup()
     end
 
     local function userInputListener(event)
-        if event.phase == "ended" or event.phase == "submitted" then
+        if event.phase == "submitted" then
             onReleaseSearchButton()
         end
+        return true
     end
 
     group.searchInput = custom_text_field.newCustomTextField
@@ -134,6 +135,8 @@ function user_search_widget:createSearchAreaGroup()
             listener = userInputListener,
             backgroundColor = { 1, 1, 1, 0.6 }
         }
+
+    group.searchInput.textField:setReturnKey("done")
 
     -- Create the Magnifying Glass search button
     group.searchButton = common_ui.createImageButton(0, 150, 150, "images/search_button_default.png", "images/search_button_over.png", onReleaseSearchButton)

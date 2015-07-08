@@ -17,10 +17,6 @@ local BACK_BTN_WIDTH = 100
 local BACK_BTN_HEIGHT = 100
 
 local MODAL_IMAGE = "images/book_modal.png"
-local BOOK_BUTTON_DEFAULT_IMAGE = "images/book_button_default.png"
-local BOOK_BUTTON_OVER_IMAGE = "images/book_button_over.png"
-local BOOK_BUTTON_WIDTH = 500
-local BOOK_BUTTON_HEIGHT = 300
 
 -- Colors
 -- Default button colors

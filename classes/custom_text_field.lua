@@ -61,7 +61,6 @@ function M.newCustomTextField(options)
         tHeight = tHeight + 10
     end
 
-
     field.textField = native.newTextField( 0, 0, opt.width - opt.cornerRadius, tHeight )
     field:insert(field.textField)
     field.textField.hasBackground = false

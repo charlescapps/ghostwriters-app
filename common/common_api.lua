@@ -1,5 +1,6 @@
 local network = require("network")
 local mime = require("mime")
+local common_ui = require("common.common_ui")
 local login_common = require("login.login_common")
 local json = require("json")
 local word_spinner_class = require("classes.word_spinner_class")
@@ -149,7 +150,7 @@ M.PLAYER2_RESIGN = "PLAYER2_RESIGN"
 
 -- Predeclared functions
 M.showNetworkError = function()
-    native.showAlert( "Network error", "A network error occurred. Please try what you were doing again soon.", {"OK"} )
+    common_ui.createInfoModal( "Network error", "Please try again.", nil, 48 )
 end
 
 local function getBasicAuthHeader(username, password)
@@ -294,13 +295,11 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 				print("Invalid JSON returned from server: " .. json.encode(event))
 				onFail()
 				return
-			end
-			if user["errorMessage"] then
+			elseif user["errorMessage"] then
 				print("An error occurred logging in: " .. user["errorMessage"]);
 				onFail(user)
 				return
-			end
-			if not M.isValidUser(user) then
+			elseif not M.isValidUser(user) then
                 M.showNetworkError()
 				print ("Failed to create a new user with username '" .. username .. "' and pass " .. deviceId
 					.. "! Event = " .. json.encode(event))
@@ -309,11 +308,12 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 			end
 			local headers = event.responseHeaders
 			local cookie = parseCookie(headers["Set-Cookie"])
-            print("Received cookie: " .. cookie)
+            print("Received cookie: " .. tostring(cookie))
 			if cookie == nil or cookie:len() <= 0 then
                 M.showNetworkError()
 				print ("Failed to get a cookie from the login response: " .. json.encode(event))
 				onFail()
+                return
 			end
 			print("SUCCESS - created user: " .. user.username)
             local creds = {
