@@ -58,7 +58,7 @@ function M:addTouchListener(group)
         if event.phase == "began" then
 
         elseif event.phase == "ended" then
-            common_ui.createInfoModal("", "You own " .. tostring(tokensDisplay.numTokens) .. " books.", nil, nil, 50)
+            common_ui.createInfoModal("My books", "You own " .. tostring(tokensDisplay.numTokens) .. " books.", nil, nil, 50)
         elseif event.phase == "cancelled" then
         end
     end
@@ -79,7 +79,7 @@ function M:drawPurchaseButton()
             common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
             return
         end
-        local popup = in_app_purchase_popup.new(self.updateUserListener)
+        local popup = in_app_purchase_popup.new(self.updateUserListener, self.updateUserListener)
         self.parentScene.view:insert(popup:render())
         popup:show()
     end

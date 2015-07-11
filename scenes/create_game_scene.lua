@@ -85,19 +85,23 @@ end
 
 function scene:getUpdateUserListener()
     return function()
-        if not self.tokensDisplay then
-            return
-        end
-
-        local updatedCreds = login_common.fetchCredentials()
-        if not updatedCreds then
-            return
-        end
-
-        self.creds = updatedCreds
-
-        self.tokensDisplay:updateUser(updatedCreds.user)
+        self:updateUserModel()
     end
+end
+
+function scene:updateUserModel()
+    if not self.tokensDisplay then
+        return
+    end
+
+    local updatedCreds = login_common.fetchCredentials()
+    if not updatedCreds then
+        return
+    end
+
+    self.creds = updatedCreds
+
+    self.tokensDisplay:updateUser(updatedCreds.user)
 end
 
 function scene:getOnUpdateOptionsListener()

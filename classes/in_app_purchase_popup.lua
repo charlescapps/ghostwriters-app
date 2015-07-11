@@ -10,8 +10,9 @@ local meta = { __index = M }
 local BUTTON_SIZE = 200
 local CLOSE_X_WIDTH = 90
 
-function M.new(destroyListener)
+function M.new(onRegisterPurchaseSuccess, destroyListener)
     local popup = {
+        onRegisterPurchaseSuccess = onRegisterPurchaseSuccess,
         destroyListener = destroyListener
     }
     print("Creating new in-app purchase popup")
@@ -120,7 +121,7 @@ function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)
     local function getOnReleaseListener(productName)
         return function()
             print("Clicked button to purchase product: '" .. tostring(productName) .. "'")
-            pay_helpers.purchase(productName)
+            pay_helpers.purchase(productName, self.onRegisterPurchaseSuccess)
         end
     end
 

@@ -12,6 +12,8 @@ local productList
 local productsFromStore
 
 local M = {}
+M.onRegisterPurchaseSuccess = nil
+
 local BOOK_PACK_1 = "book_pack_1"
 local BOOK_PACK_2 = "book_pack_2"
 local BOOK_PACK_3 = "book_pack_3"
@@ -68,17 +70,21 @@ function M.transactionListener(event)
     elseif transaction.state == "consumed" then
         print("Product consumed: " .. tostring(transaction.productIdentifier) )
     elseif (transaction.state == "cancelled") then
-
+        M.setOnRegisterPurchaseSuccess(nil)
         --handle a cancelled transaction here
 
     elseif (transaction.state == "failed") then
-
+        M.setOnRegisterPurchaseSuccess(nil)
         --handle a failed transaction here
     end
 
     --tell the store that the transaction is complete!
     --if you're providing downloadable content, do not call this until the download has completed
     store.finishTransaction(event.transaction)
+end
+
+function M.setOnRegisterPurchaseSuccess(listener)
+    M.onRegisterPurchaseSuccess = listener
 end
 
 
@@ -102,7 +108,7 @@ function M.loadStoreProducts()
     end)
 end
 
-function M.purchase(productIdentifier)
+function M.purchase(productIdentifier, onRegisterPurchaseSuccess)
     if not store then
         print("No store has been initialized...cannot purchase in-app product")
         return
@@ -115,6 +121,8 @@ function M.purchase(productIdentifier)
 
     -- Try to register existing purchases (and consume them for Google).
     M.registerAllPurchases()
+
+    M.setOnRegisterPurchaseSuccess(onRegisterPurchaseSuccess)
 
     print("Calling store.purchase() on product: " .. productIdentifier)
     if googleIAP then
@@ -159,11 +167,19 @@ function M.registerAllPurchases()
         -- then continue registering purchases recursively.
         if #updatedJSON.purchases < #purchases and #updatedJSON.purchases > 0 then
            M.registerAllPurchases()
+        else
+            if type(M.onRegisterPurchaseSuccess) == "function" then
+                M.onRegisterPurchaseSuccess()
+                M.setOnRegisterPurchaseSuccess(nil)
+            end
         end
+
+
     end
 
     local function onFail()
         print("Failure registering purchase...not consuming / removing from local purchase store.")
+        M.setOnRegisterPurchaseSuccess(nil)
     end
 
     common_api.registerPurchase(firstPurchase, onSuccess, onFail)
