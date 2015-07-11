@@ -4,6 +4,8 @@ local common_ui = require("common.common_ui")
 local login_common = require("login.login_common")
 local json = require("json")
 local purchase_store = require("common.purchase_store")
+local table = require("table")
+
 local store
 local googleIAP = false
 local productList
@@ -46,11 +48,11 @@ function M.transactionListener(event)
 
     if transaction.state == "purchased" or transaction.state == "restored" then
         --handle a successful transaction here
-        print("productIdentifier", transaction.productIdentifier)
-        print("receipt", transaction.receipt)
+        print("productIdentifier:", transaction.productIdentifier)
+        print("receipt:", transaction.receipt)
         print("signature:", transaction.signature)
-        print("transactionIdentifier", transaction.identifier)
-        print("date", transaction.date)
+        print("transactionIdentifier:", transaction.identifier)
+        print("date:", transaction.date)
 
         local purchaseModel = {
             isGoogle = googleIAP,
@@ -64,7 +66,7 @@ function M.transactionListener(event)
         M.registerAllPurchases()
 
     elseif transaction.state == "consumed" then
-        print("Product consumed: " .. transaction.productIdentifier)
+        print("Product consumed: " .. tostring(transaction.productIdentifier) )
     elseif (transaction.state == "cancelled") then
 
         --handle a cancelled transaction here
@@ -115,7 +117,11 @@ function M.purchase(productIdentifier)
     M.registerAllPurchases()
 
     print("Calling store.purchase() on product: " .. productIdentifier)
-    store.purchase( { productIdentifier } )
+    if googleIAP then
+        store.purchase(productIdentifier)
+    else
+        store.purchase( { productIdentifier } )
+    end
 end
 
 function M.registerAllPurchases()
@@ -131,6 +137,7 @@ function M.registerAllPurchases()
     if #purchases <= 0 then
         print("No stored purchases. Nothing to register.")
         if googleIAP then
+           print("Consuming all consumable purchases: " .. table.concat(consumableProductList, ","))
            store.consumePurchase(consumableProductList, M.transactionListener)
         end
         return
