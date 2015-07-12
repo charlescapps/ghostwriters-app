@@ -30,7 +30,6 @@ M.ghostlySheet = nil
 M.stoneSheet = nil
 M.rackSheet = nil
 
-
 M.rackSheetHelper = require("spritesheets.rack_sheet")
 
 -- Public functions
@@ -43,8 +42,18 @@ M.getTileInfo = function(letter, isRackTile, boardSize)
 end
 
 M.draw = function(letter, x, y, width, isRackTile, boardSize)
+    if letter == M.emptyTile then
+        return nil
+    end
+
 	local tileInfo = M.getTileInfo(letter, isRackTile, boardSize)
-	if not tileInfo then
+	if not tileInfo or not tileInfo.imageSheet or not tileInfo.frameIndex then
+        print("ERROR - invalid tileInfo in tile.draw with arguments:")
+        print("letter='" .. tostring(letter) .. "'\n")
+        print("x, y=" .. tostring(x) .. ", " .. tostring(y) .. "\n")
+        print("width='" .. tostring(width) .. "'\n")
+        print("isRackTile='" .. tostring(isRackTile) .. "'\n")
+        print("boardSize='" .. tostring(boardSize) .. "'\n")
 		return nil
 	end
 	local img = display.newImageRect( tileInfo.imageSheet, tileInfo.frameIndex, width, width )
@@ -77,7 +86,9 @@ createRackTile = function(letter)
         M.rackSheet = graphics.newImageSheet(imageFile, helper:getSheet())
     end
 
-    local prefix = letter == "^" and "scry" or letter:lower()
+    local prefix = letter == "^" and "scry" or
+                   letter == "*" and "question" or
+                   letter:lower()
 
     return {
         letter = letter,

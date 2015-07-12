@@ -247,7 +247,7 @@ SheetInfo.sheet =
 SheetInfo.frameIndex =
 {
 
-    ["?_rack"] = 1,
+    ["question_rack"] = 1,
     ["a_rack"] = 2,
     ["b_rack"] = 3,
     ["c_rack"] = 4,

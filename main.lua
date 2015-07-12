@@ -9,6 +9,9 @@ local back_button_setup = require("android.back_button_setup")
 local composer = require( "composer" )
 local one_signal_util = require("push.one_signal_util")
 
+-- Pre-load the spritesheets needed for drawing tiles.
+require("common.tile")
+
 print("Words with rivals app started...")
 
 one_signal_util.initOneSignal()

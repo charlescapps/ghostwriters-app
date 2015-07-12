@@ -449,6 +449,10 @@ function board_class:addTileFromRack(contentX, contentY, tileImage, rack)
 		return false
     end
 
+    if self.interactionDisabled then
+        return false
+    end
+
     if letter == "^" then
         game_helpers.promptScryTileAction(self, rack, tileImage)
         return true
