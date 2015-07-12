@@ -6,6 +6,7 @@ local composer = require("composer")
 local transition = require("transition")
 local display = require("display")
 local fonts = require("globals.fonts")
+local timer = require("timer")
 
 local DEFAULT_BACKGROUND = "images/book_texture.jpg"
 
@@ -213,11 +214,11 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
         if onClose then
             onClose()
         end
-        group:removeSelf()
+        M.safeRemove(group)
     end
 
     local onCancel = function()
-        group:removeSelf()
+        M.safeRemove(group)
     end
 
     group:insert(background)
@@ -238,7 +239,22 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
         return true
     end)
 
-    transition.fadeIn(group, { time = 1000 })
+    -- Fade out after 5 seconds of displaying the info modal
+    local function onFadeIn()
+        timer.performWithDelay(5000, function()
+            if not group or not group.removeSelf then
+                return
+            end
+
+            transition.cancel(group)
+            transition.fadeOut(group, {
+                onComplete = onComplete,
+                onCancel = onCancel
+            })
+        end)
+    end
+
+    transition.fadeIn(group, { time = 1000, onComplete = onFadeIn })
 
     return group
 end
