@@ -870,12 +870,8 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
         local x, y = self:computeTileCoords(r, c)
 
         if myTile == tile.emptyTile and tileIndex <= tiles:len() then
-           local letter = tiles:sub(tileIndex, tileIndex)
-           if letter == "*" then
-               local rackTileImage = self.rackTileImages[r][c]
-               letter = rackTileImage.chosenLetter
-               print("Applying BLANK tile at r,c = " .. r .. ", " .. c .. ", letter = " .. letter)
-           end
+           local letter = letters:sub(i + 1, i + 1)
+
            local newTileImg = tile.draw(letter:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
            newTileImg.alpha = 0;
            newTileImg.letter = letter

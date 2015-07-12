@@ -137,7 +137,7 @@ function M:updateUser(updatedUser)
         return
     end
 
-    if not self.view then
+    if not self.view or not self.view.removeSelf then
         return
     end
 
