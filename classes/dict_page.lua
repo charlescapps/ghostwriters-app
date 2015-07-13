@@ -6,12 +6,16 @@ local fonts = require("globals.fonts")
 local math = require("math")
 local json = require("json")
 local transition = require("transition")
+local dict_helpers = require("common.dict_helpers")
 
 local M = {}
 local meta = { __index = M }
 
 local TABLE_WIDTH = display.contentWidth - 50
 local TABLE_HEIGHT = 900
+
+local HEAD_WIDTH = 200
+local HEAD_HEIGHT = HEAD_WIDTH * (dict_helpers.HEAD_HEIGHT / dict_helpers.HEAD_WIDTH)
 
 local ROW_HEIGHT = 75
 local EVEN_ROW_COLOR = { over = { 0.46, 0.78, 1.0, 0.2 }, default = { 0.46, 0.78, 1.0, 0.6 } }
@@ -37,11 +41,13 @@ end
 function M:render()
     self.view = display.newGroup()
     self.title = self:renderTitle()
+    self.headImg = self:renderHeadImage()
     self.wordsPlayedInfo = self:renderWordsPlayedInfo()
     self.pageControls = self:renderPageControls()
     self.wordsTable = self:renderWordsTable()
 
     self.view:insert(self.title)
+    self.view:insert(self.headImg)
     self.view:insert(self.wordsPlayedInfo)
     self.view:insert(self.pageControls)
     self.view:insert(self.wordsTable)
@@ -51,7 +57,7 @@ end
 
 function M:renderTitle()
     local title = display.newText {
-        x = display.contentCenterX,
+        x = display.contentCenterX - 60,
         y = 200,
         text = self:getTitleText(self.specialDict),
         width = 500,
@@ -65,15 +71,28 @@ function M:renderTitle()
     return title
 end
 
+function M:renderHeadImage()
+    local imageFile = dict_helpers.getDictImageFile(self.specialDict)
+    if not imageFile then
+        return nil
+    end
+
+    local headImg = display.newImageRect(imageFile, HEAD_WIDTH, HEAD_HEIGHT)
+    headImg.x = display.contentWidth - HEAD_WIDTH / 2 - 25
+    headImg.y = HEAD_HEIGHT / 2 + 15
+
+    return headImg
+end
+
 function M:renderWordsPlayedInfo()
     local infoText = display.newText {
-        x = display.contentCenterX,
+        x = display.contentCenterX - 60,
         y = 200,
         text = self:getWordsPlayedText(),
         width = 700,
         align = "center",
         font = fonts.DEFAULT_FONT,
-        fontSize = 32
+        fontSize = 36
     }
     infoText:setFillColor(0, 0, 0)
     return infoText
@@ -81,7 +100,7 @@ end
 
 function M:getWordsPlayedText()
     local percent = math.floor(self.numPlayed * 100 / self.totalWords)
-    return "You have played " .. tostring(self.numPlayed) .. " / " .. tostring(self.totalWords) .. " words (" .. tostring(percent) .. "%)"
+    return tostring(self.numPlayed) .. " / " .. tostring(self.totalWords) .. " words played (" .. tostring(percent) .. "%)"
 end
 
 function M:renderWordsTable()

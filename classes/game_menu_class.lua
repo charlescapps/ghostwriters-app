@@ -8,6 +8,7 @@ local widget = require("widget")
 local transition = require("transition")
 local nav = require("common.nav")
 local native = require("native")
+local fonts = require("globals.fonts")
 
 -- Constants
 local MY_SCENE = "scenes.play_game_scene";
@@ -108,6 +109,7 @@ function game_menu_class:createMenuButton(text, isEnabled, onRelease)
     return widget.newButton {
         emboss = true,
         label = text,
+        font = fonts.DEFAULT_FONT,
         fontSize = 60,
         labelColor = {
             default = labelColor,

@@ -10,6 +10,7 @@ local composer = require("composer")
 local widget = require("widget")
 local time_util = require("common.time_util")
 local mini_board_class = require("classes.mini_board_class")
+local dict_helpers = require("common.dict_helpers")
 
 local mini_game_view_class = {}
 local mini_game_view_class_mt = { __index = mini_game_view_class }
@@ -101,15 +102,7 @@ end
 
 function mini_game_view_class:getDictImage()
     local SPECIAL_DICT = self.gameModel and self.gameModel.specialDict
-    if not SPECIAL_DICT then
-        return nil
-    elseif SPECIAL_DICT == common_api.DICT_POE then
-        return "images/head_poe.png"
-    elseif SPECIAL_DICT == common_api.DICT_LOVECRAFT then
-        return "images/head_lovecraft.png"
-    elseif SPECIAL_DICT == common_api.DICT_MYTHOS then
-        return "images/head_cthulhu.png"
-    end
+    return dict_helpers.getDictImageFile(SPECIAL_DICT)
 end
 
 function mini_game_view_class:destroy()
