@@ -360,4 +360,19 @@ function M.isValidDisplayObj(obj)
     return obj and obj.removeSelf and true
 end
 
+function M.disableButton(button)
+    if M.isValidDisplayObj(button) then
+       button:setEnabled(false)
+       button:setFillColor(0.6, 0.6, 0.6)
+    end
+end
+
+function M.enableButton(button, color)
+    if M.isValidDisplayObj(button) then
+        button:setEnabled(true)
+        color = color or { 1, 1, 1 }
+        button:setFillColor(color[1], color[2], color[3])
+    end
+end
+
 return M

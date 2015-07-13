@@ -109,6 +109,9 @@ function scene:show(event)
         if gameModel and gameModel.gameResult ~= common_api.IN_PROGRESS and gameModel.gameResult ~= common_api.OFFERED then
            print("Disabling game with gameResult = '" .. tostring(gameModel.gameResult) .. "'")
            self:disableActionButtons()
+        elseif gameModel and not game_helpers.isPlayerTurn(gameModel, self.creds.user) then
+            print("Disabling buttons for opponent's turn...")
+            self:disableButtonsForOpponentsTurn()
         end
 
     elseif phase == "did" then
@@ -382,6 +385,14 @@ function scene:reset()
     oldBoard:destroy()
     oldRack:destroy()
     common_ui.safeRemove(oldTitleArea)
+
+    if gameModel and not game_helpers.isPlayerTurn(gameModel, self.creds.user) then
+        print("Disabling buttons for opponent's turn...")
+        self:disableButtonsForOpponentsTurn()
+    else
+        print("Enabling buttons for my turn...")
+        self:enableButtonsForMyTurn()
+    end
 end
 
 getMoveDescription = function(moveJson)
@@ -703,12 +714,19 @@ function scene:getOnReleasePassButton()
 end
 
 function scene:disableActionButtons()
-    self.playMoveButton:setEnabled(false)
-    self.playMoveButton:setFillColor(0.6, 0.6, 0.6)
-    self.resetButton:setEnabled(false)
-    self.resetButton:setFillColor(0.6, 0.6, 0.6)
-    self.passButton:setEnabled(false)
-    self.passButton:setFillColor(0.6, 0.6, 0.6)
+    common_ui.disableButton(self.playMoveButton)
+    common_ui.disableButton(self.resetButton)
+    common_ui.disableButton(self.passButton)
+end
+
+function scene:disableButtonsForOpponentsTurn()
+    common_ui.disableButton(self.playMoveButton)
+    common_ui.disableButton(self.passButton)
+end
+
+function scene:enableButtonsForMyTurn()
+    common_ui.enableButton(self.playMoveButton, common_ui.BUTTON_FILL_COLOR_DEFAULT)
+    common_ui.enableButton(self.passButton)
 end
 
 function scene:showGameOverModal()
