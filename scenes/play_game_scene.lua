@@ -68,7 +68,7 @@ function scene:create(event)
 
     self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 80, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
-    self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 100)
+    self.optionsButton = drawOptionsButton(display.contentWidth - 70, display.contentHeight - 55, 100)
 
     sceneGroup:insert(background)
     sceneGroup:insert(self.titleAreaDisplayGroup)
@@ -85,7 +85,7 @@ function scene:createBoard(gameModel)
     local boardCenterX = display.contentWidth / 2
     local boardCenterY = display.contentWidth / 2 + 160
 
-    return board_class.new(gameModel, boardCenterX, boardCenterY, boardWidth, 20, self:getOnGrabTiles())
+    return board_class.new(gameModel, self.creds.user, boardCenterX, boardCenterY, boardWidth, 20, self:getOnGrabTiles())
 end
 
 function scene:createRack(gameModel, board, authUser)

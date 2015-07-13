@@ -25,7 +25,7 @@ local TILE_PADDING = 2
 
 local isConnected
 
-function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
+function board_class.new(gameModel, authUser, startX, startY, width, padding, onGrabTiles)
 	local N = gameModel.numRows
 	local squares = board_helpers.parseSquares(gameModel["squares"], N)
 	local tiles = board_helpers.parseTiles(gameModel["tiles"], N)
@@ -48,7 +48,8 @@ function board_class.new(gameModel, startX, startY, width, padding, onGrabTiles)
         padding = padding,
 		onGrabTiles = onGrabTiles,
 		rackTileImages = rackTileImages,
-        gameModel = gameModel
+        gameModel = gameModel,
+        authUser = authUser
     }
 
 	newBoard = setmetatable( newBoard, board_class_mt )
@@ -191,7 +192,9 @@ function board_class:getTilesGroupTouchListener()
         if event.phase == "began" then
             local myTile = self:tileForCoords(event.x, event.y)
             -- If the touch event isn't over a grabbable tile
-            if myTile == nil or myTile.tileType ~= tile.ORIGINAL_TILE then
+            if myTile == nil or
+               myTile.tileType ~= tile.ORIGINAL_TILE or
+               not game_helpers.isPlayerTurn(self.gameModel, self.authUser) then
                 return true
             end
             display.getCurrentStage():setFocus(event.target)
