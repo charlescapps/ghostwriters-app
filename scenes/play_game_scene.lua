@@ -357,8 +357,7 @@ function scene:reset()
         print("Error - current_game.currentGame wasn't defined when reset() was called in single player scene")
         local currentScene = composer.getSceneName("current")
         if currentScene == self.sceneName then
-            composer.gotoScene("scenes.title_scene")
-            composer.removeScene(currentScene, false)
+            composer.gotoScene("scenes.title_scene", "fade")
         end
         return
     end
@@ -382,7 +381,7 @@ function scene:reset()
 
     oldBoard:destroy()
     oldRack:destroy()
-    oldTitleArea:removeSelf()
+    common_ui.safeRemove(oldTitleArea)
 end
 
 getMoveDescription = function(moveJson)
@@ -462,11 +461,10 @@ function scene:getOnSendMoveSuccess()
         local myMove = updatedGameModel.myMove
 
         if myMove then
-            -- if self.myMove is set, then apply my move, before applying opponent's moves (if present)
+            -- if updatedGameModel.myMove is set, then apply my move, before applying opponent's moves (if present)
             print("Applying my move...")
             self:showMoveModal(myMove, updatedGameModel, function()
                 self.board:applyMove(myMove, self.rack, true, function()
-                    self.myMove = nil
                     local currentScene = composer.getSceneName("current")
                     if currentScene == self.sceneName then
                         print("Finished applying myMove, now applying opponent's move(s)...")
@@ -571,6 +569,12 @@ end
 
 
 function scene:fadeToTurn(isOpponentTurn)
+    if not common_ui.isValidDisplayObj(self.titleAreaDisplayGroup) or
+       not common_ui.isValidDisplayObj(self.titleAreaDisplayGroup.leftCircle) or
+       not common_ui.isValidDisplayObj(self.titleAreaDisplayGroup.rightCircle) then
+        print("Error - titleAreaDisplayGroup or left/right circle isn't valid in play_game_scene:fadeToTurn")
+        return
+    end
     if isOpponentTurn then
         transition.fadeOut(self.titleAreaDisplayGroup.leftCircle, { time = 2000 })
         transition.fadeIn(self.titleAreaDisplayGroup.rightCircle, { time = 2000 })
@@ -583,7 +587,6 @@ end
 
 function scene:getOnSendMoveFail()
     return function(json)
-        self.myMove = nil
         if json and json["errorMessage"] then
             local message
             local messageFromServer = json["errorMessage"]
@@ -611,7 +614,6 @@ end
 
 function scene:getOnSendMoveNetworkFail()
     return function(event)
-        self.myMove = nil
         native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
             if event.action == "clicked" then
                 self.rack:enableInteraction()
@@ -645,7 +647,6 @@ function scene:getOnGrabTiles()
                         self.board:disableInteraction()
                         self.rack:disableInteraction()
                         local moveJson = createGrabMoveJson(tiles)
-                        self.myMove = moveJson
                         common_api.sendMove(moveJson, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
                     elseif i == 2 then
                         self.board:cancelGrab()
@@ -681,7 +682,6 @@ function scene:getOnReleasePlayButton()
                 print("Sending move: " .. json.encode(move))
                 self.board:disableInteraction()
                 self.rack:disableInteraction()
-                self.myMove = move
                 common_api.sendMove(move, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
             else
                 print("User clicked 'Nope'")
@@ -815,13 +815,11 @@ end
 
 function scene:pass()
     local passMove = common_api.getPassMove(current_game.currentGame, self.creds.user.id)
-    self.myMove = passMove
     common_api.sendMove(passMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
 end
 
 function scene:resign()
     local resignMove = common_api.getResignMove(current_game.currentGame, self.creds.user.id)
-    self.myMove = resignMove
     common_api.sendMove(resignMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
 end
 
