@@ -68,7 +68,7 @@ function scene:create(event)
 
     self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 80, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
 
-    self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 90)
+    self.optionsButton = drawOptionsButton(display.contentWidth - 75, display.contentHeight - 60, 100)
 
     sceneGroup:insert(background)
     sceneGroup:insert(self.titleAreaDisplayGroup)
@@ -293,8 +293,8 @@ drawOptionsButton = function(x, y, width)
         y = y,
         width = width,
         height = width,
-        defaultFile = "images/question_button_default.png",
-        overFile = "images/question_button_over.png",
+        defaultFile = "images/in_game_menu_default.png",
+        overFile = "images/in_game_menu_over.png",
         onPress = nil,
         onRelease = scene:getOnReleaseOptionsButton()
     })
