@@ -20,6 +20,7 @@ local bonus_popup = require("classes.bonus_popup")
 local grab_tiles_tip = require("tips.grab_tiles_tip")
 local scry_tile_tip = require("tips.scry_tile_tip")
 local question_tile_tip = require("tips.question_tile_tip")
+local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
 
 local scene = composer.newScene()
 
@@ -793,12 +794,19 @@ function scene:showRatingChangeModal()
     local ratingIncrease = authUser.id == gameModel.player1 and gameModel.player1RatingIncrease or
                            authUser.id == gameModel.player2 and gameModel.player2RatingIncrease
 
+    local function showBackToMainMenuPopup()
+        local popup = back_to_main_menu_popup.new(self)
+        self.view:insert(popup:render())
+        popup:show()
+    end
+
     if not ratingIncrease or ratingIncrease <= 0 then
         print("In showRatingChangeModal, we must be viewing an old game, because the rating increase = " .. tostring(ratingIncrease))
+        showBackToMainMenuPopup()
         return
     end
 
-    local modal = game_ui.createRatingUpModal(self, ratingIncrease)
+    local modal = game_ui.createRatingUpModal(self, ratingIncrease, showBackToMainMenuPopup)
     self.view:insert(modal)
 end
 

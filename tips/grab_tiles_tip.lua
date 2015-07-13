@@ -87,6 +87,14 @@ function M:animateArrows(board, wordPos)
 
     -- Draw the arrows, initially invisible.
     local callback = function()
+        if not common_ui.isValidDisplayObj(startSquare) or
+           not common_ui.isValidDisplayObj(endSquare) or
+           not startSquare.width or
+           not endSquare.width
+        then
+           self:stopTip()
+           return
+        end
         self:startArrow(dir, startSquare, endSquare, wordLen)
     end
     self.timerObj = timer.performWithDelay( MS_PER_TILE, callback, -1 )
@@ -95,6 +103,10 @@ end
 function M:startArrow(dir, startSquare, endSquare, wordLen)
 
     local arrowImg = self:drawArrow(startSquare, dir)
+
+    if not arrowImg then
+        return
+    end
 
     self.arrowImages[#self.arrowImages + 1] = arrowImg
 
@@ -131,6 +143,9 @@ function M:stopTip()
 end
 
 function M:drawArrow(startSquare, dir)
+    if not common_ui.isValidDisplayObj(startSquare) or not startSquare.width then
+        return nil
+    end
     local imgFile = dir == "E" and "images/arrow-east.png" or "images/arrow-south.png"
     local width = startSquare.width * 0.8
     local img = display.newImageRect(imgFile, width, width)

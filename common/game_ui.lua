@@ -2,6 +2,7 @@ local display = require("display")
 local native = require("native")
 local transition = require("transition")
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 local user_info_popup = require("classes.user_info_popup")
 local graphics = require("graphics")
 local checkboxes_sheet = require("spritesheets.checkboxes_sheet")
@@ -192,7 +193,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     return group
 end
 
-function M.createRatingUpModal(parentScene, ratingChange)
+function M.createRatingUpModal(parentScene, ratingChange, onClose)
     local group = display.newGroup()
     group.x, group.y = display.contentWidth / 2, display.contentHeight / 2
     group.alpha = 0
@@ -216,11 +217,15 @@ function M.createRatingUpModal(parentScene, ratingChange)
     ratingText:setFillColor(0, 0, 0)
 
     local onComplete = function()
-        group:removeSelf()
+        common_ui.safeRemove(group)
+        if onClose and not group.ranOnClose then
+            onClose()
+            group.ranOnClose = true
+        end
     end
 
     local onCancel = function()
-        group:removeSelf()
+        common_ui.safeRemove(group)
     end
 
     group:insert(background)

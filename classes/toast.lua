@@ -70,7 +70,10 @@ function M:addTouchListener()
         elseif event.phase == "ended" then
             display.getCurrentStage():setFocus(nil)
             if toast.onTouch then
-                toast.onTouch()
+                if not toast.ranOnTouch then
+                    toast.ranOnTouch = true
+                    toast.onTouch()
+                end
             end
             toast:hideAndDestroy()
         elseif event.phase == "cancelled" then
@@ -80,6 +83,15 @@ function M:addTouchListener()
     end)
 
     self.bookmark:addEventListener("tap", function(event)
+        if event.numTaps == 1 then
+            if toast.onTouch then
+                if not toast.ranOnTouch then
+                    toast.ranOnTouch = true
+                    toast.onTouch()
+                end
+            end
+            toast:hideAndDestroy()
+        end
         return true
     end)
 end
