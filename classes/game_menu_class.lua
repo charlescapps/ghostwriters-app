@@ -1,7 +1,6 @@
 local game_menu_class = {}
 local game_menu_class_mt = { __index = game_menu_class }
 
-local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local current_game = require("globals.current_game")
 local display = require("display")
@@ -15,6 +14,7 @@ local MY_SCENE = "scenes.play_game_scene";
 local GAME_MENU_IMG = "images/game_menu_book.jpg"
 local GAME_MENU_WIDTH = 750
 local GAME_MENU_HEIGHT = 890
+local CLOSE_X_WIDTH = 90
 
 
 function game_menu_class.new(playGameScene, x, y, isGameOver)
@@ -34,13 +34,19 @@ function game_menu_class.new(playGameScene, x, y, isGameOver)
     gameMenu.dictionaryButton = gameMenu:createDictionaryButton()
     gameMenu.resignButton = gameMenu:createResignButton()
     gameMenu.backToMenuButton = gameMenu:createBackToMenuButton()
+    gameMenu.closeX = gameMenu:drawCloseX()
 
     return gameMenu
 
 end
 
 function game_menu_class:createMenuBackground()
-    return display.newImageRect(self.displayGroup, GAME_MENU_IMG, GAME_MENU_WIDTH, GAME_MENU_HEIGHT)
+    local background = display.newImageRect(self.displayGroup, GAME_MENU_IMG, GAME_MENU_WIDTH, GAME_MENU_HEIGHT)
+
+    -- Provide touch/tap listeners so that user doesn't accidentally close menu when touching background.
+    background:addEventListener("touch", function(event) return true end)
+    background:addEventListener("tap", function(event) return true end)
+    return background
 end
 
 function game_menu_class:isOpen()
@@ -48,13 +54,20 @@ function game_menu_class:isOpen()
 end
 
 function game_menu_class:close()
-	local that = self
-    transition.fadeOut(that.displayGroup, {
+    if not self.displayGroup or not self.displayGroup.removeSelf then
+        return
+    end
+    transition.cancel(self.displayGroup)
+    transition.fadeOut(self.displayGroup, {
         time = 1000
     })
 end
 
 function game_menu_class:open()
+    if not self.displayGroup or not self.displayGroup.removeSelf then
+        return
+    end
+    transition.cancel(self.displayGroup)
     transition.fadeIn(self.displayGroup, {
         time = 1000
     })
@@ -166,6 +179,25 @@ function game_menu_class:createBackToMenuButton()
     self.displayGroup:insert(backToMenuButton)
     backToMenuButton.x, backToMenuButton.y = 0, 200
     return backToMenuButton
+end
+
+function game_menu_class:drawCloseX()
+    local function onRelease()
+        self:close()
+    end
+    local x = -self.menuBackground.contentWidth / 2 + CLOSE_X_WIDTH + 20
+    local y = -self.menuBackground.contentHeight / 2 + CLOSE_X_WIDTH
+    local closeX = widget.newButton {
+        x = x,
+        y = y,
+        width = CLOSE_X_WIDTH,
+        height = CLOSE_X_WIDTH,
+        defaultFile = "images/close_x_default.png",
+        overFile = "images/close_x_over.png",
+        onRelease = onRelease
+    }
+    self.displayGroup:insert(closeX)
+    return closeX
 end
 
 return game_menu_class
