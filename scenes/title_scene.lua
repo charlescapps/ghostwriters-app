@@ -11,6 +11,8 @@ local nav = require("common.nav")
 local app_state = require("globals.app_state")
 local fonts = require("globals.fonts")
 local scene_helpers = require("common.scene_helpers")
+local widget = require("widget")
+local user_options_menu = require("classes.user_options_menu")
 
 -- Constants
 scene.sceneName = "scenes.title_scene"
@@ -89,6 +91,7 @@ function scene:create(event)
 	local buttonMyGames = common_ui.createButton("My Games", 750, clickMyGames)
 	local buttonMyChallengers = common_ui.createButton("My Challengers", 950, clickMyChallengers)
 	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150, clickLeaderboard)
+    self.userOptionsButton = self:createUserOptionsButton()
 
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleImage )
@@ -97,6 +100,7 @@ function scene:create(event)
 	sceneGroup:insert( buttonMyGames )
 	sceneGroup:insert( buttonMyChallengers )
     sceneGroup:insert( buttonLeaderboard )
+    sceneGroup:insert( self.userOptionsButton )
 end
 
 -- "scene:show()"
@@ -179,8 +183,22 @@ function scene:createUserInfoText()
     return userInfoText
 end
 
-function scene:addNumGamesMyTurnBookmark(num)
+function scene:createUserOptionsButton()
+    local function onRelease()
+        local userOptionsMenu = user_options_menu.new()
+        self.view:insert(userOptionsMenu:render())
+        userOptionsMenu:show()
+    end
 
+    return widget.newButton {
+        x = display.contentWidth - 80,
+        y = display.contentHeight - 80,
+        defaultFile = "images/gear-icon.png",
+        overFile = "images/gear-icon_over.png",
+        width = 100,
+        height = 100,
+        onRelease = onRelease
+    }
 end
 
 
