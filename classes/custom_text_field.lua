@@ -23,6 +23,8 @@ function M.newCustomTextField(options)
     opt.inputType = customOptions.inputType or "default"
     opt.font = customOptions.font or native.systemFont
     opt.fontSize = customOptions.fontSize or opt.height * 0.67
+    opt.isSecure = customOptions.isSecure
+    opt.returnKey = customOptions.returnKey
 
     -- Vector options
     opt.strokeWidth = customOptions.strokeWidth or 2
@@ -67,6 +69,10 @@ function M.newCustomTextField(options)
     field.textField.inputType = opt.inputType
     field.textField.text = opt.text
     field.textField.placeholder = opt.placeholder
+    field.textField.isSecure = opt.isSecure
+    if opt.returnKey then
+        field.textField:setReturnKey(opt.returnKey)
+    end
     field.isFontSizeScaled = true
     if ( opt.listener and type(opt.listener) == "function" ) then
         print("Adding userInput listener!")
