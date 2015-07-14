@@ -1,4 +1,5 @@
 local common_api = require("common.common_api")
+local device_id_backup = require("login.device_id_backup")
 local system = require("system")
 local composer = require("composer")
 local OneSignal = require("plugin.OneSignal")
@@ -17,8 +18,8 @@ function M.getNextUsernameAndLoginIfDeviceFound()
         end
 
         -- Else, use the deviceId to determine the username, if this device is already registered.
-        local deviceId = system.getInfo("deviceID")
-        print("Found device ID: " .. deviceId)
+        local deviceId = device_id_backup.getDeviceId()
+        print("Found device ID: " .. tostring(deviceId))
         common_api.getNextUsername(deviceId, M.onSuccessListener, M.onFailListener)
     else
         app_state:callAppLoadedListener()
@@ -31,7 +32,7 @@ function M.onSuccessListener(jsonResp)
 
     if username and required then
         -- Device already registered
-        local deviceId = system.getInfo("deviceID")
+        local deviceId = device_id_backup.getDeviceId()
         common_api.createNewAccountAndLogin(username, nil, deviceId, M.onLoginSuccess, M.onFailListener)
     else
         composer.gotoScene("login.create_user_scene", "fade")

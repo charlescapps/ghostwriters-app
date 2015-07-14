@@ -3,13 +3,13 @@ local native = require("native")
 local display = require("display")
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
+local device_id_backup = require("login.device_id_backup")
 local nav = require("common.nav")
 local text_progress_class = require("classes.text_progress_class")
 local OneSignal = require("plugin.OneSignal")
 local transition = require("transition")
 local fonts = require("globals.fonts")
 local login_common = require("login.login_common")
-local system = require("system")
 
 local scene = composer.newScene()
 
@@ -85,7 +85,7 @@ function scene:loginAndGo()
         composer.gotoScene("login.logged_out_scene")
         return
     end
-    local deviceId = system.getInfo("deviceID")
+    local deviceId = device_id_backup.getDeviceId()
     self.textProgress = self:createTextProgress()
     common_api.createNewAccountAndLogin(self.user.username, nil, deviceId,
         self:getOnLoginSuccessListener(),

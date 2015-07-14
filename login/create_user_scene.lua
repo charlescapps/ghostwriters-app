@@ -4,6 +4,7 @@ local widget = require("widget")
 local display = require("display")
 local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
+local device_id_backup = require("login.device_id_backup")
 local nav = require("common.nav")
 local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
@@ -26,7 +27,7 @@ function scene:createAccountAndGo()
     end
 
     local username = self.storedUsername or self.usernameTextField and self.usernameTextField:getText()
-    local deviceId = system.getInfo("deviceID")
+    local deviceId = device_id_backup.getDeviceId()
     if not username or username:len() <= 0 then
         common_ui.createInfoModal("Oops...", "Please enter a username")
     elseif username:len() < MIN_USERNAME_LEN then
@@ -183,7 +184,7 @@ local function createGoButton()
 end
 
 function scene:getNextUsername()
-    local deviceId = system.getInfo("deviceID")
+    local deviceId = device_id_backup.getDeviceId()
     print("Found device ID: " .. deviceId)
 
     common_api.getNextUsername(deviceId, self:getOnGetNextUsernameSuccessListener(), self:getOnGetNextUsernameFailListener(), true)

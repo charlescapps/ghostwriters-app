@@ -10,9 +10,8 @@ local composer = require( "composer" )
 local one_signal_util = require("push.one_signal_util")
 
 -- Pre-load the spritesheets needed for drawing tiles.
-require("common.tile")
 
-print("Words with rivals app started...")
+print("Words with rivals app started.")
 
 one_signal_util.initOneSignal()
 
