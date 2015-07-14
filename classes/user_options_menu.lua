@@ -1,7 +1,10 @@
 local common_ui = require("common.common_ui")
 local display = require("display")
 local transition = require("transition")
-
+local widget = require("widget")
+local fonts = require("globals.fonts")
+local composer = require("composer")
+local tips_helpers = require("tips.tips_helpers")
 
 local M = {}
 local meta = { __index = M }
@@ -20,9 +23,13 @@ function M:render()
 
     self.screen = self:drawScreen()
     self.background = self:drawBackground()
+    self.setPasswordButton = self:drawSetPasswordButton()
+    self.setPasswordTipButton = self:drawSetPasswordTipButton()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
+    self.view:insert(self.setPasswordButton)
+    self.view:insert(self.setPasswordTipButton)
 
     return self.view
 end
@@ -89,6 +96,49 @@ function M:drawBackground()
     background:addEventListener("tap", onTap)
 
     return background
+end
+
+function M:drawOptionButton(text, y, onRelease)
+    local labelColor = { default={ 0.9, 0.9, 0.9 }, over={ 1, 1, 1 } }
+    local fillColor = { default={ 1, 1, 1, 0 }, over={ 1, 1, 1, 0.3 } }
+    local strokeColor = { default={ 0, 0, 0, 0.5 }, over={ 0, 0, 0, 1 } }
+    local optionButton = widget.newButton {
+        label = text,
+        onRelease = onRelease,
+        labelColor = labelColor,
+        font = fonts.DEFAULT_FONT,
+        fontSize = 60,
+        shape = "roundedRect",
+        fillColor = fillColor,
+        strokeColor = strokeColor,
+        cornerRadius = 20,
+        width = 450,
+        height = 150
+    }
+
+    optionButton.x = display.contentCenterX
+    optionButton.y = y
+
+    return optionButton
+end
+
+function M:drawSetPasswordButton()
+    local function onRelease()
+        composer.gotoScene("scenes.set_password_scene", "fade")
+    end
+
+    return self:drawOptionButton("Set a password", display.contentCenterY - 150, onRelease)
+end
+
+function M:drawSetPasswordTipButton()
+    local tipsButton = tips_helpers.drawTipButton(
+        "Set a password so you can login as the same player on another device.",
+        75, 75)
+    local b = self.setPasswordButton
+    tipsButton.x = b.x + b.contentWidth/2 + tipsButton.width/2
+    tipsButton.y = b.y
+
+    return tipsButton
 end
 
 return M
