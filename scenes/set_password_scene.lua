@@ -1,4 +1,5 @@
 local composer = require( "composer" )
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local custom_text_field = require("classes.custom_text_field")
 local display = require("display")
@@ -6,10 +7,11 @@ local login_common = require("login.login_common")
 local scene_helpers = require("common.scene_helpers")
 local fonts = require("globals.fonts")
 local native = require("native")
+local pass_helpers = require("common.pass_helpers")
+local nav = require("common.nav")
 
 local scene = composer.newScene()
-local MIN_PASSWORD_LEN = 4
-local MAX_PASSWORD_LEN = 20
+scene.sceneName = "scenes.set_password_scene"
 
 -- "scene:create()"
 function scene:create(event)
@@ -25,11 +27,11 @@ function scene:create(event)
 
     -- password input 1
     self.passwordLabel1 = self:drawPasswordLabel1()
-    self.passwordInput1 = self:drawPasswordInput1()
 
     -- password input 2
     self.passwordLabel2 = self:drawPasswordLabel2()
-    self.passwordInput2 = self:drawPasswordInput2()
+
+    self:createNativeInputs()
 
     -- submit button
     self.submitButton = self:drawSubmitButton()
@@ -41,9 +43,7 @@ function scene:create(event)
         sceneGroup:insert(self.usernameText)
     end
     sceneGroup:insert(self.passwordLabel1)
-    sceneGroup:insert(self.passwordInput1)
     sceneGroup:insert(self.passwordLabel2)
-    sceneGroup:insert(self.passwordInput2)
     sceneGroup:insert(self.submitButton)
 
 end
@@ -76,8 +76,10 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is on screen (but is about to go off screen).
+        self:destroyNativeInputs()
         scene_helpers.onWillHideScene(self)
     elseif ( phase == "did" ) then
+
         self.view = nil
         -- Called immediately after scene goes off screen.
     end
@@ -145,8 +147,8 @@ function scene:drawPasswordInput1()
         if event.phase == "began" then
 
         elseif event.phase == "editing" then
-            if event.text and event.text:len() > MAX_PASSWORD_LEN then
-                event.target.text = event.text:sub(1, MAX_PASSWORD_LEN)
+            if event.text and event.text:len() > pass_helpers.MAX_PASSWORD_LEN then
+                event.target.text = event.text:sub(1, pass_helpers.MAX_PASSWORD_LEN)
             end
         elseif event.phase == "submitted" then
             print("Submitted pass input...")
@@ -192,8 +194,8 @@ function scene:drawPasswordInput2()
         if event.phase == "began" then
 
         elseif event.phase == "editing" then
-            if event.text and event.text:len() > MAX_PASSWORD_LEN then
-                event.target.text = event.text:sub(1, MAX_PASSWORD_LEN)
+            if event.text and event.text:len() > pass_helpers.MAX_PASSWORD_LEN then
+                event.target.text = event.text:sub(1, pass_helpers.MAX_PASSWORD_LEN)
             end
         elseif event.phase == "submitted" then
             print("Submitted pass input 2...")
@@ -224,8 +226,51 @@ function scene:submit()
         return
     end
 
+    local pass1 = self.passwordInput1:getText()
+    local pass2 = self.passwordInput2:getText()
 
+    local isValid, msg = pass_helpers.validatePassword(pass1, pass2)
 
+    local function onCloseModal()
+        self:createNativeInputs()
+    end
+
+    if not isValid then
+        msg = msg or "Invalid passwords entered, please try again."
+        self:destroyNativeInputs()
+        common_ui.createInfoModal("Try again", msg, onCloseModal)
+    else
+
+        local function onSuccess()
+            common_ui.createInfoModal("Success!", "You set a password. Now you can login on other devices.", onCloseModal);
+            nav.goToSceneFrom(scene.sceneName, "scenes.title_scene", "fade")
+        end
+
+        local function onFail(jsonResp)
+            local errorMsg = jsonResp and jsonResp["errorMessage"] or "An error occurred setting your password. Please try again"
+            common_ui.createInfoModal("Oops...", errorMsg, onCloseModal)
+        end
+
+        self:destroyNativeInputs()
+        common_api.setUserPassword(pass1, onSuccess, onFail, true)
+    end
+
+end
+
+function scene:destroyNativeInputs()
+    if self.passwordInput1 then
+        self.passwordInput1:destroy()
+    end
+    if self.passwordInput2 then
+        self.passwordInput2:destroy()
+    end
+end
+
+function scene:createNativeInputs()
+    self.passwordInput1 = self:drawPasswordInput1()
+    self.passwordInput2 = self:drawPasswordInput2()
+    self.view:insert(self.passwordInput1)
+    self.view:insert(self.passwordInput2)
 end
 
 -- Draw submit button

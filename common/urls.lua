@@ -141,5 +141,9 @@ M.getScryActionURL = function(gameId)
     return SERVER .. "/specialActions/scry?gameId=" .. tostring(gameId)
 end
 
+M.getSetPasswordURL = function(pass)
+    return SERVER .. "/users/setPassword?pass=" .. M.escape(pass)
+end
+
 return M
 

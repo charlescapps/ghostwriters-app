@@ -104,6 +104,15 @@ function M.newCustomTextField(options)
         self.textField.placeholder = text
     end
 
+    function field:destroy()
+        if self.textField and self.textField.removeSelf then
+            self.textField:removeSelf()
+        end
+        if self.removeSelf then
+            self:removeSelf()
+        end
+    end
+
     field.textField:resizeFontToFitHeight()
 
     return field
