@@ -516,7 +516,7 @@ function scene:showNormalMoveModal(move, game, onModalClose)
         moveUsername = game.player2Model.username
     end
 
-    common_ui.createInfoModal(moveUsername, moveDescr, onModalClose)
+    common_ui.createInfoModal(moveUsername, moveDescr, onModalClose, nil, 48)
 end
 
 function scene:showBonusMoveModal(move, onModalClose)
@@ -772,7 +772,11 @@ function scene:showGameOverModal()
         return false
     end
 
-    local modal = common_ui.createInfoModal("Game Over", modalMessage, function() self:showRatingChangeModal() end)
+    local function onClose()
+        self:showRatingChangeModal()
+    end
+
+    local modal = common_ui.createInfoModal("Game Over", modalMessage, onClose, nil, 52)
     self.view:insert(modal)
     return true
 end

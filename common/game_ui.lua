@@ -9,6 +9,7 @@ local checkboxes_sheet = require("spritesheets.checkboxes_sheet")
 local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local stepper_sheet = require("spritesheets.stepper_sheet")
 local fonts = require("globals.fonts")
+local timer = require("timer")
 
 
 local M = {}
@@ -232,20 +233,33 @@ function M.createRatingUpModal(parentScene, ratingChange, onClose)
     group:insert(modalImage)
     group:insert(ratingText)
 
+    local function close()
+        if not common_ui.isValidDisplayObj(group) then
+            return
+        end
+
+        transition.cancel(group)
+        transition.fadeOut(group, {
+            onComplete = onComplete,
+            onCancel = onCancel
+        })
+    end
+
     background:addEventListener("touch", function(event)
         if event.phase == "began" then
             display.getCurrentStage():setFocus(event.target)
         elseif event.phase == "ended" or event.phase == "cancelled" then
             display.getCurrentStage():setFocus(nil)
-            transition.fadeOut(group, {
-                onComplete = onComplete,
-                onCancel = onCancel
-            })
+            close()
         end
         return true
     end)
 
-    transition.fadeIn(group, { time = 1000 })
+    local function onFadeInComplete()
+        timer.performWithDelay(3000, close)
+    end
+
+    transition.fadeIn(group, { time = 1000, onComplete = onFadeInComplete, onCancel = onFadeInComplete })
 
     return group
 end
