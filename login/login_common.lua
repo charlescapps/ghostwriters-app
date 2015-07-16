@@ -64,9 +64,9 @@ M.logout = function()
     M.saveCreds({ cookie = nil, user = oldUser })
 
     if oldUser then
-        composer.gotoScene("login.welcome_scene")
+        composer.gotoScene("login.welcome_scene", "fade")
     else
-        composer.gotoScene("login.create_user_scene")
+        composer.gotoScene("login.create_user_scene", "fade")
     end
 end
 

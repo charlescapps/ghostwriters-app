@@ -210,6 +210,8 @@ end
 
 -- Submit !
 function scene:submit()
+    native.setKeyboardFocus(nil)
+
     if not common_ui.isValidDisplayObj(self.usernameInput) or not common_ui.isValidDisplayObj(self.passwordInput) then
         print("[ERROR] Submitted set password when password inputs weren't defined.")
         return

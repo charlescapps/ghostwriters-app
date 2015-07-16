@@ -13,6 +13,8 @@ local meta = { __index = M }
 local BOOK_POPUP_WIDTH = 750
 local BOOK_POPUP_HEIGHT = 1024
 
+local CLOSE_X_WIDTH = 90
+
 function M.new()
     local userOptionsMenu = {}
     return setmetatable(userOptionsMenu, meta)
@@ -29,12 +31,15 @@ function M:render()
     self.logoutButton = self:drawLogoutButton()
     self.logoutTipButton = self:drawLogoutTipButton()
 
+    self.closeX = self:drawCloseX()
+
     self.view:insert(self.screen)
     self.view:insert(self.background)
     self.view:insert(self.setPasswordButton)
     self.view:insert(self.setPasswordTipButton)
     self.view:insert(self.logoutButton)
     self.view:insert(self.logoutTipButton)
+    self.view:insert(self.closeX)
 
     return self.view
 end
@@ -164,6 +169,25 @@ function M:drawLogoutTipButton()
     tipsButton.y = b.y
 
     return tipsButton
+end
+
+function M:drawCloseX()
+    local function onRelease()
+        self:destroy()
+    end
+    local x = CLOSE_X_WIDTH + 20
+    local y = display.contentCenterY - self.background.contentHeight / 2 + CLOSE_X_WIDTH + 20
+    local closeX = widget.newButton {
+        x = x,
+        y = y,
+        width = CLOSE_X_WIDTH,
+        height = CLOSE_X_WIDTH,
+        defaultFile = "images/close_x_default.png",
+        overFile = "images/close_x_over.png",
+        onRelease = onRelease
+    }
+    self.view:insert(closeX)
+    return closeX
 end
 
 return M
