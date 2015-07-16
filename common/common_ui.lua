@@ -171,7 +171,7 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
     return backButton
 end
 
-M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, fontColor, imgFile, imgWidth, imgHeight, textCenterX, textCenterY, align, textWidth)
+M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, fontColor, imgFile, imgWidth, imgHeight, textCenterX, textCenterY, align, textWidth, timeout)
     local group = display.newGroup()
     group.x, group.y = display.contentCenterX, display.contentCenterY
     group.alpha = 0
@@ -240,19 +240,23 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
         return true
     end)
 
-    -- Fade out after 5 seconds of displaying the info modal
-    local function onFadeIn()
-        timer.performWithDelay(5000, function()
-            if not group or not group.removeSelf or group.ranOnClose then
-                return
-            end
+    -- Fade out after 2.5 seconds of displaying the info modal
+    timeout = timeout or 2500
 
-            transition.cancel(group)
-            transition.fadeOut(group, {
-                onComplete = onComplete,
-                onCancel = onCancel
-            })
-        end)
+    local function onFadeIn()
+        if timeout and timeout >= 0 then
+            timer.performWithDelay(timeout, function()
+                if not group or not group.removeSelf or group.ranOnClose then
+                    return
+                end
+
+                transition.cancel(group)
+                transition.fadeOut(group, {
+                    onComplete = onComplete,
+                    onCancel = onCancel
+                })
+            end)
+        end
     end
 
     transition.fadeIn(group, { time = 1000, onComplete = onFadeIn })

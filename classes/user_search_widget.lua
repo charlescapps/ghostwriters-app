@@ -299,7 +299,7 @@ end
 
 function user_search_widget:getOnQueryFailListener()
     return function()
-        common_ui.createInfoModal("Network error", "Tap the magnifying glass to search for opponents again.")
+        common_ui.createInfoModal("Network error", "Tap magnifying glass to search again.")
     end
 end
 

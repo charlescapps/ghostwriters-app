@@ -82,14 +82,15 @@ end
 
 function scene:loginAndGo()
     if not self.user then
-        composer.gotoScene("login.logged_out_scene")
+        composer.gotoScene("login.logged_out_scene", "fade")
         return
     end
     local deviceId = device_id_backup.getDeviceId()
-    self.textProgress = self:createTextProgress()
+
     common_api.createNewAccountAndLogin(self.user.username, nil, deviceId,
         self:getOnLoginSuccessListener(),
-        self:getOnLoginFailListener())
+        self:getOnLoginFailListener(),
+        true)
 end
 
 function scene:createLoginWithUsernamePassLink()
@@ -150,14 +151,7 @@ function scene:hide(event)
     local phase = event.phase
 
     if (phase == "will") then
-        if self.usernameTextField then
-           self.usernameTextField:removeSelf()
-        end
-        if self.textProgress then
-            self.textProgress:stop()
-            self.textProgress = nil
-        end
-        transition.cancel()
+
     elseif (phase == "did") then
         -- Called immediately after scene goes off screen.
         self.view = nil

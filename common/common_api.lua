@@ -275,7 +275,13 @@ M.getNextUsername = function(deviceId, onSuccess, onFail, doCreateSpinner)
     return network.request(urls.nextUsernameURL(deviceId), "GET", listener, params)
 end
 
-M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFail)
+M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFail, doCreateSpinner)
+
+    local spinner
+    if doCreateSpinner then
+        spinner = word_spinner_class.new()
+        spinner:start()
+    end
 
 	-- Use basic auth as the Initial User 
 	local basic = getBasicAuthHeader(INITIAL_USER, INITIAL_PASS)
@@ -288,6 +294,10 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 					 body = body }
 	local listener = function(event)
 		if "ended" == event.phase then
+            if spinner then
+                spinner:stop()
+            end
+
 			if event.isError or not event.response then
                 M.showNetworkError()
 				print ("Network error occurred creating a new user '" .. username .. "' with pass '" .. deviceId .. "'"

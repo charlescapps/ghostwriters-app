@@ -138,7 +138,7 @@ function M:renderWordsTable()
                    display.getCurrentStage():setFocus(event.target)
                elseif "ended" == phase then
                    display.getCurrentStage():setFocus(nil)
-                   common_ui.createInfoModal(word.w, word.d, nil, nil, nil, {1, 1, 1}, "images/book_popup.jpg", 750, 1024, 50, -300, "left", 550)
+                   common_ui.createInfoModal(word.w, word.d, nil, nil, nil, {1, 1, 1}, "images/book_popup.jpg", 750, 1024, 50, -300, "left", 550, 10000)
                elseif "cancelled" == phase then
                    display.getCurrentStage():setFocus(nil)
                end
