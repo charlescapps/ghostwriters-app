@@ -15,5 +15,13 @@ function M.comma_value(amount)
     return formatted
 end
 
+function M.trimUsername(username)
+    if not username then
+        return username
+    end
+
+
+end
+
 return M
 

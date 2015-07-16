@@ -2,6 +2,7 @@ local system = require("system")
 local native = require("native")
 local display = require("display")
 local math = require("math")
+local transition = require("transition")
 
 local M = {}
 
@@ -93,11 +94,13 @@ function M.newCustomTextField(options)
     field:addEventListener( "finalize" )
 
     function field:getText()
-        return self.textField.text
+        return self.textField and self.textField.text
     end
 
     function field:setText(text)
-        self.textField.text = text
+        if self.textField then
+            self.textField.text = text
+        end
     end
 
     function field:setPlaceholder(text)
@@ -111,6 +114,29 @@ function M.newCustomTextField(options)
         if self.removeSelf then
             self:removeSelf()
         end
+    end
+
+    function field:fadeOut()
+        local function onCancel()
+            self.alpha = 0
+        end
+
+        self.oldText = self:getText()
+        self:setText("")
+
+        transition.cancel(self)
+        transition.fadeOut(self, {time = 400, onCancel = onCancel})
+    end
+
+    function field:fadeIn()
+        local function onCancel()
+            self.alpha = 1
+        end
+
+        transition.cancel(self)
+        transition.fadeIn(self, {time = 400, onCancel = onCancel})
+
+        self:setText(self.oldText)
     end
 
     field.textField:resizeFontToFitHeight()

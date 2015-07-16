@@ -57,8 +57,10 @@ function scene:createUsernameInput()
         elseif event.phase == "editing" then
             if event.text and event.text:len() > MAX_USERNAME_LEN then
                 self:setUsernameText(event.text:sub(1, MAX_USERNAME_LEN))
-            else
-                self:setUsernameText(event.text)
+            end
+            if event.text then
+               local textNoSpaces = string.gsub(event.text, "%s+", "")
+                self:setUsernameText(textNoSpaces)
             end
         elseif event.phase == "submitted" then
             print("Submitted username input...")

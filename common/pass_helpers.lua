@@ -1,5 +1,7 @@
 local M = {}
 
+M.MAX_USERNAME_LEN = 16
+
 M.MIN_PASSWORD_LEN = 4
 M.MAX_PASSWORD_LEN = 20
 
@@ -17,6 +19,20 @@ function M.validatePassword(pass1, pass2)
     end
 
     return true
+end
+
+function M.processUsername(username)
+    if not username then
+        return username
+    end
+
+    if username:len() > M.MAX_USERNAME_LEN then
+        username = username:sub(1, M.MAX_USERNAME_LEN)
+    end
+
+    username = string.gsub(username, " ", "")
+
+    return username
 end
 
 return M

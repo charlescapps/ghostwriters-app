@@ -131,8 +131,8 @@ function scene:drawUsernameInput()
         if event.phase == "began" then
 
         elseif event.phase == "editing" then
-            if event.text and event.text:len() > MAX_USERNAME_LEN then
-                event.target.text = event.text:sub(1, MAX_USERNAME_LEN)
+            if event.text then
+                event.target.text = pass_helpers.processUsername(event.text)
             end
         elseif event.phase == "submitted" then
             print("Submitted username input...")
@@ -153,7 +153,6 @@ function scene:drawUsernameInput()
         height = 75,
         fontSize = nil,
         listener = inputListener,
-        placeholder = "Username",
         returnKey = "next"
     }
 
@@ -188,7 +187,7 @@ function scene:drawPasswordInput()
                 event.target.text = event.text:sub(1, pass_helpers.MAX_PASSWORD_LEN)
             end
         elseif event.phase == "submitted" then
-            print("Submitted pass input 2...")
+            print("Submitted password input...")
             self:submit()
         elseif event.phase == "ended" then
         end
@@ -203,7 +202,8 @@ function scene:drawPasswordInput()
         backgroundColor = { 1, 1, 1, 0.5 },
         width = 550,
         height = 75,
-        returnKey = "done"
+        returnKey = "done",
+        listener = inputListener
     }
     return customText
 end
@@ -235,12 +235,28 @@ function scene:submit()
     end
 
     local function onFail()
-        self:createNativeInputs()
+        self:fadeInNativeInputs()
     end
 
-    self:destroyNativeInputs()
+    self:fadeOutNativeInputs()
     common_api.login(username, pass, onSuccess, onFail, true)
 
+end
+
+function scene:fadeOutNativeInputs()
+    if common_ui.isValidDisplayObj(self.usernameInput) and common_ui.isValidDisplayObj(self.passwordInput) then
+        self.usernameInput:fadeOut()
+        self.passwordInput:fadeOut()
+    end
+end
+
+function scene:fadeInNativeInputs()
+    if common_ui.isValidDisplayObj(self.usernameInput) and common_ui.isValidDisplayObj(self.passwordInput) then
+        self.usernameInput:fadeIn()
+        self.passwordInput:fadeIn()
+    else
+        self:createNativeInputs()
+    end
 end
 
 function scene:destroyNativeInputs()
@@ -263,6 +279,7 @@ end
 function scene:drawSubmitButton()
     local function onRelease()
         self:submit()
+        return true
     end
 
     local button = common_ui.createButton("Login", 750, onRelease, 400, 100, 52)
