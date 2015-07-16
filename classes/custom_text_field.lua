@@ -22,7 +22,7 @@ function M.newCustomTextField(options)
     opt.text = customOptions.text or ""
     opt.inputType = customOptions.inputType or "default"
     opt.font = customOptions.font or native.systemFont
-    opt.fontSize = customOptions.fontSize or opt.height * 0.67
+    opt.fontSize = customOptions.fontSize or opt.height * 0.8
     opt.isSecure = customOptions.isSecure
     opt.returnKey = customOptions.returnKey
 

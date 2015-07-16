@@ -11,6 +11,7 @@ local text_progress_class = require("classes.text_progress_class")
 local OneSignal = require("plugin.OneSignal")
 local transition = require("transition")
 local custom_text_field = require("classes.custom_text_field")
+local fonts = require("globals.fonts")
 
 local scene = composer.newScene()
 
@@ -72,11 +73,11 @@ function scene:createUsernameInput()
         {
             x = display.contentWidth / 2,
             y = 400,
-            width = 500,
-            height = 80,
+            width = 450,
+            height = 90,
             placeholder = "e.g. Ghosty McFee",
             fontSize = nil,  -- Will resize automatically.
-            -- font = "Helvetica",
+            font = fonts.DEFAULT_FONT,
             backgroundColor = { 1, 1, 1, 0.6 },
             align = "center",
             listener = inputListener
@@ -95,14 +96,21 @@ end
 
 function scene:createGetNextUsernameButton()
     return widget.newButton {
-        x = 675,
+        x = 680,
         y = 400,
-        onRelease = function()
-            self:getNextUsername()
+        onEvent = function(event)
+            if event.phase == "began" then
+                display.getCurrentStage():setFocus(event.target)
+            elseif event.phase == "ended" then
+                display.getCurrentStage():setFocus(nil)
+                self:getNextUsername()
+            elseif event.phase == "cancelled" then
+                display.getCurrentStage():setFocus(nil)
+            end
             return true
         end,
-        width = 80,
-        height = 80,
+        width = 130,
+        height = 130,
         defaultFile = "images/reset_button_default.png",
         overFile = "images/reset_button_over.png"
     }
@@ -114,7 +122,7 @@ local function createUsernameInputLabel()
         x = display.contentWidth / 2,
         y = 300,
         font = native.systemFont,
-        fontSize = 50,
+        fontSize = 54,
         text = "Choose your name"
     }
 
@@ -183,10 +191,12 @@ function scene:getOnGetNextUsernameFailListener()
 end
 
 local function createGoButton()
-    return common_ui.createButton("Go!", 550, function()
+    local button = common_ui.createButton("Go!", 550, function()
         scene:createAccountAndGo()
         return true
     end)
+    button.x = display.contentCenterX
+    return button
 end
 
 function scene:getNextUsername()
