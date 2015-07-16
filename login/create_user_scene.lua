@@ -197,6 +197,15 @@ function scene:createTitleImage()
     return titleImg
 end
 
+function scene:createLoginWithUsernamePassLink()
+    local function onPress()
+        nav.goToSceneFrom(scene.sceneName, "login.login_with_password_scene", "fade")
+    end
+
+    return common_ui.createLink("Login with existing player",
+        display.contentCenterX, 900, 48, onPress)
+end
+
 
 -- "scene:create()"
 function scene:create(event)
@@ -206,12 +215,14 @@ function scene:create(event)
     self.usernameInputLabel = createUsernameInputLabel()
     self.getNextUsernameButton = self:createGetNextUsernameButton()
     self.goButton = createGoButton()
+    self.loginWithUserPassLink = self:createLoginWithUsernamePassLink()
 
     sceneGroup:insert(background)
     sceneGroup:insert(title)
     sceneGroup:insert(self.usernameInputLabel)
     sceneGroup:insert(self.getNextUsernameButton)
     sceneGroup:insert(self.goButton)
+    sceneGroup:insert(self.loginWithUserPassLink)
 
 end
 

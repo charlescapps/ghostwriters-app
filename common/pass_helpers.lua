@@ -17,7 +17,6 @@ function M.validatePassword(pass1, pass2)
     end
 
     return true
-
 end
 
 return M

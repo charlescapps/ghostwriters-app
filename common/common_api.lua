@@ -173,6 +173,9 @@ M.isValidUser = function(user)
 end
 
 M.login = function(username, password, onSuccess, onFail)
+    local spinner = word_spinner_class.new()
+    spinner:start()
+
 	local basic = getBasicAuthHeader(username, password)
 	local headers = { ["Authorization"] = basic,
 					  ["Content-Type"] = "application/json" 
@@ -181,6 +184,9 @@ M.login = function(username, password, onSuccess, onFail)
 					 timeout = DEFAULT_TIMEOUT }
 	local listener = function(event)
 		if "ended" == event.phase then
+            if spinner then
+                spinner:stop()
+            end
 			if event.isError or not event.response then
 				M.showNetworkError()
 				print ("Network error occurred logging in as " .. username .. ":" .. password .. "! Event = " .. json.encode(event))
@@ -189,14 +195,14 @@ M.login = function(username, password, onSuccess, onFail)
 			end
 			local user = json.decode(event.response)
 			if user["errorMessage"] then
-				native.showAlert("Error logging in", user["errorMessage"], {"OK"})
+				common_ui.createInfoModal("Error logging in", user["errorMessage"], onFail)
 				print("An error occurred logging in: " .. user["errorMessage"]);
-				onFail()
 				return
 			end
 			if not M.isValidUser(user) then
                 M.showNetworkError()
-				print ("Failed to get valid user back with username and id when logging in as " .. username .. ":" .. password .. "! Event = " .. json.encode(event))
+				print ("Failed to get valid user back with username and id when logging in as "
+                        .. tostring(username) .. ":" .. tostring(password) .. "! Event = " .. json.encode(event))
 				onFail()
 				return				
 			end

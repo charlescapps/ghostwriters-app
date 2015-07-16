@@ -92,6 +92,15 @@ function scene:loginAndGo()
         self:getOnLoginFailListener())
 end
 
+function scene:createLoginWithUsernamePassLink()
+    local function onPress()
+        nav.goToSceneFrom(scene.sceneName, "login.login_with_password_scene", "fade")
+    end
+
+    return common_ui.createLink("Login with player from another device",
+        display.contentCenterX, 900, 36, onPress)
+end
+
 
 -- "scene:create()"
 function scene:create(event)
@@ -102,12 +111,14 @@ function scene:create(event)
     self.welcomeBackText = self:createWelcomeBackText()
     self.usernameText = self:createUsernameText()
     self.goButton = createGoButton()
+    self.loginWithUsernamePassLink = self:createLoginWithUsernamePassLink()
 
     sceneGroup:insert(background)
     sceneGroup:insert(title)
     sceneGroup:insert(self.welcomeBackText)
     sceneGroup:insert(self.usernameText)
     sceneGroup:insert(self.goButton)
+    sceneGroup:insert(self.loginWithUsernamePassLink)
 
 end
 

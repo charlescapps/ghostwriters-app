@@ -5,6 +5,7 @@ local widget = require("widget")
 local fonts = require("globals.fonts")
 local composer = require("composer")
 local tips_helpers = require("tips.tips_helpers")
+local login_common = require("login.login_common")
 
 local M = {}
 local meta = { __index = M }
@@ -25,11 +26,15 @@ function M:render()
     self.background = self:drawBackground()
     self.setPasswordButton = self:drawSetPasswordButton()
     self.setPasswordTipButton = self:drawSetPasswordTipButton()
+    self.logoutButton = self:drawLogoutButton()
+    self.logoutTipButton = self:drawLogoutTipButton()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
     self.view:insert(self.setPasswordButton)
     self.view:insert(self.setPasswordTipButton)
+    self.view:insert(self.logoutButton)
+    self.view:insert(self.logoutTipButton)
 
     return self.view
 end
@@ -136,6 +141,25 @@ function M:drawSetPasswordTipButton()
         "Make sure you never lose access to your account!",
         75, 75)
     local b = self.setPasswordButton
+    tipsButton.x = b.x + b.contentWidth/2 + tipsButton.width/2
+    tipsButton.y = b.y
+
+    return tipsButton
+end
+
+function M:drawLogoutButton()
+    local function onRelease()
+        login_common.logout()
+    end
+
+    return self:drawOptionButton("Logout", display.contentCenterY, onRelease)
+end
+
+function M:drawLogoutTipButton()
+    local tipsButton = tips_helpers.drawTipButton(
+        "Logout so you can login as a user from another device.",
+        75, 75)
+    local b = self.logoutButton
     tipsButton.x = b.x + b.contentWidth/2 + tipsButton.width/2
     tipsButton.y = b.y
 
