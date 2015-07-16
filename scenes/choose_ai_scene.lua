@@ -22,7 +22,7 @@ function scene:create(event)
     local background = common_ui.createBackground()
     self.backButton = common_ui.createBackButton(100, 100, "scenes.title_scene", function()
         new_game_data.clearAll()
-    end)
+    end, nil, 2)
 
     local randomAiGrp = common_ui.createImageButtonWithText("images/monkey_default.png", "images/monkey_over.png", 225, "Monkey", "(Easy opponent)", getOnReleaseListener(common_api.RANDOM_AI), 300)
     local bookwormAiGrp = common_ui.createImageButtonWithText("images/bookworm_default.png", "images/bookworm_over.png", 650, "Bookworm", "(Medium opponent)", getOnReleaseListener(common_api.BOOKWORM_AI), 300)

@@ -12,7 +12,7 @@ local leaderboard_class = {}
 local leaderboard_class_mt = { __index = leaderboard_class }
 
 local TABLE_WIDTH = 750
-local TABLE_HEIGHT = 950
+local TABLE_HEIGHT = 900
 local MIN_ROWS = 8
 local ROW_HEIGHT = 150
 local BUTTON_PAD = 6
@@ -127,8 +127,8 @@ function leaderboard_class:getOnLoadRanksSuccessListener()
             }
         end
 
-        if focusedUserIndex and focusedUserIndex > 3 then
-            local scrollIndex = math.min(focusedUserIndex + 3, self.tableView:getNumRows())
+        if focusedUserIndex then
+            local scrollIndex = math.max(focusedUserIndex - 2, 1)
             print("Focused user index=" .. focusedUserIndex .. ", scrolling to index=" .. scrollIndex)
             self.tableView:scrollToIndex(scrollIndex, 1000)
         end

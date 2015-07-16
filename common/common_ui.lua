@@ -152,13 +152,17 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
         end
     end
 
+    alternate = alternate or ""
+    local defaultFile = "images/back_button" .. alternate .. "_default.png"
+    local overFile = "images/back_button" .. alternate .. "_over.png"
+
     local backButton = widget.newButton {
         x = x,
         y = y,
         width = BACK_BTN_WIDTH,
         height = BACK_BTN_HEIGHT,
-        defaultFile = alternate and DEFAULT_BACK_BUTTON2 or DEFAULT_BACK_BUTTON,
-        overFile = alternate and PRESSED_BACK_BUTTON2 or PRESSED_BACK_BUTTON,
+        defaultFile = defaultFile,
+        overFile = overFile,
         onRelease = onRelease
     }
 
