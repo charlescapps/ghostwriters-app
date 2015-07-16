@@ -7,15 +7,12 @@ local transition = require("transition")
 local display = require("display")
 local fonts = require("globals.fonts")
 local timer = require("timer")
+local native = require("native")
 
 local DEFAULT_BACKGROUND = "images/book_texture.jpg"
 
-local DEFAULT_BACK_BUTTON = "images/back_button_default.png"
-local PRESSED_BACK_BUTTON = "images/back_button_over.png"
-local DEFAULT_BACK_BUTTON2 = "images/back_button2_default.png"
-local PRESSED_BACK_BUTTON2 = "images/back_button2_over.png"
-local BACK_BTN_WIDTH = 100
-local BACK_BTN_HEIGHT = 100
+local BACK_BTN_WIDTH = 130
+local BACK_BTN_HEIGHT = 130
 
 local MODAL_IMAGE = "images/book_modal.png"
 
@@ -49,6 +46,22 @@ M.createBackground = function(imageFile)
     local background = display.newImageRect( file, 750, 1334 )
     background.x = display.contentWidth / 2
     background.y = display.contentHeight / 2
+
+    local function onTouch(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(event.target)
+        elseif event.phase == "ended" then
+            display.getCurrentStage():setFocus(nil)
+            native.setKeyboardFocus(nil)
+        elseif event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+        end
+
+        return true
+    end
+
+    background:addEventListener("touch", onTouch)
+
     return background
 end
 
@@ -134,7 +147,7 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
 
         if currentSceneName ~= startScene then
             print("ERROR - current scene is " .. currentSceneName .. ", but start scene = " .. startScene)
-            return
+            return true
         end
 
         if beforeTransition then
@@ -150,6 +163,8 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
         if afterTransition then
             afterTransition()
         end
+
+        return true
     end
 
     alternate = alternate or ""
@@ -294,6 +309,7 @@ function M.createLink(linkText, x, y, fontSize, onPress)
             display.getCurrentStage():setFocus(nil)
             link:setFillColor(LINK_COLOR[1], LINK_COLOR[2], LINK_COLOR[3])
         end
+        return true
     end)
 
     return link

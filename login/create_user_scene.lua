@@ -97,7 +97,10 @@ function scene:createGetNextUsernameButton()
     return widget.newButton {
         x = 675,
         y = 400,
-        onRelease = function() self:getNextUsername() end,
+        onRelease = function()
+            self:getNextUsername()
+            return true
+        end,
         width = 80,
         height = 80,
         defaultFile = "images/reset_button_default.png",
@@ -180,7 +183,10 @@ function scene:getOnGetNextUsernameFailListener()
 end
 
 local function createGoButton()
-    return common_ui.createButton("Go!", 550, function() scene:createAccountAndGo() end)
+    return common_ui.createButton("Go!", 550, function()
+        scene:createAccountAndGo()
+        return true
+    end)
 end
 
 function scene:getNextUsername()
@@ -200,10 +206,11 @@ end
 function scene:createLoginWithUsernamePassLink()
     local function onPress()
         nav.goToSceneFrom(scene.sceneName, "login.login_with_password_scene", "fade")
+        return true
     end
 
-    return common_ui.createLink("Login with existing player",
-        display.contentCenterX, 900, 48, onPress)
+    return common_ui.createLink("Login as existing player",
+        display.contentCenterX, 900, 52, onPress)
 end
 
 

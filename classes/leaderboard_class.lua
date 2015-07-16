@@ -157,7 +157,7 @@ function leaderboard_class:renderTitle()
     local title = display.newText {
         text = "Leaderboard",
         x = display.contentWidth / 2,
-        y = 75,
+        y = 125,
         width = display.contentWidth,
         align = "center",
         font = fonts.BOLD_FONT,
@@ -204,7 +204,7 @@ end
 function leaderboard_class:createTop100Button()
     return widget.newButton {
         x = BUTTON_PAD + BUTTON_SIZE / 2,
-        y = BUTTON_SIZE / 2 + 150,
+        y = BUTTON_SIZE / 2 + 200,
         width = BUTTON_SIZE,
         height = BUTTON_SIZE,
         defaultFile = "images/top_100_default.png",
@@ -216,7 +216,7 @@ end
 function leaderboard_class:createMonkeyButton()
     return widget.newButton {
         x = BUTTON_PAD * 2 + 3 * BUTTON_SIZE / 2,
-        y = BUTTON_SIZE / 2 + 150,
+        y = BUTTON_SIZE / 2 + 200,
         width = BUTTON_SIZE,
         height = BUTTON_SIZE,
         defaultFile = "images/monkey_default.png",
@@ -228,7 +228,7 @@ end
 function leaderboard_class:createBookwormButton()
     return widget.newButton {
         x = BUTTON_PAD * 3 + 5 * BUTTON_SIZE / 2,
-        y = BUTTON_SIZE / 2 + 150,
+        y = BUTTON_SIZE / 2 + 200,
         width = BUTTON_SIZE,
         height = BUTTON_SIZE,
         defaultFile = "images/bookworm_default.png",
@@ -240,7 +240,7 @@ end
 function leaderboard_class:createProfessorButton()
     return widget.newButton {
         x = BUTTON_PAD * 4 + 7 * BUTTON_SIZE / 2,
-        y = BUTTON_SIZE / 2 + 150,
+        y = BUTTON_SIZE / 2 + 200,
         width = BUTTON_SIZE,
         height = BUTTON_SIZE,
         defaultFile = "images/professor_default.png",

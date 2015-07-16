@@ -32,7 +32,7 @@ function scene:create(event)
 
     self.leaderboard = leaderboard_class.new(self, self.creds.user, onLoadSuccess, onLoadFail)
     local leaderboardView = self.leaderboard:render()
-    self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene", nil, nil, 3)
+    self.backButton = common_ui.createBackButton(80, 110, "scenes.title_scene", nil, nil, 3)
 
     sceneGroup:insert(background)
     sceneGroup:insert(leaderboardView)

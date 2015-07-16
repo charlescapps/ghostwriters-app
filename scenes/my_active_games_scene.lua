@@ -17,7 +17,7 @@ scene.sceneName = "scenes.my_active_games_scene"
 function scene:create(event)
     local sceneGroup = self.view
     local background = common_ui.createBackground()
-    self.backButton = common_ui.createBackButton(80, 80, "scenes.title_scene")
+    self.backButton = common_ui.createBackButton(80, 100, "scenes.title_scene")
     self.goToCompleteGamesButton = self:createGoToCompleteGamesButton()
     sceneGroup:insert(background)
     sceneGroup:insert(self.backButton)

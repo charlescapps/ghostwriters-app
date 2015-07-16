@@ -562,7 +562,7 @@ end
 
 M.setUserPassword = function(pass, onSuccess, onFail, doCreateSpinner)
     local url = urls.getSetPasswordURL(pass)
-    M.doPostWithSpinner(url, nil, 200, onSuccess, onFail, M.showNetworkError, doCreateSpinner)
+    M.doPostWithSpinner(url, nil, 200, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
 return M

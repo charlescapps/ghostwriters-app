@@ -32,7 +32,7 @@ function scene:create(event)
 
     self.quickStartButton = self:createQuickStartButton()
 
-    self.backButton = common_ui.createBackButton(50, 100, "scenes.title_scene", nil, nil, 2)
+    self.backButton = common_ui.createBackButton(50, 120, "scenes.title_scene", nil, nil, 2)
 
     self.userSearchWidget = user_search_widget.new(self.creds.user, MARGIN, 400, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT,
         self:getOnRowTouchListener())

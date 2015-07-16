@@ -20,7 +20,7 @@ end
 function scene:create(event)
 	local sceneGroup = self.view
     local background = common_ui.createBackground()
-    self.backButton = common_ui.createBackButton(100, 100, "scenes.title_scene", function()
+    self.backButton = common_ui.createBackButton(100, 120, "scenes.title_scene", function()
         new_game_data.clearAll()
     end, nil, 2)
 

@@ -70,7 +70,7 @@ function scene:getOnLoginFailListener()
 end
 
 local function createGoButton()
-    return common_ui.createButton("Login", 650, function() scene:loginAndGo() end)
+    return common_ui.createButton("Login", 550, function() scene:loginAndGo() end)
 end
 
 function scene:createTitleImage()
@@ -98,8 +98,8 @@ function scene:createLoginWithUsernamePassLink()
         nav.goToSceneFrom(scene.sceneName, "login.login_with_password_scene", "fade")
     end
 
-    return common_ui.createLink("Login with player from another device",
-        display.contentCenterX, 900, 36, onPress)
+    return common_ui.createLink("Login as other player",
+        display.contentCenterX, 800, 52, onPress)
 end
 
 

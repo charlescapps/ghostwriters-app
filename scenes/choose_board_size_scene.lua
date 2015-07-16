@@ -96,7 +96,7 @@ createBackButton = function()
         end
     end
 
-    return common_ui.createBackButton(100, 100, previousScene, beforeTransition)
+    return common_ui.createBackButton(100, 120, previousScene, beforeTransition)
 end
 
 

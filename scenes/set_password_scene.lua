@@ -31,8 +31,6 @@ function scene:create(event)
     -- password input 2
     self.passwordLabel2 = self:drawPasswordLabel2()
 
-    self:createNativeInputs()
-
     -- submit button
     self.submitButton = self:drawSubmitButton()
 
@@ -45,6 +43,8 @@ function scene:create(event)
     sceneGroup:insert(self.passwordLabel1)
     sceneGroup:insert(self.passwordLabel2)
     sceneGroup:insert(self.submitButton)
+
+    self:createNativeInputs()
 
 end
 
@@ -214,13 +214,16 @@ function scene:drawPasswordInput2()
         width = 550,
         height = 75,
         fontSize = 16,
-        returnKey = "done"
+        returnKey = "done",
+        listener = inputListener
     }
     return customText
 end
 
 -- Submit !
 function scene:submit()
+    native.setKeyboardFocus(nil)
+
     if not common_ui.isValidDisplayObj(self.passwordInput1) or not common_ui.isValidDisplayObj(self.passwordInput2) then
         print("[ERROR] Submitted set password when password inputs weren't defined.")
         return
