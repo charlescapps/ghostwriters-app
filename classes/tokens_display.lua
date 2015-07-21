@@ -76,9 +76,7 @@ function M:addTouchListener(group)
     end
 
     function group:tap(event)
-        if event.numTaps == 1 then
-            drawBooksModal()
-        end
+        return true
     end
 
     group:addEventListener("touch")
@@ -111,9 +109,19 @@ function M:drawPurchaseButton()
         y = 0,
         defaultFile = "images/purchase_button_default.png",
         overFile = "images/purchase_button_over.png",
-        onRelease = onRelease
+        onEvent = function(event)
+            if event.phase == "began" then
+                display.getCurrentStage():setFocus(event.target)
+            elseif event.phase == "ended" then
+                display.getCurrentStage():setFocus(nil)
+                onRelease()
+            elseif event.phase == "cancelled" then
+                display.getCurrentStage():setFocus(nil)
+            end
+        end
     }
     button.isHitTestMasked = false
+
     return button
 end
 
