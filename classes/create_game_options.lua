@@ -13,8 +13,8 @@ local sheet_helpers = require("globals.sheet_helpers")
 local M = {}
 
 local LEFT_COLUMN = 50
-local MID_COLUMN = display.contentCenterX - 10
-local RIGHT_COLUMN = display.contentCenterX + 250
+local MID_COLUMN = display.contentCenterX - 20
+local RIGHT_COLUMN = display.contentCenterX + 275
 
 local mt = { __index = M }
 
@@ -243,13 +243,14 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
                 onUpdateVal(val)
             end
         end
+        return true
     end
 
     local stepper = widget.newStepper{
         x = RIGHT_COLUMN,
         y = yPosition,
-        width = 130,
-        height = 65,
+        width = 140,
+        height = 70,
         maximumValue = maxValue,
         onPress = onPress,
         sheet = game_ui:getStepperSheet(),

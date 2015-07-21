@@ -260,7 +260,7 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
     end)
 
     -- Fade out after 2.5 seconds of displaying the info modal
-    timeout = timeout or 2500
+    timeout = timeout or 1800
 
     local function onFadeIn()
         if timeout and timeout >= 0 then

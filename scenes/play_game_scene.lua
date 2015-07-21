@@ -757,9 +757,9 @@ function scene:showGameOverModal()
     elseif gameResult == common_api.PLAYER2_WIN then
         modalMessage = isMyWin and "You win!" or gameModel.player2Model.username .. " wins!"
     elseif gameResult == common_api.PLAYER1_TIMEOUT then
-        modalMessage = gameModel.player1Model.username .. " timed out."
+        modalMessage = (authUser.id == gameModel.player1 and "You" or gameModel.player1Model.username) .. " timed out after 2 weeks of inactivity."
     elseif gameResult == common_api.PLAYER2_TIMEOUT then
-        modalMessage = gameModel.player2Model.username .. " timed out."
+        modalMessage = (authUser.id == gameModel.player2 and "You" or gameModel.player2Model.username) .. " timed out after 2 weeks of inactivity."
     elseif gameResult == common_api.PLAYER1_RESIGN then
         modalMessage = isMyWin and gameModel.player1Model.username .. " resigned." or "You resigned."
     elseif gameResult == common_api.PLAYER2_RESIGN then

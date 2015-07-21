@@ -102,11 +102,11 @@ function M:drawPickerRow()
         transition.fadeIn (self.optionsModal, {
             time = 1000
         })
-
+        return true
     end
 
     if not self.isDisabled then
-        local buttonSize = self.rowHeight * .75
+        local buttonSize = self.rowHeight
         local pickerButton = widget.newButton {
             width = buttonSize,
             height = buttonSize,
@@ -117,6 +117,7 @@ function M:drawPickerRow()
         }
         pickerButton.x = self.column3Center
         pickerButton.y = 0
+        pickerButton.isHitTestMasked = false
 
         group:insert(pickerButton)
     end
@@ -244,6 +245,7 @@ function M:drawOptionRow(index, parent)
                 self.onUpdate()
             end
         end
+        return true
     end
 
     local radioButton = widget.newSwitch {

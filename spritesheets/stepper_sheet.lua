@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:85a0ce27e8a6d97dfa1ba8ef3b4a7159:91cd175ccdc14d29374eb0ca5446c1b6:721e4da8a75cf2c44abe63d99e39c955$
+-- $TexturePacker:SmartUpdate:4d63c43f81cde2743b08de7daf0a6261:81c35080313a10a5a86a4656c835b502:721e4da8a75cf2c44abe63d99e39c955$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -18,46 +18,46 @@ SheetInfo.sheet =
             -- stepper_default
             x=2,
             y=2,
-            width=130,
-            height=65,
+            width=170,
+            height=85,
 
         },
         {
             -- stepper_minus_active
-            x=134,
+            x=174,
             y=2,
-            width=130,
-            height=65,
+            width=170,
+            height=85,
 
         },
         {
             -- stepper_no_minus
-            x=266,
+            x=346,
             y=2,
-            width=130,
-            height=65,
+            width=170,
+            height=85,
 
         },
         {
             -- stepper_no_plus
-            x=398,
+            x=518,
             y=2,
-            width=130,
-            height=65,
+            width=170,
+            height=85,
 
         },
         {
             -- stepper_plus_active
-            x=530,
+            x=690,
             y=2,
-            width=130,
-            height=65,
+            width=170,
+            height=85,
 
         },
     },
     
-    sheetContentWidth = 662,
-    sheetContentHeight = 69
+    sheetContentWidth = 862,
+    sheetContentHeight = 89
 }
 
 SheetInfo.frameIndex =

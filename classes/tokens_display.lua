@@ -11,13 +11,13 @@ local meta = { __index = M }
 -- Constants
 local MAX_TOKENS = 10
 
-local ALL_TOKENS_WIDTH = 500
+local ALL_TOKENS_WIDTH = 550
 
-local TOKEN_WIDTH = 90
-local TOKEN_HEIGHT = 90
+local TOKEN_WIDTH = 100
+local TOKEN_HEIGHT = 100
 
-local PLUS_WIDTH = 75
-local PLUS_HEIGHT = 75
+local PLUS_WIDTH = 100
+local PLUS_HEIGHT = 100
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -42,73 +42,96 @@ function M:render()
     local group = display.newGroup()
     group.x, group.y = self.x, self.y
     self.view = group
-    self:addTouchListener(group)
 
-    self:drawTokens()
+    self.tokensGroup, self.backgroundSmoke = self:drawTokens()
 
     self.purchaseButton = self:drawPurchaseButton()
+
+    if self.backgroundSmoke then
+        self.view:insert(self.backgroundSmoke)
+    end
+
+    self.view:insert(self.tokensGroup)
+
     self.view:insert(self.purchaseButton)
 
     return self.view
 end
 
 function M:addTouchListener(group)
-    local tokensDisplay = self
+    local function drawBooksModal()
+        common_ui.createInfoModal("My books", "You own " .. tostring(self.numTokens) .. " books.", nil, nil, 50)
+    end
+
     function group:touch(event)
         if event.phase == "began" then
-
+            display.getCurrentStage():setFocus(event.target)
         elseif event.phase == "ended" then
-            common_ui.createInfoModal("My books", "You own " .. tostring(tokensDisplay.numTokens) .. " books.", nil, nil, 50)
+            display.getCurrentStage():setFocus(nil)
+            drawBooksModal()
         elseif event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+        end
+        return true
+    end
+
+    function group:tap(event)
+        print("Received tap event! numTaps=" .. tostring(event.numTaps))
+        if event.numTaps == 1 then
+            drawBooksModal()
         end
     end
 
     group:addEventListener("touch")
+    group:addEventListener("tap")
 end
 
 function M:drawPurchaseButton()
     local function onRelease()
         if not self.view then
-            return
+            return true
         end
         local user = self.authUser
         if not user then
-            return
+            return true
         end
         if user.infiniteBooks then
             common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
-            return
+            return true
         end
         local popup = in_app_purchase_popup.new(self.updateUserListener, self.updateUserListener)
         self.parentScene.view:insert(popup:render())
         popup:show()
+        return true
     end
 
     local button = widget.newButton {
         width = PLUS_WIDTH,
         height = PLUS_HEIGHT,
-        x = ALL_TOKENS_WIDTH / 2 + 40,
+        x = ALL_TOKENS_WIDTH / 2 + 20,
         y = 0,
         defaultFile = "images/purchase_button_default.png",
         overFile = "images/purchase_button_over.png",
         onRelease = onRelease
     }
+    button.isHitTestMasked = false
     return button
 end
 
 function M:drawTokens()
+    local tokensGroup = display.newGroup()
+    local backgroundSmoke = nil
     if self.numTokens > 10 then
-        self.ghostlySmoke = display.newImageRect("images/ghostly_smoke.png", 750, 243)
-        self.ghostlySmoke.x = 0
-        self.ghostlySmoke.y = 0
-        self.view:insert(self.ghostlySmoke)
+        backgroundSmoke = display.newImageRect("images/ghostly_smoke.png", 750, 243)
+        backgroundSmoke.x = 0
+        backgroundSmoke.y = 0
     end
 
     for i = 1, math.min(MAX_TOKENS, self.numTokens) do
         local img = display.newImageRect("images/currency_book.png", TOKEN_WIDTH, TOKEN_HEIGHT)
         img.x, img.y = self:computeTokenPos(i)
         self.tokenImages[i] = img
-        self.view:insert(img)
+        tokensGroup:insert(img)
     end
 
     for i = self.numTokens + 1, MAX_TOKENS do
@@ -116,13 +139,17 @@ function M:drawTokens()
         img.x, img.y = self:computeTokenPos(i)
         img:setFillColor(1, 1, 1, 0.5)
         self.tokenImages[i] = img
-        self.view:insert(img)
+        tokensGroup:insert(img)
     end
+
+    self:addTouchListener(tokensGroup)
+
+    return tokensGroup, backgroundSmoke
 end
 
 function M:computeTokenPos(tokenIndex)
     local i = tokenIndex - 1
-    local firstX = -ALL_TOKENS_WIDTH / 2
+    local firstX = -ALL_TOKENS_WIDTH / 2 - 30
     local x = firstX + (i % 10) * DISPLAY_TOKEN_WIDTH
     return x, 0
 end
@@ -137,30 +164,33 @@ function M:updateUser(updatedUser)
         return
     end
 
-    if not self.view or not self.view.removeSelf then
+    if not common_ui.isValidDisplayObj(self.view) then
         return
     end
 
     self:removeAllImages()
     self.numTokens = updatedUser.tokens
-    self:drawTokens()
+    self.tokensGroup, self.backgroundSmoke = self:drawTokens()
     self.purchaseButton = self:drawPurchaseButton()
+
+    if self.backgroundSmoke then
+        self.view:insert(self.backgroundSmoke)
+    end
+    self.view:insert(self.tokensGroup)
     self.view:insert(self.purchaseButton)
+
 end
 
 function M:removeAllImages()
-    if self.ghostlySmoke and self.ghostlySmoke.removeSelf then
-        self.ghostlySmoke:removeSelf()
-        self.ghostlySmoke = nil
-    end
+    common_ui.safeRemove(self.tokensGroup)
+    self.tokensGroup = nil
 
-    while #self.tokenImages > 0 do
-        local img = self.tokenImages[1]
-        table.remove(self.tokenImages, 1)
-        img:removeSelf()
-    end
-    
-    self.purchaseButton:removeSelf()
+    common_ui.safeRemove(self.backgroundSmoke)
+    self.backgroundSmoke = nil
+
+    self.tokenImages = {}
+
+    common_ui.safeRemove(self.purchaseButton)
     self.purchaseButton = nil
 end
 

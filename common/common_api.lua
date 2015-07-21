@@ -392,7 +392,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 				return
 			end
 			
-			print("SUCCESS - " .. method .. " to " .. url .. " returned: " .. event.response)
+			print("SUCCESS - " .. method .. " to " .. url .. " returned: " .. tostring(event.status))
 			onSuccess(jsonResp)
 
 		end

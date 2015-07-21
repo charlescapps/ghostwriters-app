@@ -19,8 +19,6 @@ function mini_board_class.new(gameModel, width, padding, onlyShowQuestionMarks)
         rackTileImages[i] = {}
     end
 
-    print ("Creating new MINI board with width=" .. width)
-
     local newBoard = {
         gameModel = gameModel,
         width = width,
@@ -57,7 +55,6 @@ function mini_board_class:createSquaresGroup(width)
     for i = 1, N do
         squareImages[i] = {}
     end
-    print("px per square=" .. pxPerSquare)
 
     for i = 1, N do
         for j = 1, N do
