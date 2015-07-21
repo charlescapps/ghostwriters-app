@@ -76,7 +76,6 @@ function M:addTouchListener(group)
     end
 
     function group:tap(event)
-        print("Received tap event! numTaps=" .. tostring(event.numTaps))
         if event.numTaps == 1 then
             drawBooksModal()
         end

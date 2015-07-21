@@ -12,7 +12,7 @@ local sheet_helpers = require("globals.sheet_helpers")
 
 local M = {}
 
-local LEFT_COLUMN = 50
+local LEFT_COLUMN = 20
 local MID_COLUMN = display.contentCenterX - 20
 local RIGHT_COLUMN = display.contentCenterX + 275
 
@@ -214,7 +214,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
         y = yPosition,
         text = labelText,
         font = native.systemFont,
-        fontSize = 36
+        fontSize = 44
     }
     label.anchorX = 0
     label:setFillColor(0, 0, 0)
@@ -225,7 +225,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
         x = MID_COLUMN,
         y = yPosition,
         font = fonts.BOLD_FONT,
-        fontSize = 40
+        fontSize = 48
     }
     stepperValue.anchorX = 0
     stepperValue:setFillColor(0, 0, 0)

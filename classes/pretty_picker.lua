@@ -43,7 +43,7 @@ function M.new(opts)
         bgImage = opts.bgImage,
         bgWidth = opts.bgWidth,
         bgHeight = opts.bgHeight,
-        fontSize = opts.fontSize or 40,
+        fontSize = opts.fontSize or 44,
         onUpdate = opts.onUpdate,
         isDisabled = opts.isDisabled
     }
@@ -168,6 +168,7 @@ function M:drawButton()
                 self.onUpdate()
             end
         end
+        return true
     end
 
     local button = common_ui.createButton("Done", 300, onRelease)
@@ -213,7 +214,7 @@ function M:drawOptionRow(index, parent)
         text = row.text1,
         fontSize = self.fontSize,
         font = self.column1Font,
-        x = self.column1Left - display.contentCenterX,
+        x = self.column1Left - display.contentCenterX + 20,
         y = rowY
     }
     text1.anchorX = 0
@@ -223,7 +224,7 @@ function M:drawOptionRow(index, parent)
         text = row.text2,
         fontSize = self.fontSize,
         font = self.column2Font,
-        x = self.column2Left - display.contentCenterX,
+        x = self.column2Left - display.contentCenterX + 25,
         y = rowY
     }
     text2.anchorX = 0
@@ -252,8 +253,8 @@ function M:drawOptionRow(index, parent)
         initialSwitchState = index == self.selectedIndex,
         style = "radio",
         sheet = game_ui:getRadioButtonSheet(),
-        width = 60,
-        height = 60,
+        width = 80,
+        height = 80,
         frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
         frameOff = radio_button_sheet:getFrameIndex("radio_button_off"),
         x = self.column3Center - display.contentCenterX,
