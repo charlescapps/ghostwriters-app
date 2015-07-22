@@ -16,8 +16,8 @@ local ALL_TOKENS_WIDTH = 550
 local TOKEN_WIDTH = 100
 local TOKEN_HEIGHT = 100
 
-local PLUS_WIDTH = 100
-local PLUS_HEIGHT = 100
+local PLUS_WIDTH = 110
+local PLUS_HEIGHT = 110
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -105,16 +105,16 @@ function M:drawPurchaseButton()
     local button = widget.newButton {
         width = PLUS_WIDTH,
         height = PLUS_HEIGHT,
-        x = ALL_TOKENS_WIDTH / 2 + 20,
+        x = ALL_TOKENS_WIDTH / 2 + 25,
         y = 0,
         defaultFile = "images/purchase_button_default.png",
         overFile = "images/purchase_button_over.png",
         onEvent = function(event)
             if event.phase == "began" then
                 display.getCurrentStage():setFocus(event.target)
+                onRelease()
             elseif event.phase == "ended" then
                 display.getCurrentStage():setFocus(nil)
-                onRelease()
             elseif event.phase == "cancelled" then
                 display.getCurrentStage():setFocus(nil)
             end
