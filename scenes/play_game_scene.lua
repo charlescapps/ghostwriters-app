@@ -366,6 +366,13 @@ function scene:reset()
         return
     end
 
+    local viewGroup = self.view
+
+    if not common_ui.isValidDisplayObj(viewGroup) then
+        print("ERROR - self.view isn't valid in play_game_scene.reset()")
+        return
+    end
+
     local oldTitleArea = self.titleAreaDisplayGroup
     local oldBoard = self.board
     local oldRack = self.rack
@@ -375,7 +382,6 @@ function scene:reset()
     self.board = self:createBoard(gameModel)
     self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
-    local viewGroup = self.view
     viewGroup:insert(self.board.boardContainer)
     viewGroup:insert(self.rack.displayGroup)
     viewGroup:insert(self.titleAreaDisplayGroup)
