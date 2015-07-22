@@ -32,9 +32,9 @@ function M:drawTitle()
     local title = display.newText {
         x = 100,
         y = 0,
-        text = "Cost = " .. self.cost .. " x ",
+        text = "Cost = " .. self.cost .. " x",
         font = fonts.BOLD_FONT,
-        fontSize = 48,
+        fontSize = 60,
         align = "right"
     }
     title.anchorX = 1.0
@@ -45,7 +45,8 @@ end
 
 function M:drawTokenSymbol()
     local img = display.newImageRect("images/currency_book.png", 90, 90)
-    img.x, img.y = 130, 0
+    img.x, img.y = self.title.x, 0
+    img.anchorX = 0
     return img
 end
 

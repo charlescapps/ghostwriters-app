@@ -37,6 +37,7 @@ function M.new(opts)
         rowHeight = opts.rowHeight or 100,
         column1Left = opts.column1Left or 20,
         column2Left = opts.column2Left or rowWidth / 2,
+        column2ImageFile = opts.column2ImageFile,
         column3Center = opts.column3Center or rowWidth - 100,
         column1Font = opts.column1Font or fonts.DEFAULT_FONT,
         column2Font = opts.column2Font or fonts.BOLD_FONT,
@@ -73,9 +74,11 @@ function M:drawPickerRow()
         text = row.text1,
         fontSize = self.fontSize,
         font = self.column1Font,
-        x = self.column1Left
+        x = self.isDisabled and display.contentCenterX or self.column1Left
     }
-    text1.anchorX = 0
+    if not self.isDisabled then
+        text1.anchorX = 0
+    end
     text1:setFillColor(0, 0, 0)
 
     group:insert(text1)
@@ -90,6 +93,13 @@ function M:drawPickerRow()
         text2.anchorX = 0
         text2:setFillColor(0, 0, 0)
         group:insert(text2)
+
+        if self.column2ImageFile then
+            local image = display.newImageRect(self.column2ImageFile, self.rowHeight, self.rowHeight)
+            image.anchorX = 0
+            image.x = text2.x + text2.contentWidth
+            group:insert(image)
+        end
     end
 
     local function onRelease()
@@ -229,6 +239,14 @@ function M:drawOptionRow(index, parent)
     }
     text2.anchorX = 0
     text2:setFillColor(1, 1, 1)
+
+    if self.column2ImageFile then
+        local image = display.newImageRect(self.column2ImageFile, self.rowHeight, self.rowHeight)
+        image.anchorX = 0
+        image.x = text2.x + text2.contentWidth
+        image.y = rowY
+        parent:insert(image)
+    end
 
     local function onRelease()
         if self.optionsModal then

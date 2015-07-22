@@ -58,17 +58,17 @@ function M:drawBoardSizeOptions()
     local rows = {
         {
             text1 = "Small (5x5)",
-            text2 = "1 book",
+            text2 = "1 x",
             value = common_api.SMALL_SIZE
         },
         {
             text1 = "Medium (9x9)",
-            text2 = "3 books",
+            text2 = "3 x",
             value = common_api.MEDIUM_SIZE
         },
         {
             text1 = "Large (13x13)",
-            text2 = "5 books",
+            text2 = "5 x",
             value = common_api.LARGE_SIZE
         }
     }
@@ -87,6 +87,7 @@ function M:drawBoardSizeOptions()
         pickerY = 350,
         column1Left = LEFT_COLUMN,
         column2Left = MID_COLUMN,
+        column2ImageFile = "images/currency_book.png",
         column3Center = RIGHT_COLUMN,
         bgImage = imgs.OLD_BOOK,
         bgWidth = imgs.OLD_BOOK_WIDTH,
@@ -118,22 +119,22 @@ function M:drawDictionaryOptions()
     local rows = {
         {
             text1 = "English",
-            text2 = "0 books",
+            text2 = "0 x",
             value = nil
         },
         {
             text1 = "Edgar Allan Poe",
-            text2 = "1 book",
+            text2 = "1 x",
             value = common_api.DICT_POE
         },
         {
             text1 = "H.P. Lovecraft",
-            text2 = "1 book",
+            text2 = "1 x",
             value = common_api.DICT_LOVECRAFT
         },
         {
             text1 = "Cthulhu Mythos",
-            text2 = "1 book",
+            text2 = "1 x",
             value = common_api.DICT_MYTHOS
         }
     }
@@ -152,6 +153,7 @@ function M:drawDictionaryOptions()
         pickerY = 550,
         column1Left = LEFT_COLUMN,
         column2Left = MID_COLUMN,
+        column2ImageFile = "images/currency_book.png",
         column3Center = RIGHT_COLUMN,
         bgImage = imgs.OLD_BOOK,
         bgWidth = imgs.OLD_BOOK_WIDTH,
