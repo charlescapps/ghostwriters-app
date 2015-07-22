@@ -15,7 +15,7 @@ end
 
 function M:triggerTipOnCondition()
     if not self:isSceneValid(self.playGameScene) then
-        print("ERROR - invalid play game scene, cannot trigger scry tile tip.")
+        print("ERROR - invalid play game scene, cannot trigger question tile tip.")
         return false
     end
 

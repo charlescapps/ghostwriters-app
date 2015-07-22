@@ -36,7 +36,7 @@ function M:showTip()
         local function onClose()
             tips_persist.recordViewedTip(TIP_NAME)
         end
-        local tipsModal = tips_modal.new("Drag Scry tiles from your hand to the board.", nil, onClose,
+        local tipsModal = tips_modal.new("Drag Oracle tiles from your hand to the board.", nil, onClose,
             "images/scry_tip.png", 250, 250, 0, -40)
         tipsModal:show()
         return true

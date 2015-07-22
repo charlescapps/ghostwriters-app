@@ -99,7 +99,7 @@ function M.promptScryTileAction(board, rack, tileImage)
         end
     end
 
-    native.showAlert("Special Action", "Use Scry tile to find a powerful move?", { "Yes", "No" }, alertListener)
+    native.showAlert("Special Action", "Use Oracle tile to find a powerful move?", { "Yes", "No" }, alertListener)
 
 end
 

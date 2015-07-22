@@ -13,7 +13,7 @@ local sheet_helpers = require("globals.sheet_helpers")
 local M = {}
 
 local LEFT_COLUMN = 20
-local MID_COLUMN = display.contentCenterX - 20
+local MID_COLUMN = display.contentCenterX - 60
 local RIGHT_COLUMN = display.contentCenterX + 275
 
 local mt = { __index = M }
@@ -203,7 +203,7 @@ function M:drawBonusOptions()
     local questionIndex = sheetObj.module:getFrameIndex("?_rack")
     local scryIndex = sheetObj.module:getFrameIndex("scry_rack")
     self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 100, 4, self.onUpdateOptions, sheetObj.imageSheet, questionIndex)
-    self.scryTilesStepper = M.drawBonusOptionRow(group, "Scry Tiles", 200, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
+    self.scryTilesStepper = M.drawBonusOptionRow(group, "Oracle Tiles", 200, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
 
     group:insert(title)
     return group
@@ -215,7 +215,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
         x = LEFT_COLUMN,
         y = yPosition,
         text = labelText,
-        font = native.systemFont,
+        font = fonts.DEFAULT_FONT,
         fontSize = 44
     }
     label.anchorX = 0
@@ -223,7 +223,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
 
     local stepperValue = display.newText {
         parent = parent,
-        text = 0,
+        text = "0 x",
         x = MID_COLUMN,
         y = yPosition,
         font = fonts.BOLD_FONT,
@@ -232,15 +232,15 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
     stepperValue.anchorX = 0
     stepperValue:setFillColor(0, 0, 0)
 
-    local iconImg = display.newImageRect(parent, sheet, frameIndex, 75, 75)
+    local iconImg = display.newImageRect(parent, sheet, frameIndex, 90, 90)
     iconImg.anchorX = 0
-    iconImg.x = stepperValue.x + stepperValue.contentWidth + 25
+    iconImg.x = stepperValue.x + stepperValue.contentWidth + 10
     iconImg.y = yPosition
 
     local onPress = function(event)
         if event.phase == "increment" or event.phase == "decrement" then
            local val = event.value
-           stepperValue.text = tostring(val)
+           stepperValue.text = tostring(val) .. " x"
             if onUpdateVal then
                 onUpdateVal(val)
             end

@@ -234,7 +234,7 @@ function M:drawOptionRow(index, parent)
         text = row.text2,
         fontSize = self.fontSize,
         font = self.column2Font,
-        x = self.column2Left - display.contentCenterX + 25,
+        x = self.column2Left - display.contentCenterX + 60,
         y = rowY
     }
     text2.anchorX = 0
