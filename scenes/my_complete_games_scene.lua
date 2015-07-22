@@ -7,6 +7,9 @@ local my_games_view_class = require("classes.my_games_view_class")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local scene_helpers = require("common.scene_helpers")
+local game_helpers = require("common.game_helpers")
+local new_game_data = require("globals.new_game_data")
+local challenged_popup = require("classes.challenged_popup")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.my_complete_games_scene"
@@ -128,6 +131,19 @@ function scene:getOnReleaseGoToActiveGamesButton()
     end
 end
 
+function scene:startGameWithUser(userModel)
+    local currentScene = composer.getSceneName("current")
+    if currentScene == self.sceneName and userModel.id ~= scene.creds.user.id then
+        new_game_data.clearAll()
+        new_game_data.rival = userModel
+        new_game_data.gameType = common_api.TWO_PLAYER
+        composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
+        composer.gotoScene("scenes.choose_board_size_scene", "fade")
+
+        local challengedPopup = challenged_popup.new(userModel)
+        challengedPopup:show()
+    end
+end
 
 -- Listener setup
 scene:addEventListener( "create", scene )

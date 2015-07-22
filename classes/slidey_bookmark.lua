@@ -28,7 +28,6 @@ function slidey_bookmark:render()
     self.bookmark = self:drawBookmark()
     self.numberBubble = self:drawNumberBubble()
 
-    print("self.bookmark=" .. tostring(self.bookmark))
     self.view:insert(self.bookmark)
     self.view:insert(self.numberBubble)
     return self.view

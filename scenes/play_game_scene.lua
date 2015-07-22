@@ -21,6 +21,7 @@ local grab_tiles_tip = require("tips.grab_tiles_tip")
 local scry_tile_tip = require("tips.scry_tile_tip")
 local question_tile_tip = require("tips.question_tile_tip")
 local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
+local challenged_popup = require("classes.challenged_popup")
 
 local scene = composer.newScene()
 
@@ -877,6 +878,9 @@ function scene:startGameWithUser(userModel)
         new_game_data.gameType = common_api.TWO_PLAYER
         composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
+
+        local challengedPopup = challenged_popup.new(userModel)
+        challengedPopup:show()
     end
 end
 

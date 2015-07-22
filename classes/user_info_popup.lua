@@ -14,8 +14,8 @@ local user_info_popup_mt = { __index = user_info_popup }
 local POPUP_IMG = "images/game_menu_book.jpg"
 local POPUP_WIDTH = 750
 local POPUP_HEIGHT = 895
-local SPACING_LARGE = 75
-local SPACING_SMALL = 50
+local SPACING_LARGE = 90
+local SPACING_SMALL = 75
 local TEXT_PADDING = 20
 
 function user_info_popup.new(user, parentScene, authUser, showPlayGame, onDestroy)
@@ -123,17 +123,17 @@ function user_info_popup:createInfoTextGroup()
     local dateJoinedText = os.date("%B %d, %Y", math.floor(user.dateJoined / 1000))
     local dateJoinedValue = self:createTextInfo(false, group, dateJoinedText, SPACING_LARGE * 2)
 
-    local winsKey = self:createTextInfo(true, group, "Wins", SPACING_LARGE * 2 + SPACING_SMALL)
-    local winsValue = self:createTextInfo(false, group, tostring(user.wins), SPACING_LARGE * 2 + SPACING_SMALL)
+    local ratingKey = self:createTextInfo(true, group, "Rating", SPACING_LARGE * 2 + SPACING_SMALL)
+    local ratingValue = self:createTextInfo(false, group, tostring(user.rating), SPACING_LARGE * 2 + SPACING_SMALL)
 
-    local lossesKey = self:createTextInfo(true, group, "Losses", SPACING_LARGE * 2 + SPACING_SMALL * 2)
-    local lossesValue = self:createTextInfo(false, group, tostring(user.losses), SPACING_LARGE * 2 + SPACING_SMALL * 2)
+    local winsKey = self:createTextInfo(true, group, "Wins", SPACING_LARGE * 2 + SPACING_SMALL * 2)
+    local winsValue = self:createTextInfo(false, group, tostring(user.wins), SPACING_LARGE * 2 + SPACING_SMALL * 2)
 
-    local tiesKey = self:createTextInfo(true, group, "Ties", SPACING_LARGE * 2 + SPACING_SMALL * 3)
-    local tiesValue = self:createTextInfo(false, group, tostring(user.ties), SPACING_LARGE * 2 + SPACING_SMALL * 3)
+    local lossesKey = self:createTextInfo(true, group, "Losses", SPACING_LARGE * 2 + SPACING_SMALL * 3)
+    local lossesValue = self:createTextInfo(false, group, tostring(user.losses), SPACING_LARGE * 2 + SPACING_SMALL * 3)
 
-    local ratingKey = self:createTextInfo(true, group, "Rating", SPACING_LARGE * 2 + SPACING_SMALL * 4)
-    local ratingValue = self:createTextInfo(false, group, tostring(user.rating), SPACING_LARGE * 2 + SPACING_SMALL * 4)
+    local tiesKey = self:createTextInfo(true, group, "Ties", SPACING_LARGE * 2 + SPACING_SMALL * 4)
+    local tiesValue = self:createTextInfo(false, group, tostring(user.ties), SPACING_LARGE * 2 + SPACING_SMALL * 4)
 
     group:insert(title)
 
@@ -146,7 +146,7 @@ function user_info_popup:createTitle(parent, text, y)
         y = y,
         text = text,
         font = fonts.BOLD_FONT,
-        fontSize = 48
+        fontSize = 56
     }
     usernameText:setFillColor(1, 1, 1)
     return usernameText
@@ -157,8 +157,8 @@ function user_info_popup:createTextInfo(isKey, parent, text, y, font, fontSize)
         parent = parent,
         y = y,
         text = text,
-        font = font or isKey and fonts.BOLD_FONT or native.systemFont,
-        fontSize = fontSize or 32,
+        font = font or isKey and fonts.BOLD_FONT or fonts.DEFAULT_FONT,
+        fontSize = fontSize or 40,
     }
     text.anchorX = isKey and 1.0 or 0.0
     text.x = isKey and -TEXT_PADDING or TEXT_PADDING

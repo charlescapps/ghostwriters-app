@@ -11,6 +11,7 @@ local widget = require("widget")
 local display = require("display")
 local imgs = require("globals.imgs")
 local scene_helpers = require("common.scene_helpers")
+local challenged_popup = require("classes.challenged_popup")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.start_multiplayer_scene"
@@ -109,7 +110,12 @@ function scene:startGameWithUser(userModel)
         new_game_data.rival = userModel
         new_game_data.gameType = common_api.TWO_PLAYER
         composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
+
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
+
+        local challengedPopup = challenged_popup.new(userModel, nil)
+        challengedPopup:show()
+
     end
 end
 

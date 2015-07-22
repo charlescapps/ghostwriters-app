@@ -8,6 +8,7 @@ local display = require("display")
 local game_helpers = require("common.game_helpers")
 local scene_helpers = require("common.scene_helpers")
 local ranking_tip = require("tips.ranking_tip")
+local challenged_popup = require("classes.challenged_popup")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.leaderboard_scene"
@@ -101,6 +102,9 @@ function scene:startGameWithUser(userModel)
         new_game_data.gameType = common_api.TWO_PLAYER
         composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
         composer.gotoScene("scenes.choose_board_size_scene", "fade")
+
+        local challengedPopup = challenged_popup.new(userModel)
+        challengedPopup:show()
     end
 end
 
