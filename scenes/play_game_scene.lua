@@ -451,8 +451,8 @@ function scene:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
     if not self:didOpponentPlayMove(self.movesToDisplay) then
         print("Calling applyOpponentsMove. Creating a new board. Moves: " .. json.encode(self.movesToDisplay))
         self.movesToDisplay = nil
-        self:fadeToTurn(false)
         if not skipResetBoard then
+            self:fadeToTurn(false)
             self:resetBoardAndShowModals()
         end
         if onApplyMovesComplete then
