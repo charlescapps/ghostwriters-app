@@ -181,6 +181,7 @@ function board_class:getSquaresGroupTouchListener()
             self.boardGroupStartX, self.boardGroupStartY = nil, nil
             display.getCurrentStage():setFocus(nil)
         end
+        return true
     end
 end
 
@@ -410,7 +411,7 @@ function board_class:createBoardContainer()
     boardGroup:insert(squaresGroup)
     boardGroup:insert(tilesGroup)
     boardGroup:insert(rackTilesGroup)
-    boardGroup:addEventListener( "tap", self:getBoardTapListener() )
+    boardGroup:addEventListener("tap", self:getBoardTapListener())
 
 	boardContainer:insert(boardGroup)
 
