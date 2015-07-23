@@ -116,12 +116,12 @@ function M:drawPickerRow()
     end
 
     if not self.isDisabled then
-        local buttonSize = self.rowHeight
+        local buttonSize = self.rowHeight * 1.4
         local pickerButton = widget.newButton {
             width = buttonSize,
             height = buttonSize,
-            defaultFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_default.png",
-            overFile = self.isDisabled and "images/picker_disabled.png" or "images/picker_over.png",
+            defaultFile = "images/picker_default.png",
+            overFile = "images/picker_over.png",
             onRelease = onRelease,
             isEnabled = not self.isDisabled
         }
@@ -234,7 +234,7 @@ function M:drawOptionRow(index, parent)
         text = row.text2,
         fontSize = self.fontSize,
         font = self.column2Font,
-        x = self.column2Left - display.contentCenterX + 60,
+        x = self.column2Left - display.contentCenterX,
         y = rowY
     }
     text2.anchorX = 0

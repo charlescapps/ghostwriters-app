@@ -204,11 +204,11 @@ function game_options_modal:drawGameDensityOptions()
 end
 
 function game_options_modal:getRadioButtonSheet()
-    return self.isReadOnly and game_ui:getRadioButtonSheetDisabled() or game_ui:getRadioButtonSheet()
+    return game_ui:getRadioButtonSheet()
 end
 
 function game_options_modal:getCheckboxesSheet()
-    return self.isReadOnly and game_ui:getCheckboxesSheetDisabled() or game_ui:getCheckboxesSheet()
+    return game_ui:getCheckboxesSheet()
 end
 
 function game_options_modal:setRadioButtonEnabledState(radioButton, radioGroup)

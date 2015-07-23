@@ -161,7 +161,7 @@ function M:drawSetPasswordTipButton()
     local tipsButton = tips_helpers.drawTipButton(
         "Set a password so you can login as the same player on another device.\n\n" ..
         "Make sure you never lose access to your account!",
-        75, 75)
+        100, 100)
     local b = self.setPasswordButton
     tipsButton.x = b.x + b.contentWidth/2 + tipsButton.width/2
     tipsButton.y = b.y
@@ -180,7 +180,7 @@ end
 function M:drawLogoutTipButton()
     local tipsButton = tips_helpers.drawTipButton(
         "Logout so you can login as a user from another device.",
-        75, 75)
+        100, 100)
     local b = self.logoutButton
     tipsButton.x = b.x + b.contentWidth/2 + tipsButton.width/2
     tipsButton.y = b.y

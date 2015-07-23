@@ -1,7 +1,6 @@
 local display = require("display")
 local common_ui = require("common.common_ui")
 local math = require("math")
-local table = require("table")
 local widget = require("widget")
 local in_app_purchase_popup = require("classes.in_app_purchase_popup")
 
@@ -16,8 +15,8 @@ local ALL_TOKENS_WIDTH = 550
 local TOKEN_WIDTH = 100
 local TOKEN_HEIGHT = 100
 
-local PLUS_WIDTH = 110
-local PLUS_HEIGHT = 110
+local PLUS_WIDTH = 130
+local PLUS_HEIGHT = 130
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -112,9 +111,9 @@ function M:drawPurchaseButton()
         onEvent = function(event)
             if event.phase == "began" then
                 display.getCurrentStage():setFocus(event.target)
-                onRelease()
             elseif event.phase == "ended" then
                 display.getCurrentStage():setFocus(nil)
+                onRelease()
             elseif event.phase == "cancelled" then
                 display.getCurrentStage():setFocus(nil)
             end

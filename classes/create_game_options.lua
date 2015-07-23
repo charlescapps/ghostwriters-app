@@ -9,11 +9,12 @@ local fonts = require("globals.fonts")
 local imgs = require("globals.imgs")
 local new_game_data = require("globals.new_game_data")
 local sheet_helpers = require("globals.sheet_helpers")
+local tips_helpers = require("tips.tips_helpers")
 
 local M = {}
 
 local LEFT_COLUMN = 20
-local MID_COLUMN = display.contentCenterX - 60
+local MID_COLUMN = display.contentCenterX
 local RIGHT_COLUMN = display.contentCenterX + 275
 
 local mt = { __index = M }
@@ -54,6 +55,13 @@ function M:drawBoardSizeOptions()
         y = 250
     }
     title:setFillColor(0, 0, 0)
+
+    local titleTipButton = tips_helpers.drawTipButton(
+        "Choose the board size.\n\n" ..
+        "The larger the board, the more your rating increases for winning games.", 100, 100)
+    titleTipButton.anchorX = 0
+    titleTipButton.x = title.x + title.contentWidth / 2
+    titleTipButton.y = title.y
 
     local rows = {
         {
@@ -99,6 +107,7 @@ function M:drawBoardSizeOptions()
     }
 
     group:insert(title)
+    group:insert(titleTipButton)
     group:insert(self.boardSizePicker:render())
 
     return group
@@ -108,7 +117,7 @@ function M:drawDictionaryOptions()
     local group = display.newGroup()
 
     local title = display.newText {
-        text = "Dictionary",
+        text = "Special Dictionary",
         font = fonts.BOLD_FONT,
         fontSize = 50,
         x = display.contentCenterX,
@@ -116,9 +125,17 @@ function M:drawDictionaryOptions()
     }
     title:setFillColor(0, 0, 0)
 
+    local titleTipButton = tips_helpers.drawTipButton(
+        "Add extra playable words to the game.\n\n" ..
+        "View the special dictionary from the in-game menu.\n\n" ..
+        "Earn bonus points by playing words in the dictionary.", 100, 100)
+    titleTipButton.anchorX = 0
+    titleTipButton.x = title.x + title.contentWidth / 2
+    titleTipButton.y = title.y
+
     local rows = {
         {
-            text1 = "English",
+            text1 = "None",
             text2 = "0 x",
             value = nil
         },
@@ -166,6 +183,7 @@ function M:drawDictionaryOptions()
     }
 
     group:insert(title)
+    group:insert(titleTipButton)
     group:insert(self.dictionaryPicker:render())
 
     return group
@@ -199,6 +217,14 @@ function M:drawBonusOptions()
     }
     title:setFillColor(0, 0, 0)
 
+    local titleTipButton = tips_helpers.drawTipButton(
+        "Get an edge, start the game with bonus tiles!\n\n" ..
+                "Question tiles can be played as any letter.\n\n" ..
+                "Oracle tiles reveal a powerful move.", 100, 100)
+    titleTipButton.anchorX = 0
+    titleTipButton.x = title.x + title.contentWidth / 2
+    titleTipButton.y = title.y
+
     local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
     local questionIndex = sheetObj.module:getFrameIndex("?_rack")
     local scryIndex = sheetObj.module:getFrameIndex("scry_rack")
@@ -206,6 +232,7 @@ function M:drawBonusOptions()
     self.scryTilesStepper = M.drawBonusOptionRow(group, "Oracle Tiles", 200, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
 
     group:insert(title)
+    group:insert(titleTipButton)
     return group
 end
 
@@ -224,7 +251,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
     local stepperValue = display.newText {
         parent = parent,
         text = "0 x",
-        x = MID_COLUMN,
+        x = MID_COLUMN - 40,
         y = yPosition,
         font = fonts.BOLD_FONT,
         fontSize = 48
