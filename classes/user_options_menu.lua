@@ -6,6 +6,7 @@ local fonts = require("globals.fonts")
 local composer = require("composer")
 local tips_helpers = require("tips.tips_helpers")
 local login_common = require("login.login_common")
+local user_info_popup = require("classes.user_info_popup")
 
 local M = {}
 local meta = { __index = M }
@@ -26,6 +27,7 @@ function M:render()
 
     self.screen = self:drawScreen()
     self.background = self:drawBackground()
+    self.myStatsButton = self:drawMyStatsButton()
     self.setPasswordButton = self:drawSetPasswordButton()
     self.setPasswordTipButton = self:drawSetPasswordTipButton()
     self.logoutButton = self:drawLogoutButton()
@@ -35,6 +37,7 @@ function M:render()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
+    self.view:insert(self.myStatsButton)
     self.view:insert(self.setPasswordButton)
     self.view:insert(self.setPasswordTipButton)
     self.view:insert(self.logoutButton)
@@ -130,6 +133,20 @@ function M:drawOptionButton(text, y, onRelease)
     optionButton.y = y
 
     return optionButton
+end
+
+function M:drawMyStatsButton()
+    local function onRelease()
+        local user = login_common.getUser()
+        if not user then
+            return
+        end
+        local userInfoPopup = user_info_popup.new(user, nil, user, false)
+        local view = userInfoPopup:render()
+        userInfoPopup:show()
+    end
+
+    return self:drawOptionButton("My Stats", display.contentCenterY - 300, onRelease)
 end
 
 function M:drawSetPasswordButton()

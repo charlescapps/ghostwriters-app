@@ -7,6 +7,7 @@ local math = require("math")
 
 local common_ui = require("common.common_ui")
 local fonts = require("globals.fonts")
+local format_helpers = require("common.format_helpers")
 
 local user_info_popup = {}
 local user_info_popup_mt = { __index = user_info_popup }
@@ -124,7 +125,8 @@ function user_info_popup:createInfoTextGroup()
     local dateJoinedValue = self:createTextInfo(false, group, dateJoinedText, SPACING_LARGE * 2)
 
     local ratingKey = self:createTextInfo(true, group, "Rating", SPACING_LARGE * 2 + SPACING_SMALL)
-    local ratingValue = self:createTextInfo(false, group, tostring(user.rating), SPACING_LARGE * 2 + SPACING_SMALL)
+    local ratingText = format_helpers.comma_value(user.rating)
+    local ratingValue = self:createTextInfo(false, group, ratingText, SPACING_LARGE * 2 + SPACING_SMALL)
 
     local winsKey = self:createTextInfo(true, group, "Wins", SPACING_LARGE * 2 + SPACING_SMALL * 2)
     local winsValue = self:createTextInfo(false, group, tostring(user.wins), SPACING_LARGE * 2 + SPACING_SMALL * 2)
