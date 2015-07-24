@@ -2,6 +2,7 @@ local display = require("display")
 local widget = require("widget")
 local graphics = require("graphics")
 local ghostly_tall = require("spritesheets.ghostly_tall")
+local back_button_setup = require("android.back_button_setup")
 
 local word_spinner_class = {}
 local word_spinner_class_mt = { __index = word_spinner_class }
@@ -42,6 +43,7 @@ function word_spinner_class:start()
     self.screen:toFront()
     self.spinner:toFront()
     self.spinner:start()
+    back_button_setup.setupDefaultBackListener()
 end
 
 function word_spinner_class:stop()
@@ -55,6 +57,7 @@ function word_spinner_class:stop()
         self.screen:removeSelf()
         self.screen = nil
     end
+    back_button_setup.restoreBackButtonListenerCurrentScene()
 end
 
 function word_spinner_class:createScreen()

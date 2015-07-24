@@ -1,9 +1,25 @@
 local system = require("system")
 local json = require("json")
+local composer = require("composer")
 
 local M = {}
 
 M.currentBackListener = nil
+
+function M.restoreBackButtonListenerCurrentScene()
+    local currentSceneName = composer.getSceneName("current")
+    if not currentSceneName then
+        return
+    end
+
+    local currentScene = composer.getScene(currentSceneName)
+
+    if not currentScene then
+        return
+    end
+
+    M.setupBackButtonListener(currentScene.backButton)
+end
 
 function M.setupBackButtonListener(backButton)
 

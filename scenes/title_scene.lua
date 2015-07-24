@@ -77,6 +77,9 @@ function scene:onFetchGameSummaryFail()
 end
 
 function scene:fetchGameSummaryInfo()
+    if self.myTurnGamesBookmark then
+        return
+    end
     common_api.getMyGamesSummary(self:onFetchGameSummarySuccess(), self:onFetchGameSummaryFail(), false)
 end
 
@@ -117,15 +120,14 @@ function scene:show( event )
             return
         end
 
-        print("Logged in as=" .. json.encode( self.creds.user ))
+        -- Fetch num games where it's your turn / num challengers to display on info bookmarks
+        self:fetchGameSummaryInfo()
 
         if self.userInfoText then
             self.userInfoText:removeSelf()
         end
         self.userInfoText = self:createUserInfoText()
         sceneGroup:insert(self.userInfoText)
-
-        self:fetchGameSummaryInfo()
 
     elseif ( phase == "did" ) then
         if not self.creds then
