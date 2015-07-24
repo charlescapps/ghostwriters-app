@@ -1,6 +1,7 @@
 local system = require("system")
 local json = require("json")
 local composer = require("composer")
+local native = require("native")
 
 local M = {}
 
@@ -32,15 +33,25 @@ function M.setupBackButtonListener(backButton)
         return
     end
 
+    M.setAndroidBackListener(backButton.onReleaseListener)
+end
+
+function M.setAndroidBackListener(onReleaseListener)
+
+    if system.getInfo("platformName") ~= "Android" then
+        return
+    end
+
+    if type(onReleaseListener) ~= "function" then
+        M.setupDefaultBackListener()
+        return
+    end
+
     M.removeOldBackButtonListener()
 
     M.currentBackListener = function(event)
-        print("Key event: " .. json.encode(event))
         if event.phase == "up" and event.keyName == "back" then
-            print("SUCCESS - Key event for phase == 'up' and keyName == 'back'!")
-            if M.isBackButtonValid(backButton) then
-                backButton.onReleaseListener()
-            end
+            onReleaseListener()
         end
         return true
     end
@@ -72,6 +83,35 @@ function M.removeOldBackButtonListener()
         Runtime:removeEventListener("key", M.currentBackListener)
         M.currentBackListener = nil
     end
+end
+
+function M.setBackListenerToExitApp()
+    local function onReleaseListener()
+
+        local function onClick(event)
+            if event.action == "clicked" and event.index == 2 then
+                native.requestExit()
+            end
+        end
+        native.showAlert("Exit Ghostwriters", "Really exit?", {"Cancel", "OK"}, onClick)
+    end
+
+    M.setAndroidBackListener(onReleaseListener)
+end
+
+function M.setBackListenerToReturnToTitleScene()
+    local function onReleaseListener()
+
+        local function onClick(event)
+            if event.action == "clicked" and event.index == 2 then
+                composer.gotoScene("scenes.title_scene")
+            end
+        end
+        native.showAlert("Return to Main Menu", "Exit game and return to the Main Menu?", {"Cancel", "OK"}, onClick)
+    end
+
+    M.setAndroidBackListener(onReleaseListener)
+
 end
 
 return M

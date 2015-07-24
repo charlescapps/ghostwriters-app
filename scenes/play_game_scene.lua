@@ -22,6 +22,7 @@ local scry_tile_tip = require("tips.scry_tile_tip")
 local question_tile_tip = require("tips.question_tile_tip")
 local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
 local challenged_popup = require("classes.challenged_popup")
+local back_button_setup = require("android.back_button_setup")
 
 local scene = composer.newScene()
 
@@ -145,6 +146,8 @@ function scene:show(event)
         if not didShowModal then
            didShowModal = question_tile_tip.new(self):triggerTipOnCondition() or didShowModal
         end
+
+        back_button_setup.setBackListenerToReturnToTitleScene()
     end
 end
 

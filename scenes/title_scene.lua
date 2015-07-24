@@ -13,6 +13,7 @@ local fonts = require("globals.fonts")
 local scene_helpers = require("common.scene_helpers")
 local widget = require("widget")
 local user_options_menu = require("classes.user_options_menu")
+local back_button_setup = require("android.back_button_setup")
 
 -- Constants
 scene.sceneName = "scenes.title_scene"
@@ -136,6 +137,8 @@ function scene:show( event )
 
         app_state:setAppLoaded()
         app_state:callAppLoadedListener()
+
+        back_button_setup.setBackListenerToExitApp()
     end
 end
 
