@@ -14,7 +14,7 @@ local DEFAULT_TIMEOUT = 30
 
 -- Constants
 -- Meta stuff
-M.MAX_GAMES_IN_PROGRESS = 10
+M.MAX_GAMES_IN_PROGRESS = 100
 
 -- Game types
 M.SINGLE_PLAYER = "SINGLE_PLAYER"

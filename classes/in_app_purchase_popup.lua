@@ -34,9 +34,9 @@ function M:render()
     self.view:insert(self.closeX)
 
     -- Draw the products
-    self.bookpack1_row = self:drawRow("book_pack_1", "10 books", 300, "images/book_pack1.png", "images/book_pack1_over.png")
-    self.bookpack2_row = self:drawRow("book_pack_2", "25 books", 550, "images/book_pack2.png", "images/book_pack2_over.png")
-    self.bookpack3_row = self:drawRow("book_pack_3", "60 books", 800, "images/book_pack3.png", "images/book_pack3_over.png")
+    self.bookpack1_row = self:drawRow("book_pack_1", "100 books", 300, "images/book_pack1.png", "images/book_pack1_over.png")
+    self.bookpack2_row = self:drawRow("book_pack_2", "225 books", 550, "images/book_pack2.png", "images/book_pack2_over.png")
+    self.bookpack3_row = self:drawRow("book_pack_3", "500 books", 800, "images/book_pack3.png", "images/book_pack3_over.png")
     self.bookpack4_row = self:drawRow("infinite_books", "Infinite books", 1050, "images/book_pack_infinite.png", "images/book_pack_infinite_over.png")
 
     self.view:insert(self.bookpack1_row)
@@ -111,7 +111,7 @@ function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)
     local text = display.newText {
         text = text,
         font = fonts.BOLD_FONT,
-        fontSize = 40,
+        fontSize = 48,
         x = 100,
         y = 0
     }

@@ -160,7 +160,7 @@ function M:getButtonText()
     if self.specialDict == common_api.DICT_POE then
         return "How fustian!"
     elseif self.specialDict == common_api.DICT_LOVECRAFT then
-        return "So eldritch."
+        return "Eldritch"
     elseif self.specialDict == common_api.DICT_MYTHOS then
         return "Cthulhu fhtagn!"
     end
