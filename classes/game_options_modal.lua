@@ -90,7 +90,7 @@ function game_options_modal:drawOldBook()
 end
 
 function game_options_modal:drawGameDensityOptions()
-    local Y_SPACING = 80
+    local Y_SPACING = 100
 
     local group = display.newGroup()
     local radioGroup = display.newGroup()
@@ -101,7 +101,7 @@ function game_options_modal:drawGameDensityOptions()
     local wordDensityTitle = display.newText {
         text = "Word Density",
         font = fonts.BOLD_FONT,
-        fontSize = 40
+        fontSize = 50
     }
     wordDensityTitle.anchorX = 0
     group:insert(wordDensityTitle)
@@ -110,7 +110,7 @@ function game_options_modal:drawGameDensityOptions()
     local sparseText = display.newText {
         text = "Sparse (6-15 words)",
         font = native.systemFont,
-        fontSize = 32,
+        fontSize = 46,
         y = Y_SPACING
     }
     sparseText.anchorX = 0
@@ -126,11 +126,11 @@ function game_options_modal:drawGameDensityOptions()
         initialSwitchState = new_game_data.gameDensity == common_api.LOW_DENSITY,
         style = "radio",
         sheet = self:getRadioButtonSheet(),
-        width = 60,
-        height = 60,
-        frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
-        frameOff = radio_button_sheet:getFrameIndex("radio_button_off"),
-        x = 450,
+        width = 120,
+        height = 120,
+        frameOn = radio_button_sheet:getFrameIndex("radio_button_closed"),
+        frameOff = radio_button_sheet:getFrameIndex("radio_button_open"),
+        x = 500,
         y = Y_SPACING,
         onRelease = onReleaseSparse
     }
@@ -141,7 +141,7 @@ function game_options_modal:drawGameDensityOptions()
     local regularText = display.newText {
         text = "Regular (7-18 words)",
         font = native.systemFont,
-        fontSize = 32,
+        fontSize = 46,
         y = Y_SPACING * 2
     }
     regularText.anchorX = 0
@@ -157,11 +157,11 @@ function game_options_modal:drawGameDensityOptions()
         initialSwitchState = new_game_data.gameDensity == common_api.MEDIUM_DENSITY,
         style = "radio",
         sheet = self:getRadioButtonSheet(),
-        width = 60,
-        height = 60,
-        frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
-        frameOff = radio_button_sheet:getFrameIndex("radio_button_off"),
-        x = 450,
+        width = 120,
+        height = 120,
+        frameOn = radio_button_sheet:getFrameIndex("radio_button_closed"),
+        frameOff = radio_button_sheet:getFrameIndex("radio_button_open"),
+        x = 500,
         y = Y_SPACING * 2,
         onRelease = onReleaseRegular
     }
@@ -172,7 +172,7 @@ function game_options_modal:drawGameDensityOptions()
     local denseText = display.newText {
         text = "Dense (8-21 words)",
         font = native.systemFont,
-        fontSize = 32,
+        fontSize = 46,
         y = Y_SPACING * 3
     }
     denseText.anchorX = 0
@@ -188,11 +188,11 @@ function game_options_modal:drawGameDensityOptions()
         initialSwitchState = new_game_data.gameDensity == common_api.HIGH_DENSITY,
         style = "radio",
         sheet = self:getRadioButtonSheet(),
-        width = 60,
-        height = 60,
-        frameOn = radio_button_sheet:getFrameIndex("radio_button_on"),
-        frameOff = radio_button_sheet:getFrameIndex("radio_button_off"),
-        x = 450,
+        width = 120,
+        height = 120,
+        frameOn = radio_button_sheet:getFrameIndex("radio_button_closed"),
+        frameOff = radio_button_sheet:getFrameIndex("radio_button_open"),
+        x = 500,
         y = Y_SPACING * 3,
         onRelease = onReleaseDense
     }
@@ -222,16 +222,16 @@ function game_options_modal:setRadioButtonEnabledState(radioButton, radioGroup)
 end
 
 function game_options_modal:drawBonusOptions()
-    local Y_SPACING = 80
+    local Y_SPACING = 100
 
     local group = display.newGroup()
-    group.x, group.y = 150, 600
+    group.x, group.y = 150, 650
 
     -- Bonuses title
     local bonusOptionsTitle = display.newText {
         text = "Bonus Squares",
         font = fonts.BOLD_FONT,
-        fontSize = 40
+        fontSize = 50
     }
     bonusOptionsTitle.anchorX = 0
     group:insert(bonusOptionsTitle)
@@ -240,7 +240,7 @@ function game_options_modal:drawBonusOptions()
     local randomBonusesOptionText = display.newText {
         text = "Random bonuses?",
         font = native.systemFont,
-        fontSize = 36,
+        fontSize = 46,
         y = Y_SPACING
     }
     randomBonusesOptionText.anchorX = 0
@@ -262,7 +262,7 @@ function game_options_modal:drawBonusOptions()
         height = 60,
         frameOn = checkboxes_sheet:getFrameIndex("checkbox_checked"),
         frameOff = checkboxes_sheet:getFrameIndex("checkbox_unchecked"),
-        x = 450,
+        x = 500,
         y = Y_SPACING,
         onRelease = onReleaseCheckbox
     }

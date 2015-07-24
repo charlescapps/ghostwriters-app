@@ -135,7 +135,7 @@ function M:drawDictionaryOptions()
 
     local rows = {
         {
-            text1 = "None",
+            text1 = "No Extra Words",
             text2 = "0 x",
             value = nil
         },
