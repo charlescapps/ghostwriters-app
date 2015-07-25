@@ -27,7 +27,7 @@ local clickSinglePlayer = function()
 end
 
 local clickOneOnOne = function()
-	 print( "Clicked play with rivals" )
+	 print("Clicked Two Player")
 	 new_game_data.clearAll()
 	 new_game_data.gameType = common_api.TWO_PLAYER
      nav.goToSceneFrom(scene.sceneName, "scenes.start_multiplayer_scene", "fade")
@@ -57,8 +57,8 @@ function scene:onFetchGameSummarySuccess()
         local numGamesMyTurn = summary.numGamesMyTurn
         local numGamesOffered = summary.numGamesOffered
 
-        print("Found numGamesMyTurn=" .. numGamesMyTurn)
-        print("Found numGamesOffered=" .. numGamesOffered)
+        print("Found numGamesMyTurn=" .. tostring(numGamesMyTurn))
+        print("Found numGamesOffered=" .. tostring(numGamesOffered))
 
         self.myTurnGamesBookmark = slidey_bookmark.new(numGamesMyTurn, 1, 750)
         self.offeredGamesBookmark = slidey_bookmark.new(numGamesOffered, 2, 950)
@@ -200,8 +200,8 @@ function scene:createUserOptionsButton()
         y = display.contentHeight - 80,
         defaultFile = "images/gear-icon.png",
         overFile = "images/gear-icon_over.png",
-        width = 100,
-        height = 100,
+        width = 125,
+        height = 125,
         onRelease = onRelease
     }
 end

@@ -54,9 +54,6 @@ function scene:createMyGamesViewAndQuery(user)
 
     self.myGamesView = my_games_view_class.new(user, true, self)
 
-    -- Render empty games view
-    self.view:insert(self.myGamesView:render())
-
     common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 end
 

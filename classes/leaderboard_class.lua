@@ -108,9 +108,7 @@ function leaderboard_class:getOnLoadRanksSuccessListener()
 
         local focusedUserIndex
 
-        print("Adding rows...")
         for i = 1, math.max(#self.users, MIN_ROWS) do
-            print("Inserting row #" .. i)
             local user = self.users[i]
             if user and (self.userId and self.userId == user.id or
                     self.username and self.username == user.username or

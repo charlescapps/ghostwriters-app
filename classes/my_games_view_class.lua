@@ -169,7 +169,7 @@ function my_games_view_class:createOnRowRenderListener()
         miniGameViewGroup.x = PAD
 
         row:insert(miniGameViewGroup)
-        transition.fadeIn(miniGameViewGroup, { time = 2000 })
+        transition.fadeIn(miniGameViewGroup, { time = 1000 })
     end
 end
 

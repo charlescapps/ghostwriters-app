@@ -189,8 +189,8 @@ function scene:createGearButton()
         y = 1200,
         defaultFile = "images/gear-icon.png",
         overFile = "images/gear-icon_over.png",
-        width = 100,
-        height = 100,
+        width = 125,
+        height = 125,
         onRelease = onRelease
     }
 end

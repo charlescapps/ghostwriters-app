@@ -16,7 +16,6 @@ M.fetchCredentials = function()
 
 	if not M.isValidCreds(creds) then
 		print("No ghostWritersUserCreds.json file found, or data is missing username/cookie.")
-        print("Data found = " .. json.encode(creds))
         loadsave.saveTable({}, CREDS_FILE, system.DocumentsDirectory)
 		creds = nil
     end

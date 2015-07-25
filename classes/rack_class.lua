@@ -270,7 +270,6 @@ function rack_class:floatTile(rackTileImg, contentX, contentY)
         self.parentScene.view:insert(self.floatingTiles)
     end
 
-    print("Inserting tile to floating tiles group")
     self.floatingTiles:insert(rackTileImg)
     rackTileImg.x, rackTileImg.y = contentX, contentY
     self.floatingTiles:toFront()

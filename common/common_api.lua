@@ -173,8 +173,7 @@ M.isValidUser = function(user)
 end
 
 M.login = function(username, password, onSuccess, onFail)
-    local spinner = word_spinner_class.new()
-    spinner:start()
+    word_spinner_class.start()
 
 	local basic = getBasicAuthHeader(username, password)
 	local headers = { ["Authorization"] = basic,
@@ -184,9 +183,7 @@ M.login = function(username, password, onSuccess, onFail)
 					 timeout = DEFAULT_TIMEOUT }
 	local listener = function(event)
 		if "ended" == event.phase then
-            if spinner then
-                spinner:stop()
-            end
+            word_spinner_class.stop()
 			if event.isError or not event.response then
 				M.showNetworkError()
 				print ("Network error occurred logging in as " .. username .. ":" .. password .. "! Event = " .. json.encode(event))
@@ -228,10 +225,8 @@ M.login = function(username, password, onSuccess, onFail)
 end
 
 M.getNextUsername = function(deviceId, onSuccess, onFail, doCreateSpinner)
-    local spinner
     if doCreateSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
+        word_spinner_class.start()
     end
 
     -- Use basic auth as the Initial User
@@ -246,8 +241,8 @@ M.getNextUsername = function(deviceId, onSuccess, onFail, doCreateSpinner)
 
     local listener = function(event)
         if "ended" == event.phase then
-            if spinner then
-                spinner:stop()
+            if doCreateSpinner then
+                word_spinner_class.stop()
             end
             if event.isError or not event.response then
                 print ("Network error occurred: " .. json.encode(event))
@@ -277,10 +272,8 @@ end
 
 M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFail, doCreateSpinner)
 
-    local spinner
     if doCreateSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
+        word_spinner_class.start()
     end
 
 	-- Use basic auth as the Initial User 
@@ -294,8 +287,8 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 					 body = body }
 	local listener = function(event)
 		if "ended" == event.phase then
-            if spinner then
-                spinner:stop()
+            if doCreateSpinner then
+                word_spinner_class.stop()
             end
 
 			if event.isError or not event.response then
@@ -343,7 +336,7 @@ M.createNewAccountAndLogin = function(username, email, deviceId, onSuccess, onFa
 	return network.request(urls.usersURL(), "POST", listener, params)
 end
 
-M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, onNetworkFail, spinner)
+M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, onNetworkFail, doCreateSpinner)
 
 	local cookie = login_common.getCookie()
     if not cookie then
@@ -361,8 +354,8 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 	local listener = function(event)
 		if "ended" == event.phase then
             -- If we have a spinner, then stop it when the request is finished.
-            if spinner then
-                spinner:stop()
+            if doCreateSpinner then
+                word_spinner_class.stop()
             end
 			if event.isError or not event.response then
                 if onNetworkFail then
@@ -405,19 +398,16 @@ end
 M.doGetWithSpinner = function(url, onSuccess, onFail, onNetworkFail, doCreateSpinner)
     local spinner
     if doCreateSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
+        word_spinner_class.start()
     end
-    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail, spinner)
+    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail, doCreateSpinner)
 end
 
 M.doPostWithSpinner = function(url, jsonTable, expectedStatus, onSuccess, onFail, onNetworkFail, doCreateSpinner)
-    local spinner
     if doCreateSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
+        word_spinner_class.start()
     end
-    M.doApiRequest(url, "POST", json.encode(jsonTable), expectedStatus or 200, onSuccess, onFail, onNetworkFail, spinner)
+    M.doApiRequest(url, "POST", json.encode(jsonTable), expectedStatus or 200, onSuccess, onFail, onNetworkFail, doCreateSpinner)
 end
 
 M.isValidUsernameChars = function(text)
@@ -452,12 +442,10 @@ end
 
 M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 	local url = urls.movesURL()
-    local spinner
     if doMakeSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
+        word_spinner_class.start()
     end
-	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, spinner)
+	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, doMakeSpinner)
 end
 
 M.getGameById = function(gameId, includeMoves, currentMove, onSuccess, onFail, onNetworkFail, doMakeSpinner)
@@ -492,22 +480,18 @@ end
 
 M.acceptGameOffer = function(gameId, numBlankTiles, numScryTiles, onSuccess, onFail, doCreateSpinner)
     local url = urls.getAcceptGameURL(gameId, numBlankTiles, numScryTiles)
-    local spinner
     if doCreateSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
+        word_spinner_class.start()
     end
-    M.doApiRequest(url, "POST", nil, 200, onSuccess, onFail, onFail, spinner)
+    M.doApiRequest(url, "POST", nil, 200, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
 M.rejectGameOffer = function(gameId, onSuccess, onFail, doCreateSpinner)
     local url = urls.getRejectGameURL(gameId)
-    local spinner
     if doCreateSpinner then
-        spinner = word_spinner_class.new()
-        spinner:start()
+        word_spinner_class.start()
     end
-    M.doApiRequest(url, "POST", nil, 200, onSuccess, onFail, onFail, spinner)
+    M.doApiRequest(url, "POST", nil, 200, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
 M.getUsersWithSimilarRank = function(userId, maxResults, onSuccess, onFail, doCreateSpinner)

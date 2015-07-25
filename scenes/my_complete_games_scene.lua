@@ -38,7 +38,6 @@ function scene:show( event )
         end
         local user = self.creds.user
         self.myGamesView = my_games_view_class.new(user, false, self)
-        self.view:insert(self.myGamesView:render())
 
         common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, false, false, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 

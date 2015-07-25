@@ -264,11 +264,11 @@ function user_search_widget:getOnQuerySuccessListener()
         for i = 1, #(self.users) do
             local rowColor = i % 2 == 1 and ODD_ROW_COLOR or EVEN_ROW_COLOR
 
-            print("Row: " .. i .. ", user ID= " .. tostring(self.users[i].id) .. ", authUserId = " .. tostring(self.authUser.id))
+            --print("Row: " .. i .. ", user ID= " .. tostring(self.users[i].id) .. ", authUserId = " .. tostring(self.authUser.id))
 
             if self.users and self.users[i] and self.users[i].id == self.authUser.id then
                 self.authUserIndex = i
-                print("Found authUserIndex = " .. i)
+                --print("Found authUserIndex = " .. i)
             end
 
             self.tableView:insertRow {
@@ -288,10 +288,10 @@ function user_search_widget:getOnQuerySuccessListener()
         end
 
         if self.authUserIndex then
-            print("Scrolling to authUser at index = " .. self.authUserIndex)
+            --print("Scrolling to authUser at index = " .. self.authUserIndex)
             self.tableView:scrollToIndex(self.authUserIndex)
         else
-            print("Scrolling to index = 1")
+            --print("Scrolling to index = 1")
             self.tableView:scrollToIndex(1)
         end
     end

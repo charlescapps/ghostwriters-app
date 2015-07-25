@@ -36,7 +36,6 @@ end
 function my_challengers_view_class:render()
     common_ui.safeRemove(self.view)
 
-    print("Rendering My Games view...")
     local group = display.newGroup()
 
     local title = self:renderTitle()
@@ -45,7 +44,6 @@ function my_challengers_view_class:render()
         self.tableView = self:renderTableView()
         self:createMiniGames()
         for i = 1, #(self.games.list) do
-            print("Inserting row: " .. i)
             self.tableView:insertRow {
                 rowHeight = MINI_GAME_HEIGHT + PAD,
                 isCategory = false,

@@ -16,7 +16,6 @@ function M.getNextUsernameAndLoginIfDeviceFound()
             composer.gotoScene("scenes.title_scene", "fade")
             return
         end
-
         -- Else, use the deviceId to determine the username, if this device is already registered.
         local deviceId = device_id_backup.getDeviceId()
         print("Found device ID: " .. tostring(deviceId))

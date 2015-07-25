@@ -34,8 +34,6 @@ function board_class.new(gameModel, authUser, startX, startY, width, padding, on
 		rackTileImages[i] = {}
 	end
 
-	print ("Creating new board with width=" .. width)
-
 	local newBoard = {
 		N = N,
 		squares = squares,
@@ -206,7 +204,6 @@ function board_class:getTilesGroupTouchListener()
         elseif event.phase == "moved" then
             -- If we aren't grabbing, then just return.
             if not self.isGrabbing then
-                print("isGrabbing not true, return from 'moved' phase")
                 return true
             end
 
@@ -226,7 +223,6 @@ function board_class:getTilesGroupTouchListener()
                return true
             end
             if myTile.tileType ~= tile.ORIGINAL_TILE then
-                print ("User grabbed a non-grabbable tile, cancelling grab: " .. myTile.letter)
                 self:cancelDragging()
                 self:cancelGrab()
                 return true
@@ -362,7 +358,6 @@ function board_class:zoomOut()
 end
 
 function board_class:toggleZoom(scale, x, y)
-	print ("Called board:toggleZoom")
 	if self.isZoomed then
 		self:zoomOut()
 	else
@@ -433,7 +428,6 @@ function board_class:restrictX(x, scale)
 end
 
 function board_class:cancelGrab()
-    print("Cancelling grab")
     if self.grabbed then
         for i = 1, #(self.grabbed) do
             local grabbedTileImage = self.grabbed[i]

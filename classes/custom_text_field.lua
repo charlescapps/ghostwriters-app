@@ -76,7 +76,6 @@ function M.newCustomTextField(options)
     end
     field.isFontSizeScaled = true
     if ( opt.listener and type(opt.listener) == "function" ) then
-        print("Adding userInput listener!")
         field.textField:addEventListener( "userInput", opt.listener )
     end
 

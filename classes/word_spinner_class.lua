@@ -1,70 +1,103 @@
 local display = require("display")
-local widget = require("widget")
-local graphics = require("graphics")
-local ghostly_tall = require("spritesheets.ghostly_tall")
+local common_ui = require("common.common_ui")
 local back_button_setup = require("android.back_button_setup")
+local sheet_helpers = require("globals.sheet_helpers")
+local transition = require("transition")
 
 local word_spinner_class = {}
 local word_spinner_class_mt = { __index = word_spinner_class }
 
 -- Constants
-local IMAGE_SHEET = "spritesheets/ghostly_tall.png"
-local WIDTH = 300
+local SPRITESHEET_NAME = "loading_animation"
+local SEQUENCE_NAME = "loading_ghostwriters"
 
-function word_spinner_class.new(x, y)
+function word_spinner_class.initialize()
+    if word_spinner_class.view then
+        return
+    end
 
-    local options = ghostly_tall:getSheet()
+    word_spinner_class.view = display.newGroup()
+    word_spinner_class.view.alpha = 0
 
-    local spinnerSingleSheet = graphics.newImageSheet( IMAGE_SHEET, options )
+    word_spinner_class.sprite = word_spinner_class.createSprite()
+    word_spinner_class.logo = word_spinner_class.drawGhostwritersLogo()
+    word_spinner_class.screen = word_spinner_class.createScreen()
 
-    -- Create the widget
-    local spinner = widget.newSpinner
-        {
-            x = x or display.contentCenterX,
-            y = y or display.contentCenterY,
-            width = WIDTH,
-            height = WIDTH,
-            sheet = spinnerSingleSheet,
-            startFrame = ghostly_tall:getFrameIndex("g_ghostly"),
-            count = 1,
-            deltaAngle = 10,
-            incrementEvery = 40
-        }
-
-    local wordSpinner = {
-        spinner = spinner
-    }
-
-    return setmetatable(wordSpinner, word_spinner_class_mt)
+    word_spinner_class.view:insert(word_spinner_class.screen)
+    word_spinner_class.view:insert(word_spinner_class.sprite)
+    word_spinner_class.view:insert(word_spinner_class.logo)
 end
 
-function word_spinner_class:start()
-    self.screen = self:createScreen()
-    self.screen:toFront()
-    self.spinner:toFront()
-    self.spinner:start()
+function word_spinner_class.createSprite()
+
+    local sheetObj = sheet_helpers:getSheetObj(SPRITESHEET_NAME)
+    local spriteSheet = sheetObj.imageSheet
+
+    -- Create the widget
+    local sprite = display.newSprite(spriteSheet, {
+        name = SEQUENCE_NAME,
+        start = 1,
+        count = 21,
+        time = 2000,
+        loopDirection = "bounce"
+    })
+
+    sprite.x = display.contentCenterX
+    sprite.y = display.contentCenterY
+
+    return sprite
+end
+
+function word_spinner_class.drawGhostwritersLogo()
+    local img = display.newImageRect("images/ghostwriters_title.png", 750, 175)
+    img.x = display.contentCenterX
+    img.y = 300
+    return img
+end
+
+function word_spinner_class.start()
+    if not word_spinner_class.view then
+        word_spinner_class.initialize()
+    end
+
+    word_spinner_class.isStopped = nil
+
+    word_spinner_class.view:toFront()
+    word_spinner_class.sprite:setSequence()
+    word_spinner_class.sprite:play()
+
+    word_spinner_class.view.alpha = 1
+    --transition.fadeIn(word_spinner_class.view, { time = 100 })
+
     back_button_setup.setupDefaultBackListener()
 end
 
-function word_spinner_class:stop()
-    print("Stopping word spinner...")
-    self.isStopped = true
-    if self.spinner and self.spinner.removeSelf then
-        self.spinner:removeSelf()
-        self.spinner = nil
+function word_spinner_class.stop()
+    if word_spinner_class.isStopped then
+        return
     end
-    if self.screen and self.screen.removeSelf then
-        self.screen:removeSelf()
-        self.screen = nil
+
+    if not word_spinner_class.view then
+        return
     end
+
+    word_spinner_class.isStopped = true
+
+    local function onComplete()
+        word_spinner_class.view.alpha = 0
+        word_spinner_class.sprite:pause()
+    end
+
+    transition.fadeOut(word_spinner_class.view, { time = 200, onComplete = onComplete, onCancel = onComplete } )
+
     back_button_setup.restoreBackButtonListenerCurrentScene()
 end
 
-function word_spinner_class:createScreen()
+function word_spinner_class.createScreen()
     local x, y = display.contentCenterX, display.contentCenterY
     local screen = display.newRect(x, y, display.contentWidth, display.contentHeight)
     screen:setFillColor(0, 0, 0)
-    screen.alpha = 0.3
+    screen.alpha = 0.7
 
     screen:addEventListener("touch", function(event)
         return true

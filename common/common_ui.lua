@@ -368,6 +368,7 @@ function M.fadeOutThenRemove(displayObj, opts, afterRemoval)
     opts = opts or {}
     opts.time = opts.time or 1000
     opts.onComplete = onComplete
+    opts.onCancel = onComplete
 
     transition.fadeOut(displayObj, opts)
 end

@@ -45,7 +45,7 @@ function M:show()
         time = 1000
     })
 
-    timer.performWithDelay(4000, function()
+    timer.performWithDelay(2500, function()
         self:destroy()
     end)
 end
