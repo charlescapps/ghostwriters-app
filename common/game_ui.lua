@@ -11,7 +11,8 @@ local stepper_sheet = require("spritesheets.stepper_sheet")
 local fonts = require("globals.fonts")
 local timer = require("timer")
 
-local TROPHY_SIZE = 80
+local TROPHY_SIZE = 70
+local HOURGLASS_SIZE = 70
 
 local M = {}
 
@@ -155,7 +156,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         -- draw the trophy on the left player
         local trophyImg = display.newImageRect("images/trophy.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
-        trophyImg.x = leftPointsText.x - leftPointsText.contentWidth / 2
+        trophyImg.x = leftPointsText.x - leftPointsText.contentWidth / 2 - 2
         trophyImg.y = pointsY
         group:insert(trophyImg)
 
@@ -165,9 +166,28 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         -- draw the trophy on the right player
         local trophyImg = display.newImageRect("images/trophy.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
-        trophyImg.x = rightPointsText.x - rightPointsText.contentWidth / 2
+        trophyImg.x = rightPointsText.x - rightPointsText.contentWidth / 2 - 2
         trophyImg.y = pointsY
         group:insert(trophyImg)
+
+    elseif authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER1_TIMEOUT or
+            not authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER2_TIMEOUT then
+        -- draw the trophy on the left player
+        local hourglassImg = display.newImageRect("images/timed_out_icon.png", HOURGLASS_SIZE, HOURGLASS_SIZE)
+        hourglassImg.anchorX = 1
+        hourglassImg.x = leftPointsText.x - leftPointsText.contentWidth / 2 - 4
+        hourglassImg.y = pointsY
+        group:insert(hourglassImg)
+
+    elseif authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER2_TIMEOUT or
+            not authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER1_TIMEOUT then
+
+        -- draw the trophy on the right player
+        local hourglassImg = display.newImageRect("images/timed_out_icon.png", HOURGLASS_SIZE, HOURGLASS_SIZE)
+        hourglassImg.anchorX = 1
+        hourglassImg.x = rightPointsText.x - rightPointsText.contentWidth / 2 - 4
+        hourglassImg.y = pointsY
+        group:insert(hourglassImg)
 
     elseif gameModel.gameResult == common_api.TIE then
 
