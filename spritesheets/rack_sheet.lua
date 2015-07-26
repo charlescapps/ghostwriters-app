@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:bccd8f73d6153d5fa421c0d28d6461af:91819ce3d06c998e6e5072a2a2678609:d2a112ae8c79eb284d2d03fc5d1c95c6$
+-- $TexturePacker:SmartUpdate:9b11824883d3a3c6444c2f02bf0f89fc:1b422e321e847e3ee83c1a7b6c4420ca:62dbf8b33b72019ae5e806a9f356ac53$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -15,17 +15,9 @@ SheetInfo.sheet =
     frames = {
     
         {
-            -- ?_rack
-            x=2,
-            y=2,
-            width=150,
-            height=150,
-
-        },
-        {
             -- a_rack
             x=2,
-            y=154,
+            y=2,
             width=150,
             height=150,
 
@@ -33,7 +25,7 @@ SheetInfo.sheet =
         {
             -- b_rack
             x=2,
-            y=306,
+            y=154,
             width=150,
             height=150,
 
@@ -41,21 +33,13 @@ SheetInfo.sheet =
         {
             -- c_rack
             x=2,
-            y=458,
+            y=306,
             width=150,
             height=150,
 
         },
         {
             -- d_rack
-            x=2,
-            y=610,
-            width=150,
-            height=150,
-
-        },
-        {
-            -- e_rack
             x=154,
             y=2,
             width=150,
@@ -63,7 +47,7 @@ SheetInfo.sheet =
 
         },
         {
-            -- f_rack
+            -- e_rack
             x=154,
             y=154,
             width=150,
@@ -71,7 +55,7 @@ SheetInfo.sheet =
 
         },
         {
-            -- g_rack
+            -- f_rack
             x=154,
             y=306,
             width=150,
@@ -79,24 +63,32 @@ SheetInfo.sheet =
 
         },
         {
+            -- g_rack
+            x=306,
+            y=2,
+            width=150,
+            height=150,
+
+        },
+        {
             -- h_rack
-            x=154,
-            y=458,
+            x=306,
+            y=154,
             width=150,
             height=150,
 
         },
         {
             -- i_rack
-            x=154,
-            y=610,
+            x=306,
+            y=306,
             width=150,
             height=150,
 
         },
         {
             -- j_rack
-            x=306,
+            x=458,
             y=2,
             width=150,
             height=150,
@@ -105,22 +97,22 @@ SheetInfo.sheet =
         {
             -- k_rack
             x=458,
-            y=2,
+            y=154,
             width=150,
             height=150,
 
         },
         {
             -- l_rack
-            x=610,
-            y=2,
+            x=458,
+            y=306,
             width=150,
             height=150,
 
         },
         {
             -- m_rack
-            x=762,
+            x=610,
             y=2,
             width=150,
             height=150,
@@ -128,7 +120,7 @@ SheetInfo.sheet =
         },
         {
             -- n_rack
-            x=306,
+            x=610,
             y=154,
             width=150,
             height=150,
@@ -136,7 +128,7 @@ SheetInfo.sheet =
         },
         {
             -- o_rack
-            x=306,
+            x=610,
             y=306,
             width=150,
             height=150,
@@ -144,31 +136,39 @@ SheetInfo.sheet =
         },
         {
             -- p_rack
-            x=306,
-            y=458,
+            x=762,
+            y=2,
             width=150,
             height=150,
 
         },
         {
             -- q_rack
-            x=306,
-            y=610,
-            width=150,
-            height=150,
-
-        },
-        {
-            -- r_rack
-            x=458,
+            x=762,
             y=154,
             width=150,
             height=150,
 
         },
         {
+            -- question_rack
+            x=762,
+            y=306,
+            width=150,
+            height=150,
+
+        },
+        {
+            -- r_rack
+            x=914,
+            y=2,
+            width=150,
+            height=150,
+
+        },
+        {
             -- s_rack
-            x=610,
+            x=914,
             y=154,
             width=150,
             height=150,
@@ -176,95 +176,95 @@ SheetInfo.sheet =
         },
         {
             -- scry_rack
-            x=762,
-            y=154,
+            x=914,
+            y=306,
             width=150,
             height=150,
 
         },
         {
             -- t_rack
-            x=458,
-            y=306,
+            x=1066,
+            y=2,
             width=150,
             height=150,
 
         },
         {
             -- u_rack
-            x=458,
-            y=458,
+            x=1066,
+            y=154,
             width=150,
             height=150,
 
         },
         {
             -- v_rack
-            x=458,
-            y=610,
+            x=1066,
+            y=306,
             width=150,
             height=150,
 
         },
         {
             -- w_rack
-            x=610,
-            y=306,
+            x=1218,
+            y=2,
             width=150,
             height=150,
 
         },
         {
             -- x_rack
-            x=762,
-            y=306,
+            x=1370,
+            y=2,
             width=150,
             height=150,
 
         },
         {
             -- y_rack
-            x=610,
-            y=458,
+            x=1218,
+            y=154,
             width=150,
             height=150,
 
         },
         {
             -- z_rack
-            x=610,
-            y=610,
+            x=1218,
+            y=306,
             width=150,
             height=150,
 
         },
     },
     
-    sheetContentWidth = 914,
-    sheetContentHeight = 762
+    sheetContentWidth = 1522,
+    sheetContentHeight = 458
 }
 
 SheetInfo.frameIndex =
 {
 
-    ["question_rack"] = 1,
-    ["a_rack"] = 2,
-    ["b_rack"] = 3,
-    ["c_rack"] = 4,
-    ["d_rack"] = 5,
-    ["e_rack"] = 6,
-    ["f_rack"] = 7,
-    ["g_rack"] = 8,
-    ["h_rack"] = 9,
-    ["i_rack"] = 10,
-    ["j_rack"] = 11,
-    ["k_rack"] = 12,
-    ["l_rack"] = 13,
-    ["m_rack"] = 14,
-    ["n_rack"] = 15,
-    ["o_rack"] = 16,
-    ["p_rack"] = 17,
-    ["q_rack"] = 18,
+    ["a_rack"] = 1,
+    ["b_rack"] = 2,
+    ["c_rack"] = 3,
+    ["d_rack"] = 4,
+    ["e_rack"] = 5,
+    ["f_rack"] = 6,
+    ["g_rack"] = 7,
+    ["h_rack"] = 8,
+    ["i_rack"] = 9,
+    ["j_rack"] = 10,
+    ["k_rack"] = 11,
+    ["l_rack"] = 12,
+    ["m_rack"] = 13,
+    ["n_rack"] = 14,
+    ["o_rack"] = 15,
+    ["p_rack"] = 16,
+    ["q_rack"] = 17,
+    ["question_rack"] = 18,
     ["r_rack"] = 19,
     ["s_rack"] = 20,
     ["scry_rack"] = 21,

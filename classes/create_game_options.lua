@@ -226,7 +226,7 @@ function M:drawBonusOptions()
     titleTipButton.y = title.y
 
     local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
-    local questionIndex = sheetObj.module:getFrameIndex("?_rack")
+    local questionIndex = sheetObj.module:getFrameIndex("question_rack")
     local scryIndex = sheetObj.module:getFrameIndex("scry_rack")
     self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 100, 4, self.onUpdateOptions, sheetObj.imageSheet, questionIndex)
     self.scryTilesStepper = M.drawBonusOptionRow(group, "Oracle Tiles", 200, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
