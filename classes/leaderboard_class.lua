@@ -14,7 +14,7 @@ local leaderboard_class_mt = { __index = leaderboard_class }
 local TABLE_WIDTH = 750
 local TABLE_HEIGHT = 900
 local MIN_ROWS = 8
-local ROW_HEIGHT = 150
+local ROW_HEIGHT = 130
 local BUTTON_PAD = 6
 local BUTTON_SIZE = 180
 
@@ -74,7 +74,7 @@ function leaderboard_class:loadRanksNearMonkey()
     self.userId = nil
     self.username = common_api.MONKEY_USERNAME
     self.highlightIndex = nil
-    common_api.getRanksNearMonkey(10, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
+    common_api.getRanksNearMonkey(100, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
 
 function leaderboard_class:loadRanksNearBookworm()
@@ -82,7 +82,7 @@ function leaderboard_class:loadRanksNearBookworm()
     self.userId = nil
     self.username = common_api.BOOKWORM_USERNAME
     self.highlightIndex = nil
-    common_api.getRanksNearBookworm(10, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
+    common_api.getRanksNearBookworm(100, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
 
 function leaderboard_class:loadRanksNearProfessor()
@@ -90,7 +90,7 @@ function leaderboard_class:loadRanksNearProfessor()
     self.userId = nil
     self.username = common_api.PROFESSOR_USERNAME
     self.highlightIndex = nil
-    common_api.getRanksNearProfessor(10, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
+    common_api.getRanksNearProfessor(100, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
 
 function leaderboard_class:getOnLoadRanksSuccessListener()
@@ -126,7 +126,7 @@ function leaderboard_class:getOnLoadRanksSuccessListener()
         end
 
         if focusedUserIndex then
-            local scrollIndex = math.max(focusedUserIndex - 2, 1)
+            local scrollIndex = math.max(focusedUserIndex - 3, 1)
             print("Focused user index=" .. focusedUserIndex .. ", scrolling to index=" .. scrollIndex)
             self.tableView:scrollToIndex(scrollIndex, 1000)
         end
@@ -168,7 +168,7 @@ end
 function leaderboard_class:renderTableView()
     return widget.newTableView {
         x = TABLE_WIDTH / 2,
-        y = 825,
+        y = 850,
         width = TABLE_WIDTH,
         height = TABLE_HEIGHT,
         onRowRender = self:createOnRowRenderListener(),

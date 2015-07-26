@@ -259,8 +259,8 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
         return true
     end)
 
-    -- Fade out after 1.5 seconds of displaying the info modal
-    timeout = timeout or 1500
+    -- Fade out after 1.25 seconds of displaying the info modal
+    timeout = timeout or 1250
 
     local function onFadeIn()
         if timeout and timeout >= 0 then
@@ -278,7 +278,7 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
         end
     end
 
-    transition.fadeIn(group, { time = 1000, onComplete = onFadeIn })
+    transition.fadeIn(group, { time = 500, onComplete = onFadeIn })
 
     return group
 end

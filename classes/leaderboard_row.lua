@@ -9,7 +9,8 @@ local leaderboard_row = {}
 local leaderboard_row_mt = { __index = leaderboard_row }
 
 local BOOKMARK_WIDTH = 750
-local BOOKMARK_HEIGHT = 150
+local BOOKMARK_HEIGHT = 125
+local HIGHLIGHT_COLOR = {0.93, 0.48, 0.01}
 
 function leaderboard_row.new(index, user, rowWidth, rowHeight, parentScene, authUser, isHighlighted)
     local leaderboardRow = {
@@ -61,7 +62,11 @@ function leaderboard_row:createRankText()
     rankNumberText.anchorX = 0
     rankNumberText.x = 20
     rankNumberText.y = self.rowHeight / 2
-    rankNumberText:setFillColor(1, 1, 1)
+    if self.isHighlighted then
+        rankNumberText:setFillColor(HIGHLIGHT_COLOR[1], HIGHLIGHT_COLOR[2], HIGHLIGHT_COLOR[3])
+    else
+        rankNumberText:setFillColor(1, 1, 1)
+    end
 
     return rankNumberText
 end
@@ -84,7 +89,11 @@ function leaderboard_row:createUsernameText(rankText)
     usernameText.anchorX = 0
     usernameText.x = rankText.x + rankText.contentWidth + 20
     usernameText.y = self.rowHeight / 2
-    usernameText:setFillColor(1, 1, 1)
+    if self.isHighlighted then
+        usernameText:setFillColor(HIGHLIGHT_COLOR[1], HIGHLIGHT_COLOR[2], HIGHLIGHT_COLOR[3])
+    else
+        usernameText:setFillColor(1, 1, 1)
+    end
 
     local that = self
     function usernameText:touch(event)
