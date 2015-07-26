@@ -37,20 +37,22 @@ function scene:show( event )
             return
         end
 
-        self:createMyGamesViewAndQuery(self.creds.user)
-
     elseif ( phase == "did" ) then
         if not self.creds then
             login_common.logout()
             return
         end
 
+        self:createMyGamesViewAndQuery(self.creds.user)
+
         scene_helpers.onDidShowScene(self)
     end
 end
 
 function scene:createMyGamesViewAndQuery(user)
-    common_ui.safeRemove(self.myGamesView)
+    if self.myGamesView then
+        self.myGamesView:destroy()
+    end
 
     self.myGamesView = my_games_view_class.new(user, true, self)
 

@@ -36,17 +36,30 @@ function scene:show( event )
         if not self.creds then
             return
         end
-        local user = self.creds.user
-        self.myGamesView = my_games_view_class.new(user, false, self)
 
-        common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, false, false, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 
     elseif ( phase == "did" ) then
         if not self.creds then
             login_common.logout()
+            return
         end
+
+        local user = self.creds.user
+        self:createMyGamesViewAndQuery(user)
+
         scene_helpers.onDidShowScene(self)
     end
+end
+
+function scene:createMyGamesViewAndQuery(user)
+
+    if self.myGamesView then
+        self.myGamesView:destroy()
+    end
+
+    self.myGamesView = my_games_view_class.new(user, false, self)
+
+    common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, false, false, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 end
 
 -- "scene:hide()"

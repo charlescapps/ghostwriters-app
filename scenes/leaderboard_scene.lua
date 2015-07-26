@@ -23,20 +23,10 @@ function scene:create(event)
     local sceneGroup = self.view
     local background = self:createBackground()
 
-    local function onLoadSuccess()
-        ranking_tip.new():triggerTipOnCondition()
-    end
-
-    local function onLoadFail()
-        composer.gotoScene("scenes.title_scene", "fade")
-    end
-
-    self.leaderboard = leaderboard_class.new(self, self.creds.user, onLoadSuccess, onLoadFail)
-    local leaderboardView = self.leaderboard:render()
     self.backButton = common_ui.createBackButton(80, 110, "scenes.title_scene", nil, nil, 3)
 
     sceneGroup:insert(background)
-    sceneGroup:insert(leaderboardView)
+    self:createLeaderboard()
     sceneGroup:insert(self.backButton)
 end
 
@@ -51,7 +41,6 @@ function scene:show( event )
         if not self.creds then
             return
         end
-        self.leaderboard:loadRanksNearUser(self.creds.user.id)
 
     elseif ( phase == "did" ) then
         -- Called when the scene is now on screen.
@@ -60,9 +49,26 @@ function scene:show( event )
             return
         end
 
+        self.leaderboard:loadRanksNearUser(self.creds.user.id)
+
         scene_helpers.onDidShowScene(self)
 
     end
+end
+
+function scene:createLeaderboard()
+    local function onLoadSuccess()
+        ranking_tip.new():triggerTipOnCondition()
+    end
+
+    local function onLoadFail()
+        composer.gotoScene("scenes.title_scene", "fade")
+    end
+
+    self.leaderboard = leaderboard_class.new(self, self.creds.user, onLoadSuccess, onLoadFail)
+    local leaderboardView = self.leaderboard:render()
+
+    self.view:insert(leaderboardView)
 end
 
 
@@ -88,8 +94,6 @@ end
 
 -- "scene:destroy()"
 function scene:destroy( event )
-
-    local sceneGroup = self.view
 
     -- Called prior to the removal of scene's view ("sceneGroup").
 end
