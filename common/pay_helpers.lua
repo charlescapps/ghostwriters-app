@@ -172,6 +172,10 @@ function M.registerAllPurchases()
                 M.onRegisterPurchaseSuccess()
                 M.setOnRegisterPurchaseSuccess(nil)
             end
+
+            common_ui.createInfoModal("Purchase success!", "Books added.\nYou now own "
+                    .. tostring(updatedUserModel.tokens)
+                    .. " books.")
         end
 
 
@@ -182,7 +186,7 @@ function M.registerAllPurchases()
         M.setOnRegisterPurchaseSuccess(nil)
     end
 
-    common_api.registerPurchase(firstPurchase, onSuccess, onFail)
+    common_api.registerPurchase(firstPurchase, onSuccess, onFail, true)
 
 end
 
