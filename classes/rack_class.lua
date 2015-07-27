@@ -198,8 +198,9 @@ function rack_class:returnTileImage(tileImage, onComplete)
 
     local SPEED = 0.5 -- pixels per millisecond
 
-    local xContent, yContent
+    local xContent, yContent, rootScale
     if tileImage.parent then
+        rootScale = common_ui.getScaleFromParent(tileImage)
         xContent, yContent = tileImage.parent:localToContent(tileImage.x, tileImage.y)
     else
         xContent, yContent = tileImage.x, tileImage.y
@@ -209,10 +210,15 @@ function rack_class:returnTileImage(tileImage, onComplete)
 
 	self.displayGroup:insert(tileImage)
 
+    -- If the tile image had a scale from a parent display object, then set it to this scale so there's no "jump" in size.
+    if type(rootScale) == "number" and rootScale ~= 1 then
+        tileImage.xScale, tileImage.yScale = rootScale, rootScale
+    end
+
 	local x, y = self:computeTileX(index), self:computeTileY(index)
     local dist = math.sqrt((x - xRack)*(x - xRack) + (y - yRack)*(y - yRack))
     local duration = math.floor(dist / SPEED)
-    transition.to(tileImage, {x = x, y = y, width = self.drawTileWidth, height = self.drawTileWidth,
+    transition.to(tileImage, {x = x, y = y, width = self.drawTileWidth, height = self.drawTileWidth, xScale = 1, yScale = 1,
         time = duration, transition = easing.inOutBack, onComplete = onComplete})
 
 	self.board:removeRackTileFromBoard(tileImage)

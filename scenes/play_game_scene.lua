@@ -77,10 +77,10 @@ function scene:create(event)
     sceneGroup:insert(self.titleAreaDisplayGroup)
 
     sceneGroup:insert(self.board.boardContainer)
-    sceneGroup:insert(self.rack.displayGroup)
-    sceneGroup:insert(self.optionsButton)
     sceneGroup:insert(self.actionButtonsGroup)
     sceneGroup:insert(self.gameMenu.displayGroup)
+    sceneGroup:insert(self.rack.displayGroup)
+    sceneGroup:insert(self.optionsButton)
 end
 
 function scene:createBoard(gameModel)
@@ -386,9 +386,9 @@ function scene:reset()
     self.board = self:createBoard(gameModel)
     self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
+    viewGroup:insert(self.titleAreaDisplayGroup)
     viewGroup:insert(self.board.boardContainer)
     viewGroup:insert(self.rack.displayGroup)
-    viewGroup:insert(self.titleAreaDisplayGroup)
 
     self.optionsButton:toFront() -- Put the options button on top of the new rack.
     self.gameMenu.displayGroup:toFront() -- Put the game menu in front

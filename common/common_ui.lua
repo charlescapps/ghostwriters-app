@@ -400,4 +400,17 @@ function M.enableButton(button, color)
     end
 end
 
+function M.getScaleFromParent(obj)
+
+    while obj do
+        if type(obj.xScale) == "number" and obj.xScale ~= 1 then
+            return obj.xScale
+        end
+
+        obj = obj.parent
+    end
+
+    return nil
+end
+
 return M
