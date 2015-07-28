@@ -154,7 +154,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     elseif authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER1_WIN or gameModel.gameResult == common_api.PLAYER2_RESIGN) or
             not authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER2_WIN or gameModel.gameResult == common_api.PLAYER1_RESIGN) then
         -- draw the trophy on the left player
-        local trophyImg = display.newImageRect("images/trophy.png", TROPHY_SIZE, TROPHY_SIZE)
+        local trophyImg = display.newImageRect("images/trophy_gold.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
         trophyImg.x = leftPointsText.x - leftPointsText.contentWidth / 2 - 2
         trophyImg.y = pointsY
@@ -164,7 +164,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
             not authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER1_WIN or gameModel.gameResult == common_api.PLAYER2_RESIGN) then
 
         -- draw the trophy on the right player
-        local trophyImg = display.newImageRect("images/trophy.png", TROPHY_SIZE, TROPHY_SIZE)
+        local trophyImg = display.newImageRect("images/trophy_gold.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
         trophyImg.x = rightPointsText.x - rightPointsText.contentWidth / 2 - 2
         trophyImg.y = pointsY
