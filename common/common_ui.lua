@@ -138,7 +138,7 @@ M.createImageButtonWithText = function(defaultFile, overFile, imgY, title, subti
     return group
 end
 
-M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition, alternate)
+M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition, alternate, width, height)
 -- Helper to call "beforeTransition", then go to the previous or specified scene, then call "afterTransition"
     local startScene = composer.getSceneName("current")
     local onRelease = function(event)
@@ -174,8 +174,8 @@ M.createBackButton = function(x, y, sceneName, beforeTransition, afterTransition
     local backButton = widget.newButton {
         x = x,
         y = y,
-        width = BACK_BTN_WIDTH,
-        height = BACK_BTN_HEIGHT,
+        width = width or BACK_BTN_WIDTH,
+        height = height or BACK_BTN_HEIGHT,
         defaultFile = defaultFile,
         overFile = overFile,
         onRelease = onRelease
@@ -388,7 +388,7 @@ end
 function M.disableButton(button)
     if M.isValidDisplayObj(button) then
        button:setEnabled(false)
-       button:setFillColor(0.6, 0.6, 0.6)
+       button:setFillColor(0.5, 0.5, 0.5)
     end
 end
 

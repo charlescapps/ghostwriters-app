@@ -23,6 +23,7 @@ local question_tile_tip = require("tips.question_tile_tip")
 local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
 local challenged_popup = require("classes.challenged_popup")
 local back_button_setup = require("android.back_button_setup")
+local fonts = require("globals.fonts")
 
 local scene = composer.newScene()
 
@@ -69,7 +70,7 @@ function scene:create(event)
 
     self.gameMenu = game_menu_class.new(self, display.contentWidth / 2, display.contentHeight / 2 - 50, isGameOver)
 
-    self.actionButtonsGroup = self:createActionButtonsGroup(display.contentWidth + 175, 200, 80, self:getOnReleasePlayButton(), self:getOnReleaseResetButton(), self:getOnReleasePassButton())
+    self.actionButtonsGroup = self:createActionButtonsForGameState()
 
     self.optionsButton = drawOptionsButton(display.contentWidth - 70, display.contentHeight - 55, 100)
 
@@ -77,7 +78,9 @@ function scene:create(event)
     sceneGroup:insert(self.titleAreaDisplayGroup)
 
     sceneGroup:insert(self.board.boardContainer)
-    sceneGroup:insert(self.actionButtonsGroup)
+    if self.actionButtonsGroup then
+        sceneGroup:insert(self.actionButtonsGroup)
+    end
     sceneGroup:insert(self.gameMenu.displayGroup)
     sceneGroup:insert(self.rack.displayGroup)
     sceneGroup:insert(self.optionsButton)
@@ -105,16 +108,6 @@ function scene:show(event)
         -- Called when the scene is still off screen (but is about to come on screen).
         if not self.creds then
             return
-        end
-
-        -- Disable action buttons if the game is finished.
-        local gameModel = current_game.currentGame
-        if gameModel and gameModel.gameResult ~= common_api.IN_PROGRESS and gameModel.gameResult ~= common_api.OFFERED then
-           print("Disabling game with gameResult = '" .. tostring(gameModel.gameResult) .. "'")
-           self:disableActionButtons()
-        elseif gameModel and not game_helpers.isPlayerTurn(gameModel, self.creds.user) then
-            print("Disabling buttons for opponent's turn...")
-            self:disableButtonsForOpponentsTurn()
         end
 
     elseif phase == "did" then
@@ -244,17 +237,42 @@ function scene:createTitleAreaDisplayGroup(gameModel)
     return game_ui.createVersusDisplayGroup(gameModel, authUser, self, true, nil, nil, nil, 75, nil, nil, isAllowStartNewGame)
 end
 
-function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelease, onResetButtonRelease, onPassButtonRelease)
+function scene:createActionButtonsForGameState()
+    local user = self.creds and self.creds.user
+
+    if not user then
+        print("ERROR - cannot find a valid authenticated user. Not creating action buttons!")
+        return nil
+    end
+
+    local gameModel = current_game.currentGame
+    if not gameModel then
+        print("ERROR - gameModel not currently defined")
+    end
+
+    local START_Y = display.contentWidth + 175
+    local BUTTON_WIDTH = 200
+    local BUTTON_HEIGHT = 80
+
+    -- if it's NOT my turn or it's the end of the game, then draw the different button set.
+    if not current_game.isUsersTurn(user) or game_helpers.isGameOver(gameModel) then
+        return self:createActionButtonsForNotMyTurn(START_Y, BUTTON_WIDTH, BUTTON_HEIGHT)
+    else
+        return self:createActionButtonsForMyTurn(START_Y, BUTTON_WIDTH, BUTTON_HEIGHT)
+    end
+end
+
+function scene:createActionButtonsForNotMyTurn(startY, width, height)
     local group = display.newGroup()
 
-    -- Create the Play Word button
+    -- Create the My Games button
     local y = startY + height / 2
-    self.playMoveButton = widget.newButton {
+    local playMoveButton = widget.newButton {
         x = display.contentWidth / 2,
         y = y,
         emboss = true,
-        label = "Play word",
-        font = native.systemFont,
+        label = "My Games",
+        font = fonts.DEFAULT_FONT,
         fontSize = 36,
         width = width,
         height = height,
@@ -264,7 +282,58 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
         fillColor = { default = common_ui.BUTTON_FILL_COLOR_DEFAULT, over = common_ui.BUTTON_FILL_COLOR_OVER },
         strokeColor = { default = common_ui.BUTTON_STROKE_COLOR_DEFAULT, over = common_ui.BUTTON_STROKE_COLOR_OVER },
         strokeWidth = 2,
-        onRelease = onPlayButtonRelease
+        onRelease = self:getOnReleaseMyGamesButton()
+    }
+
+    -- Create the Back button
+    self.backButton = widget.newButton {
+        x = display.contentWidth / 2 - width - 20,
+        y = y,
+        width = 100,
+        height = 100,
+        defaultFile = "images/back_button_default.png",
+        overFile = "images/back_button_over.png",
+        onRelease = back_button_setup.promptToReturnToMainMenu
+    }
+
+    -- Create the Dictionary button
+    self.dictionaryButton = widget.newButton {
+        x = display.contentWidth / 2 + width + 20,
+        y = y,
+        width = height,
+        height = height,
+        defaultFile = "images/dictionary_button_default.png",
+        overFile = "images/dictionary_button_over.png",
+        onRelease = self:getOnReleaseDictionaryButton()
+    }
+
+    group:insert(playMoveButton)
+    group:insert(self.backButton)
+    group:insert(self.dictionaryButton)
+    return group
+end
+
+function scene:createActionButtonsForMyTurn(startY, width, height)
+    local group = display.newGroup()
+
+    -- Create the Play Word button
+    local y = startY + height / 2
+    self.playMoveButton = widget.newButton {
+        x = display.contentWidth / 2,
+        y = y,
+        emboss = true,
+        label = "Play word",
+        font = fonts.DEFAULT_FONT,
+        fontSize = 36,
+        width = width,
+        height = height,
+        shape = "roundedRect",
+        cornerRadius = 15,
+        labelColor = { default = common_ui.BUTTON_LABEL_COLOR_DEFAULT, over = common_ui.BUTTON_LABEL_COLOR_OVER },
+        fillColor = { default = common_ui.BUTTON_FILL_COLOR_DEFAULT, over = common_ui.BUTTON_FILL_COLOR_OVER },
+        strokeColor = { default = common_ui.BUTTON_STROKE_COLOR_DEFAULT, over = common_ui.BUTTON_STROKE_COLOR_OVER },
+        strokeWidth = 2,
+        onRelease = self:getOnReleasePlayButton()
     }
 
     -- Create the Pass button
@@ -275,7 +344,7 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
         height = height,
         defaultFile = "images/pass_button_default.png",
         overFile = "images/pass_button_over.png",
-        onRelease = onPassButtonRelease
+        onRelease = self:getOnReleasePassButton()
     }
 
     -- Create the Reset button
@@ -286,7 +355,7 @@ function scene:createActionButtonsGroup(startY, width, height, onPlayButtonRelea
         height = height,
         defaultFile = "images/reset_button_default.png",
         overFile = "images/reset_button_over.png",
-        onRelease = onResetButtonRelease
+        onRelease = self:getOnReleaseResetButton()
     }
 
     group:insert(self.playMoveButton)
@@ -390,20 +459,17 @@ function scene:reset()
     viewGroup:insert(self.board.boardContainer)
     viewGroup:insert(self.rack.displayGroup)
 
-    self.optionsButton:toFront() -- Put the options button on top of the new rack.
-    self.gameMenu.displayGroup:toFront() -- Put the game menu in front
-
     oldBoard:destroy()
     oldRack:destroy()
     common_ui.safeRemove(oldTitleArea)
 
-    if gameModel and not game_helpers.isPlayerTurn(gameModel, self.creds.user) then
-        print("Disabling buttons for opponent's turn...")
-        self:disableButtonsForOpponentsTurn()
-    else
-        print("Enabling buttons for my turn...")
-        self:enableButtonsForMyTurn()
+    if gameModel.gameType == common_api.TWO_PLAYER then
+        self:reDrawActionButtonsGroup()
     end
+
+    self.optionsButton:toFront() -- Put the options button on top of the new rack.
+    self.gameMenu.displayGroup:toFront() -- Put the game menu in front
+
 end
 
 getMoveDescription = function(moveJson)
@@ -679,6 +745,15 @@ function scene:getOnGrabTiles()
     end
 end
 
+function scene:getOnReleaseMyGamesButton()
+    return function(event)
+        local currentSceneName = composer.getSceneName("current")
+        if currentSceneName == self.sceneName then
+            composer.gotoScene("scenes.my_active_games_scene", "fade")
+        end
+    end
+end
+
 function scene:getOnReleasePlayButton()
     return function(event)
         if not current_game.isUsersTurn(self.creds.user) then
@@ -724,20 +799,33 @@ function scene:getOnReleasePassButton()
     end
 end
 
-function scene:disableActionButtons()
-    common_ui.disableButton(self.playMoveButton)
-    common_ui.disableButton(self.resetButton)
-    common_ui.disableButton(self.passButton)
+function scene:getOnReleaseDictionaryButton()
+    return function()
+        local currentGame = current_game.currentGame
+        if not currentGame or not currentGame.specialDict then
+            common_ui.createInfoModal("No Special Dictionary", "This game doesn't have a special dictionary.", nil, 52)
+            return
+        end
+        local currentSceneName = composer.getSceneName("current")
+        if currentSceneName == self.sceneName then
+            composer.gotoScene("scenes.dictionary_scene", "fade")
+        end
+    end
 end
 
-function scene:disableButtonsForOpponentsTurn()
-    common_ui.disableButton(self.playMoveButton)
-    common_ui.disableButton(self.passButton)
-end
-
-function scene:enableButtonsForMyTurn()
-    common_ui.enableButton(self.playMoveButton, common_ui.BUTTON_FILL_COLOR_DEFAULT)
-    common_ui.enableButton(self.passButton)
+function scene:reDrawActionButtonsGroup()
+    if not common_ui.isValidDisplayObj(self.view) then
+        print("ERROR - scene.view isn't valid, cannot re-draw the action buttons!")
+        return
+    end
+    local actionButtonsGroup = self:createActionButtonsForGameState()
+    if actionButtonsGroup then
+        common_ui.fadeOutThenRemove(self.actionButtonsGroup, { time = 500 })
+        self.actionButtonsGroup = actionButtonsGroup
+        self.view:insert(self.actionButtonsGroup)
+        self.actionButtonsGroup.alpha = 0
+        transition.fadeIn(self.actionButtonsGroup, { time = 500 })
+    end
 end
 
 function scene:showGameOverModal()
@@ -751,8 +839,6 @@ function scene:showGameOverModal()
         print("Not displaying Game Over modal, scene.creds is not defined")
         return false
     end
-
-    self:disableActionButtons()
 
     local gameResult = gameModel.gameResult
 

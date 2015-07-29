@@ -100,18 +100,16 @@ function M.setBackListenerToExitApp()
 end
 
 function M.setBackListenerToReturnToTitleScene()
-    local function onReleaseListener()
+    M.setAndroidBackListener(M.promptToReturnToMainMenu)
+end
 
-        local function onClick(event)
-            if event.action == "clicked" and event.index == 2 then
-                composer.gotoScene("scenes.title_scene")
-            end
+function M.promptToReturnToMainMenu()
+    local function onClick(event)
+        if event.action == "clicked" and event.index == 2 then
+            composer.gotoScene("scenes.title_scene")
         end
-        native.showAlert("Return to Main Menu", "Exit game and return to the Main Menu?", {"Cancel", "OK"}, onClick)
     end
-
-    M.setAndroidBackListener(onReleaseListener)
-
+    native.showAlert("Return to Main Menu", "Exit game and return to Main Menu?", {"Cancel", "OK"}, onClick)
 end
 
 return M

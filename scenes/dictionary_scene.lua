@@ -49,7 +49,11 @@ function scene:show( event )
         end
 
         local function onFail()
-            native.showAlert("Network Error", "An network error occurred getting the dictionary.", { "Try again" })
+            local function onClose()
+                composer.gotoScene("scenes.play_game_scene", "fade")
+            end
+
+            common_ui.createInfoModal("Network Error", "Please try again.", onClose)
         end
 
         common_api.getDictionary(specialDict, onSuccess, onFail, true)
