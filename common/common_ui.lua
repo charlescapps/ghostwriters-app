@@ -260,10 +260,12 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
     end)
 
     -- Fade out after 1.25 seconds of displaying the info modal
-    timeout = timeout or 1250
+    if type(timeout) ~= "number" then
+        timeout = 1250
+    end
 
     local function onFadeIn()
-        if timeout and timeout >= 0 then
+        if timeout > 0 then
             timer.performWithDelay(timeout, function()
                 if not group or not group.removeSelf or group.ranOnClose then
                     return
