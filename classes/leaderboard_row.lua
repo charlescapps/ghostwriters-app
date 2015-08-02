@@ -49,12 +49,16 @@ function leaderboard_row:createBookmarkBg()
     local bookmarkImg = display.newImageRect(imgFile, BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
     bookmarkImg.x = BOOKMARK_WIDTH / 2
     bookmarkImg.y = self.rowHeight / 2
+
+    bookmarkImg:addEventListener("touch", self:getOnTouchListener())
+    bookmarkImg:addEventListener("tap", function() return true end)
+    
     return bookmarkImg
 end
 
 function leaderboard_row:createRankText()
     local rankNumberText = display.newText {
-        text = "#" .. tostring(self.user.rank),
+        text = "#" .. format_helpers.comma_value(self.user.rank),
         font = fonts.BOLD_FONT,
         fontSize = 40
     }
@@ -95,18 +99,23 @@ function leaderboard_row:createUsernameText(rankText)
         usernameText:setFillColor(1, 1, 1)
     end
 
-    local that = self
-    function usernameText:touch(event)
+    usernameText:addEventListener("touch", self:getOnTouchListener())
+    usernameText:addEventListener("tap", function() return true end)
+
+    return usernameText
+end
+
+function leaderboard_row:getOnTouchListener()
+    return function(event)
         if event.phase == "ended" then
-            that.parentScene.userInfoPopup = user_info_popup.new(that.user, that.parentScene, that.authUser, true)
-            that.parentScene.view:insert(that.parentScene.userInfoPopup:render())
+            if not self.parentScene or not self.parentScene.view or not self.parentScene.view.removeSelf then
+                return true
+            end
+            self.parentScene.userInfoPopup = user_info_popup.new(self.user, self.parentScene, self.authUser, true)
+            self.parentScene.view:insert(self.parentScene.userInfoPopup:render())
         end
         return true
     end
-
-    usernameText:addEventListener("touch")
-
-    return usernameText
 end
 
 function leaderboard_row:createRatingText()

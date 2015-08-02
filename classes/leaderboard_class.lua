@@ -17,6 +17,7 @@ local MIN_ROWS = 8
 local ROW_HEIGHT = 130
 local BUTTON_PAD = 6
 local BUTTON_SIZE = 180
+local RANK_COUNT = 25
 
 function leaderboard_class.new(parentScene, authUser, onLoadSuccess, onLoadFail)
     local leaderBoard = {
@@ -58,7 +59,7 @@ function leaderboard_class:loadRanksNearUser(userId)
     self.userId = userId
     self.username = nil
     self.highlightIndex = nil
-    common_api.getUsersWithSimilarRank(self.userId, 50, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
+    common_api.getUsersWithSimilarRank(self.userId, RANK_COUNT, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
 
 function leaderboard_class:loadTop100()
@@ -74,7 +75,7 @@ function leaderboard_class:loadRanksNearMonkey()
     self.userId = nil
     self.username = common_api.MONKEY_USERNAME
     self.highlightIndex = nil
-    common_api.getRanksNearMonkey(50, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
+    common_api.getRanksNearMonkey(RANK_COUNT, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
 
 function leaderboard_class:loadRanksNearBookworm()
@@ -82,7 +83,7 @@ function leaderboard_class:loadRanksNearBookworm()
     self.userId = nil
     self.username = common_api.BOOKWORM_USERNAME
     self.highlightIndex = nil
-    common_api.getRanksNearBookworm(50, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
+    common_api.getRanksNearBookworm(RANK_COUNT, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
 
 function leaderboard_class:loadRanksNearProfessor()
@@ -90,7 +91,7 @@ function leaderboard_class:loadRanksNearProfessor()
     self.userId = nil
     self.username = common_api.PROFESSOR_USERNAME
     self.highlightIndex = nil
-    common_api.getRanksNearProfessor(50, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
+    common_api.getRanksNearProfessor(RANK_COUNT, self:getOnLoadRanksSuccessListener(), self:getOnLoadRanksFailListener(), true)
 end
 
 function leaderboard_class:getOnLoadRanksSuccessListener()
