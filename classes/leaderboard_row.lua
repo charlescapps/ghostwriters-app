@@ -52,7 +52,7 @@ function leaderboard_row:createBookmarkBg()
 
     bookmarkImg:addEventListener("touch", self:getOnTouchListener())
     bookmarkImg:addEventListener("tap", function() return true end)
-    
+
     return bookmarkImg
 end
 
@@ -99,14 +99,14 @@ function leaderboard_row:createUsernameText(rankText)
         usernameText:setFillColor(1, 1, 1)
     end
 
-    usernameText:addEventListener("touch", self:getOnTouchListener())
-    usernameText:addEventListener("tap", function() return true end)
-
     return usernameText
 end
 
 function leaderboard_row:getOnTouchListener()
     return function(event)
+        if event.x > self.usernameText.x + self.usernameText.contentWidth then
+            return false
+        end
         if event.phase == "ended" then
             if not self.parentScene or not self.parentScene.view or not self.parentScene.view.removeSelf then
                 return true
