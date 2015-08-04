@@ -63,7 +63,11 @@ function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName
         local playGameScene = composer.getScene("scenes.play_game_scene")
         if playGameScene and playGameScene:isValidGameScene() then
             if currentGame and tostring(currentGame.id) == updatedGameId then
-                print("Current scene is play_game_scene for updated game - do nothing and let the onApplicationResume refresh the game data.")
+                if isActive then
+                    print("Updating active game after receiving push notification.")
+                    playGameScene:refreshGameFromServer()
+                end
+                -- The onApplicationResume listener will handle this case.
                 return
             end
         end
