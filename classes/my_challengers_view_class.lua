@@ -100,22 +100,24 @@ function my_challengers_view_class:renderEmptyGamesGroup()
     local group = display.newGroup()
     group.x = display.contentWidth / 2
     group.y = display.contentHeight / 2
-    local message
+    local message, fontSize
     if self.challengedToMe then
         message = "No challengers yet!"
+        fontSize = 60
     else
         message = "You haven't challenged any players!"
+        fontSize = 52
     end
     local messageText = display.newText {
         text = message,
         width = 7 * display.contentWidth / 8,
         align = "center",
         font = native.systemFont,
-        fontSize = 52
+        fontSize = fontSize
     }
     messageText:setFillColor(0, 0, 0)
 
-    local linkText = common_ui.createLink("Start a new game!", 0, 100, nil, function()
+    local linkText = common_ui.createLink("Start a new game!", 0, 100, 48, function()
         composer.gotoScene("scenes.start_multiplayer_scene", "fade")
     end)
 
