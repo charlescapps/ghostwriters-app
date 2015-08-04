@@ -16,7 +16,7 @@ local HOURGLASS_SIZE = 70
 
 local M = {}
 
-function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithMe, leftX, centerX, rightX, firstRowY, fontRgb, circleWidth, allowStartNewGame)
+function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithMe, leftX, centerX, rightX, firstRowY, fontRgb, circleWidth, isCircleWhite, allowStartNewGame)
     fontRgb = fontRgb or { 0, 0, 0 }
     centerX = centerX or display.contentWidth / 2
     leftX = leftX or display.contentWidth / 4
@@ -48,12 +48,29 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         leftPoints, rightPoints = gameModel.player2Points, gameModel.player1Points
     end
 
-    if isAuthUserTurn then
+    if gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
+        if isAuthUserTurn then
+            leftFont = fonts.BOLD_FONT
+            rightFont = fonts.DEFAULT_FONT
+        else
+            leftFont = fonts.DEFAULT_FONT
+            rightFont = fonts.BOLD_FONT
+        end
+    elseif (gameModel.gameResult == common_api.PLAYER1_WIN or gameModel.gameResult == common_api.PLAYER2_RESIGN)
+                and leftPlayer.id == gameModel.player1 or
+            (gameModel.gameResult == common_api.PLAYER2_WIN or gameModel.gameResult == common_api.PLAYER1_RESIGN)
+                and leftPlayer.id == gameModel.player2 then
         leftFont = fonts.BOLD_FONT
-        rightFont = native.systemFont
-    else
-        leftFont = native.systemFont
+        rightFont = fonts.DEFAULT_FONT
+    elseif (gameModel.gameResult == common_api.PLAYER1_WIN or gameModel.gameResult == common_api.PLAYER2_RESIGN)
+                and rightPlayer.id == gameModel.player1 or
+            (gameModel.gameResult == common_api.PLAYER2_WIN or gameModel.gameResult == common_api.PLAYER1_RESIGN)
+                and rightPlayer.id == gameModel.player2 then
+        leftFont = fonts.DEFAULT_FONT
         rightFont = fonts.BOLD_FONT
+    else
+        leftFont = fonts.DEFAULT_FONT
+        rightFont = fonts.DEFAULT_FONT
     end
 
     local group = display.newGroup( )
@@ -133,10 +150,11 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     -- If the game is in progress, draw a circle around the current user
     if gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
         circleWidth = circleWidth or 300
-        local leftCircle = display.newImageRect("images/pencil-circled.png", circleWidth, 75)
+        local circleImage = isCircleWhite and "images/pencil-white-circled.png" or "images/pencil-circled.png"
+        local leftCircle = display.newImageRect(circleImage, circleWidth, 75)
         leftCircle.x, leftCircle.y, leftCircle.alpha = leftX, firstRowY, 0
 
-        local rightCircle = display.newImageRect("images/pencil-circled.png", circleWidth, 75)
+        local rightCircle = display.newImageRect(circleImage, circleWidth, 75)
         rightCircle.x, rightCircle.y, rightCircle.alpha = rightX, firstRowY, 0
 
         -- Store the circles in group object for later use

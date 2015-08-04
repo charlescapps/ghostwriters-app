@@ -234,7 +234,7 @@ function scene:createTitleAreaDisplayGroup(gameModel)
 
     local authUser = self.creds.user
 
-    return game_ui.createVersusDisplayGroup(gameModel, authUser, self, true, nil, nil, nil, 75, nil, nil, isAllowStartNewGame)
+    return game_ui.createVersusDisplayGroup(gameModel, authUser, self, true, nil, nil, nil, 75, nil, nil, false, isAllowStartNewGame)
 end
 
 function scene:createActionButtonsForGameState()
