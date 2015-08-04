@@ -616,6 +616,7 @@ end
 
 function scene:getOnRefreshGameSuccess()
     return function(updatedGameModel)
+        self.refreshInProgress = nil
         self:applyUpdatedGame(updatedGameModel, false)
     end
 end
@@ -650,8 +651,13 @@ function scene:refreshGameFromServer()
         print("current_game.currentGame is invalid, cannot refresh from server.")
         return
     end
+    if self.refreshInProgress then
+        print("Not refreshing game - refresh in progress")
+        return
+    end
 
     self:pausePollForGame()
+    self.refreshInProgress = true
     common_api.getGameById(currentGame.id, true, currentGame.moveNum, self:getOnRefreshGameSuccess(), self:getRefreshGameFail(), self:getRefreshGameFail(), false)
 end
 
@@ -695,6 +701,7 @@ end
 
 function scene:getRefreshGameFail()
     return function(jsonResp)
+        self.refreshInProgress = nil
         print("Error updating game:" .. json.encode(jsonResp))
         self:resumePollForGame()
     end
