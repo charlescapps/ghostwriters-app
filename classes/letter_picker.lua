@@ -107,12 +107,26 @@ end
 
 function M:createDoneButton()
     local function onRelease()
-        local values = self.pickerWheel:getValues()
-        local currentLetter = values[1].value
-        if self.onSelectLetter then
-            self.onSelectLetter(currentLetter)
+        local currentLetter
+        if not self.pickerWheel or not self.pickerWheel.getValues then
+           currentLetter = "A"
+        else
+            local values = self.pickerWheel:getValues()
+            if type(values) == "table" and values[1] then
+                currentLetter = values[1].value
+            else
+                currentLetter = "A"
+            end
         end
+
         self:close()
+        if type(self.onSelectLetter) == "function" then
+            if not self.didRunOnSelectLetter then
+                self.didRunOnSelectLetter = true
+                self.onSelectLetter(currentLetter)
+            end
+        end
+
     end
 
     local button = common_ui.createButton("Done", 900, onRelease, nil, nil, nil)
