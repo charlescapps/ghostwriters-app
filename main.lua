@@ -31,21 +31,29 @@ local function onSystemEvent(event)
     if event.type == "applicationResume" then
        print("applicationResume event...")
        local currentSceneName = composer.getSceneName("current")
-       if currentSceneName ~= "scenes.play_game_scene" then
-           return
-       end
-       print("applicationResume event in play_game_scene...")
+       if currentSceneName == "scenes.play_game_scene" then
+           print("applicationResume event in play_game_scene...")
 
-       if not current_game.currentGame or current_game.currentGame.gameType ~= "TWO_PLAYER" then
-           return
+           if not current_game.currentGame or current_game.currentGame.gameType ~= "TWO_PLAYER" then
+               return
+           end
+
+           print("applicationResume event in TWO_PLAYER game...")
+           local currentScene = composer.getScene(currentSceneName)
+           if currentScene and type(currentScene.refreshGameFromServer) == "function" then
+               print("applicationResume event - refreshing game from server")
+               currentScene:refreshGameFromServer()
+           end
+       elseif currentSceneName == "scenes.my_active_games_scene" then
+           print("applicationResume in my_active_games_scene...")
+           local currentScene = composer.getScene(currentSceneName)
+           if currentScene and type(currentScene.createMyGamesViewAndQuery) == "function"
+                   and currentScene.creds and currentScene.creds.user then
+               print("applicationResume event - refreshing my games scene from server")
+               currentScene:createMyGamesViewAndQuery(currentScene.creds.user)
+           end
        end
 
-       print("applicationResume event in TWO_PLAYER game...")
-       local currentScene = composer.getScene(currentSceneName)
-       if currentScene and type(currentScene.refreshGameFromServer) == "function" then
-           print("applicationResume event - refreshing game from server")
-          currentScene:refreshGameFromServer()
-       end
     end
 end
 
