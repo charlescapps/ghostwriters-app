@@ -10,6 +10,7 @@ local common_ui = require("common.common_ui")
 local game_helpers = require("common.game_helpers")
 local scene_helpers = require("common.scene_helpers")
 local challenged_popup = require("classes.challenged_popup")
+local generic_tip = require("tips.generic_tip")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.my_active_games_scene"
@@ -100,6 +101,13 @@ function scene:getOnSuccessCallback()
         local tableView = self.myGamesView:render()
         self.view:insert(tableView)
         self.backButton:toFront()
+
+        local tip = generic_tip.new("active_games_tip",
+            "Here you can see all of your active games.\n\n" ..
+            "It's your turn in green games.\n\n" ..
+            "Touch a game board to enter the game.")
+
+        tip:showTip()
     end
 end
 

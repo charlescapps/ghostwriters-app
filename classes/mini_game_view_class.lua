@@ -11,6 +11,7 @@ local widget = require("widget")
 local time_util = require("common.time_util")
 local mini_board_class = require("classes.mini_board_class")
 local dict_helpers = require("common.dict_helpers")
+local game_helpers = require("common.game_helpers")
 
 local mini_game_view_class = {}
 local mini_game_view_class_mt = { __index = mini_game_view_class }
@@ -118,10 +119,14 @@ end
 
 function mini_game_view_class:renderBackground()
     local imgFile
-    if self.index % 2 == 0 then
+    local gameInProgress = self.gameModel.gameResult == common_api.IN_PROGRESS or self.gameModel.gameResult == common_api.OFFERED
+    local isMyTurn = game_helpers.isPlayerTurn(self.gameModel, self.authUser)
+    if gameInProgress and isMyTurn then
+        imgFile = "images/green_minigame_bg.jpg"
+    elseif gameInProgress and not isMyTurn then
         imgFile = "images/red_minigame_bg.jpg"
     else
-        imgFile = "images/green_minigame_bg.jpg"
+        imgFile = "images/red_minigame_bg.jpg"
     end
     return display.newImageRect(imgFile, self.width, self.height)
 end
