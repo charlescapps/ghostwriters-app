@@ -103,11 +103,14 @@ function scene:getOnSuccessCallback()
         self.backButton:toFront()
 
         local tip = generic_tip.new("active_games_tip",
-            "Here you can see all of your active games.\n\n" ..
-            "It's your turn in green games.\n\n" ..
-            "Touch a game board to enter the game.")
+            "Here are your active games.\n\n" ..
+            "Green means it's your turn.\n" ..
+            "Red means it's not your turn.\n\n" ..
+            "Touch a game board to enter the game. Have fun!")
 
-        tip:showTip()
+        if type(games.list == "table") and #games.list > 0 then
+            tip:showTip()
+        end
     end
 end
 
