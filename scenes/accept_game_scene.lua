@@ -102,13 +102,9 @@ end
 
 function scene:getOnUpdateOptionsListener()
     return function()
-        local boardSize = self.createGameOptions:getBoardSizeOption()
-        local specialDict = self.createGameOptions:getDictionaryOption()
         local numBlankTiles = self.createGameOptions:getNumBlankTiles()
         local numScryTiles = self.createGameOptions:getNumScryTiles()
 
-        new_game_data.boardSize = boardSize
-        new_game_data.specialDict = specialDict
         new_game_data.initialBlankTiles = numBlankTiles
         new_game_data.initialScryTiles = numScryTiles
 

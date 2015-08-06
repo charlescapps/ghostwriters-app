@@ -119,9 +119,10 @@ end
 
 function scene:getCurrentCost()
     local boardSizeCost = common_api.getBoardSizeCost(new_game_data.boardSize)
+    local dictCost = common_api.getDictCost(new_game_data.specialDict)
     local blankTilesCost = new_game_data.initialBlankTiles or 0
     local scryTilesCost = new_game_data.initialScryTiles or 0
-    return boardSizeCost + blankTilesCost + scryTilesCost
+    return boardSizeCost + dictCost + blankTilesCost + scryTilesCost
 end
 
 -- "scene:show()"

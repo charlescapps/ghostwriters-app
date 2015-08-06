@@ -70,6 +70,9 @@ function M:drawBoardSizeOptions()
             local newLabel = self:boardSizeToDisplayText(boardSize)
             self.chooseBoardSizeButton:setLabel(newLabel)
             new_game_data.boardSize = boardSize
+            if type(self.onUpdateOptions) == "function" then
+                self.onUpdateOptions()
+            end
         end
         if self.view and self.view.removeSelf then
             local modal = choose_board_size_modal.new(onSelect)
@@ -147,6 +150,9 @@ function M:drawDictionaryOptions()
             local newLabel = self:dictToLabel(specialDict)
             self.chooseDictButton:setLabel(newLabel)
             new_game_data.specialDict = specialDict
+            if type(self.onUpdateOptions) == "function" then
+                self.onUpdateOptions()
+            end
         end
         if common_ui.isValidDisplayObj(self.view) then
             local modal = choose_special_dict_modal.new(onSelect)
