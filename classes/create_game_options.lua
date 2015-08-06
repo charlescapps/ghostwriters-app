@@ -1,21 +1,22 @@
 local display = require("display")
-local native = require("native")
 local widget = require("widget")
 local game_ui = require("common.game_ui")
 local stepper_sheet = require("spritesheets.stepper_sheet")
 local common_api = require("common.common_api")
-local pretty_picker = require("classes.pretty_picker")
+local common_ui = require("common.common_ui")
 local fonts = require("globals.fonts")
-local imgs = require("globals.imgs")
 local new_game_data = require("globals.new_game_data")
 local sheet_helpers = require("globals.sheet_helpers")
 local tips_helpers = require("tips.tips_helpers")
 
+local choose_board_size_modal = require("classes.choose_board_size_modal")
+local choose_special_dict_modal = require("classes.choose_special_dict_modal")
+
 local M = {}
 
 local LEFT_COLUMN = 20
-local MID_COLUMN = display.contentCenterX
-local RIGHT_COLUMN = display.contentCenterX + 275
+local MID_COLUMN = display.contentCenterX - 15
+local RIGHT_COLUMN = display.contentCenterX + 250
 
 local mt = { __index = M }
 
@@ -46,147 +47,159 @@ end
 
 function M:drawBoardSizeOptions()
     local group = display.newGroup()
+    group.y = 400
+
+    local bg = display.newImageRect("images/bookmark1.png", 800, 125)
+    bg.x, bg.y = display.contentCenterX, 0
 
     local title = display.newText {
-        text = "Board Size",
+        text = "GAME SIZE",
         font = fonts.BOLD_FONT,
-        fontSize = 50,
-        x = display.contentCenterX,
-        y = 250
+        fontSize = 40,
+        x = 25,
+        y = 0
     }
-    title:setFillColor(0, 0, 0)
+    title.anchorX = 0
+    title:setFillColor(1, 1, 1)
+
+    local function onRelease()
+        local function onSelect(boardSize)
+            if not self.chooseBoardSizeButton then
+                return
+            end
+            local newLabel = self:boardSizeToDisplayText(boardSize)
+            self.chooseBoardSizeButton:setLabel(newLabel)
+            new_game_data.boardSize = boardSize
+        end
+        if self.view and self.view.removeSelf then
+            local modal = choose_board_size_modal.new(onSelect)
+            self.view:toFront()
+            self.view:insert(modal:show())
+        end
+    end
+
+    local boardSizeText = self:boardSizeToDisplayText(new_game_data.boardSize)
+    self.chooseBoardSizeButton = widget.newButton {
+        width = 175,
+        height = 80,
+        x = display.contentCenterX + 50,
+        y = 0,
+        label = boardSizeText,
+        labelColor = { default={ 1, 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+        fontSize = 40,
+        font = fonts.DEFAULT_FONT,
+        shape = "roundedRect",
+        fillColor = { default={ 0.5, 0.5, 0.5, 1 }, over={ 0.2, 0.2, 0.2, 1 } },
+        strokeColor = { default={ 1, 1, 1, 1 }, over={ 0.6, 0.6, 0.6, 1 } },
+        strokeWidth = 3,
+        cornerRadius = 25,
+        onRelease = onRelease
+    }
 
     local titleTipButton = tips_helpers.drawTipButton(
         "Choose the board size.\n\n" ..
         "The larger the board, the more your rating increases for winning games.", 100, 100)
-    titleTipButton.anchorX = 0
-    titleTipButton.x = title.x + title.contentWidth / 2
-    titleTipButton.y = title.y
+    titleTipButton.anchorX = 1
+    titleTipButton.x = display.contentWidth - 120
+    titleTipButton.y = 0
 
-    local rows = {
-        {
-            text1 = "Small (5x5)",
-            text2 = "1 x",
-            value = common_api.SMALL_SIZE
-        },
-        {
-            text1 = "Medium (9x9)",
-            text2 = "3 x",
-            value = common_api.MEDIUM_SIZE
-        },
-        {
-            text1 = "Large (13x13)",
-            text2 = "5 x",
-            value = common_api.LARGE_SIZE
-        }
-    }
-    local startIndex = 1
-    if new_game_data.boardSize == common_api.SMALL_SIZE then
-        startIndex = 1
-    elseif new_game_data.boardSize == common_api.MEDIUM_SIZE then
-        startIndex = 2
-    elseif new_game_data.boardSize == common_api.LARGE_SIZE then
-        startIndex = 3
-    end
-
-    self.boardSizePicker = pretty_picker.new {
-        rows = rows,
-        selectedIndex = startIndex,
-        pickerY = 350,
-        column1Left = LEFT_COLUMN,
-        column2Left = MID_COLUMN,
-        column2ImageFile = "images/currency_book.png",
-        column3Center = RIGHT_COLUMN,
-        bgImage = imgs.OLD_BOOK,
-        bgWidth = imgs.OLD_BOOK_WIDTH,
-        bgHeight = imgs.OLD_BOOK_HEIGHT,
-        rowWidth = imgs.OLD_BOOK_WIDTH,
-        rowHeight = 100,
-        onUpdate = self.onUpdateOptions,
-        isDisabled = self.isReadOnly
-    }
-
+    group:insert(bg)
     group:insert(title)
+    group:insert(self.chooseBoardSizeButton)
     group:insert(titleTipButton)
-    group:insert(self.boardSizePicker:render())
 
     return group
 end
 
+function M:boardSizeToDisplayText(boardSize)
+    if boardSize == common_api.SMALL_SIZE then
+        return "5 x 5"
+    elseif boardSize == common_api.MEDIUM_SIZE then
+        return "9 x 9"
+    elseif boardSize == common_api.LARGE_SIZE then
+        return "13 x 13"
+    end
+    print("ERROR - invalid board size in create_game_options:" .. tostring(boardSize))
+end
+
 function M:drawDictionaryOptions()
     local group = display.newGroup()
+    group.y = 550
+
+    local bg = display.newImageRect("images/bookmark2.png", 800, 125)
+    bg.x, bg.y = display.contentCenterX, 0
 
     local title = display.newText {
-        text = "Special Dictionary",
+        text = "BONUS WORDS",
         font = fonts.BOLD_FONT,
-        fontSize = 50,
-        x = display.contentCenterX,
-        y = 450
+        fontSize = 40,
+        x = 25,
+        y = 0
     }
-    title:setFillColor(0, 0, 0)
+    title.anchorX = 0
+    title:setFillColor(1, 1, 1)
 
-    local titleTipButton = tips_helpers.drawTipButton(
-        "Add extra playable words to the game.\n\n" ..
-        "View the special dictionary from the in-game menu.\n\n" ..
-        "Earn bonus points by playing words in the dictionary.", 100, 100)
-    titleTipButton.anchorX = 0
-    titleTipButton.x = title.x + title.contentWidth / 2
-    titleTipButton.y = title.y
-
-    local rows = {
-        {
-            text1 = "No Extra Words",
-            text2 = "0 x",
-            value = nil
-        },
-        {
-            text1 = "Edgar Allan Poe",
-            text2 = "1 x",
-            value = common_api.DICT_POE
-        },
-        {
-            text1 = "H.P. Lovecraft",
-            text2 = "1 x",
-            value = common_api.DICT_LOVECRAFT
-        },
-        {
-            text1 = "Cthulhu Mythos",
-            text2 = "1 x",
-            value = common_api.DICT_MYTHOS
-        }
-    }
-
-    local selectedIndex = nil
-    for i = 1, #rows do
-        local row = rows[i]
-        if row.value == new_game_data.specialDict then
-            selectedIndex = i
-            break
+    local function onRelease()
+        local function onSelect(specialDict)
+            if not self.chooseDictButton then
+                return
+            end
+            local newLabel = self:dictToLabel(specialDict)
+            self.chooseDictButton:setLabel(newLabel)
+            new_game_data.specialDict = specialDict
+        end
+        if common_ui.isValidDisplayObj(self.view) then
+            local modal = choose_special_dict_modal.new(onSelect)
+            self.view:toFront()
+            self.view:insert(modal:show())
         end
     end
 
-    self.dictionaryPicker = pretty_picker.new {
-        rows = rows,
-        pickerY = 550,
-        column1Left = LEFT_COLUMN,
-        column2Left = MID_COLUMN,
-        column2ImageFile = "images/currency_book.png",
-        column3Center = RIGHT_COLUMN,
-        bgImage = imgs.OLD_BOOK,
-        bgWidth = imgs.OLD_BOOK_WIDTH,
-        bgHeight = imgs.OLD_BOOK_HEIGHT,
-        rowWidth = imgs.OLD_BOOK_WIDTH,
-        rowHeight = 100,
-        onUpdate = self.onUpdateOptions,
-        isDisabled = self.isReadOnly,
-        selectedIndex = selectedIndex
+    local dictionaryLabel = self:dictToLabel(new_game_data.specialDict)
+    self.chooseDictButton = widget.newButton {
+        width = 175,
+        height = 80,
+        x = display.contentCenterX + 50,
+        y = 0,
+        label = dictionaryLabel,
+        labelColor = { default={ 1, 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+        fontSize = 40,
+        font = fonts.DEFAULT_FONT,
+        shape = "roundedRect",
+        fillColor = { default={ 0.5, 0.5, 0.5, 1 }, over={ 0.2, 0.2, 0.2, 1 } },
+        strokeColor = { default={ 1, 1, 1, 1 }, over={ 0.6, 0.6, 0.6, 1 } },
+        strokeWidth = 3,
+        cornerRadius = 25,
+        onRelease = onRelease
     }
 
+    local titleTipButton = tips_helpers.drawTipButton(
+        "Add extra playable words to the game for both players.\n\n" ..
+        "View the special dictionary from the in-game menu.\n\n" ..
+        "Earn bonus points by playing words in the dictionary.", 100, 100)
+    titleTipButton.anchorX = 1
+    titleTipButton.x = display.contentWidth - 120
+    titleTipButton.y = 0
+
+    group:insert(bg)
     group:insert(title)
+    group:insert(self.chooseDictButton)
     group:insert(titleTipButton)
-    group:insert(self.dictionaryPicker:render())
 
     return group
+end
+
+function M:dictToLabel(specialDict)
+    if specialDict == nil then
+        return "None"
+    elseif specialDict == common_api.DICT_LOVECRAFT then
+        return "H.P.L."
+    elseif specialDict == common_api.DICT_POE then
+        return "Poe"
+    elseif specialDict == common_api.DICT_MYTHOS then
+        return "Cthulhu"
+    end
+    print("ERROR - Invalid specialDcit in create_game_options: " .. tostring(specialDict))
 end
 
 function M:getBoardSizeOption()
@@ -207,32 +220,14 @@ end
 
 function M:drawBonusOptions()
     local group = display.newGroup()
-    group.y = 650
-
-    local title = display.newText {
-        text = "Bonuses",
-        font = fonts.BOLD_FONT,
-        fontSize = 50,
-        x = display.contentCenterX
-    }
-    title:setFillColor(0, 0, 0)
-
-    local titleTipButton = tips_helpers.drawTipButton(
-        "Get an edge, start the game with bonus tiles!\n\n" ..
-                "Question tiles can be played as any letter.\n\n" ..
-                "Oracle tiles reveal a powerful move.", 100, 100)
-    titleTipButton.anchorX = 0
-    titleTipButton.x = title.x + title.contentWidth / 2
-    titleTipButton.y = title.y
+    group.y = 700
 
     local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
     local questionIndex = sheetObj.module:getFrameIndex("question_rack")
     local scryIndex = sheetObj.module:getFrameIndex("scry_rack")
-    self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 100, 4, self.onUpdateOptions, sheetObj.imageSheet, questionIndex)
-    self.scryTilesStepper = M.drawBonusOptionRow(group, "Oracle Tiles", 200, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
+    self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 0, 4, self.onUpdateOptions, sheetObj.imageSheet, questionIndex)
+    self.scryTilesStepper = M.drawBonusOptionRow(group, "Oracle Tiles", 125, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
 
-    group:insert(title)
-    group:insert(titleTipButton)
     return group
 end
 

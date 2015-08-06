@@ -36,9 +36,9 @@ function scene:create(event)
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self, false)
     self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(80, 250, "scenes.choose_board_size_scene")
+    self.backButton = common_ui.createBackButton(80, 100, "scenes.choose_board_size_scene")
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), false)
-    self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 120, self.creds.user, self:getUpdateUserListener())
+    self.tokensDisplay = tokens_display.new(self, display.contentCenterX + 50, 100, self.creds.user, self:getUpdateUserListener())
     self.divider = display.newImageRect("images/divider.png", 500, 75)
     self.divider.x, self.divider.y = display.contentCenterX, 950
 
@@ -106,13 +106,9 @@ end
 
 function scene:getOnUpdateOptionsListener()
     return function()
-        local boardSize = self.createGameOptions:getBoardSizeOption()
-        local specialDict = self.createGameOptions:getDictionaryOption()
         local numBlankTiles = self.createGameOptions:getNumBlankTiles()
         local numScryTiles = self.createGameOptions:getNumScryTiles()
 
-        new_game_data.boardSize = boardSize
-        new_game_data.specialDict = specialDict
         new_game_data.initialBlankTiles = numBlankTiles
         new_game_data.initialScryTiles = numScryTiles
 
@@ -123,10 +119,9 @@ end
 
 function scene:getCurrentCost()
     local boardSizeCost = common_api.getBoardSizeCost(new_game_data.boardSize)
-    local dictionaryCost = common_api.getDictCost(new_game_data.specialDict)
     local blankTilesCost = new_game_data.initialBlankTiles or 0
     local scryTilesCost = new_game_data.initialScryTiles or 0
-    return boardSizeCost + dictionaryCost + blankTilesCost + scryTilesCost
+    return boardSizeCost + blankTilesCost + scryTilesCost
 end
 
 -- "scene:show()"

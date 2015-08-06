@@ -32,9 +32,9 @@ function M:drawTitle()
     local title = display.newText {
         x = 100,
         y = 0,
-        text = "Cost = " .. self.cost .. " x",
+        text = "Books to play = " .. self.cost .. " x",
         font = fonts.BOLD_FONT,
-        fontSize = 60,
+        fontSize = 48,
         align = "right"
     }
     title.anchorX = 1.0

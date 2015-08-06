@@ -10,13 +10,13 @@ local meta = { __index = M }
 -- Constants
 local MAX_TOKENS = 10
 
-local ALL_TOKENS_WIDTH = 550
+local ALL_TOKENS_WIDTH = 450
 
-local TOKEN_WIDTH = 100
-local TOKEN_HEIGHT = 100
+local TOKEN_WIDTH = 80
+local TOKEN_HEIGHT = 80
 
-local PLUS_WIDTH = 130
-local PLUS_HEIGHT = 130
+local PLUS_WIDTH = 120
+local PLUS_HEIGHT = 120
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -128,9 +128,9 @@ function M:drawTokens()
     local tokensGroup = display.newGroup()
     local backgroundSmoke = nil
     if self.numTokens > 10 then
-        backgroundSmoke = display.newImageRect("images/ghostly_smoke.png", 750, 243)
-        backgroundSmoke.x = 0
-        backgroundSmoke.y = 0
+        --backgroundSmoke = display.newImageRect("images/ghostly_smoke.png", 750, 243)
+        --backgroundSmoke.x = 0
+        --backgroundSmoke.y = 0
     end
 
     for i = 1, math.min(MAX_TOKENS, self.numTokens) do
