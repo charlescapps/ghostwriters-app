@@ -30,14 +30,13 @@ end
 
 function M:drawTitle()
     local title = display.newText {
-        x = 100,
+        x = -45,
         y = 0,
         text = "Books to play = " .. self.cost .. " x",
         font = fonts.BOLD_FONT,
         fontSize = 48,
         align = "right"
     }
-    title.anchorX = 1.0
     title:setFillColor(0, 0, 0)
 
     return title
@@ -45,7 +44,7 @@ end
 
 function M:drawTokenSymbol()
     local img = display.newImageRect("images/currency_book.png", 90, 90)
-    img.x, img.y = self.title.x, 0
+    img.x, img.y = self.title.x + self.title.contentWidth / 2, 0
     img.anchorX = 0
     return img
 end

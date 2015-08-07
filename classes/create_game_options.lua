@@ -74,8 +74,8 @@ function M:drawBoardSizeOptions()
                 self.onUpdateOptions()
             end
         end
-        if self.view and self.view.removeSelf then
-            local modal = choose_board_size_modal.new(onSelect)
+        if common_ui.isValidDisplayObj(self.view) then
+            local modal = choose_board_size_modal.new(onSelect, self.isReadOnly, new_game_data.boardSize)
             self.view:toFront()
             self.view:insert(modal:show())
         end
@@ -155,7 +155,7 @@ function M:drawDictionaryOptions()
             end
         end
         if common_ui.isValidDisplayObj(self.view) then
-            local modal = choose_special_dict_modal.new(onSelect)
+            local modal = choose_special_dict_modal.new(onSelect, self.isReadOnly, new_game_data.specialDict)
             self.view:toFront()
             self.view:insert(modal:show())
         end

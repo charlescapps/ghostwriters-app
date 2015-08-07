@@ -36,9 +36,9 @@ function scene:create(event)
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self, true)
     self.createGameButton = self:createJoinGameButton()
-    self.backButton = common_ui.createBackButton(80, 255, "scenes.my_challengers_scene")
+    self.backButton = common_ui.createBackButton(80, 100, "scenes.my_challengers_scene")
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), true)
-    self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 120, self.creds.user, self:getUpdateUserListener())
+    self.tokensDisplay = tokens_display.new(self, display.contentCenterX + 50, 100, self.creds.user, self:getUpdateUserListener())
     self.divider = display.newImageRect("images/divider.png", 500, 75)
     self.divider.x, self.divider.y = display.contentCenterX, 950
 

@@ -8,9 +8,12 @@ local fonts = require("globals.fonts")
 local M = {}
 local meta = { __index = M }
 
-function M.new(onSelect)
+function M.new(onSelect, isReadOnly, selectedDict)
     local modal = {
-        onSelect = onSelect
+        onSelect = onSelect,
+        isReadOnly = isReadOnly,
+        selectedDict = selectedDict,
+        buttons = {}
     }
 
     return setmetatable(modal, meta)
@@ -21,25 +24,36 @@ function M:show()
     self.view.alpha = 0
     self.bg = self:drawBg()
     self.screen = self:drawScreen()
-    self.noneButton = self:drawButton("None (Standard English)", nil,
+    local noneButtonGroup = self:drawButton("None (Standard English)", nil,
         "images/choose_none_button_default.png", "images/choose_none_button_over.png", 190, display.contentCenterY - 400)
 
-    self.poeButton = self:drawButton("Edgar Allan Poe", common_api.DICT_POE,
+    local poeButtonGroup = self:drawButton("Edgar Allan Poe", common_api.DICT_POE,
         "images/choose_poe_button_default.png", "images/choose_poe_button_over.png", 190, display.contentCenterY - 150)
 
-    self.lovecraftButton = self:drawButton("H.P. Lovecraft", common_api.DICT_LOVECRAFT,
+    local lovecraftButtonGroup = self:drawButton("H.P. Lovecraft", common_api.DICT_LOVECRAFT,
         "images/choose_lovecraft_button_default.png", "images/choose_lovecraft_button_over.png", 190, display.contentCenterY + 100)
 
-    self.cthulhuButton = self:drawButton("Cthulhu Mythos", common_api.DICT_MYTHOS,
+    local cthulhuButtonGroup = self:drawButton("Cthulhu Mythos", common_api.DICT_MYTHOS,
         "images/choose_cthulhu_button_default.png", "images/choose_cthulhu_button_over.png", 190, display.contentCenterY + 350)
+
+    if self.isReadOnly then
+        for key, button in pairs(self.buttons) do
+            if key ~= tostring(self.selectedDict) then
+               if common_ui.isValidDisplayObj(button) then
+                   button:setEnabled(false)
+                   button:setFillColor(0.2, 0.2, 0.2)
+               end
+            end
+        end
+    end
 
     -- Insert display objects
     self.view:insert(self.screen)
     self.view:insert(self.bg)
-    self.view:insert(self.noneButton)
-    self.view:insert(self.poeButton)
-    self.view:insert(self.lovecraftButton)
-    self.view:insert(self.cthulhuButton)
+    self.view:insert(noneButtonGroup)
+    self.view:insert(poeButtonGroup)
+    self.view:insert(lovecraftButtonGroup)
+    self.view:insert(cthulhuButtonGroup)
 
     -- Fade in
     transition.fadeIn(self.view, { time = 800 })
@@ -51,11 +65,25 @@ function M:drawBg()
     local img = display.newImageRect("images/old_book.png", 750, 1067)
     img.x = display.contentCenterX
     img.y = display.contentCenterY
+    img:addEventListener("touch", function(event) return true end)
+    img:addEventListener("tap", function(event) return true end)
     return img
 end
 
 function M:drawScreen()
     local screen = common_ui:drawScreen()
+    local function onTouch(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(event.target)
+        elseif event.phase == "ended" then
+            display.getCurrentStage():setFocus(nil)
+            self:close()
+        elseif event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
+        end
+    end
+
+    screen:addEventListener("touch", onTouch)
     return screen
 end
 
@@ -101,6 +129,8 @@ function M:drawButton(labelText, callbackValue, defaultImg, overImg, width, yPos
 
     group:insert(button)
     group:insert(label)
+
+    self.buttons[tostring(callbackValue)] = button
 
     return group
 end
