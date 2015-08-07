@@ -10,13 +10,10 @@ local meta = { __index = M }
 -- Constants
 local MAX_TOKENS = 10
 
-local ALL_TOKENS_WIDTH = 450
+local ALL_TOKENS_WIDTH = 550
 
-local TOKEN_WIDTH = 80
-local TOKEN_HEIGHT = 80
-
-local PLUS_WIDTH = 120
-local PLUS_HEIGHT = 120
+local TOKEN_WIDTH = 100
+local TOKEN_HEIGHT = 100
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -34,7 +31,6 @@ function M.new(parentScene, x, y, authUser, updateUserListener)
     print("Created tokens_display with numTokens = " .. tostring(tokensDisplay.numTokens))
 
     return setmetatable(tokensDisplay, meta)
-
 end
 
 function M:render()
@@ -42,47 +38,14 @@ function M:render()
     group.x, group.y = self.x, self.y
     self.view = group
 
-    self.tokensGroup, self.backgroundSmoke = self:drawTokens()
-
-    self.purchaseButton = self:drawPurchaseButton()
-
-    if self.backgroundSmoke then
-        self.view:insert(self.backgroundSmoke)
-    end
+    self.tokensGroup = self:drawTokens()
 
     self.view:insert(self.tokensGroup)
-
-    self.view:insert(self.purchaseButton)
 
     return self.view
 end
 
 function M:addTouchListener(group)
-    local function drawBooksModal()
-        common_ui.createInfoModal("My books", "You own " .. tostring(self.numTokens) .. " books.", nil, nil, 50)
-    end
-
-    function group:touch(event)
-        if event.phase == "began" then
-            display.getCurrentStage():setFocus(event.target)
-        elseif event.phase == "ended" then
-            display.getCurrentStage():setFocus(nil)
-            drawBooksModal()
-        elseif event.phase == "cancelled" then
-            display.getCurrentStage():setFocus(nil)
-        end
-        return true
-    end
-
-    function group:tap(event)
-        return true
-    end
-
-    group:addEventListener("touch")
-    group:addEventListener("tap")
-end
-
-function M:drawPurchaseButton()
     local function onRelease()
         if not self.view then
             return true
@@ -101,37 +64,28 @@ function M:drawPurchaseButton()
         return true
     end
 
-    local button = widget.newButton {
-        width = PLUS_WIDTH,
-        height = PLUS_HEIGHT,
-        x = ALL_TOKENS_WIDTH / 2 + 25,
-        y = 0,
-        defaultFile = "images/purchase_button_default.png",
-        overFile = "images/purchase_button_over.png",
-        onEvent = function(event)
-            if event.phase == "began" then
-                display.getCurrentStage():setFocus(event.target)
-            elseif event.phase == "ended" then
-                display.getCurrentStage():setFocus(nil)
-                onRelease()
-            elseif event.phase == "cancelled" then
-                display.getCurrentStage():setFocus(nil)
-            end
+    function group:touch(event)
+        if event.phase == "began" then
+            display.getCurrentStage():setFocus(event.target)
+        elseif event.phase == "ended" then
+            display.getCurrentStage():setFocus(nil)
+            onRelease()
+        elseif event.phase == "cancelled" then
+            display.getCurrentStage():setFocus(nil)
         end
-    }
-    button.isHitTestMasked = false
+        return true
+    end
 
-    return button
+    function group:tap(event)
+        return true
+    end
+
+    group:addEventListener("touch")
+    group:addEventListener("tap")
 end
 
 function M:drawTokens()
     local tokensGroup = display.newGroup()
-    local backgroundSmoke = nil
-    if self.numTokens > 10 then
-        --backgroundSmoke = display.newImageRect("images/ghostly_smoke.png", 750, 243)
-        --backgroundSmoke.x = 0
-        --backgroundSmoke.y = 0
-    end
 
     for i = 1, math.min(MAX_TOKENS, self.numTokens) do
         local img = display.newImageRect("images/currency_book.png", TOKEN_WIDTH, TOKEN_HEIGHT)
@@ -150,12 +104,12 @@ function M:drawTokens()
 
     self:addTouchListener(tokensGroup)
 
-    return tokensGroup, backgroundSmoke
+    return tokensGroup
 end
 
 function M:computeTokenPos(tokenIndex)
     local i = tokenIndex - 1
-    local firstX = -ALL_TOKENS_WIDTH / 2 - 30
+    local firstX = -ALL_TOKENS_WIDTH / 2 + DISPLAY_TOKEN_WIDTH / 2
     local x = firstX + (i % 10) * DISPLAY_TOKEN_WIDTH
     return x, 0
 end
@@ -177,13 +131,11 @@ function M:updateUser(updatedUser)
     self:removeAllImages()
     self.numTokens = updatedUser.tokens
     self.tokensGroup, self.backgroundSmoke = self:drawTokens()
-    self.purchaseButton = self:drawPurchaseButton()
 
     if self.backgroundSmoke then
         self.view:insert(self.backgroundSmoke)
     end
     self.view:insert(self.tokensGroup)
-    self.view:insert(self.purchaseButton)
 
 end
 
@@ -196,8 +148,6 @@ function M:removeAllImages()
 
     self.tokenImages = {}
 
-    common_ui.safeRemove(self.purchaseButton)
-    self.purchaseButton = nil
 end
 
 return M

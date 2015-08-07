@@ -47,7 +47,7 @@ end
 
 function M:drawBoardSizeOptions()
     local group = display.newGroup()
-    group.y = 400
+    group.y = 425
 
     local bg = display.newImageRect("images/bookmark1.png", 800, 125)
     bg.x, bg.y = display.contentCenterX, 0
@@ -127,7 +127,7 @@ end
 
 function M:drawDictionaryOptions()
     local group = display.newGroup()
-    group.y = 550
+    group.y = 575
 
     local bg = display.newImageRect("images/bookmark2.png", 800, 125)
     bg.x, bg.y = display.contentCenterX, 0
@@ -208,14 +208,6 @@ function M:dictToLabel(specialDict)
     print("ERROR - Invalid specialDcit in create_game_options: " .. tostring(specialDict))
 end
 
-function M:getBoardSizeOption()
-    return self.boardSizePicker:getValue()
-end
-
-function M:getDictionaryOption()
-    return self.dictionaryPicker:getValue()
-end
-
 function M:getNumBlankTiles()
     return self.blankTilesStepper:getValue()
 end
@@ -226,7 +218,7 @@ end
 
 function M:drawBonusOptions()
     local group = display.newGroup()
-    group.y = 700
+    group.y = 725
 
     local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
     local questionIndex = sheetObj.module:getFrameIndex("question_rack")

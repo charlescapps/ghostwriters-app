@@ -36,9 +36,9 @@ function scene:create(event)
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self, false)
     self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(80, 100, "scenes.choose_board_size_scene")
+    self.backButton = common_ui.createBackButton(60, 60, "scenes.choose_board_size_scene", nil, nil, nil, 100, 100)
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), false)
-    self.tokensDisplay = tokens_display.new(self, display.contentCenterX + 50, 100, self.creds.user, self:getUpdateUserListener())
+    self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 200, self.creds.user, self:getUpdateUserListener())
     self.divider = display.newImageRect("images/divider.png", 500, 75)
     self.divider.x, self.divider.y = display.contentCenterX, 950
 
@@ -55,6 +55,11 @@ function scene:create(event)
     self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
     sceneGroup:insert(self.tokenCostInfo:render())
 
+    self:registerPurchases()
+
+end
+
+function scene:registerPurchases()
     -- Fetch updated user model if there are no pending purchases
     local purchaseJSON = purchase_store.loadPurchaseTable()
     if #purchaseJSON.purchases <= 0 then
@@ -65,8 +70,6 @@ function scene:create(event)
         print("Purchases are present! Registering with ghostwriters.")
         pay_helpers.registerAllPurchases()
     end
-
-    --pay_helpers.loadStoreProducts()
 end
 
 
