@@ -10,10 +10,13 @@ local meta = { __index = M }
 -- Constants
 local MAX_TOKENS = 10
 
-local ALL_TOKENS_WIDTH = 550
+local ALL_TOKENS_WIDTH = 575
 
 local TOKEN_WIDTH = 100
 local TOKEN_HEIGHT = 100
+
+local BOOKSHELF_WIDTH = 650
+local BOOKSHELF_HEIGHT = 250
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -38,15 +41,30 @@ function M:render()
     group.x, group.y = self.x, self.y
     self.view = group
 
+    self.bookshelf = self:drawBookshelf()
     self.tokensGroup = self:drawTokens()
 
+    self.view:insert(self.bookshelf)
     self.view:insert(self.tokensGroup)
 
     return self.view
 end
 
-function M:addTouchListener(group)
-    local function onRelease()
+function M:drawBookshelf()
+    local button = widget.newButton {
+        defaultFile = "images/bookshelf.png",
+        overFile = "images/bookshelf_over.png",
+        width = BOOKSHELF_WIDTH,
+        height = BOOKSHELF_HEIGHT,
+        onRelease = self:getInAppPurchasePopupListener(),
+        x = 0,
+        y = BOOKSHELF_HEIGHT / 4
+    }
+    return button
+end
+
+function M:getInAppPurchasePopupListener()
+    return function()
         if not self.view then
             return true
         end
@@ -63,25 +81,6 @@ function M:addTouchListener(group)
         popup:show()
         return true
     end
-
-    function group:touch(event)
-        if event.phase == "began" then
-            display.getCurrentStage():setFocus(event.target)
-        elseif event.phase == "ended" then
-            display.getCurrentStage():setFocus(nil)
-            onRelease()
-        elseif event.phase == "cancelled" then
-            display.getCurrentStage():setFocus(nil)
-        end
-        return true
-    end
-
-    function group:tap(event)
-        return true
-    end
-
-    group:addEventListener("touch")
-    group:addEventListener("tap")
 end
 
 function M:drawTokens()
@@ -101,8 +100,6 @@ function M:drawTokens()
         self.tokenImages[i] = img
         tokensGroup:insert(img)
     end
-
-    self:addTouchListener(tokensGroup)
 
     return tokensGroup
 end

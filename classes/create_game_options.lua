@@ -47,7 +47,7 @@ end
 
 function M:drawBoardSizeOptions()
     local group = display.newGroup()
-    group.y = 425
+    group.y = 500
 
     local bg = display.newImageRect("images/bookmark1.png", 800, 125)
     bg.x, bg.y = display.contentCenterX, 0
@@ -127,7 +127,7 @@ end
 
 function M:drawDictionaryOptions()
     local group = display.newGroup()
-    group.y = 575
+    group.y = 650
 
     local bg = display.newImageRect("images/bookmark2.png", 800, 125)
     bg.x, bg.y = display.contentCenterX, 0
@@ -218,7 +218,7 @@ end
 
 function M:drawBonusOptions()
     local group = display.newGroup()
-    group.y = 725
+    group.y = 800
 
     local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
     local questionIndex = sheetObj.module:getFrameIndex("question_rack")
