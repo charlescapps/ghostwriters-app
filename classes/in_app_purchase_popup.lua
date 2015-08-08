@@ -3,17 +3,19 @@ local transition = require("transition")
 local widget = require("widget")
 local pay_helpers = require("common.pay_helpers")
 local fonts = require("globals.fonts")
+local format_helpers = require("common.format_helpers")
 
 local M = {}
 local meta = { __index = M }
 
-local BUTTON_SIZE = 200
+local BUTTON_SIZE = 180
 local CLOSE_X_WIDTH = 90
 
-function M.new(onRegisterPurchaseSuccess, destroyListener)
+function M.new(onRegisterPurchaseSuccess, destroyListener, numTokens)
     local popup = {
         onRegisterPurchaseSuccess = onRegisterPurchaseSuccess,
-        destroyListener = destroyListener
+        destroyListener = destroyListener,
+        numTokens = numTokens
     }
     print("Creating new in-app purchase popup")
     pay_helpers.registerAllPurchases()
@@ -28,15 +30,17 @@ function M:render()
     self.screen = self:drawScreen()
     self.background = self:drawBackground()
     self.closeX = self:drawCloseX()
+    self.title = self:drawTitle()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
     self.view:insert(self.closeX)
+    self.view:insert(self.title)
 
     -- Draw the products
-    self.bookpack1_row = self:drawRow("book_pack_1", "100 books", 300, "images/book_pack1.png", "images/book_pack1_over.png")
-    self.bookpack2_row = self:drawRow("book_pack_2", "225 books", 550, "images/book_pack2.png", "images/book_pack2_over.png")
-    self.bookpack3_row = self:drawRow("book_pack_3", "500 books", 800, "images/book_pack3.png", "images/book_pack3_over.png")
+    self.bookpack1_row = self:drawRow("book_pack_1", "100 books", 375, "images/book_pack1.png", "images/book_pack1_over.png")
+    self.bookpack2_row = self:drawRow("book_pack_2", "225 books", 600, "images/book_pack2.png", "images/book_pack2_over.png")
+    self.bookpack3_row = self:drawRow("book_pack_3", "500 books", 825, "images/book_pack3.png", "images/book_pack3_over.png")
     self.bookpack4_row = self:drawRow("infinite_books", "Infinite books", 1050, "images/book_pack_infinite.png", "images/book_pack_infinite_over.png")
 
     self.view:insert(self.bookpack1_row)
@@ -45,6 +49,30 @@ function M:render()
     self.view:insert(self.bookpack4_row)
 
     return self.view
+end
+
+function M:drawTitle()
+    local numTokens = self.numTokens
+    local tokenStr
+    if type(numTokens) ~= "number" then
+        tokenStr = "???"
+    else
+        tokenStr = format_helpers.comma_value(numTokens)
+    end
+
+    local titleText = "You have " .. tokenStr .. " books"
+
+    local textObj = display.newText {
+        text = titleText,
+        x = display.contentCenterX,
+        y = 225,
+        align = "center",
+        font = fonts.BOLD_FONT,
+        fontSize = 48
+    }
+    textObj:setFillColor(0, 0, 0)
+
+    return textObj
 end
 
 function M:drawBackground()

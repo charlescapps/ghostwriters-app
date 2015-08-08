@@ -55,6 +55,8 @@ M.DICT_POE = "POE"
 M.DICT_LOVECRAFT = "LOVECRAFT"
 M.DICT_MYTHOS = "MYTHOS"
 
+M.MAX_BOOK_TOKENS = 999999
+
 M.getPassMove = function(gameModel, playerId)
     return {
         gameId = gameModel.id,

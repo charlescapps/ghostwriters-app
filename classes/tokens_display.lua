@@ -1,4 +1,5 @@
 local display = require("display")
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local in_app_purchase_popup = require("classes.in_app_purchase_popup")
 local graphics = require("graphics")
@@ -109,29 +110,35 @@ function M:setBottomShelfProgressDisplay(progress)
         return
     end
 
+    print("Setting progress to: " .. tostring(progress))
+
     self.bookshelfFill.maskX = -BOTTOM_BOOKSHELF_WIDTH / 2 + progress * BOTTOM_BOOKSHELF_WIDTH
 
 end
 
 function M:getBottomShelfProgress()
+    if self.authUser and self.authUser.infiniteBooks then
+        return 1
+    end
+
     local n = self.numTokens
     if not n or n <= 10 then
         return 0
     end
 
     if n > 10 and n <= 100 then
-       return 0.25 * (100 - n) / (100 - 10)
+       return 0.25 * (n - 10) / (100 - 10)
     end
 
     if n > 100 and n <= 250 then
-        return 0.25 + 0.25 * (250 - n) / (250 - 100)
+        return 0.25 + 0.25 * (n - 100) / (250 - 100)
     end
 
     if n > 250 and n <= 500 then
-        return 0.5 + 0.25 * (500 - n) / (500 - 250)
+        return 0.5 + 0.25 * (n - 500) / (500 - 250)
     end
 
-    local MAX = 999999
+    local MAX = common_api.MAX_BOOK_TOKENS
 
     return math.min(1, 0.75 + (MAX - n) / (MAX - 500))
 end
@@ -148,7 +155,7 @@ function M:openInAppPurchasePopup()
         common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
         return true
     end
-    local popup = in_app_purchase_popup.new(self.updateUserListener, self.updateUserListener)
+    local popup = in_app_purchase_popup.new(self.updateUserListener, self.updateUserListener, self.numTokens)
     self.parentScene.view:insert(popup:render())
     popup:show()
     return true

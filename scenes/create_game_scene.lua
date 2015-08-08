@@ -15,6 +15,7 @@ local pay_helpers = require("common.pay_helpers")
 local purchase_store = require("common.purchase_store")
 local scene_helpers = require("common.scene_helpers")
 local currency_tip = require("tips.currency_tip")
+local fonts = require("globals.fonts")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -33,14 +34,16 @@ function scene:create(event)
     new_game_data.bonusesType = common_api.RANDOM_BONUSES
 
     self.background = common_ui.createBackground()
+    self.title = self:createTitle()
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self, false)
     self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(60, 80, "scenes.choose_board_size_scene", nil, nil, nil, 100, 100)
+    self.backButton = common_ui.createBackButton(60, 100, "scenes.choose_board_size_scene", nil, nil, nil, 120, 120)
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), false)
     self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 225, self.creds.user, self:getUpdateUserListener())
 
     sceneGroup:insert(self.background)
+    sceneGroup:insert(self.title)
     sceneGroup:insert(self.gearButton)
     sceneGroup:insert(self.createGameButton)
     sceneGroup:insert(self.backButton)
@@ -54,6 +57,19 @@ function scene:create(event)
 
     self:registerPurchases()
 
+end
+
+function scene:createTitle()
+    local title = display.newText {
+        text = "Create Game",
+        x = display.contentCenterX,
+        y = 100,
+        font = fonts.BOLD_FONT,
+        fontSize = 68
+    }
+    title:setFillColor(0, 0, 0)
+
+    return title
 end
 
 function scene:registerPurchases()
