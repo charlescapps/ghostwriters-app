@@ -1,8 +1,8 @@
 local display = require("display")
 local common_ui = require("common.common_ui")
 local math = require("math")
-local widget = require("widget")
 local in_app_purchase_popup = require("classes.in_app_purchase_popup")
+local graphics = require("graphics")
 
 local M = {}
 local meta = { __index = M }
@@ -15,8 +15,11 @@ local ALL_TOKENS_WIDTH = 575
 local TOKEN_WIDTH = 100
 local TOKEN_HEIGHT = 100
 
-local BOOKSHELF_WIDTH = 650
-local BOOKSHELF_HEIGHT = 250
+local TOP_BOOKSHELF_WIDTH = 650
+local TOP_BOOKSHELF_HEIGHT = 114
+
+local BOTTOM_BOOKSHELF_HEIGHT = 136
+local BOTTOM_BOOKSHELF_WIDTH = 650
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -41,26 +44,37 @@ function M:render()
     group.x, group.y = self.x, self.y
     self.view = group
 
-    self.bookshelf = self:drawBookshelf()
+    self.topBookshelf = self:drawTopBookshelf()
     self.tokensGroup = self:drawTokens()
 
-    self.view:insert(self.bookshelf)
+    self.bookshelfMeter = self:drawBookshelfMeter()
+
+    self.view:insert(self.topBookshelf)
     self.view:insert(self.tokensGroup)
+    self.view:insert(self.bookshelfMeter)
 
     return self.view
 end
 
-function M:drawBookshelf()
-    local button = widget.newButton {
-        defaultFile = "images/bookshelf.png",
-        overFile = "images/bookshelf_over.png",
-        width = BOOKSHELF_WIDTH,
-        height = BOOKSHELF_HEIGHT,
-        onRelease = self:getInAppPurchasePopupListener(),
-        x = 0,
-        y = BOOKSHELF_HEIGHT / 4
-    }
-    return button
+function M:drawTopBookshelf()
+    local img = display.newImageRect ("images/top_bookshelf.png", TOP_BOOKSHELF_WIDTH, TOP_BOOKSHELF_HEIGHT)
+    return img
+end
+
+function M:drawBookshelfMeter()
+    local group = display.newGroup()
+    group.x, group.y = 0, TOP_BOOKSHELF_HEIGHT / 2 + BOTTOM_BOOKSHELF_HEIGHT / 2
+
+    local bg = display.newImageRect("images/bookshelf_bg_meter.png", BOTTOM_BOOKSHELF_WIDTH, BOTTOM_BOOKSHELF_HEIGHT)
+    local fill = display.newImageRect("images/bookshelf_fill_meter.png", BOTTOM_BOOKSHELF_WIDTH, BOTTOM_BOOKSHELF_HEIGHT)
+
+    local mask = graphics.newMask("images/bookshelf_meter_mask.png")
+    fill:setMask(mask)
+    fill.maskX = BOTTOM_BOOKSHELF_WIDTH / 2
+
+    group:insert(bg)
+    group:insert(fill)
+    return group
 end
 
 function M:getInAppPurchasePopupListener()
