@@ -1,8 +1,9 @@
 local display = require("display")
 local common_ui = require("common.common_ui")
-local math = require("math")
 local in_app_purchase_popup = require("classes.in_app_purchase_popup")
 local graphics = require("graphics")
+local math = require("math")
+local widget = require("widget")
 
 local M = {}
 local meta = { __index = M }
@@ -57,45 +58,102 @@ function M:render()
 end
 
 function M:drawTopBookshelf()
-    local img = display.newImageRect ("images/top_bookshelf.png", TOP_BOOKSHELF_WIDTH, TOP_BOOKSHELF_HEIGHT)
-    return img
+    local bg = widget.newButton {
+        defaultFile = "images/top_bookshelf.png",
+        overFile = "images/top_bookshelf_over.png",
+        width = TOP_BOOKSHELF_WIDTH,
+        height = TOP_BOOKSHELF_HEIGHT,
+        onRelease = function() self:openInAppPurchasePopup() end,
+        x = 0,
+        y = 0
+    }
+    return bg
 end
 
 function M:drawBookshelfMeter()
     local group = display.newGroup()
     group.x, group.y = 0, TOP_BOOKSHELF_HEIGHT / 2 + BOTTOM_BOOKSHELF_HEIGHT / 2
 
-    local bg = display.newImageRect("images/bookshelf_bg_meter.png", BOTTOM_BOOKSHELF_WIDTH, BOTTOM_BOOKSHELF_HEIGHT)
-    local fill = display.newImageRect("images/bookshelf_fill_meter.png", BOTTOM_BOOKSHELF_WIDTH, BOTTOM_BOOKSHELF_HEIGHT)
+    local bg = widget.newButton {
+        defaultFile = "images/bookshelf_bg_meter.png",
+        overFile = "images/bookshelf_bg_meter_over.png",
+        width = BOTTOM_BOOKSHELF_WIDTH,
+        height = BOTTOM_BOOKSHELF_HEIGHT,
+        onRelease = function() self:openInAppPurchasePopup() end,
+        x = 0,
+        y = 0
+    }
 
-    local mask = graphics.newMask("images/bookshelf_meter_mask.png")
+    local fill = display.newImageRect("images/bookshelf_fill_meter.png", BOTTOM_BOOKSHELF_WIDTH, BOTTOM_BOOKSHELF_HEIGHT)
+    self.bookshelfFill = fill
+
+
+    local mask
+    if display.imageSuffix == "@2x" then
+        mask = graphics.newMask("images/bookshelf_meter_mask@2x.png")
+    else
+        mask = graphics.newMask("images/bookshelf_meter_mask.png")
+    end
     fill:setMask(mask)
-    fill.maskX = BOTTOM_BOOKSHELF_WIDTH / 2
+
+    local currentProgress = self:getBottomShelfProgress()
+    self:setBottomShelfProgressDisplay(currentProgress)
 
     group:insert(bg)
     group:insert(fill)
     return group
 end
 
-function M:getInAppPurchasePopupListener()
-    return function()
-        if not self.view then
-            return true
-        end
-        local user = self.authUser
-        if not user then
-            return true
-        end
-        if user.infiniteBooks then
-            common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
-            return true
-        end
-        local popup = in_app_purchase_popup.new(self.updateUserListener, self.updateUserListener)
-        self.parentScene.view:insert(popup:render())
-        popup:show()
+function M:setBottomShelfProgressDisplay(progress)
+    if not self.bookshelfFill or not common_ui.isValidDisplayObj(self.bookshelfFill) then
+        return
+    end
+
+    self.bookshelfFill.maskX = -BOTTOM_BOOKSHELF_WIDTH / 2 + progress * BOTTOM_BOOKSHELF_WIDTH
+
+end
+
+function M:getBottomShelfProgress()
+    local n = self.numTokens
+    if not n or n <= 10 then
+        return 0
+    end
+
+    if n > 10 and n <= 100 then
+       return 0.25 * (100 - n) / (100 - 10)
+    end
+
+    if n > 100 and n <= 250 then
+        return 0.25 + 0.25 * (250 - n) / (250 - 100)
+    end
+
+    if n > 250 and n <= 500 then
+        return 0.5 + 0.25 * (500 - n) / (500 - 250)
+    end
+
+    local MAX = 999999
+
+    return math.min(1, 0.75 + (MAX - n) / (MAX - 500))
+end
+
+function M:openInAppPurchasePopup()
+    if not common_ui.isValidDisplayObj(self.view) then
         return true
     end
+    local user = self.authUser
+    if not user then
+        return true
+    end
+    if user.infiniteBooks then
+        common_ui.createInfoModal("Infinite Books!", "You have infinite books, no need to purchase anything!")
+        return true
+    end
+    local popup = in_app_purchase_popup.new(self.updateUserListener, self.updateUserListener)
+    self.parentScene.view:insert(popup:render())
+    popup:show()
+    return true
 end
+
 
 function M:drawTokens()
     local tokensGroup = display.newGroup()
@@ -141,11 +199,9 @@ function M:updateUser(updatedUser)
 
     self:removeAllImages()
     self.numTokens = updatedUser.tokens
-    self.tokensGroup, self.backgroundSmoke = self:drawTokens()
+    self.tokensGroup = self:drawTokens()
+    self.bookshelfMeter = self:drawBookshelfMeter()
 
-    if self.backgroundSmoke then
-        self.view:insert(self.backgroundSmoke)
-    end
     self.view:insert(self.tokensGroup)
 
 end
@@ -154,8 +210,8 @@ function M:removeAllImages()
     common_ui.safeRemove(self.tokensGroup)
     self.tokensGroup = nil
 
-    common_ui.safeRemove(self.backgroundSmoke)
-    self.backgroundSmoke = nil
+    common_ui.safeRemove(self.bookshelfMeter)
+    self.bookshelfMeter, self.bookshelfFill = nil, nil
 
     self.tokenImages = {}
 
