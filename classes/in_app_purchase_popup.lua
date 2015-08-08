@@ -76,7 +76,7 @@ function M:drawTitle()
 end
 
 function M:drawBackground()
-    local bg = display.newImageRect("images/purchase_modal_bg.png", 750, 1100)
+    local bg = display.newImageRect("images/purchase_modal_bg.png", 750, 1175)
     bg.x = display.contentCenterX
     bg.y = display.contentCenterY
 

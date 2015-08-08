@@ -39,10 +39,8 @@ function scene:create(event)
     self.gameOptionsModal = game_options_modal.new(self, true)
     self.createGameButton = self:createJoinGameButton()
     self.backButton = common_ui.createBackButton(80, 100, "scenes.my_challengers_scene")
-    self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), true)
-    self.tokensDisplay = tokens_display.new(self, display.contentCenterX + 50, 100, self.creds.user, self:getUpdateUserListener())
-    self.divider = display.newImageRect("images/divider.png", 500, 75)
-    self.divider.x, self.divider.y = display.contentCenterX, 950
+    self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), true, 225)
+    self.tokensDisplay = tokens_display.new(self, display.contentCenterX + 50, 825, self.creds.user, self:getUpdateUserListener())
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.title)
@@ -52,7 +50,6 @@ function scene:create(event)
     sceneGroup:insert(self.gameOptionsModal:render())
     sceneGroup:insert(self.createGameOptions:render())
     sceneGroup:insert(self.tokensDisplay:render())
-    sceneGroup:insert(self.divider)
 
     local currentCost = self:getCurrentCost()
     self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1075, currentCost)
@@ -69,7 +66,6 @@ function scene:create(event)
         pay_helpers.registerAllPurchases()
     end
 
-    --pay_helpers.loadStoreProducts()
 end
 
 function scene:createTitle()

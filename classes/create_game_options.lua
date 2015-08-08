@@ -24,15 +24,16 @@ local BOOKMARK_HEIGHT = 125
 local QUESTION_TILE_TIP = "Question Tiles can be played as any letter.\n\n" ..
                           "Worth the full points of the chosen letter!"
 
-local ORACLE_TILE_TIP = "Oracle Tiles find a powerful move for you.\n\n" ..
-                        "The move is placed on the board, and you can choose to play the move or not."
+local ORACLE_TILE_TIP = "Oracle Tiles find a powerful word for you.\n\n" ..
+                        "A word is placed on the board, and you can choose to play the word or not."
 
 local mt = { __index = M }
 
-function M.new(onUpdateOptions, isReadOnly)
+function M.new(onUpdateOptions, isReadOnly, baseY)
     local createGameOptions = {
         onUpdateOptions = onUpdateOptions,
-        isReadOnly = isReadOnly
+        isReadOnly = isReadOnly,
+        baseY = baseY
     }
 
     return setmetatable(createGameOptions, mt)
@@ -56,7 +57,7 @@ end
 
 function M:drawBoardSizeOptions()
     local group = display.newGroup()
-    group.y = 500
+    group.y = self.baseY
 
     local bg = display.newImageRect("images/bookmark1.png", BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
     bg.x, bg.y = display.contentCenterX, 0
@@ -136,7 +137,7 @@ end
 
 function M:drawDictionaryOptions()
     local group = display.newGroup()
-    group.y = 650
+    group.y = self.baseY + 150
 
     local bg = display.newImageRect("images/bookmark2.png", BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
     bg.x, bg.y = display.contentCenterX, 0
@@ -227,7 +228,7 @@ end
 
 function M:drawBonusOptions()
     local group = display.newGroup()
-    group.y = 800
+    group.y = self.baseY + 300
 
     local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
     local questionIndex = sheetObj.module:getFrameIndex("question_rack")
