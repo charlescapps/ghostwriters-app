@@ -15,6 +15,7 @@ local pay_helpers = require("common.pay_helpers")
 local purchase_store = require("common.purchase_store")
 local json = require("json")
 local scene_helpers = require("common.scene_helpers")
+local fonts = require("globals.fonts")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.accept_game_scene"
@@ -33,6 +34,7 @@ function scene:create(event)
     new_game_data.bonusesType = new_game_data.bonusesType or common_api.RANDOM_BONUSES
 
     self.background = common_ui.createBackground()
+    self.title = self:createTitle()
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self, true)
     self.createGameButton = self:createJoinGameButton()
@@ -43,6 +45,7 @@ function scene:create(event)
     self.divider.x, self.divider.y = display.contentCenterX, 950
 
     sceneGroup:insert(self.background)
+    sceneGroup:insert(self.title)
     sceneGroup:insert(self.gearButton)
     sceneGroup:insert(self.createGameButton)
     sceneGroup:insert(self.backButton)
@@ -52,7 +55,7 @@ function scene:create(event)
     sceneGroup:insert(self.divider)
 
     local currentCost = self:getCurrentCost()
-    self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
+    self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1075, currentCost)
     sceneGroup:insert(self.tokenCostInfo:render())
 
     -- Fetch updated user model if there are no pending purchases
@@ -67,6 +70,19 @@ function scene:create(event)
     end
 
     --pay_helpers.loadStoreProducts()
+end
+
+function scene:createTitle()
+    local title = display.newText {
+        text = "Join Game",
+        x = display.contentCenterX,
+        y = 90,
+        font = fonts.BOLD_FONT,
+        fontSize = 68
+    }
+    title:setFillColor(0, 0, 0)
+
+    return title
 end
 
 

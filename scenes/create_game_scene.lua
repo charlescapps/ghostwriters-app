@@ -38,7 +38,7 @@ function scene:create(event)
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self, false)
     self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(60, 100, "scenes.choose_board_size_scene", nil, nil, nil, 120, 120)
+    self.backButton = common_ui.createBackButton(60, 90, "scenes.choose_board_size_scene", nil, nil, nil, 120, 120)
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), false)
     self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 225, self.creds.user, self:getUpdateUserListener())
 
@@ -52,7 +52,7 @@ function scene:create(event)
     sceneGroup:insert(self.tokensDisplay:render())
 
     local currentCost = self:getCurrentCost()
-    self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1050, currentCost)
+    self.tokenCostInfo = token_cost_info.new(display.contentCenterX, 1075, currentCost)
     sceneGroup:insert(self.tokenCostInfo:render())
 
     self:registerPurchases()
@@ -63,7 +63,7 @@ function scene:createTitle()
     local title = display.newText {
         text = "Create Game",
         x = display.contentCenterX,
-        y = 100,
+        y = 90,
         font = fonts.BOLD_FONT,
         fontSize = 68
     }

@@ -14,9 +14,18 @@ local choose_special_dict_modal = require("classes.choose_special_dict_modal")
 
 local M = {}
 
-local LEFT_COLUMN = 20
-local MID_COLUMN = display.contentCenterX - 15
-local RIGHT_COLUMN = display.contentCenterX + 250
+local LEFT_COLUMN = 75
+local MID_COLUMN = display.contentCenterX + 50
+local RIGHT_COLUMN = display.contentWidth - 110
+
+local BOOKMARK_WIDTH = 800
+local BOOKMARK_HEIGHT = 125
+
+local QUESTION_TILE_TIP = "Question Tiles can be played as any letter.\n\n" ..
+                          "Worth the full points of the chosen letter!"
+
+local ORACLE_TILE_TIP = "Oracle Tiles find a powerful move for you.\n\n" ..
+                        "The move is placed on the board, and you can choose to play the move or not."
 
 local mt = { __index = M }
 
@@ -49,7 +58,7 @@ function M:drawBoardSizeOptions()
     local group = display.newGroup()
     group.y = 500
 
-    local bg = display.newImageRect("images/bookmark1.png", 800, 125)
+    local bg = display.newImageRect("images/bookmark1.png", BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
     bg.x, bg.y = display.contentCenterX, 0
 
     local title = display.newText {
@@ -85,7 +94,7 @@ function M:drawBoardSizeOptions()
     self.chooseBoardSizeButton = widget.newButton {
         width = 175,
         height = 80,
-        x = display.contentCenterX + 50,
+        x = MID_COLUMN,
         y = 0,
         label = boardSizeText,
         labelColor = { default={ 1, 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
@@ -103,7 +112,7 @@ function M:drawBoardSizeOptions()
         "Choose the board size.\n\n" ..
         "The larger the board, the more your rating increases for winning games.", 100, 100)
     titleTipButton.anchorX = 1
-    titleTipButton.x = display.contentWidth - 120
+    titleTipButton.x = RIGHT_COLUMN
     titleTipButton.y = 0
 
     group:insert(bg)
@@ -129,7 +138,7 @@ function M:drawDictionaryOptions()
     local group = display.newGroup()
     group.y = 650
 
-    local bg = display.newImageRect("images/bookmark2.png", 800, 125)
+    local bg = display.newImageRect("images/bookmark2.png", BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
     bg.x, bg.y = display.contentCenterX, 0
 
     local title = display.newText {
@@ -184,7 +193,7 @@ function M:drawDictionaryOptions()
         "View the special dictionary from the in-game menu.\n\n" ..
         "Earn bonus points by playing words in the dictionary.", 100, 100)
     titleTipButton.anchorX = 1
-    titleTipButton.x = display.contentWidth - 120
+    titleTipButton.x = RIGHT_COLUMN
     titleTipButton.y = 0
 
     group:insert(bg)
@@ -223,39 +232,35 @@ function M:drawBonusOptions()
     local sheetObj = sheet_helpers:getSheetObj("rack_sheet")
     local questionIndex = sheetObj.module:getFrameIndex("question_rack")
     local scryIndex = sheetObj.module:getFrameIndex("scry_rack")
-    self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 0, 4, self.onUpdateOptions, sheetObj.imageSheet, questionIndex)
-    self.scryTilesStepper = M.drawBonusOptionRow(group, "Oracle Tiles", 125, 2, self.onUpdateOptions, sheetObj.imageSheet, scryIndex)
+    self.blankTilesStepper = M.drawBonusOptionRow(group, "Question Tiles", 0, 4, self.onUpdateOptions, sheetObj.imageSheet, questionIndex, "images/bookmark1.png", QUESTION_TILE_TIP)
+    self.scryTilesStepper = M.drawBonusOptionRow(group, "Oracle Tiles", 150, 4, self.onUpdateOptions, sheetObj.imageSheet, scryIndex, "images/bookmark2.png", ORACLE_TILE_TIP)
 
     return group
 end
 
-function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVal, sheet, frameIndex)
-    local label = display.newText {
-        parent = parent,
-        x = LEFT_COLUMN,
-        y = yPosition,
-        text = labelText,
-        font = fonts.DEFAULT_FONT,
-        fontSize = 44
-    }
-    label.anchorX = 0
-    label:setFillColor(0, 0, 0)
+function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVal, sheet, frameIndex, bgImage, tipText)
+
+    local bg = display.newImageRect(bgImage, BOOKMARK_WIDTH, BOOKMARK_HEIGHT)
+    bg.x = display.contentWidth / 2
+    bg.y = yPosition
+    parent:insert(bg)
 
     local stepperValue = display.newText {
-        parent = parent,
         text = "0 x",
-        x = MID_COLUMN - 40,
+        x = LEFT_COLUMN,
         y = yPosition,
         font = fonts.BOLD_FONT,
         fontSize = 48
     }
     stepperValue.anchorX = 0
-    stepperValue:setFillColor(0, 0, 0)
+    stepperValue:setFillColor(1, 1, 1)
+    parent:insert(stepperValue)
 
-    local iconImg = display.newImageRect(parent, sheet, frameIndex, 90, 90)
+    local iconImg = display.newImageRect(sheet, frameIndex, 90, 90)
     iconImg.anchorX = 0
     iconImg.x = stepperValue.x + stepperValue.contentWidth + 10
     iconImg.y = yPosition
+    parent:insert(iconImg)
 
     local onPress = function(event)
         if event.phase == "increment" or event.phase == "decrement" then
@@ -269,7 +274,7 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
     end
 
     local stepper = widget.newStepper{
-        x = RIGHT_COLUMN,
+        x = MID_COLUMN,
         y = yPosition,
         width = 140,
         height = 70,
@@ -283,6 +288,13 @@ function M.drawBonusOptionRow(parent, labelText, yPosition, maxValue, onUpdateVa
         plusActiveFrame = stepper_sheet:getFrameIndex("stepper_plus_active")
     }
     parent:insert(stepper)
+
+    local tipButton = tips_helpers.drawTipButton(tipText, 100, 100)
+    tipButton.anchorX = 1
+    tipButton.x = RIGHT_COLUMN
+    tipButton.y = yPosition
+    parent:insert(tipButton)
+
     return stepper
 end
 
