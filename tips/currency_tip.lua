@@ -24,8 +24,8 @@ function M:showTip()
         end
         local tipsModal = tips_modal.new(
             "Books are your currency.\n\n" ..
-            "You get 1 book per hour free, and you can buy extra books by tapping the plus icon.",
-            nil, onClose, "images/currency_tip.png", 500, 92, 0, 50)
+            "You get 1 book per hour free, and you can buy extra books by tapping the bookshelf.",
+            nil, onClose, "images/currency_tip.jpg", 375, 148, 0, 50)
         tipsModal:show()
     end
 

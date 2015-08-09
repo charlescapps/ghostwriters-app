@@ -40,7 +40,7 @@ function scene:create(event)
     self.createGameButton = self:createJoinGameButton()
     self.backButton = common_ui.createBackButton(80, 100, "scenes.my_challengers_scene")
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), true, 225)
-    self.tokensDisplay = tokens_display.new(self, display.contentCenterX + 50, 825, self.creds.user, self:getUpdateUserListener())
+    self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 825, self.creds.user, self:getUpdateUserListener())
 
     sceneGroup:insert(self.background)
     sceneGroup:insert(self.title)
