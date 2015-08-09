@@ -5,6 +5,7 @@ local in_app_purchase_popup = require("classes.in_app_purchase_popup")
 local graphics = require("graphics")
 local math = require("math")
 local widget = require("widget")
+local fonts = require("globals.fonts")
 
 local M = {}
 local meta = { __index = M }
@@ -48,12 +49,15 @@ function M:render()
 
     self.background = self:drawBackground()
     self.tokensGroup = self:drawTokens()
-
     self.bookshelfMeter = self:drawBookshelfMeter()
+    self.numberIndicators = self:drawNumberIndicators()
 
     self.view:insert(self.background)
     self.view:insert(self.tokensGroup)
     self.view:insert(self.bookshelfMeter)
+    if self.numberIndicators then
+        self.view:insert(self.numberIndicators)
+    end
 
     local currentProgress = self:getBottomShelfProgress()
     self:setBottomShelfProgressDisplay(currentProgress)
@@ -76,6 +80,57 @@ function M:drawBookshelfMeter()
     meter:setMask(mask)
 
     return meter
+end
+
+function M:drawNumberIndicators()
+    if not common_ui.isValidDisplayObj(self.bookshelfMeter) or
+       not common_ui.isValidDisplayObj(self.tokensGroup) then
+        print("Error - display objects not valid, not drawing number indicators")
+        return
+    end
+
+    if type(self.numTokens) ~= "number" then
+        return
+    end
+
+    local meterY = self.bookshelfMeter.y
+    local group = display.newGroup()
+
+    if self.numTokens >= 10 then
+        group:insert(self:drawNumber("10", 560 - BACKGROUND_WIDTH / 2, 0))
+    end
+
+    if self.numTokens >= 100 then
+        group:insert(self:drawNumber("100", 60 - BACKGROUND_WIDTH / 2, meterY))
+    end
+
+    if self.numTokens >= 250 then
+       group:insert(self:drawNumber("250", 220 - BACKGROUND_WIDTH / 2, meterY))
+    end
+
+    if self.numTokens >= 500 then
+       group:insert(self:drawNumber("500", 385 - BACKGROUND_WIDTH / 2, meterY))
+    end
+
+    if self.authUser and self.authUser.infiniteBooks then
+       group:insert(self:drawNumber("∞", 535 - BACKGROUND_WIDTH / 2, meterY, 85))
+    end
+
+    return group
+end
+
+function M:drawNumber(num, x, y, fontSize)
+    print("drawing number indicator: " .. num .. ", x = " .. tostring(x) .. ", y = " .. tostring(y))
+    local text = display.newText {
+        text = num,
+        x = x,
+        y = y,
+        font = fonts.BOLD_FONT,
+        fontSize = fontSize or 48
+    }
+    text.x, text.y = x, y
+    text.anchorX = 0
+    return text
 end
 
 function M:drawBackground()
@@ -194,9 +249,13 @@ function M:updateUser(updatedUser)
     self.numTokens = updatedUser.tokens
     self.tokensGroup = self:drawTokens()
     self.bookshelfMeter = self:drawBookshelfMeter()
+    self.numberIndicators = self:drawNumberIndicators()
 
     self.view:insert(self.tokensGroup)
     self.view:insert(self.bookshelfMeter)
+    if self.numberIndicators then
+        self.view:insert(self.numberIndicators)
+    end
 
     local currentProgress = self:getBottomShelfProgress()
     self:setBottomShelfProgressDisplay(currentProgress)
@@ -208,6 +267,9 @@ function M:removeAllImages()
 
     common_ui.safeRemove(self.bookshelfMeter)
     self.bookshelfMeter = nil
+
+    common_ui.safeRemove(self.numberIndicators)
+    self.numberIndicators = nil
 
     self.tokenImages = {}
 
