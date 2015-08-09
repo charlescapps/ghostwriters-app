@@ -23,9 +23,9 @@ function M:showTip()
             tips_persist.recordViewedTip(TIP_NAME)
         end
         local tipsModal = tips_modal.new(
-            "Books are your currency.\n\n" ..
+            "Books are your currency.\n" ..
             "You get 1 book per hour free, and you can buy extra books by tapping the bookshelf.",
-            nil, onClose, "images/currency_tip.jpg", 375, 148, 0, 50)
+            nil, onClose, "images/currency_tip.jpg", 375, 148, 0, 30)
         tipsModal:show()
     end
 
