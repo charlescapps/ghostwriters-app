@@ -17,11 +17,11 @@ local ALL_TOKENS_WIDTH = 575
 local TOKEN_WIDTH = 100
 local TOKEN_HEIGHT = 100
 
-local TOP_BOOKSHELF_WIDTH = 650
-local TOP_BOOKSHELF_HEIGHT = 114
-
 local BOTTOM_BOOKSHELF_HEIGHT = 136
 local BOTTOM_BOOKSHELF_WIDTH = 650
+
+local BACKGROUND_WIDTH = 650
+local BACKGROUND_HEIGHT = 254
 
 local DISPLAY_TOKEN_WIDTH = ALL_TOKENS_WIDTH / MAX_TOKENS  -- 50
 
@@ -46,73 +46,59 @@ function M:render()
     group.x, group.y = self.x, self.y
     self.view = group
 
-    self.topBookshelf = self:drawTopBookshelf()
+    self.background = self:drawBackground()
     self.tokensGroup = self:drawTokens()
 
     self.bookshelfMeter = self:drawBookshelfMeter()
 
-    self.view:insert(self.topBookshelf)
+    self.view:insert(self.background)
     self.view:insert(self.tokensGroup)
     self.view:insert(self.bookshelfMeter)
-
-    return self.view
-end
-
-function M:drawTopBookshelf()
-    local bg = widget.newButton {
-        defaultFile = "images/top_bookshelf.png",
-        overFile = "images/top_bookshelf_over.png",
-        width = TOP_BOOKSHELF_WIDTH,
-        height = TOP_BOOKSHELF_HEIGHT,
-        onRelease = function() self:openInAppPurchasePopup() end,
-        x = 0,
-        y = 0
-    }
-    return bg
-end
-
-function M:drawBookshelfMeter()
-    local group = display.newGroup()
-    group.x, group.y = 0, TOP_BOOKSHELF_HEIGHT / 2 + BOTTOM_BOOKSHELF_HEIGHT / 2
-
-    local bg = widget.newButton {
-        defaultFile = "images/bookshelf_bg_meter.png",
-        overFile = "images/bookshelf_bg_meter_over.png",
-        width = BOTTOM_BOOKSHELF_WIDTH,
-        height = BOTTOM_BOOKSHELF_HEIGHT,
-        onRelease = function() self:openInAppPurchasePopup() end,
-        x = 0,
-        y = 0
-    }
-
-    local fill = display.newImageRect("images/bookshelf_fill_meter.png", BOTTOM_BOOKSHELF_WIDTH, BOTTOM_BOOKSHELF_HEIGHT)
-    self.bookshelfFill = fill
-
-
-    local mask
-    if display.imageSuffix == "@2x" then
-        mask = graphics.newMask("images/bookshelf_meter_mask@2x.png")
-    else
-        mask = graphics.newMask("images/bookshelf_meter_mask.png")
-    end
-    fill:setMask(mask)
 
     local currentProgress = self:getBottomShelfProgress()
     self:setBottomShelfProgressDisplay(currentProgress)
 
-    group:insert(bg)
-    group:insert(fill)
-    return group
+    return self.view
+end
+
+function M:drawBookshelfMeter()
+    local meter = display.newImageRect("images/bookshelf_fill_meter.png", BOTTOM_BOOKSHELF_WIDTH, BOTTOM_BOOKSHELF_HEIGHT)
+    meter.x, meter.y = 0, BACKGROUND_HEIGHT / 2 - 8
+
+    local mask
+    if display.imageSuffix == "@2x" then
+        print("Using @2x bookshelf mask image...")
+        mask = graphics.newMask("images/bookshelf_meter_mask@2x.png")
+    else
+        print("Using normal bookshelf mask image...")
+        mask = graphics.newMask("images/bookshelf_meter_mask.png")
+    end
+    meter:setMask(mask)
+
+    return meter
+end
+
+function M:drawBackground()
+    local bg = widget.newButton {
+        defaultFile = "images/bookshelf_background.png",
+        overFile = "images/bookshelf_background_over.png",
+        width = BACKGROUND_WIDTH,
+        height = BACKGROUND_HEIGHT,
+        onRelease = function() self:openInAppPurchasePopup() end,
+        x = 0,
+        y = BACKGROUND_HEIGHT / 4
+    }
+    return bg
 end
 
 function M:setBottomShelfProgressDisplay(progress)
-    if not self.bookshelfFill or not common_ui.isValidDisplayObj(self.bookshelfFill) then
+    if not common_ui.isValidDisplayObj(self.bookshelfMeter) then
         return
     end
 
     print("Setting progress to: " .. tostring(progress))
 
-    self.bookshelfFill.maskX = -BOTTOM_BOOKSHELF_WIDTH / 2 + progress * BOTTOM_BOOKSHELF_WIDTH
+    self.bookshelfMeter.maskX = -BOTTOM_BOOKSHELF_WIDTH / 2 + progress * BOTTOM_BOOKSHELF_WIDTH
 
 end
 
@@ -122,7 +108,7 @@ function M:getBottomShelfProgress()
     end
 
     local n = self.numTokens
-    if not n or n <= 10 then
+    if type(n) ~= "number" or n <= 10 then
         return 0
     end
 
@@ -135,12 +121,12 @@ function M:getBottomShelfProgress()
     end
 
     if n > 250 and n <= 500 then
-        return 0.5 + 0.25 * (n - 500) / (500 - 250)
+        return 0.5 + 0.25 * (n - 250) / (500 - 250)
     end
 
     local MAX = common_api.MAX_BOOK_TOKENS
 
-    return math.min(1, 0.75 + (MAX - n) / (MAX - 500))
+    return math.min(1, 0.75 + 0.25 * (n - 500) / (MAX - 500))
 end
 
 function M:openInAppPurchasePopup()
@@ -210,7 +196,10 @@ function M:updateUser(updatedUser)
     self.bookshelfMeter = self:drawBookshelfMeter()
 
     self.view:insert(self.tokensGroup)
+    self.view:insert(self.bookshelfMeter)
 
+    local currentProgress = self:getBottomShelfProgress()
+    self:setBottomShelfProgressDisplay(currentProgress)
 end
 
 function M:removeAllImages()
@@ -218,7 +207,7 @@ function M:removeAllImages()
     self.tokensGroup = nil
 
     common_ui.safeRemove(self.bookshelfMeter)
-    self.bookshelfMeter, self.bookshelfFill = nil, nil
+    self.bookshelfMeter = nil
 
     self.tokenImages = {}
 

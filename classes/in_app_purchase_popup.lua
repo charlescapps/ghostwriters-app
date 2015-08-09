@@ -1,9 +1,11 @@
 local display = require("display")
+local common_ui = require("common.common_ui")
 local transition = require("transition")
 local widget = require("widget")
 local pay_helpers = require("common.pay_helpers")
 local fonts = require("globals.fonts")
 local format_helpers = require("common.format_helpers")
+local login_common = require("login.login_common")
 
 local M = {}
 local meta = { __index = M }
@@ -73,6 +75,19 @@ function M:drawTitle()
     textObj:setFillColor(0, 0, 0)
 
     return textObj
+end
+
+function M:setNumTokens(numTokens)
+    if type(numTokens) ~= "number" then
+        return
+    end
+    if not common_ui.isValidDisplayObj(self.view) then
+        return
+    end
+    self.numTokens = numTokens
+    common_ui.safeRemove(self.title)
+    self.title = self:drawTitle()
+    self.view:insert(self.title)
 end
 
 function M:drawBackground()
@@ -149,7 +164,14 @@ function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)
     local function getOnReleaseListener(productName)
         return function()
             print("Clicked button to purchase product: '" .. tostring(productName) .. "'")
-            pay_helpers.purchase(productName, self.onRegisterPurchaseSuccess)
+            local function myOnRegisterSuccess()
+                self.onRegisterPurchaseSuccess()
+                local updatedUser = login_common.getUser()
+                if updatedUser and type(updatedUser.tokens) == "number" then
+                   self:setNumTokens(updatedUser.tokens)
+                end
+            end
+            pay_helpers.purchase(productName, myOnRegisterSuccess)
         end
     end
 
