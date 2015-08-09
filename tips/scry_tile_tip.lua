@@ -37,7 +37,7 @@ function M:showTip()
             tips_persist.recordViewedTip(TIP_NAME)
         end
         local tipsModal = tips_modal.new("Drag Oracle tiles from your hand to the board to reveal a powerful word.", nil, onClose,
-            "images/scry_tip.png", 250, 250, 0, -40)
+            "images/scry_tip.png", 250, 250, 0, 0)
         tipsModal:show()
         return true
     end
