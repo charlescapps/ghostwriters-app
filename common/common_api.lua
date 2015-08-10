@@ -44,6 +44,17 @@ M.MONKEY_USERNAME = "Monkey"
 M.BOOKWORM_USERNAME = "Bookworm"
 M.PROFESSOR_USERNAME = "Professor"
 
+M.getUsernameForAI = function(username)
+   if username == M.MONKEY_USERNAME or
+      username == M.BOOKWORM_USERNAME or
+      username == M.PROFESSOR_USERNAME then
+       return username .. " (AI)"
+   end
+
+   return username
+
+end
+
 -- Move types
 M.GRAB_TILES = "GRAB_TILES"
 M.PLAY_TILES = "PLAY_WORD"

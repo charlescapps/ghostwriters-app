@@ -5,9 +5,12 @@ local transition = require("transition")
 local os = require("os")
 local math = require("math")
 
+local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
 local fonts = require("globals.fonts")
 local format_helpers = require("common.format_helpers")
+
+local book_power_helpers = require("common.book_power_helpers")
 
 local user_info_popup = {}
 local user_info_popup_mt = { __index = user_info_popup }
@@ -118,7 +121,8 @@ function user_info_popup:createInfoTextGroup()
     local user = self.user
 
     local group = display.newGroup()
-    local title = self:createTitle(group, user.username, SPACING_LARGE)
+    local usernameDisplay = common_api.getUsernameForAI(user.username)
+    local title = self:createTitle(group, usernameDisplay, SPACING_LARGE)
 
     local dateJoinedKey = self:createTextInfo(true, group, "Joined on", SPACING_LARGE * 2)
     local dateJoinedText = os.date("%B %d, %Y", math.floor(user.dateJoined / 1000))
@@ -136,6 +140,17 @@ function user_info_popup:createInfoTextGroup()
 
     local tiesKey = self:createTextInfo(true, group, "Ties", SPACING_LARGE * 2 + SPACING_SMALL * 4)
     local tiesValue = self:createTextInfo(false, group, tostring(user.ties), SPACING_LARGE * 2 + SPACING_SMALL * 4)
+
+    if user.username == usernameDisplay then
+        local bookPowerKey = self:createTextInfo(true, group, "Book Power", SPACING_LARGE * 2 + SPACING_SMALL * 5)
+
+        local bonusPercent = book_power_helpers.getBookPowerBonusFromUser(self.user)
+        local bonusText = "+" .. tostring(bonusPercent) .. "% rating bonus"
+        local bookPowerVal = self:createTextInfo(false, group, bonusText, SPACING_LARGE * 2 + SPACING_SMALL * 5, fonts.BOLD_FONT)
+        local color = book_power_helpers.getBookPowerColor(true, user.tokens, user.infiniteBooks)
+
+        bookPowerVal:setFillColor(unpack(color))
+    end
 
     group:insert(title)
 
