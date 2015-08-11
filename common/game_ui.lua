@@ -48,6 +48,10 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         leftPoints, rightPoints = gameModel.player2Points, gameModel.player1Points
     end
 
+    -- Replace AI names by appending "(AI)"
+    leftUsername = common_api.getUsernameForAI(leftUsername)
+    rightUsername = common_api.getUsernameForAI(rightUsername)
+
     if gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
         if isAuthUserTurn then
             leftFont = fonts.BOLD_FONT

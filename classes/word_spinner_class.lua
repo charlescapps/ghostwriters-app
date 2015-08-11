@@ -21,7 +21,7 @@ function word_spinner_class.initialize()
 
     word_spinner_class.sprite = word_spinner_class.createSprite()
     word_spinner_class.logo = word_spinner_class.drawGhostwritersLogo()
-    word_spinner_class.screen = word_spinner_class.createScreen()
+    word_spinner_class.screen = common_ui.drawScreen()
 
     word_spinner_class.view:insert(word_spinner_class.screen)
     word_spinner_class.view:insert(word_spinner_class.sprite)
@@ -91,23 +91,6 @@ function word_spinner_class.stop()
     transition.fadeOut(word_spinner_class.view, { time = 200, onComplete = onComplete, onCancel = onComplete } )
 
     back_button_setup.restoreBackButtonListenerCurrentScene()
-end
-
-function word_spinner_class.createScreen()
-    local x, y = display.contentCenterX, display.contentCenterY
-    local screen = display.newRect(x, y, display.contentWidth, display.contentHeight)
-    screen:setFillColor(0, 0, 0)
-    screen.alpha = 0.7
-
-    screen:addEventListener("touch", function(event)
-        return true
-    end)
-
-    screen:addEventListener("tap", function(event)
-        return true
-    end)
-
-    return screen
 end
 
 

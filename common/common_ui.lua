@@ -328,7 +328,7 @@ function M.truncateName(username, maxLen)
 end
 
 function M.drawScreen()
-    local screen = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+    local screen = display.newRect(display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight)
     screen:setFillColor(0, 0, 0, 0.5)
 
     screen:addEventListener("touch", function(event)
