@@ -147,8 +147,24 @@ function M:setNumTokens(numTokens)
     end
     self.numTokens = numTokens
     common_ui.safeRemove(self.title)
+    common_ui.safeRemove(self.bookPowerInfo)
+    common_ui.safeRemove(self.bookPowerTipButton)
+
     self.title = self:drawTitle()
-    self.view:insert(self.title)
+
+
+    self.bookPowerInfo = self:drawBookPowerInfo()
+    self.bookPowerTipButton = self:drawBookPowerTipButton()
+
+    if self.title then
+        self.view:insert(self.title)
+    end
+    if self.bookPowerInfo then
+        self.view:insert(self.bookPowerInfo)
+    end
+    if self.bookPowerTipButton then
+        self.view:insert(self.bookPowerTipButton)
+    end
 end
 
 function M:drawBackground()
