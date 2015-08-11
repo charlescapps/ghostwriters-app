@@ -145,7 +145,7 @@ function user_info_popup:createInfoTextGroup()
         local bookPowerKey = self:createTextInfo(true, group, "Book Power", SPACING_LARGE * 2 + SPACING_SMALL * 5)
 
         local bonusPercent = book_power_helpers.getBookPowerBonusFromUser(self.user)
-        local bonusText = "+" .. tostring(bonusPercent) .. "% rating bonus"
+        local bonusText = "+" .. tostring(bonusPercent) .. "% rating"
         local bookPowerVal = self:createTextInfo(false, group, bonusText, SPACING_LARGE * 2 + SPACING_SMALL * 5, fonts.BOLD_FONT)
         local color = book_power_helpers.getBookPowerColor(true, user.tokens, user.infiniteBooks)
 

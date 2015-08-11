@@ -597,7 +597,11 @@ function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTi
                 if rackLetter == "*" then
                     rackLetter = rackTileImages[r][j].chosenLetter
                 end
-				letters = letters .. rackLetter
+                if rackLetter then
+				    letters = letters .. rackLetter
+                else
+                    print("[ERROR] No rackLetter defined going E at pos: (" .. tostring(r) .. ", " .. tostring(j) .. ")")
+                end
 			end
 		end
 		return letters
@@ -613,7 +617,11 @@ function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTi
                 if rackLetter == "*" then
                     rackLetter = rackTileImages[i][c].chosenLetter
                 end
-				letters = letters .. rackLetter
+                if rackLetter then
+				    letters = letters .. rackLetter
+                else
+                    print("[ERROR] No rackLetter defined going S at pos: (" .. tostring(i) .. ", " .. tostring(c) .. ")")
+                end
 			end
 		end
 		return letters
@@ -627,7 +635,7 @@ function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTi
             if rackLetter == "*" then
                 rackLetter = rackTileImages[startR][startC].chosenLetter
             end
-            return rackLetter
+            return rackLetter or ""
 		end
 	end
 
