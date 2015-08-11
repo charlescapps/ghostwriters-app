@@ -6,6 +6,9 @@ local pay_helpers = require("common.pay_helpers")
 local fonts = require("globals.fonts")
 local format_helpers = require("common.format_helpers")
 local login_common = require("login.login_common")
+local book_power_helpers = require("common.book_power_helpers")
+local tips_helpers = require("tips.tips_helpers")
+local tips_modal = require("tips.tips_modal")
 
 local M = {}
 local meta = { __index = M }
@@ -13,11 +16,12 @@ local meta = { __index = M }
 local BUTTON_SIZE = 180
 local CLOSE_X_WIDTH = 90
 
-function M.new(onRegisterPurchaseSuccess, destroyListener, numTokens)
+function M.new(onRegisterPurchaseSuccess, destroyListener, numTokens, infiniteBooks)
     local popup = {
         onRegisterPurchaseSuccess = onRegisterPurchaseSuccess,
         destroyListener = destroyListener,
-        numTokens = numTokens
+        numTokens = numTokens,
+        infiniteBooks = infiniteBooks
     }
     print("Creating new in-app purchase popup")
     pay_helpers.registerAllPurchases()
@@ -33,17 +37,25 @@ function M:render()
     self.background = self:drawBackground()
     self.closeX = self:drawCloseX()
     self.title = self:drawTitle()
+    self.bookPowerInfo = self:drawBookPowerInfo()
+    self.bookPowerTipButton = self:drawBookPowerTipButton()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
     self.view:insert(self.closeX)
     self.view:insert(self.title)
+    if self.bookPowerInfo then
+        self.view:insert(self.bookPowerInfo)
+    end
+    if self.bookPowerTipButton then
+        self.view:insert(self.bookPowerTipButton)
+    end
 
     -- Draw the products
-    self.bookpack1_row = self:drawRow("book_pack_1", "100 books", 375, "images/book_pack1.png", "images/book_pack1_over.png")
-    self.bookpack2_row = self:drawRow("book_pack_2", "225 books", 600, "images/book_pack2.png", "images/book_pack2_over.png")
-    self.bookpack3_row = self:drawRow("book_pack_3", "500 books", 825, "images/book_pack3.png", "images/book_pack3_over.png")
-    self.bookpack4_row = self:drawRow("infinite_books", "Infinite books", 1050, "images/book_pack_infinite.png", "images/book_pack_infinite_over.png")
+    self.bookpack1_row = self:drawRow("book_pack_1", "100 books", 450, "images/book_pack1.png", "images/book_pack1_over.png")
+    self.bookpack2_row = self:drawRow("book_pack_2", "225 books", 665, "images/book_pack2.png", "images/book_pack2_over.png")
+    self.bookpack3_row = self:drawRow("book_pack_3", "500 books", 880, "images/book_pack3.png", "images/book_pack3_over.png")
+    self.bookpack4_row = self:drawRow("infinite_books", "Infinite books", 1095, "images/book_pack_infinite.png", "images/book_pack_infinite_over.png")
 
     self.view:insert(self.bookpack1_row)
     self.view:insert(self.bookpack2_row)
@@ -75,6 +87,55 @@ function M:drawTitle()
     textObj:setFillColor(0, 0, 0)
 
     return textObj
+end
+
+function M:drawBookPowerInfo()
+    local numTokens = self.numTokens
+    if not common_ui.isValidDisplayObj(self.view) or type(numTokens) ~= "number" then
+        return
+    end
+
+    local percentBonus = book_power_helpers.getBookPowerBonusFromTokens(numTokens, self.infiniteBooks)
+    local color = book_power_helpers.getBookPowerColor(false, numTokens, self.infiniteBooks)
+
+    local text = display.newText {
+        x = display.contentCenterX,
+        y = 300,
+        text = "Book power: +" .. tostring(percentBonus) .. "% rating",
+        font = fonts.BOLD_FONT,
+        fontSize = 42
+    }
+    text:setFillColor(unpack(color))
+
+    return text
+end
+
+function M:drawBookPowerTipButton()
+    local bookPowerInfo = self.bookPowerInfo
+    if not common_ui.isValidDisplayObj(bookPowerInfo) then
+        return
+    end
+
+    local function onCloseFirstTip()
+        local tipText = "10 books: +5% rating gain\n" ..
+                "100 books: +10% rating gain\n" ..
+                "250 books: +15% rating gain\n" ..
+                "500 books: +20% rating gain\n\n" ..
+                "Infinite books: +33% chance of +1 point per word"
+        local tipsModal = tips_modal.new(tipText)
+        tipsModal:show()
+    end
+
+    local tipsButton = tips_helpers.drawTipButton(
+        "As you accumulate books your Book Power will grow.\n\n" ..
+        "With Book Power, you gain extra rating after completing games, " ..
+        "helping you to climb the Leaderboard!"
+        ,
+        100, 100, onCloseFirstTip)
+    tipsButton.anchorX = 0
+    tipsButton.x = bookPowerInfo.x + bookPowerInfo.contentWidth / 2
+    tipsButton.y = bookPowerInfo.y
+    return tipsButton
 end
 
 function M:setNumTokens(numTokens)

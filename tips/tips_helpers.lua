@@ -4,9 +4,9 @@ local tips_modal = require("tips.tips_modal")
 
 local M = {}
 
-function M.drawTipButton(tipText, width, height)
+function M.drawTipButton(tipText, width, height, onClose)
     local function onRelease()
-        local tipsModal = tips_modal.new(tipText)
+        local tipsModal = tips_modal.new(tipText, nil, onClose)
         tipsModal:show()
     end
 

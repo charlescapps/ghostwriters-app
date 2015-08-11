@@ -6,6 +6,12 @@ local COLOR_10_PERCENT = { 0.87, 0.73, 0.53 }
 local COLOR_15_PERCENT = { 0.29, 0.92, 0.92 }
 local COLOR_20_PERCENT = { 1, 0.65, 0.2 }
 
+local COLOR_NO_BONUS_DARK = { 0.1, 0.1, 0.1 }
+local COLOR_5_PERCENT_DARK = { 0.06, 0.54, 0.13 }
+local COLOR_10_PERCENT_DARK = { 0.37, 0.23, 0 }
+local COLOR_15_PERCENT_DARK = { 0.06, 0.23, 0.77 }
+local COLOR_20_PERCENT_DARK = { 0.66, 0.23, 0 }
+
 function M.getBookPowerBonusFromUser(userModel)
     if not userModel then
         return 0
@@ -38,24 +44,24 @@ end
 
 function M.getBookPowerColor(isLightColor, numTokens, infiniteBooks)
     if infiniteBooks then
-        return COLOR_20_PERCENT
+        return isLightColor and COLOR_20_PERCENT or COLOR_20_PERCENT_DARK
     end
 
     if type(numTokens) ~= "number" then
-        return COLOR_NO_BONUS
+        return isLightColor and COLOR_NO_BONUS or COLOR_NO_BONUS_DARK
     end
 
     if numTokens >= 500 then
-        return COLOR_20_PERCENT
+        return isLightColor and COLOR_20_PERCENT or COLOR_20_PERCENT_DARK
     elseif numTokens >= 250 then
-        return COLOR_15_PERCENT
+        return isLightColor and COLOR_15_PERCENT or COLOR_15_PERCENT_DARK
     elseif numTokens >= 100 then
-        return COLOR_10_PERCENT
+        return isLightColor and COLOR_10_PERCENT or COLOR_10_PERCENT_DARK
     elseif numTokens >= 10 then
-        return COLOR_5_PERCENT
+        return isLightColor and COLOR_5_PERCENT or COLOR_5_PERCENT_DARK
     end
 
-    return COLOR_NO_BONUS
+    return isLightColor and COLOR_NO_BONUS or COLOR_NO_BONUS_DARK
 end
 
 return M
