@@ -13,6 +13,7 @@ local transition = require("transition")
 local table = require("table")
 local letter_picker = require("classes.letter_picker")
 local game_helpers = require("common.game_helpers")
+local sound = require("common.sound")
 
 local lists = require("common.lists")
 
@@ -871,6 +872,8 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
     local tileIndex = 1
     local r, c = startR, startC
     local firstTile = true
+    local hasPlayedSound = false
+
     for i = 0, letters:len() - 1 do
         if r < 1 or c < 1 or r > self.N or c > self.N then
             print("Error - invalid row or column reached in applyPlayTilesMoves: " .. tostring(r) .. ", " .. tostring(c))
@@ -880,6 +883,11 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
         local x, y = self:computeTileCoords(r, c)
 
         if myTile == tile.emptyTile and tileIndex <= tiles:len() then
+           -- Play the sound for the first empty tile that has a letter played upon it.
+           if not hasPlayedSound then
+               hasPlayedSound = true
+               sound.playStoneTileSound()
+           end
            local letter = letters:sub(i + 1, i + 1)
 
            local newTileImg = tile.draw(letter:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
@@ -906,7 +914,7 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
 
                transition.fadeOut(rackTile, {
                    tag = APPLY_MOVE_TAG,
-                   time = 2000,
+                   time = 2500,
                    onComplete = onComplete,
                    onCancel = onComplete
                })
@@ -914,7 +922,7 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
                if rackTile.letter == "*" and rackTile.chosenLetterImage then
                    transition.fadeOut(rackTile.chosenLetterImage, {
                        tag = APPLY_MOVE_TAG,
-                       time = 2000,
+                       time = 2500,
                        onComplete = onComplete,
                        onCancel = onComplete
                    })
