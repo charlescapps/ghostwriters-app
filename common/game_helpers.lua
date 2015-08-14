@@ -1,11 +1,9 @@
 local json = require("json")
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
-local current_game = require("globals.current_game")
 local new_game_data = require("globals.new_game_data")
 local composer = require("composer")
 local native = require("native")
-local table = require("table")
 local transition = require("transition")
 
 local M = {}
@@ -83,7 +81,7 @@ function M.goToAcceptGameScene(gameId, boardSize, specialDict, gameDensity, bonu
     new_game_data.specialDict = specialDict
     new_game_data.gameDensity = gameDensity
     new_game_data.bonusesType = bonusesType
-    composer.gotoScene("scenes.accept_game_scene", { effect = "fade" })
+    composer.gotoScene("scenes.accept_game_scene", "fade")
 end
 
 function M.promptScryTileAction(board, rack, tileImage)

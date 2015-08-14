@@ -135,10 +135,10 @@ function scene:show( event )
             login_common.logout()
         end
 
+        back_button_setup.setBackListenerToExitApp()
+
         app_state:setAppLoaded()
         app_state:callAppLoadedListener()
-
-        back_button_setup.setBackListenerToExitApp()
     end
 end
 

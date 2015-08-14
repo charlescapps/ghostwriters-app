@@ -46,7 +46,7 @@ function M.handlePushNotification(isActive, additionalData, message)
     local currentGame = current_game.currentGame
     local currentSceneName = composer.getSceneName("current")
     print("updatedGameId ID from push= " .. tostring(updatedGameId))
-    print("currentGameId= " .. tostring(currentGame and currentGame.id))
+    print("currentGameId= " .. tostring(currentGame and currentGame.id or "none"))
 
     -- If the push notification is for a New Game offer, then accept the offer and load the game
     if additionalData.isGameOffer == "true" then
@@ -80,9 +80,8 @@ function M.handleGameMove(isActive, updatedGameId, currentGame, currentSceneName
             print("Going to play_game_scene with updatedGameId: " .. updatedGameId)
             M.goToGameByIdFrom(updatedGameId, currentSceneName)
         end)
-        -- TODO: Can we have some kind of "toast" message in this case?
     else
-        print("Going to play_game_scene with updatedGameId: " .. updatedGameId)
+        print("Going to play_game_scene with updatedGameId: " .. tostring(updatedGameId))
         M.goToGameByIdFrom(updatedGameId, currentSceneName)
     end
 end
@@ -92,7 +91,7 @@ function M.handleGameOffer(isActive, data, message)
     if isActive then
     -- If ghostwriters is active, then create a "toast" so as to not suddenly interrupt what the player is doing.
         print("Showing toast for new game offer.")
-        local toastText = message .. "\n(Touch to accept)"
+        local toastText = tostring(message) .. "\n(Touch to accept)"
         toast.new(toastText, nil, function()
             game_helpers.goToAcceptGameScene(data.updatedGameId,
                                              data.boardSize,

@@ -21,7 +21,11 @@ function M.getNextUsernameAndLoginIfDeviceFound()
         print("Found device ID: " .. tostring(deviceId))
         common_api.getNextUsername(deviceId, M.onSuccessListener, M.onFailListener)
     else
-        app_state:callAppLoadedListener()
+        if composer.getSceneName("current") == nil then
+            composer.gotoScene("scenes.title_scene", "fade")
+        else
+            app_state:callAppLoadedListener()
+        end
     end
 end
 

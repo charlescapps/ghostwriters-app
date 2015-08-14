@@ -17,10 +17,12 @@ function M:setAppLoadedListener(listener)
 end
 
 function M:callAppLoadedListener()
-    if self.mainMenuListener then
+    if type(self.mainMenuListener) == "function" then
         local listener = self.mainMenuListener
         self.mainMenuListener = nil
         listener()
+    else
+        self.mainMenuListener = nil
     end
 end
 
