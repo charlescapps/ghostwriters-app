@@ -35,6 +35,7 @@ local getMoveDescription
 local getBonusMoveDescription
 
 scene.sceneName = "scenes.play_game_scene"
+scene.onBackButtonReturnToTitle = true
 
 -- "scene:create()"
 function scene:create(event)

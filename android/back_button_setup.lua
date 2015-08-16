@@ -19,6 +19,11 @@ function M.restoreBackButtonListenerCurrentScene()
         return
     end
 
+    if currentScene.onBackButtonReturnToTitle == true then
+        M.setBackListenerToReturnToTitleScene()
+        return
+    end
+
     M.setupBackButtonListener(currentScene.backButton)
 end
 
@@ -52,8 +57,9 @@ function M.setAndroidBackListener(onReleaseListener)
     M.currentBackListener = function(event)
         if event.phase == "up" and event.keyName == "back" then
             onReleaseListener()
+            return true
         end
-        return true
+        return false
     end
 
     Runtime:addEventListener("key", M.currentBackListener)
@@ -67,7 +73,10 @@ function M.setupDefaultBackListener()
     M.removeOldBackButtonListener()
 
     M.currentBackListener = function(event)
-        return true
+        if event.phase == "up" and event.keyName == "back" then
+            return true
+        end
+        return false
     end
 
     Runtime:addEventListener("key", M.currentBackListener)
