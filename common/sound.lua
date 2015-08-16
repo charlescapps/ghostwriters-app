@@ -1,4 +1,5 @@
 local audio = require("audio")
+local prefs = require("prefs.prefs")
 
 local M = {}
 
@@ -10,6 +11,11 @@ function M.playSound(file, opts)
         print("[ERROR] nil file given to play as sound")
         return
     end
+    local isSoundEnabled = prefs.getPref(prefs.PREF_SOUND)
+    if not isSoundEnabled then
+        return
+    end
+
     local audioHandle = M.getAudioHandle(file)
     audio.play(audioHandle, opts)
 end

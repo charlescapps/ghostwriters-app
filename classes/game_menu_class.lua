@@ -9,6 +9,8 @@ local transition = require("transition")
 local nav = require("common.nav")
 local native = require("native")
 local fonts = require("globals.fonts")
+local sheet_helpers = require("globals.sheet_helpers")
+local prefs = require("prefs.prefs")
 
 -- Constants
 local MY_SCENE = "scenes.play_game_scene";
@@ -34,6 +36,7 @@ function game_menu_class.new(playGameScene, x, y, isGameOver)
     gameMenu.menuBackground = gameMenu:createMenuBackground()
     gameMenu.dictionaryButton = gameMenu:createDictionaryButton()
     gameMenu.resignButton = gameMenu:createResignButton()
+    gameMenu.soundOptionRow = gameMenu:createSoundOptionRow()
     gameMenu.backToMenuButton = gameMenu:createBackToMenuButton()
     gameMenu.closeX = gameMenu:drawCloseX()
 
@@ -83,9 +86,7 @@ function game_menu_class:toggle()
 end
 
 function game_menu_class:createScreen()
-    local screen = display.newRect(0, 0, display.contentWidth, display.contentHeight)
-    screen:setFillColor(0, 0, 0)
-    screen.alpha = 0.5
+    local screen = common_ui.drawScreen()
     self.displayGroup:insert(screen)
     local x, y = self.displayGroup:contentToLocal(display.contentWidth / 2, display.contentHeight / 2)
     screen.x, screen.y = x, y
@@ -146,7 +147,7 @@ function game_menu_class:createDictionaryButton()
     end)
 
     self.displayGroup:insert(dictionaryButton)
-    dictionaryButton.x, dictionaryButton.y = 0, -200
+    dictionaryButton.x, dictionaryButton.y = 0, -300
     return dictionaryButton
 end
 
@@ -169,7 +170,7 @@ function game_menu_class:createResignButton()
 
     self.displayGroup:insert(resignButton)
 
-    resignButton.x, resignButton.y = 0, 0
+    resignButton.x, resignButton.y = 0, -150
     return resignButton
 end
 
@@ -179,8 +180,55 @@ function game_menu_class:createBackToMenuButton()
     end)
 
     self.displayGroup:insert(backToMenuButton)
-    backToMenuButton.x, backToMenuButton.y = 0, 200
+    backToMenuButton.x, backToMenuButton.y = 0, 150
     return backToMenuButton
+end
+
+function game_menu_class:createSoundOptionRow()
+    local Y_POS = 0
+    local group = display.newGroup()
+    local soundOptionText = display.newEmbossedText {
+        text = "Sound Effects",
+        font = fonts.DEFAULT_FONT,
+        fontSize = 60
+    }
+    soundOptionText:setFillColor(1, 1, 1)
+    soundOptionText.x = 0
+    soundOptionText.y = Y_POS
+
+    local wasSoundEnabled = prefs.getPref(prefs.PREF_SOUND)
+    local checkboxSheetObj = sheet_helpers:getSheetObj("checkboxes_sheet")
+    local sheet = checkboxSheetObj.imageSheet
+    local module = checkboxSheetObj.module
+
+    local function onReleaseCheckbox(event)
+        if event and event.target and event.target.isOn then
+            prefs.savePref(prefs.PREF_SOUND, true)
+        else
+            prefs.savePref(prefs.PREF_SOUND, false)
+        end
+    end
+
+    local soundCheckbox = widget.newSwitch {
+        initialSwitchState = wasSoundEnabled,
+        style = "checkbox",
+        sheet = sheet,
+        width = 80,
+        height = 80,
+        frameOn = module:getFrameIndex("checkbox_checked"),
+        frameOff = module:getFrameIndex("checkbox_unchecked"),
+        x = soundOptionText.x + soundOptionText.contentWidth / 2 + 35,
+        y = Y_POS,
+        onRelease = onReleaseCheckbox
+    }
+    soundCheckbox.anchorX = 0
+
+    group:insert(soundOptionText)
+    group:insert(soundCheckbox)
+
+    self.displayGroup:insert(group)
+
+    return group
 end
 
 function game_menu_class:drawCloseX()
