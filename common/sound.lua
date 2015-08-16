@@ -58,5 +58,9 @@ function M.playWritingLovecraft(opts)
     M.playSound("sounds/writing-lovecraft.mp3", opts)
 end
 
+function M.playPageFlip(opts)
+    M.playSound("sounds/page-flip.mp3", opts)
+end
+
 return M
 

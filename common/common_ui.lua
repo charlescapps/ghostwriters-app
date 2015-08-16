@@ -8,6 +8,7 @@ local display = require("display")
 local fonts = require("globals.fonts")
 local timer = require("timer")
 local native = require("native")
+local sound = require("common.sound")
 
 local DEFAULT_BACKGROUND = "images/book_texture.jpg"
 
@@ -66,6 +67,12 @@ M.createBackground = function(imageFile)
 end
 
 M.createButton = function(text, y, onRelease, width, height, fontSize)
+    local function onReleaseButton()
+        if type(onRelease) == "function" then
+            onRelease()
+        end
+        sound.playPageFlip()
+    end
 	local button = widget.newButton( {
 		x = display.contentWidth / 2,
 		y = y,
@@ -81,13 +88,18 @@ M.createButton = function(text, y, onRelease, width, height, fontSize)
 		fillColor = { default = M.BUTTON_FILL_COLOR_DEFAULT, over = M.BUTTON_FILL_COLOR_OVER },
 		strokeColor = { default = M.BUTTON_STROKE_COLOR_DEFAULT, over = M.BUTTON_STROKE_COLOR_OVER },
 		strokeWidth = 2,
-		onRelease = onRelease
+		onRelease = onReleaseButton
 		} )
 	return button
 end
 
 M.createImageButton = function(y, width, height, defaultFile, overFile, onRelease)
-
+    local function onReleaseButton()
+        if type(onRelease) == "function" then
+            onRelease()
+        end
+        sound.playPageFlip()
+    end
 	return widget.newButton({
 		x = display.contentWidth / 2,
 		y = y,
@@ -95,7 +107,7 @@ M.createImageButton = function(y, width, height, defaultFile, overFile, onReleas
 		height = height,
 		defaultFile = defaultFile, 
 		overFile = overFile,
-		onRelease = onRelease
+		onRelease = onReleaseButton
 	})
 end
 
