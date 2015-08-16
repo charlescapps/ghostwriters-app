@@ -777,7 +777,7 @@ function board_class:addGrabEffect(tileImage)
 
     tileImage:toFront()
     transition.to(tileImage, {x = tileImage.x + offset, y = tileImage.y - offset, rotation = randomAngle, time = 100})
-    --transition.dissolve(squareGroup, shadedSquareGroup, 250)
+    sound.playJiggerTileSound()
 end
 
 function board_class:removeGrabEffect(tileImage)

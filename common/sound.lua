@@ -29,8 +29,19 @@ end
 
 -- Specific sounds for convenience and encapsulation
 function M.playStoneTileSound(opts)
-    print("Playing stone tile sound!")
     M.playSound("sounds/stone-tiles.mp3", opts)
+end
+
+function M.playRavensSound(opts)
+    M.playSound("sounds/ravens.mp3", opts)
+end
+
+function M.playJiggerTileSound(opts)
+    M.playSound("sounds/jigger-tiles.mp3", opts)
+end
+
+function M.playPickupPaperTileSound(opts)
+    M.playSound("sounds/pickup-paper-tile.mp3")
 end
 
 return M

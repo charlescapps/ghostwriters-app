@@ -5,6 +5,7 @@ local transition = require("transition")
 local easing = require("easing")
 local fonts = require("globals.fonts")
 local json = require("json")
+local sound = require("common.sound")
 
 local M = {}
 local meta = { __index = M }
@@ -56,8 +57,11 @@ function M:drawBackground()
 end
 
 function M:show()
+    local function onComplete()
+        self:playSound()
+    end
     if self.view then
-        transition.to(self.view, { y = 0, time = 1000, transition = easing.outBack })
+        transition.to(self.view, { y = 0, time = 1000, transition = easing.outBack, onComplete = onComplete })
     end
 end
 
@@ -84,6 +88,14 @@ function M:getImageFile()
         return "images/bonus_lovecraft.jpg"
     elseif self.specialDict == common_api.DICT_MYTHOS then
         return "images/bonus_mythos.jpg"
+    end
+end
+
+function M:playSound()
+    if self.specialDict == common_api.DICT_POE then
+        sound.playRavensSound()
+    elseif self.specialDict == common_api.DICT_LOVECRAFT then
+    elseif self.specialDict == common_api.DICT_MYTHOS then
     end
 end
 

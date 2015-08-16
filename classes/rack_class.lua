@@ -11,6 +11,8 @@ local transition = require("transition")
 local easing = require("easing")
 local lists = require("common.lists")
 local table = require("table")
+local sound = require("common.sound")
+
 local MAX_TILES = 20
 local NUM_ROWS = 3
 
@@ -304,7 +306,7 @@ end
 -- Local functions
 getTouchListener = function(rack)
 	return function(event)
-        if rack.interactionDisabled then
+        if not rack or rack.interactionDisabled then
             return true
         end
 		if  event.phase == "began"  then
@@ -317,6 +319,7 @@ getTouchListener = function(rack)
 
 	        --Insert tile into the floating tiles display group so it can move freely.
 	        rack:floatTile(event.target, event.x, event.y)
+            sound.playPickupPaperTileSound()
 
 	        return true
 	    elseif event.target.isFocus then
