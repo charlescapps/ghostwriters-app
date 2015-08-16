@@ -95,7 +95,9 @@ function M:playSound()
     if self.specialDict == common_api.DICT_POE then
         sound.playRavensSound()
     elseif self.specialDict == common_api.DICT_LOVECRAFT then
+        sound.playWritingLovecraft()
     elseif self.specialDict == common_api.DICT_MYTHOS then
+        sound.playHowlingWindCthulhu()
     end
 end
 
@@ -172,7 +174,7 @@ function M:getButtonText()
     if self.specialDict == common_api.DICT_POE then
         return "How fustian!"
     elseif self.specialDict == common_api.DICT_LOVECRAFT then
-        return "Eldritch"
+        return "Eldritch choice!"
     elseif self.specialDict == common_api.DICT_MYTHOS then
         return "Cthulhu fhtagn!"
     end

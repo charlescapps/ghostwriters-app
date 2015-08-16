@@ -47,7 +47,15 @@ function M.playJiggerTileSound(opts)
 end
 
 function M.playPickupPaperTileSound(opts)
-    M.playSound("sounds/pickup-paper-tile.mp3")
+    M.playSound("sounds/pickup-paper-tile.mp3", opts)
+end
+
+function M.playHowlingWindCthulhu(opts)
+    M.playSound("sounds/howling-wind-cthulhu.mp3", opts)
+end
+
+function M.playWritingLovecraft(opts)
+    M.playSound("sounds/writing-lovecraft.mp3", opts)
 end
 
 return M
