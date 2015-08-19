@@ -10,6 +10,7 @@ local composer = require( "composer" )
 local one_signal_util = require("push.one_signal_util")
 local word_spinner_class = require("classes.word_spinner_class")
 local current_game = require("globals.current_game")
+local music = require("common.music")
 
 -- Pre-load the spritesheets needed for drawing tiles.
 
@@ -25,6 +26,7 @@ composer.gotoScene("scenes.loading_scene")
 
 -- Initialize animation ahead of time so that it appers smoother.
 word_spinner_class.initialize()
+music.preloadTitleMusic()
 
 -- Initialize system event listener - to update the current game when game resumes
 local function onSystemEvent(event)

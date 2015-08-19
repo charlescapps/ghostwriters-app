@@ -4,8 +4,6 @@ local slidey_bookmark = require("classes.slidey_bookmark")
 local login_common = require( "login.login_common" )
 local common_api = require("common.common_api")
 local common_ui = require("common.common_ui")
-local scene = composer.newScene()
-local json = require("json")
 local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
 local app_state = require("globals.app_state")
@@ -14,8 +12,10 @@ local scene_helpers = require("common.scene_helpers")
 local widget = require("widget")
 local user_options_menu = require("classes.user_options_menu")
 local back_button_setup = require("android.back_button_setup")
+local music = require("common.music")
 
 -- Constants
+local scene = composer.newScene()
 scene.sceneName = "scenes.title_scene"
 
 
@@ -139,6 +139,8 @@ function scene:show( event )
 
         app_state:setAppLoaded()
         app_state:callAppLoadedListener()
+
+        music.playTitleMusic()
     end
 end
 

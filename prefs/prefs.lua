@@ -6,12 +6,14 @@ local M = {}
 
 -- Key names for preferences.
 M.PREF_SOUND = "isSoundEnabled"   -- boolean
+M.PREF_MUSIC = "isMusicEnabled"   -- boolean
 
 local PREFS_FILE = "ghostwritersPrefs.json"
 local VAR_NAME = "ghostwritersPrefs"
 
 local PREF_DEFAULTS = {
-    [M.PREF_SOUND] = true
+    [M.PREF_SOUND] = true,
+    [M.PREF_MUSIC] = true
 }
 
 function M.getPref(prefName)

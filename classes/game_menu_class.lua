@@ -11,6 +11,7 @@ local native = require("native")
 local fonts = require("globals.fonts")
 local sheet_helpers = require("globals.sheet_helpers")
 local prefs = require("prefs.prefs")
+local music = require("common.music")
 
 -- Constants
 local MY_SCENE = "scenes.play_game_scene";
@@ -36,6 +37,7 @@ function game_menu_class.new(playGameScene, x, y, isGameOver)
     gameMenu.menuBackground = gameMenu:createMenuBackground()
     gameMenu.dictionaryButton = gameMenu:createDictionaryButton()
     gameMenu.resignButton = gameMenu:createResignButton()
+    gameMenu.musicOptionRow = gameMenu:createMusicOptionRow()
     gameMenu.soundOptionRow = gameMenu:createSoundOptionRow()
     gameMenu.backToMenuButton = gameMenu:createBackToMenuButton()
     gameMenu.closeX = gameMenu:drawCloseX()
@@ -170,7 +172,7 @@ function game_menu_class:createResignButton()
 
     self.displayGroup:insert(resignButton)
 
-    resignButton.x, resignButton.y = 0, -150
+    resignButton.x, resignButton.y = 0, 150
     return resignButton
 end
 
@@ -180,15 +182,63 @@ function game_menu_class:createBackToMenuButton()
     end)
 
     self.displayGroup:insert(backToMenuButton)
-    backToMenuButton.x, backToMenuButton.y = 0, 150
+    backToMenuButton.x, backToMenuButton.y = 0, 300
     return backToMenuButton
+end
+
+function game_menu_class:createMusicOptionRow()
+    local Y_POS = -150
+    local group = display.newGroup()
+    local soundOptionText = display.newEmbossedText {
+        text = "Music On?",
+        font = fonts.DEFAULT_FONT,
+        fontSize = 60
+    }
+    soundOptionText:setFillColor(1, 1, 1)
+    soundOptionText.x = 0
+    soundOptionText.y = Y_POS
+
+    local wasMusicEnabled = prefs.getPref(prefs.PREF_MUSIC)
+    local checkboxSheetObj = sheet_helpers:getSheetObj("checkboxes_sheet")
+    local sheet = checkboxSheetObj.imageSheet
+    local module = checkboxSheetObj.module
+
+    local function onReleaseCheckbox(event)
+        if event and event.target and event.target.isOn then
+            prefs.savePref(prefs.PREF_MUSIC, true)
+        else
+            prefs.savePref(prefs.PREF_MUSIC, false)
+            music.stopMusic()
+        end
+    end
+
+    local musicCheckbox = widget.newSwitch {
+        initialSwitchState = wasMusicEnabled,
+        style = "checkbox",
+        sheet = sheet,
+        width = 80,
+        height = 80,
+        frameOn = module:getFrameIndex("checkbox_checked"),
+        frameOff = module:getFrameIndex("checkbox_unchecked"),
+        x = soundOptionText.x + soundOptionText.contentWidth / 2 + 35,
+        y = Y_POS,
+        onRelease = onReleaseCheckbox
+    }
+    musicCheckbox.anchorX = 0
+
+    group:insert(soundOptionText)
+    group:insert(musicCheckbox)
+
+    self.displayGroup:insert(group)
+
+    return group
 end
 
 function game_menu_class:createSoundOptionRow()
     local Y_POS = 0
     local group = display.newGroup()
     local soundOptionText = display.newEmbossedText {
-        text = "Sound Effects",
+        text = "Sound FX On?",
         font = fonts.DEFAULT_FONT,
         fontSize = 60
     }

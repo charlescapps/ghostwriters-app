@@ -7,6 +7,9 @@ local composer = require("composer")
 local tips_helpers = require("tips.tips_helpers")
 local login_common = require("login.login_common")
 local user_info_popup = require("classes.user_info_popup")
+local prefs = require("prefs.prefs")
+local sheet_helpers = require("globals.sheet_helpers")
+local music = require("common.music")
 
 local M = {}
 local meta = { __index = M }
@@ -28,6 +31,8 @@ function M:render()
     self.screen = self:drawScreen()
     self.background = self:drawBackground()
     self.myStatsButton = self:drawMyStatsButton()
+    self.musicOptionRow = self:createMusicOptionRow()
+
     self.setPasswordButton = self:drawSetPasswordButton()
     self.setPasswordTipButton = self:drawSetPasswordTipButton()
     self.logoutButton = self:drawLogoutButton()
@@ -38,6 +43,7 @@ function M:render()
     self.view:insert(self.screen)
     self.view:insert(self.background)
     self.view:insert(self.myStatsButton)
+    self.view:insert(self.musicOptionRow)
     self.view:insert(self.setPasswordButton)
     self.view:insert(self.setPasswordTipButton)
     self.view:insert(self.logoutButton)
@@ -149,12 +155,58 @@ function M:drawMyStatsButton()
     return self:drawOptionButton("My Stats", display.contentCenterY - 300, onRelease)
 end
 
+function M:createMusicOptionRow()
+    local Y_POS = display.contentCenterY - 150
+    local group = display.newGroup()
+    local musicOptionText = display.newEmbossedText {
+        text = "Music On?",
+        font = fonts.DEFAULT_FONT,
+        fontSize = 60
+    }
+    musicOptionText:setFillColor(1, 1, 1)
+    musicOptionText.x = display.contentCenterX
+    musicOptionText.y = Y_POS
+
+    local wasSoundEnabled = prefs.getPref(prefs.PREF_MUSIC)
+    local checkboxSheetObj = sheet_helpers:getSheetObj("checkboxes_sheet")
+    local sheet = checkboxSheetObj.imageSheet
+    local module = checkboxSheetObj.module
+
+    local function onReleaseCheckbox(event)
+        if event and event.target and event.target.isOn then
+            prefs.savePref(prefs.PREF_MUSIC, true)
+        else
+            prefs.savePref(prefs.PREF_MUSIC, false)
+            music.stopMusic()
+        end
+    end
+
+    local musicCheckbox = widget.newSwitch {
+        initialSwitchState = wasSoundEnabled,
+        style = "checkbox",
+        sheet = sheet,
+        width = 80,
+        height = 80,
+        frameOn = module:getFrameIndex("checkbox_checked"),
+        frameOff = module:getFrameIndex("checkbox_unchecked"),
+        x = musicOptionText.x + musicOptionText.contentWidth / 2 + 35,
+        y = Y_POS,
+        onRelease = onReleaseCheckbox
+    }
+    musicCheckbox.anchorX = 0
+
+    group:insert(musicOptionText)
+    group:insert(musicCheckbox)
+
+    return group
+end
+
 function M:drawSetPasswordButton()
     local function onRelease()
         composer.gotoScene("scenes.set_password_scene", "fade")
     end
 
-    return self:drawOptionButton("Set a password", display.contentCenterY - 150, onRelease)
+    return self:drawOptionButton("Set a password", display.contentCenterY, onRelease)
 end
 
 function M:drawSetPasswordTipButton()
@@ -174,7 +226,7 @@ function M:drawLogoutButton()
         login_common.logout()
     end
 
-    return self:drawOptionButton("Logout", display.contentCenterY, onRelease)
+    return self:drawOptionButton("Logout", display.contentCenterY + 150, onRelease)
 end
 
 function M:drawLogoutTipButton()
@@ -191,6 +243,7 @@ end
 function M:drawCloseX()
     local function onRelease()
         self:destroy()
+        music.playTitleMusic()
     end
     local x = CLOSE_X_WIDTH + 20
     local y = display.contentCenterY - self.background.contentHeight / 2 + CLOSE_X_WIDTH + 20
