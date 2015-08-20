@@ -190,7 +190,7 @@ function game_menu_class:createMusicOptionRow()
     local Y_POS = -150
     local group = display.newGroup()
     local soundOptionText = display.newEmbossedText {
-        text = "Music On?",
+        text = "Music On",
         font = fonts.DEFAULT_FONT,
         fontSize = 60
     }
@@ -238,7 +238,7 @@ function game_menu_class:createSoundOptionRow()
     local Y_POS = 0
     local group = display.newGroup()
     local soundOptionText = display.newEmbossedText {
-        text = "Sound FX On?",
+        text = "Sound FX",
         font = fonts.DEFAULT_FONT,
         fontSize = 60
     }

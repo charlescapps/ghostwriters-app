@@ -121,6 +121,8 @@ function scene:show( event )
             return
         end
 
+        music.playTitleMusic()
+
         -- Fetch num games where it's your turn / num challengers to display on info bookmarks
         self:fetchGameSummaryInfo()
 
@@ -140,7 +142,6 @@ function scene:show( event )
         app_state:setAppLoaded()
         app_state:callAppLoadedListener()
 
-        music.playTitleMusic()
     end
 end
 
