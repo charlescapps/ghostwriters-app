@@ -4,6 +4,7 @@ local common_ui = require( "common.common_ui" )
 local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
 local scene_helpers = require("common.scene_helpers")
+local game_helpers = require("common.game_helpers")
 
 local scene = composer.newScene()
 
@@ -12,7 +13,9 @@ scene.sceneName = "scenes.choose_ai_scene"
 local function getOnReleaseListener(aiType)
     return function(event)
         new_game_data.aiType = aiType
-        nav.goToSceneFrom( scene.sceneName, "scenes.choose_board_size_scene", "fade" )
+        new_game_data.gameType = common_api.SINGLE_PLAYER
+        composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, scene.sceneName)
+        nav.goToSceneFrom(scene.sceneName, "scenes.create_game_scene", "fade" )
     end
 end
 

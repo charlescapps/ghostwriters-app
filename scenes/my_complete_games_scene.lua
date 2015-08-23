@@ -150,7 +150,7 @@ function scene:startGameWithUser(userModel)
         new_game_data.rival = userModel
         new_game_data.gameType = common_api.TWO_PLAYER
         composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, self.sceneName)
-        composer.gotoScene("scenes.choose_board_size_scene", "fade")
+        composer.gotoScene("scenes.create_game_scene", "fade")
 
         local challengedPopup = challenged_popup.new(userModel)
         challengedPopup:show()

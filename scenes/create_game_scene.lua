@@ -16,6 +16,7 @@ local purchase_store = require("common.purchase_store")
 local scene_helpers = require("common.scene_helpers")
 local currency_tip = require("tips.currency_tip")
 local fonts = require("globals.fonts")
+local game_helpers = require("common.game_helpers")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -29,7 +30,8 @@ function scene:create(event)
         return
     end
 
-    -- Set the default values for the game density & bonuses layout
+    -- Set the default values
+    new_game_data.boardSize = common_api.MEDIUM_SIZE
     new_game_data.gameDensity = common_api.MEDIUM_DENSITY
     new_game_data.bonusesType = common_api.RANDOM_BONUSES
 
@@ -38,7 +40,7 @@ function scene:create(event)
     self.gearButton = self:createGearButton()
     self.gameOptionsModal = game_options_modal.new(self, false)
     self.createGameButton = self:createCreateGameButton()
-    self.backButton = common_ui.createBackButton(60, 90, "scenes.choose_board_size_scene", nil, nil, nil, 120, 120)
+    self.backButton = self:createBackButton()
     self.createGameOptions = create_game_options.new(self:getOnUpdateOptionsListener(), false, 225)
     self.tokensDisplay = tokens_display.new(self, display.contentCenterX, 825, self.creds.user, self:getUpdateUserListener())
 
@@ -57,6 +59,23 @@ function scene:create(event)
 
     self:registerPurchases()
 
+end
+
+function scene:createBackButton()
+    local previousScene
+    if new_game_data.gameType == common_api.TWO_PLAYER then
+        local storedScene = composer.getVariable(game_helpers.START_GAME_FROM_SCENE_KEY)
+        previousScene = storedScene and storedScene:len() > 0 and storedScene or "scenes.title_scene"
+    else
+        previousScene = "scenes.choose_ai_scene"
+    end
+
+    local function beforeTransition()
+        new_game_data.clearAll()
+        composer.setVariable(game_helpers.START_GAME_FROM_SCENE_KEY, "")
+    end
+
+    return common_ui.createBackButton(60, 90, previousScene, beforeTransition, nil, nil, 120, 120)
 end
 
 function scene:createTitle()
