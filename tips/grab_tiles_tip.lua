@@ -77,7 +77,7 @@ function M:addAnimationToBoard()
 end
 
 function M:animateArrows(board, wordPos)
-    print("wordPos(1,2,3,4)=" .. wordPos[1] .. "," .. wordPos[2] .. "," .. wordPos[3] .. "," .. wordPos[4])
+    --print("wordPos(1,2,3,4)=" .. wordPos[1] .. "," .. wordPos[2] .. "," .. wordPos[3] .. "," .. wordPos[4])
     local startSquare = board.squareImages[wordPos[1]][wordPos[2]]
     local endSquare = board.squareImages[wordPos[3]][wordPos[4]]
 
@@ -110,21 +110,39 @@ function M:startArrow(dir, startSquare, endSquare, wordLen)
 
     self.arrowImages[#self.arrowImages + 1] = arrowImg
 
-    local function onComplete(img)
-        common_ui.safeRemove(img)
-        local index = table.indexOf(self.arrowImages, img)
-        if index then
-            table.remove(self.arrowImages, index)
+    local function onHalfComplete(img)
+
+        local function onTotalComplete(img2)
+            common_ui.safeRemove(img2)
+            local index = table.indexOf(self.arrowImages, img2)
+            if index then
+                table.remove(self.arrowImages, index)
+            end
         end
+
+        transition.to(img, {
+            tag = GRAB_TILES_TIP_TAG,
+            x = dir == "E" and (endSquare.x + endSquare.width) or endSquare.x,
+            y = dir == "S" and (endSquare.y + endSquare.height) or endSquare.y,
+            alpha = 0,
+            time = MS_PER_TILE * (wordLen - 1) / 2,
+            onComplete = onTotalComplete
+        })
     end
+
+    local halfX = dir == "E" and startSquare.x + (endSquare.x - startSquare.x + startSquare.width) / 2
+        or startSquare.x
+
+    local halfY = dir == "S" and startSquare.y + (endSquare.y - startSquare.y + startSquare.height) / 2
+        or startSquare.y
 
     transition.to(arrowImg, {
         tag = GRAB_TILES_TIP_TAG,
-        x = endSquare.x,
-        y = endSquare.y,
+        x = halfX,
+        y = halfY,
         alpha = 0.9,
-        time = MS_PER_TILE * (wordLen - 1),
-        onComplete = onComplete
+        time = MS_PER_TILE * (wordLen - 1) / 2,
+        onComplete = onHalfComplete
     })
 end
 
