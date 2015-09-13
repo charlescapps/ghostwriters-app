@@ -36,9 +36,9 @@ function M:showTip()
             tips_persist.recordViewedTip(TIP_NAME)
         end
         local tipsModal = tips_modal.new(
-            "Drag a question tile to the board, then you can select a letter.\n\n" ..
-            "A question tile is worth the full points of the chosen letter.",
-            nil, onClose)
+            "Drag a question tile to the board, then choose a letter. The chosen letter is worth full points!",
+            nil, onClose,
+            "images/question_tip.png", 250, 250, 0, 0)
         tipsModal:show()
         return true
     end
