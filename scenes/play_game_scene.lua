@@ -641,7 +641,7 @@ function scene:applyUpdatedGame(updatedGameModel, isAfterPlayMove)
     end
 
     self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
-    print("Applying opponent move(s): " .. json.encode(self.movesToDisplay))
+    print("Applying opponent move(s)")
     self:applyOpponentMoves()
 end
 
@@ -703,7 +703,8 @@ end
 function scene:getRefreshGameFail()
     return function(jsonResp)
         self.refreshInProgress = nil
-        print("Error updating game:" .. json.encode(jsonResp))
+        print("Error updating game.")
+        --print("Error updating game:" .. json.encode(jsonResp))
         self:resumePollForGame()
     end
 end
@@ -839,7 +840,7 @@ end
 function scene:showGameOverModal()
     local gameModel = current_game.currentGame
     if not gameModel or gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
-        print("Not displaying Game Over modal, game result is " .. tostring(gameModel and gameModel.gameResult))
+        print("Not displaying Game Over modal, game result is OFFERED or IN_PROGRESS")
         return false
     end
 
