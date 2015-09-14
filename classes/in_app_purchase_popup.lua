@@ -121,7 +121,7 @@ function M:drawBookPowerTipButton()
                 "100 books: +10% rating gain\n" ..
                 "250 books: +15% rating gain\n" ..
                 "500 books: +20% rating gain\n\n" ..
-                "Infinite books: +33% chance of +1 point per word"
+                "Infinite books: +25% rating gain"
         local tipsModal = tips_modal.new(tipText)
         tipsModal:show()
     end
