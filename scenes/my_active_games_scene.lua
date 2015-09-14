@@ -57,7 +57,7 @@ function scene:createMyGamesViewAndQuery(user)
 
     self.myGamesView = my_games_view_class.new(user, true, self)
 
-    common_api.getMyGames(common_api.MAX_GAMES_IN_PROGRESS, true, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
+    common_api.getMyGames(common_api.COUNT_PER_PAGE, nil, true, true, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 end
 
 

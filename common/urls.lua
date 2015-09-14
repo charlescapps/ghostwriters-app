@@ -55,9 +55,10 @@ M.gameByIdURL = function(gameId, includeMoves, currentMove)
     return url
 end
 
-M.myGamesURL = function(count, inProgress, includeMoves)
+M.myGamesURL = function(count, page, inProgress, includeMoves)
+    page = page or 0
     local baseURL = M.gamesURL()
-    local url = baseURL .. "?count=" .. count .. "&inProgress=" .. tostring(inProgress)
+    local url = baseURL .. "?count=" .. tostring(count) .. "&page=" .. tostring(page) .. "&inProgress=" .. tostring(inProgress)
     if includeMoves then
         url = url .. "&includeMoves=true"
     end
@@ -68,8 +69,9 @@ M.myGamesSummaryURL = function()
     return SERVER .. "/users/myGamesSummary"
 end
 
-M.gamesOfferedToMeURL = function(count)
-    return SERVER .. "/games/offeredToMe?count=" .. tostring(count)
+M.gamesOfferedToMeURL = function(count, page)
+    page = page or 0
+    return SERVER .. "/games/offeredToMe?count=" .. tostring(count) .. "&page=" .. tostring(page)
 end
 
 M.gamesOfferedByMeURL = function(count)

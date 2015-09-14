@@ -14,7 +14,7 @@ local DEFAULT_TIMEOUT = 30
 
 -- Constants
 -- Meta stuff
-M.MAX_GAMES_IN_PROGRESS = 100
+M.COUNT_PER_PAGE = 25
 
 -- Game types
 M.SINGLE_PLAYER = "SINGLE_PLAYER"
@@ -467,13 +467,13 @@ M.getGameById = function(gameId, includeMoves, currentMove, onSuccess, onFail, o
     M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
-M.getMyGames = function(count, inProgress, includeMoves, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = urls.myGamesURL(count, inProgress, includeMoves)
+M.getMyGames = function(count, page, inProgress, includeMoves, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    local url = urls.myGamesURL(count, page, inProgress, includeMoves)
     M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
-M.getGamesOfferedToMe = function(count, onSuccess, onFail, onNetworkFail, doMakeSpinner)
-    local url = urls.gamesOfferedToMeURL(count)
+M.getGamesOfferedToMe = function(count, page, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    local url = urls.gamesOfferedToMeURL(count, page)
     M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
