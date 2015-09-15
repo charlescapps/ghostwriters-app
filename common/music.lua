@@ -5,43 +5,62 @@ local M = {}
 
 M.audioHandles = {}
 
--- Reserve channel number 1 for music!
-audio.reserveChannels(1)
+-- Reserve channel numbers 1-2 for music!
+local NUM_MUSIC_CHANNELS = 2
+audio.reserveChannels(NUM_MUSIC_CHANNELS)
 
-local MUSIC_CHANNEL = 1
+local TITLE_MUSIC_CHANNEL = 1
+local IN_GAME_MUSIC_CHANNEL = 2
+
 local TITLE_MUSIC_FILE = "sounds/mountain-king-normalized.mp3"
+local IN_GAME_MUSIC_FILE = "sounds/fugue_for_ghosts.mp3"
 
 -- Generic functions
-function M.playMusic(file, opts)
+function M.playMusic(file, channel, opts)
     if not file then
         print("[ERROR] nil file given to play as sound")
+        return
+    end
+    if not channel then
+        print("[ERROR] nil channel given to play as sound")
         return
     end
 
     local isMusicEnabled = prefs.getPref(prefs.PREF_MUSIC)
     if not isMusicEnabled then
-        print("[INFO] Music not enabled, so not playing title music!")
+        print("[INFO] Music not enabled, so not playing music!")
         M.stopMusic()
         return
     end
 
     -- Make sure we stop any paused music, so we aren't stuck in a situation where music won't ever play.
-    if audio.isChannelPlaying(MUSIC_CHANNEL) then
+    M.pauseAllMusicChannels()
+
+    if audio.isChannelPaused(channel) then
+        audio.resume(channel)
         return
-    elseif audio.isChannelPaused(MUSIC_CHANNEL) then
-        M.stopMusic()
     end
+    
+    audio.stop(channel)
 
     local audioHandle = M.getAudioHandle(file)
 
     opts = opts or {}
-    opts.loops = 0
-    opts.channel = MUSIC_CHANNEL
+    opts.loops = -1
+    opts.channel = channel
     audio.play(audioHandle, opts)
 end
 
+function M.pauseAllMusicChannels()
+    for i = 1, NUM_MUSIC_CHANNELS do
+       audio.pause(i)
+    end
+end
+
 function M.stopMusic()
-    audio.stop(MUSIC_CHANNEL)
+    for i = 1, NUM_MUSIC_CHANNELS do
+        audio.stop(i)
+    end
 end
 
 function M.getAudioHandle(file)
@@ -60,11 +79,16 @@ end
 -- Specific music for convenience and encapsulation
 
 function M.playTitleMusic(opts)
-    M.playMusic(TITLE_MUSIC_FILE, opts)
+    M.playMusic(TITLE_MUSIC_FILE, 1, opts)
 end
 
-function M.preloadTitleMusic()
+function M.playInGameMusic(opts)
+    M.playMusic(IN_GAME_MUSIC_FILE, 2, opts)
+end
+
+function M.preloadAllMusic()
     M.preloadMusic(TITLE_MUSIC_FILE)
+    M.preloadMusic(IN_GAME_MUSIC_FILE)
 end
 
 function M.preloadMusic(file)

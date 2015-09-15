@@ -25,6 +25,7 @@ local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
 local challenged_popup = require("classes.challenged_popup")
 local back_button_setup = require("android.back_button_setup")
 local fonts = require("globals.fonts")
+local music = require("common.music")
 
 local scene = composer.newScene()
 
@@ -111,6 +112,8 @@ function scene:show(event)
         if not self.creds then
             return
         end
+
+        music.playInGameMusic()
 
     elseif phase == "did" then
         print("play_game_scene:show() - phase = did")

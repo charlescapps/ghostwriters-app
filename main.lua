@@ -26,7 +26,7 @@ composer.gotoScene("scenes.loading_scene")
 
 -- Initialize animation ahead of time so that it appers smoother.
 word_spinner_class.initialize()
-music.preloadTitleMusic()
+music.preloadAllMusic()
 
 -- Initialize system event listener - to update the current game when game resumes
 local function onSystemEvent(event)
