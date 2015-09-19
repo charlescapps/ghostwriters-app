@@ -40,6 +40,9 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         scene_helpers.onWillHideScene()
+        if self.creditsWidget then
+            self.creditsWidget:cancelActiveTimer()
+        end
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
     end

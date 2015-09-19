@@ -2,7 +2,6 @@ local common_ui = require("common.common_ui")
 local display = require("display")
 local widget = require("widget")
 local fonts = require("globals.fonts")
-local math = require("math")
 local timer = require("timer")
 
 local M = {}
@@ -92,9 +91,21 @@ function M:animateCredits()
         self:animateCredits()
     end
 
-    timer.performWithDelay(3000, function()
+    self.timerId = timer.performWithDelay(3000, function()
+        if not common_ui.isValidDisplayObj(self.view) or
+                not common_ui.isValidDisplayObj(self.tableView) or
+                not common_ui.isValidDisplayObj(self.tableView.parent) or
+                not self.tableView.scrollToIndex then
+            return
+        end
         self.tableView:scrollToIndex(self.currentRow + 1, 2000, onComplete)
     end)
+end
+
+function M:cancelActiveTimer()
+    if self.timerId then
+       timer.cancel(self.timerId)
+    end
 end
 
 function M.drawCreditsPage(opts)
