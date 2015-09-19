@@ -113,7 +113,10 @@ function M.drawCreditsPage(opts)
     local textView = display.newText {
         text = opts.text,
         font = fonts.DEFAULT_FONT,
-        fontSize = opts.textSize or 52
+        fontSize = opts.textSize or 52,
+        width = 700,
+        x = 0,
+        align = "center"
     }
     textView:setFillColor(1, 1, 1)
     textView.y = -250
@@ -126,7 +129,10 @@ function M.drawCreditsPage(opts)
         subtitleView = display.newText {
             text = opts.subtitle,
             font = fonts.DEFAULT_FONT,
-            fontSize = opts.subtitleSize or 48
+            fontSize = opts.subtitleSize or 40,
+            width = 700,
+            x = 0,
+            align = "center"
         }
         subtitleView.anchorY = 0
         subtitleView:setFillColor(1, 1, 1)
@@ -168,9 +174,42 @@ function M.drawArtistPage()
     }
 end
 
+function M.drawMusicPage()
+    return M.drawCreditsPage {
+        title = "Original Music",
+        text = "Simon Bielman",
+        subtitle = "https://soundcloud.com/simonlb-1",
+        image = "images/simon.jpg",
+        imageWidth = 600,
+        imageHeight = 600
+    }
+end
+
+function M.drawBostonLawPage()
+    return M.drawCreditsPage {
+        title = "Images of Rare Books",
+        text = "Used with permission from",
+        subtitle = "Boston College Law Library, Daniel R. Coquillette Rare Book Room",
+        image = "images/game_menu_book.jpg",
+        imageWidth = 600,
+        imageHeight = 712
+    }
+end
+
+function M.drawFreeSoundPage()
+    return M.drawCreditsPage {
+        title = "Sound Effects",
+        text = "www.freesound.org",
+        subtitle = "Used sounds released under the Creative Commons 0 license"
+    }
+end
+
 M.renderRows = {
     M.drawCopyrightPage,
-    M.drawArtistPage
+    M.drawArtistPage,
+    M.drawMusicPage,
+    M.drawBostonLawPage,
+    M.drawFreeSoundPage
 }
 
 return M
