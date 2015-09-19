@@ -94,21 +94,27 @@ function M.drawCreditsPage(opts)
     textView:setFillColor(1, 1, 1)
     textView.y = -200
 
-    if (opts.image and opts.imageWidth and opts.imageHeight) then
-        local imageView = display.newImageRect(opts.image, opts.imageWidth, opts.imageHeight)
-        imageView.x = 0
-        imageView.y = math.max(0, opts.imageHeight / 2 + textView.y + textView.contentHeight / 2) -- Image should not spill into the above text
-    end
-
     group:insert(titleView)
     group:insert(textView)
+
+    if (opts.image and opts.imageWidth and opts.imageHeight) then
+        local IMAGE_PAD = 25
+        local imageView = display.newImageRect(opts.image, opts.imageWidth, opts.imageHeight)
+        imageView.x = 0
+        imageView.y = math.max(0, opts.imageHeight / 2 + textView.y + textView.contentHeight / 2 + IMAGE_PAD) -- Image should not spill into the above text
+        group:insert(imageView)
+    end
+
     return group
 end
 
 function M.drawCopyrightPage()
     return M.drawCreditsPage {
         title = "Credits",
-        text = "Ghostwriters © 2015 Charles Capps"
+        text = "Ghostwriters © 2015 Charles Capps",
+        image = "images/cthulhu_board.jpg",
+        imageWidth = 600,
+        imageHeight = 600
     }
 end
 
