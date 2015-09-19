@@ -13,6 +13,7 @@ local widget = require("widget")
 local user_options_menu = require("classes.user_options_menu")
 local back_button_setup = require("android.back_button_setup")
 local music = require("common.music")
+local sound = require("common.sound")
 
 -- Constants
 local scene = composer.newScene()
@@ -96,6 +97,7 @@ function scene:create(event)
 	local buttonMyChallengers = common_ui.createButton("My Challengers", 950, clickMyChallengers)
 	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150, clickLeaderboard)
     self.userOptionsButton = self:createUserOptionsButton()
+    self.creditsButton = self:createCreditsButton()
 
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleImage )
@@ -105,6 +107,7 @@ function scene:create(event)
 	sceneGroup:insert( buttonMyChallengers )
     sceneGroup:insert( buttonLeaderboard )
     sceneGroup:insert( self.userOptionsButton )
+    sceneGroup:insert( self.creditsButton )
 end
 
 -- "scene:show()"
@@ -203,6 +206,23 @@ function scene:createUserOptionsButton()
         y = display.contentHeight - 80,
         defaultFile = "images/gear-icon.png",
         overFile = "images/gear-icon_over.png",
+        width = 125,
+        height = 125,
+        onRelease = onRelease
+    }
+end
+
+function scene:createCreditsButton()
+    local function onRelease()
+        sound.playStoneTileSound()
+        composer.gotoScene("scenes.credits_scene", "fade")
+    end
+
+    return widget.newButton {
+        x = 80,
+        y = display.contentHeight - 80,
+        defaultFile = "images/credits_button_default.png",
+        overFile = "images/credits_button_over.png",
         width = 125,
         height = 125,
         onRelease = onRelease
