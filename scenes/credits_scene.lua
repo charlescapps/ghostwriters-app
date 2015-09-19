@@ -27,6 +27,7 @@ function scene:show( event )
         -- Called when the scene is still off screen (but is about to come on screen).
     elseif ( phase == "did" ) then
         scene_helpers.onDidShowScene(self)
+        self.creditsWidget:animateCredits()
     end
 end
 
