@@ -40,7 +40,7 @@ function M.playMusic(file, channel, opts)
         audio.resume(channel)
         return
     end
-    
+
     audio.stop(channel)
 
     local audioHandle = M.getAudioHandle(file)

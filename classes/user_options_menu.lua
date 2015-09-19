@@ -231,7 +231,8 @@ end
 
 function M:drawLogoutTipButton()
     local tipsButton = tips_helpers.drawTipButton(
-        "Logout so you can login as a user from another device.",
+        "Logout so you can login as a user from another device.\n\n" ..
+        "Don't worry, you can always log back in as the user you created with this device.",
         100, 100)
     local b = self.logoutButton
     tipsButton.x = b.x + b.contentWidth/2 + tipsButton.width/2
