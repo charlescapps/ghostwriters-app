@@ -214,7 +214,7 @@ end
 
 function scene:createCreditsButton()
     local function onRelease()
-        sound.playStoneTileSound()
+        sound.playPageFlip()
         composer.gotoScene("scenes.credits_scene", "fade")
     end
 

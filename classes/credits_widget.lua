@@ -3,6 +3,7 @@ local display = require("display")
 local widget = require("widget")
 local fonts = require("globals.fonts")
 local timer = require("timer")
+local system = require("system")
 
 local M = {}
 local meta = { __index = M }
@@ -148,6 +149,17 @@ function M.drawCreditsPage(opts)
         subtitleView.anchorY = 0
         subtitleView:setFillColor(1, 1, 1)
         subtitleView.y = textView.y + textView.contentHeight / 2 + 10
+
+        if opts.subtitleIsLink then
+            --subtitleView:setFillColor(0.8, 0.9, 1)
+            subtitleView:setFillColor(0.93, 0.48, 0.01)
+            subtitleView:addEventListener("touch", function(event)
+                if event.phase == "ended" then
+                    system.openURL(opts.subtitle)
+                end
+            end)
+        end
+
         group:insert(subtitleView)
     end
 
@@ -179,6 +191,7 @@ function M.drawArtistPage()
         title = "Original Artwork",
         text = "Joao Fiuza",
         subtitle = "https://inkognit.artstation.com",
+        subtitleIsLink = true,
         image = "images/professor_default.png",
         imageWidth = 600,
         imageHeight = 600
@@ -190,20 +203,10 @@ function M.drawMusicPage()
         title = "Original Music",
         text = "Simon Bielman",
         subtitle = "https://soundcloud.com/simonlb-1",
+        subtitleIsLink = true,
         image = "images/simon.jpg",
         imageWidth = 600,
         imageHeight = 600
-    }
-end
-
-function M.drawBostonLawPage()
-    return M.drawCreditsPage {
-        title = "Images of Rare Books",
-        text = "Used with permission from",
-        subtitle = "Boston College Law Library, Daniel R. Coquillette Rare Book Room",
-        image = "images/game_menu_book.jpg",
-        imageWidth = 600,
-        imageHeight = 712
     }
 end
 
@@ -218,12 +221,49 @@ function M.drawFreeSoundPage()
     }
 end
 
+function M.drawBostonLawPage()
+    return M.drawCreditsPage {
+        title = "Images of Rare Books",
+        text = "Used with permission from",
+        subtitle = "Boston College Law Library, Daniel R. Coquillette Rare Book Room",
+        image = "images/game_menu_book.jpg",
+        imageWidth = 600,
+        imageHeight = 712
+    }
+end
+
+function M.drawLostAndTakenPage()
+    return M.drawCreditsPage {
+        title = "Vintage Book Textures",
+        text = "Lost and Taken",
+        subtitle = "http://lostandtaken.com/",
+        subtitleIsLink = true,
+        image = "images/red_minigame_bg.jpg",
+        imageWidth = 600,
+        imageHeight = 493
+    }
+end
+
+function M.drawFinalPage()
+    return M.drawCreditsPage {
+        title = "Thanks for playing!",
+        text = "Check out the forums at",
+        subtitle = "http://ghostwritersapp.com/forums",
+        subtitleIsLink = true,
+        image = "images/rating_up_modal.png",
+        imageWidth = 600,
+        imageHeight = 600
+    }
+end
+
 M.renderRows = {
     M.drawCopyrightPage,
     M.drawArtistPage,
     M.drawMusicPage,
     M.drawBostonLawPage,
-    M.drawFreeSoundPage
+    M.drawLostAndTakenPage,
+    M.drawFreeSoundPage,
+    M.drawFinalPage
 }
 
 return M
