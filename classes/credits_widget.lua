@@ -211,7 +211,10 @@ function M.drawFreeSoundPage()
     return M.drawCreditsPage {
         title = "Sound Effects",
         text = "www.freesound.org",
-        subtitle = "Used sounds released under the Creative Commons 0 license"
+        subtitle = "Used sounds released under the \nCreative Commons 0 license",
+        image = "images/freesound.png",
+        imageWidth = 400,
+        imageHeight = 104
     }
 end
 
