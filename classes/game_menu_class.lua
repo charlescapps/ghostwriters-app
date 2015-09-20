@@ -192,7 +192,9 @@ function game_menu_class:createMusicOptionRow()
     local soundOptionText = display.newEmbossedText {
         text = "Music On",
         font = fonts.DEFAULT_FONT,
-        fontSize = 60
+        fontSize = 60,
+        width = 450,
+        align = "center"
     }
     soundOptionText:setFillColor(1, 1, 1)
     soundOptionText.x = 0
@@ -220,7 +222,7 @@ function game_menu_class:createMusicOptionRow()
         height = 80,
         frameOn = module:getFrameIndex("checkbox_checked"),
         frameOff = module:getFrameIndex("checkbox_unchecked"),
-        x = soundOptionText.x + soundOptionText.contentWidth / 2 + 35,
+        x = soundOptionText.x + soundOptionText.contentWidth / 2,
         y = Y_POS,
         onRelease = onReleaseCheckbox
     }
@@ -238,9 +240,11 @@ function game_menu_class:createSoundOptionRow()
     local Y_POS = -25
     local group = display.newGroup()
     local soundOptionText = display.newEmbossedText {
-        text = "Sound FX",
+        text = "Sounds On",
         font = fonts.DEFAULT_FONT,
-        fontSize = 60
+        fontSize = 60,
+        width = 450,
+        align = "center"
     }
     soundOptionText:setFillColor(1, 1, 1)
     soundOptionText.x = 0
@@ -267,7 +271,7 @@ function game_menu_class:createSoundOptionRow()
         height = 80,
         frameOn = module:getFrameIndex("checkbox_checked"),
         frameOff = module:getFrameIndex("checkbox_unchecked"),
-        x = soundOptionText.x + soundOptionText.contentWidth / 2 + 35,
+        x = soundOptionText.x + soundOptionText.contentWidth / 2,
         y = Y_POS,
         onRelease = onReleaseCheckbox
     }
@@ -284,6 +288,7 @@ end
 function game_menu_class:drawCloseX()
     local function onRelease()
         self:close()
+        music.playInGameMusic()
     end
     local x = -self.menuBackground.contentWidth / 2 + CLOSE_X_WIDTH + 20
     local y = -self.menuBackground.contentHeight / 2 + CLOSE_X_WIDTH

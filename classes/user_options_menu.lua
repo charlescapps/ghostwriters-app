@@ -32,6 +32,7 @@ function M:render()
     self.background = self:drawBackground()
     self.myStatsButton = self:drawMyStatsButton()
     self.musicOptionRow = self:createMusicOptionRow()
+    self.soundOptionRow = self:createSoundOptionRow()
 
     self.setPasswordButton = self:drawSetPasswordButton()
     self.setPasswordTipButton = self:drawSetPasswordTipButton()
@@ -44,6 +45,7 @@ function M:render()
     self.view:insert(self.background)
     self.view:insert(self.myStatsButton)
     self.view:insert(self.musicOptionRow)
+    self.view:insert(self.soundOptionRow)
     self.view:insert(self.setPasswordButton)
     self.view:insert(self.setPasswordTipButton)
     self.view:insert(self.logoutButton)
@@ -152,16 +154,18 @@ function M:drawMyStatsButton()
         userInfoPopup:show()
     end
 
-    return self:drawOptionButton("My Stats", display.contentCenterY - 300, onRelease)
+    return self:drawOptionButton("My Record", display.contentCenterY - 300, onRelease)
 end
 
 function M:createMusicOptionRow()
     local Y_POS = display.contentCenterY - 150
     local group = display.newGroup()
     local musicOptionText = display.newEmbossedText {
-        text = "Music On?",
+        text = "Music On",
         font = fonts.DEFAULT_FONT,
-        fontSize = 60
+        fontSize = 60,
+        width = 450,
+        align = "center"
     }
     musicOptionText:setFillColor(1, 1, 1)
     musicOptionText.x = display.contentCenterX
@@ -189,7 +193,7 @@ function M:createMusicOptionRow()
         height = 80,
         frameOn = module:getFrameIndex("checkbox_checked"),
         frameOff = module:getFrameIndex("checkbox_unchecked"),
-        x = musicOptionText.x + musicOptionText.contentWidth / 2 + 35,
+        x = musicOptionText.x + musicOptionText.contentWidth / 2,
         y = Y_POS,
         onRelease = onReleaseCheckbox
     }
@@ -201,12 +205,59 @@ function M:createMusicOptionRow()
     return group
 end
 
+function M:createSoundOptionRow()
+    local Y_POS = display.contentCenterY
+    local group = display.newGroup()
+    local soundOptionTextView = display.newEmbossedText {
+        text = "Sounds On",
+        font = fonts.DEFAULT_FONT,
+        fontSize = 60,
+        width = 450,
+        align = "center"
+    }
+    soundOptionTextView:setFillColor(1, 1, 1)
+    soundOptionTextView.x = display.contentCenterX
+    soundOptionTextView.y = Y_POS
+
+    local wasSoundEnabled = prefs.getPref(prefs.PREF_SOUND)
+    local checkboxSheetObj = sheet_helpers:getSheetObj("checkboxes_sheet")
+    local sheet = checkboxSheetObj.imageSheet
+    local module = checkboxSheetObj.module
+
+    local function onReleaseCheckbox(event)
+        if event and event.target and event.target.isOn then
+            prefs.savePref(prefs.PREF_SOUND, true)
+        else
+            prefs.savePref(prefs.PREF_SOUND, false)
+        end
+    end
+
+    local soundCheckbox = widget.newSwitch {
+        initialSwitchState = wasSoundEnabled,
+        style = "checkbox",
+        sheet = sheet,
+        width = 80,
+        height = 80,
+        frameOn = module:getFrameIndex("checkbox_checked"),
+        frameOff = module:getFrameIndex("checkbox_unchecked"),
+        x = soundOptionTextView.x + soundOptionTextView.contentWidth / 2,
+        y = Y_POS,
+        onRelease = onReleaseCheckbox
+    }
+    soundCheckbox.anchorX = 0
+
+    group:insert(soundOptionTextView)
+    group:insert(soundCheckbox)
+
+    return group
+end
+
 function M:drawSetPasswordButton()
     local function onRelease()
         composer.gotoScene("scenes.set_password_scene", "fade")
     end
 
-    return self:drawOptionButton("Set a password", display.contentCenterY, onRelease)
+    return self:drawOptionButton("Set a password", display.contentCenterY + 150, onRelease)
 end
 
 function M:drawSetPasswordTipButton()
@@ -226,7 +277,7 @@ function M:drawLogoutButton()
         login_common.logout()
     end
 
-    return self:drawOptionButton("Logout", display.contentCenterY + 150, onRelease)
+    return self:drawOptionButton("Logout", display.contentCenterY + 300, onRelease)
 end
 
 function M:drawLogoutTipButton()
