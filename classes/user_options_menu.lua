@@ -193,7 +193,7 @@ function M:createMusicOptionRow()
         height = 80,
         frameOn = module:getFrameIndex("checkbox_checked"),
         frameOff = module:getFrameIndex("checkbox_unchecked"),
-        x = musicOptionText.x + musicOptionText.contentWidth / 2,
+        x = musicOptionText.x + musicOptionText.contentWidth / 2 + 10,
         y = Y_POS,
         onRelease = onReleaseCheckbox
     }
@@ -240,7 +240,7 @@ function M:createSoundOptionRow()
         height = 80,
         frameOn = module:getFrameIndex("checkbox_checked"),
         frameOff = module:getFrameIndex("checkbox_unchecked"),
-        x = soundOptionTextView.x + soundOptionTextView.contentWidth / 2,
+        x = soundOptionTextView.x + soundOptionTextView.contentWidth / 2 + 10,
         y = Y_POS,
         onRelease = onReleaseCheckbox
     }
