@@ -151,7 +151,6 @@ function M.drawCreditsPage(opts)
         subtitleView.y = textView.y + textView.contentHeight / 2 + 10
 
         if opts.subtitleIsLink then
-            --subtitleView:setFillColor(0.8, 0.9, 1)
             subtitleView:setFillColor(0.93, 0.48, 0.01)
             subtitleView:addEventListener("touch", function(event)
                 if event.phase == "ended" then
@@ -164,7 +163,7 @@ function M.drawCreditsPage(opts)
     end
 
     if (opts.image and opts.imageWidth and opts.imageHeight) then
-        local IMAGE_PAD = 75
+        local IMAGE_PAD = opts.imagePad or 75
         local imageView = display.newImageRect(opts.image, opts.imageWidth, opts.imageHeight)
         imageView.x = 0
         local prevView = subtitleView or textView
@@ -214,10 +213,10 @@ function M.drawFreeSoundPage()
     return M.drawCreditsPage {
         title = "Sound Effects",
         text = "www.freesound.org",
-        subtitle = "Used sounds released under the \nCreative Commons 0 license",
         image = "images/freesound.png",
         imageWidth = 400,
-        imageHeight = 104
+        imageHeight = 104,
+        imagePad = 25
     }
 end
 
