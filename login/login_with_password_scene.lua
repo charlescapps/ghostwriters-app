@@ -221,12 +221,14 @@ function scene:submit()
     local pass = self.passwordInput:getText()
 
     if not username or username:len() <= 0 then
-        common_ui.createInfoModal("Enter a username")
+        self:fadeOutNativeInputs()
+        common_ui.createInfoModal("Enter a username", nil, function() self:fadeInNativeInputs() end)
         return
     end
 
     if not pass or pass:len() <= 0 then
-        common_ui.createInfoModal("Enter a password")
+        self:fadeOutNativeInputs()
+        common_ui.createInfoModal("Enter a password", nil, function() self:fadeInNativeInputs() end)
         return
     end
 
