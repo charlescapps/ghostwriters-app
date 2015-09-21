@@ -270,6 +270,9 @@ function scene:destroyNativeInputs()
 end
 
 function scene:createNativeInputs()
+    if not common_ui.isValidDisplayObj(self.view) then
+        return
+    end
     self.passwordInput1 = self:drawPasswordInput1()
     self.passwordInput2 = self:drawPasswordInput2()
     self.view:insert(self.passwordInput1)
