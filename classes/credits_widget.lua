@@ -188,12 +188,12 @@ end
 function M.drawArtistPage()
     return M.drawCreditsPage {
         title = "Original Artwork",
-        text = "Joao Fiuza",
-        subtitle = "https://inkognit.artstation.com",
+        text = "Joao Fiuza / Inkognit",
+        subtitle = "https://inkognit.carbonmade.com/",
         subtitleIsLink = true,
-        image = "images/professor_default.png",
-        imageWidth = 600,
-        imageHeight = 600
+        image = "images/inkognit.png",
+        imageWidth = 500,
+        imageHeight = 500
     }
 end
 
@@ -239,7 +239,7 @@ function M.drawLostAndTakenPage()
         subtitleIsLink = true,
         image = "images/red_minigame_bg.jpg",
         imageWidth = 600,
-        imageHeight = 493
+        imageHeight = 700
     }
 end
 
