@@ -19,6 +19,7 @@ local transition = require("transition")
 local bonus_popup = require("classes.bonus_popup")
 local grab_tiles_tip = require("tips.grab_tiles_tip")
 local scry_tile_tip = require("tips.scry_tile_tip")
+local free_question_tile_tip = require("tips.free_question_tile_tip")
 local question_tile_tip = require("tips.question_tile_tip")
 local zoom_in_tip = require("tips.zoom_in_tip")
 local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
@@ -136,6 +137,10 @@ function scene:show(event)
         self:startPollForGame()
 
         local didShowModal = self.grabTilesTip:triggerTipOnCondition()
+
+        if not didShowModal then
+            didShowModal = free_question_tile_tip.new(self):triggerTipOnCondition() or didShowModal
+        end
 
         if not didShowModal then
            didShowModal = scry_tile_tip.new(self):triggerTipOnCondition() or didShowModal
