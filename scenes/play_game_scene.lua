@@ -126,10 +126,7 @@ function scene:show(event)
 
         OneSignal.RegisterForNotifications()
 
-        if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
-            self.movesToDisplay = table.copy(self.board.gameModel.lastMoves)
-            self:applyOpponentMoves(nil, true)
-        end
+
 
         -- Called when the scene is now on screen.
         self:showGameInfoModals(true)
@@ -154,7 +151,18 @@ function scene:show(event)
             didShowModal = zoom_in_tip.new(current_game.currentGame):triggerTipOnCondition() or didShowModal
         end
 
+        if not didShowModal then
+            self:showOpponentsLastMoves()
+        end
+
         back_button_setup.setBackListenerToReturnToTitleScene()
+    end
+end
+
+function scene:showOpponentsLastMoves()
+    if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
+        self.movesToDisplay = table.copy(self.board.gameModel.lastMoves)
+        self:applyOpponentMoves(nil, true)
     end
 end
 
