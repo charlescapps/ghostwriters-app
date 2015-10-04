@@ -12,7 +12,7 @@ audio.reserveChannels(NUM_MUSIC_CHANNELS)
 local TITLE_MUSIC_CHANNEL = 1
 local IN_GAME_MUSIC_CHANNEL = 2
 
-local TITLE_MUSIC_FILE = "sounds/mountain-king-normalized.mp3"
+local TITLE_MUSIC_FILE = "sounds/in_the_hall_of_cthulhu.mp3"
 local IN_GAME_MUSIC_FILE = "sounds/fugue_for_ghosts.mp3"
 
 -- Generic functions
