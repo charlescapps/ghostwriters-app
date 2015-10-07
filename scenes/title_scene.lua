@@ -14,6 +14,7 @@ local user_options_menu = require("classes.user_options_menu")
 local back_button_setup = require("android.back_button_setup")
 local music = require("common.music")
 local sound = require("common.sound")
+local fb = require("social.fb")
 
 -- Constants
 local scene = composer.newScene()
@@ -85,17 +86,40 @@ function scene:fetchGameSummaryInfo()
     common_api.getMyGamesSummary(self:onFetchGameSummarySuccess(), self:onFetchGameSummaryFail(), false)
 end
 
+function scene:createFacebookButton()
+    local function onRelease()
+        fb.loginToFacebook(function()
+            fb.shareToFacebook()
+        end)
+    end
+
+    local button = widget.newButton {
+        defaultFile = "images/facebook_button.png",
+        overFile = "images/facebook_button_over.png",
+        width = 150,
+        height = 52,
+        x = 90,
+        y = 550,
+        onRelease = onRelease
+    }
+
+    return button
+end
+
 -- "scene:create()"
 function scene:create(event)
+
+    local BUTTON_W = 400
 
 	local sceneGroup = self.view
 	local background = common_ui.createBackground()
 	local titleImage = self:createTitleImage()
-	local buttonSinglePlayer = common_ui.createButton("Single Player", 350, clickSinglePlayer)
-	local buttonPlayOthers = common_ui.createButton("Two Player", 550, clickOneOnOne)
-	local buttonMyGames = common_ui.createButton("My Games", 750, clickMyGames)
-	local buttonMyChallengers = common_ui.createButton("My Challengers", 950, clickMyChallengers)
-	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150, clickLeaderboard)
+	local buttonSinglePlayer = common_ui.createButton("Single Player", 350, clickSinglePlayer, BUTTON_W)
+	local buttonPlayOthers = common_ui.createButton("Two Player", 550, clickOneOnOne, BUTTON_W)
+    local buttonFacebook = self:createFacebookButton()
+	local buttonMyGames = common_ui.createButton("My Games", 750, clickMyGames, BUTTON_W)
+	local buttonMyChallengers = common_ui.createButton("My Challengers", 950, clickMyChallengers, BUTTON_W)
+	local buttonLeaderboard = common_ui.createButton("Leaderboard", 1150, clickLeaderboard, BUTTON_W)
     self.userOptionsButton = self:createUserOptionsButton()
     self.creditsButton = self:createCreditsButton()
 
@@ -103,6 +127,7 @@ function scene:create(event)
 	sceneGroup:insert( titleImage )
 	sceneGroup:insert( buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )
+    sceneGroup:insert(buttonFacebook)
 	sceneGroup:insert( buttonMyGames )
 	sceneGroup:insert( buttonMyChallengers )
     sceneGroup:insert( buttonLeaderboard )
@@ -228,7 +253,6 @@ function scene:createCreditsButton()
         onRelease = onRelease
     }
 end
-
 
 -- Listener setup
 scene:addEventListener( "create", scene )

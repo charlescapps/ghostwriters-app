@@ -21,6 +21,10 @@ settings =
             publisherId = "com.coronalabs",
             supportedPlatforms = { android=true }
         },
+        ["facebook"] =
+        {
+            publisherId = "com.coronalabs"
+        },
     },
 
     build = {
@@ -55,7 +59,8 @@ settings =
 		{
 			UIStatusBarHidden = true,
 			UIPrerenderedIcon = true, -- set to false for "shine" overlay
-			--UIApplicationExitsOnSuspend = true, -- uncomment to quit app on suspend
+			UIApplicationExitsOnSuspend = false,
+			FacebookAppID = "909490122473535",
 			MinimumOSVersion = "6.0",
 			UIAppFonts = {
                 "GlacialIndifference-Regular.otf",
@@ -82,18 +87,16 @@ settings =
 				"Icon-Small-50@2x.png"
 			},
 
-			--[[
 			-- iOS app URL schemes:
 			CFBundleURLTypes =
 			{
 				{
 					CFBundleURLSchemes =
 					{
-						"fbXXXXXXXXX",  -- replace XXXXXXXXX with your Facebook appId
+						"fb909490122473535",  -- replace XXXXXXXXX with your Facebook appId
 					}
 				}
-			}
-			--]]
+			},
 			--launch image files table
             UILaunchImages = {
                 {  -- iPhone 4 Portrait
