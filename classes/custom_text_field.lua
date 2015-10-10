@@ -82,6 +82,10 @@ function M.newCustomTextField(options)
     field.textField.font = opt.font and native.newFont( opt.font ) or native.systemFont
     field.textField.size = opt.fontSize
     field.textField.align = opt.align
+    -- turn off autocorrect on iOS by default.
+    field.autocorrectionType = "UITextAutocorrectionTypeNo"
+    -- turn off spellcheck on iOS by default.
+    field.spellCheckingType = "UITextSpellCheckingTypeNo"
 
     -- Remove from screen when the parent is hidden
     function field:finalize( event )
