@@ -88,17 +88,15 @@ end
 
 function scene:createFacebookButton()
     local function onRelease()
-        fb.loginToFacebook(function()
-            fb.shareToFacebook()
-        end)
+        fb.loginToFacebookThenInviteUsers()
     end
 
     local button = widget.newButton {
-        defaultFile = "images/facebook_button.png",
-        overFile = "images/facebook_button_over.png",
-        width = 150,
-        height = 52,
-        x = 90,
+        defaultFile = "images/fb_button_default.png",
+        overFile = "images/fb_button_over.png",
+        width = 120,
+        height = 120,
+        x = 88,
         y = 550,
         onRelease = onRelease
     }
