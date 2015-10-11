@@ -44,13 +44,21 @@ function scene:show( event )
     end
 end
 
+function scene:getRefreshGamesCallback()
+    return function()
+        if self.creds and self.creds.user then
+            self:createMyGamesViewAndQuery(self.creds.user)
+        end
+    end
+end
+
 function scene:createMyGamesViewAndQuery(user)
 
     if self.myChallengersView then
         self.myChallengersView:destroy()
     end
 
-    self.myChallengersView = my_challengers_view_class.new(user, true, self)
+    self.myChallengersView = my_challengers_view_class.new(user, true, self, self:getRefreshGamesCallback())
 
     common_api.getGamesOfferedToMe(common_api.COUNT_PER_PAGE, nil, self:getOnSuccessCallback(), self:getOnFailCallback(), self:getOnFailCallback(), true)
 

@@ -7,7 +7,6 @@ local native = require("native")
 local transition = require("transition")
 local composer = require("composer")
 local mini_game_view_class = require("classes.mini_game_view_class")
-local table = require("table")
 
 local my_games_view_class = {}
 local my_games_view_class_mt = { __index = my_games_view_class }
@@ -18,12 +17,15 @@ local MINI_GAME_WIDTH = display.contentWidth - PAD * 2
 local MINI_GAME_HEIGHT = 600
 local MINI_BOARD_WIDTH = 350
 
-function my_games_view_class.new(authUser, inProgress, scene)
+local SPRING_DIST = 125
+
+function my_games_view_class.new(authUser, inProgress, scene, refreshFunc)
     local myGamesView = {
         authUser = authUser,
         inProgress = inProgress,
         scene = scene,
-        miniGameViews = {}
+        miniGameViews = {},
+        refreshFunc = refreshFunc
     }
     return setmetatable(myGamesView, my_games_view_class_mt)
 end
@@ -138,8 +140,30 @@ function my_games_view_class:renderTableView()
         onRowRender = self:createOnRowRenderListener(),
         backgroundColor = { 1, 1, 1, 0 },
         hideBackground = true,
-        hideScrollbar = true
+        hideScrollbar = true,
+        listener = self:getTableListener()
     }
+end
+
+function my_games_view_class:getTableListener()
+    return function(event)
+        if ( event.phase == "began" ) then
+            self.springStart = event.target.parent.parent:getContentPosition()
+            self.needToReload = false
+        elseif ( event.phase == "moved" ) then
+            local pos = event.target.parent.parent:getContentPosition()
+            if ( pos > SPRING_DIST and pos > self.springStart + SPRING_DIST ) then
+                self.needToReload = true
+            end
+        elseif ( event.limitReached == true and event.phase == nil and event.direction == "down" and self.needToReload == true ) then
+            print( "Reloading My Games!" )
+            self.needToReload = false
+            if type(self.refreshFunc) == "function" then
+               self.refreshFunc()
+            end
+        end
+        return true
+    end
 end
 
 function my_games_view_class:createMiniGames(start)
