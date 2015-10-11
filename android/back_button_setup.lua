@@ -1,7 +1,9 @@
 local system = require("system")
-local json = require("json")
 local composer = require("composer")
 local native = require("native")
+local tips_persist = require("tips.tips_persist")
+
+local RETURN_TO_MAIN_MENU_TIP = "return_to_main_menu_tip"
 
 local M = {}
 
@@ -116,9 +118,15 @@ function M.promptToReturnToMainMenu()
     local function onClick(event)
         if event.action == "clicked" and event.index == 2 then
             composer.gotoScene("scenes.title_scene")
+            tips_persist.recordViewedTip(RETURN_TO_MAIN_MENU_TIP)
         end
     end
-    native.showAlert("Return to Main Menu", "Exit game and return to Main Menu?", {"Cancel", "OK"}, onClick)
+
+    if tips_persist.isTipViewed(RETURN_TO_MAIN_MENU_TIP) then
+        composer.gotoScene("scenes.title_scene", "fade")
+    else
+        native.showAlert("Return to Main Menu", "Exit game and return to Main Menu?", {"Cancel", "OK"}, onClick)
+    end
 end
 
 return M
