@@ -855,7 +855,6 @@ end
 
 function scene:reDrawActionButtonsGroup()
     if not common_ui.isValidDisplayObj(self.view) then
-        print("ERROR - scene.view isn't valid, cannot re-draw the action buttons!")
         return
     end
     local actionButtonsGroup = self:createActionButtonsForGameState()
@@ -937,9 +936,11 @@ function scene:showRatingChangeModal()
                            authUser.id == gameModel.player2 and gameModel.player2RatingIncrease
 
     local function showBackToMainMenuPopup()
-        local popup = back_to_main_menu_popup.new(self)
-        self.view:insert(popup:render())
-        popup:show()
+        if common_ui.isValidDisplayObj(self.view) then
+            local popup = back_to_main_menu_popup.new(self)
+            self.view:insert(popup:render())
+            popup:show()
+        end
     end
 
     if not ratingIncrease or ratingIncrease <= 0 then
