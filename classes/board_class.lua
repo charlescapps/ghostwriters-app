@@ -546,7 +546,7 @@ function board_class:getCurrentPlayTilesMove()
 		moveType = common_api.PLAY_TILES
     }
 
-    local points = self.pointsBubble:computePoints(moveJson)
+    local points, highlightTiles = self.pointsBubble:computePoints(moveJson)
     moveJson.points = points
     return moveJson
 end
@@ -582,7 +582,7 @@ function board_class:getWordForPlayTilesMove(orderedTiles)
 
 end
 
-function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTiles)
+function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTiles, highlightTiles)
 	local tileImages = self.tileImages
 	local rackTileImages = self.rackTileImages
 	local letters = ""
@@ -593,6 +593,9 @@ function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTi
 				return {errorMsg = "Tiles from the rack can't be on top of tiles on the board!"}
 			elseif tileImages[r][j] then
 				letters = letters .. tileImages[r][j].letter
+                if highlightTiles then
+                    highlightTiles[#highlightTiles + 1] = tileImages[r][j]
+                end
 			elseif includeRackTiles and rackTileImages[r][j] then
                 local rackLetter = rackTileImages[r][j].letter
                 if rackLetter == "*" then
@@ -613,6 +616,9 @@ function board_class:getLettersInRange(startR, startC, endR, endC, includeRackTi
 				return {errorMsg = "Tiles from the rack can't be on top of tiles on the board!"}
 			elseif tileImages[i][c] then
 				letters = letters .. tileImages[i][c].letter
+                if highlightTiles then
+                    highlightTiles[#highlightTiles + 1] = tileImages[i][c]
+                end
 			elseif includeRackTiles and rackTileImages[i][c] then
                 local rackLetter = rackTileImages[i][c].letter
                 if rackLetter == "*" then

@@ -5,6 +5,7 @@
 -- Time: 8:42 PM
 -- To change this template use File | Settings | File Templates.
 --
+local common_ui = require("common.common_ui")
 local POINTS = require("common.points")
 local TILE = require("common.tile")
 local math = require("math")
@@ -12,6 +13,7 @@ local display = require("display")
 local fonts = require("globals.fonts")
 local transition = require("transition")
 local timer = require("timer")
+local table = require("table")
 
 local points_bubble_class = {}
 local points_bubble_class_mt = { __index = points_bubble_class }
@@ -20,6 +22,7 @@ local points_bubble_class_mt = { __index = points_bubble_class }
 local BUBBLE_HEIGHT = 200
 local BUBBLE_WIDTH = 200
 local PAD = 10
+local HIGHLIGHT_TAG = "highlight_tag"
 
 
 points_bubble_class.new = function(board)
@@ -37,18 +40,23 @@ function points_bubble_class:computePoints(playMove)
     local startR, startC, dir, letters, rackTiles = playMove.start.r + 1, playMove.start.c + 1, playMove.dir, playMove.letters, playMove.tiles
     local points = 0
     local rackTilesIndex = 1
+    local highlightTiles = {}
     if dir == "E" then
         for c = startC, startC + letters:len() - 1 do
             local tile = board.tiles[startR][c]
             if tile and tile ~= TILE.emptyTile then
                points = points + POINTS.getLetterPoints(tile)
+               local tileImage = board.tileImages and board.tileImages[startR][c]
+               if tileImage then
+                    highlightTiles[#highlightTiles + 1] = tileImage
+               end
             else
                 local rackLetter = rackTiles:sub(rackTilesIndex, rackTilesIndex)
                 rackTilesIndex = rackTilesIndex + 1
 
                 points = points + self:getPointsForRackLetter(startR, c, rackLetter)
 
-                local perpPoints = self:getPerpPoints(startR, c, rackLetter, "E", board)
+                local perpPoints = self:getPerpPoints(startR, c, rackLetter, "E", board, highlightTiles)
 
                 points = points + perpPoints
             end
@@ -59,20 +67,24 @@ function points_bubble_class:computePoints(playMove)
             local tile = self.board.tiles[r][startC]
             if tile and tile ~= TILE.emptyTile then
                 points = points + POINTS.getLetterPoints(tile)
+                local tileImage = board.tileImages and board.tileImages[r][startC]
+                if tileImage then
+                    highlightTiles[#highlightTiles + 1] = tileImage
+                end
             else
                 local rackLetter = rackTiles:sub(rackTilesIndex, rackTilesIndex)
                 rackTilesIndex = rackTilesIndex + 1
 
                 points = points + self:getPointsForRackLetter(r, startC, rackLetter)
 
-                local perpPoints = self:getPerpPoints(r, startC, rackLetter, "S", board)
+                local perpPoints = self:getPerpPoints(r, startC, rackLetter, "S", board, highlightTiles)
                 points = points + perpPoints
             end
 
         end
     end
 
-    return points
+    return points, highlightTiles
 end
 
 function points_bubble_class:getPointsForRackLetter(r, c, rackLetter)
@@ -89,7 +101,7 @@ function points_bubble_class:getPointsForRackLetter(r, c, rackLetter)
     return letterPoints * square.num
 end
 
-function points_bubble_class:getPerpPoints(r, c, letter, dir, board)
+function points_bubble_class:getPerpPoints(r, c, letter, dir, board, highlightTiles)
     local rStart, cStart, rEnd, cEnd
     if dir == "E" then
         -- Perp word is North to South, if present
@@ -107,7 +119,7 @@ function points_bubble_class:getPerpPoints(r, c, letter, dir, board)
         end
     end
 
-    local lettersOnBoard = board:getLettersInRange(rStart, cStart, rEnd, cEnd, false)
+    local lettersOnBoard = board:getLettersInRange(rStart, cStart, rEnd, cEnd, false, highlightTiles)
     local points = 0
     for i = 1, lettersOnBoard:len() do
         local ch = lettersOnBoard:sub(i, i)
@@ -121,12 +133,15 @@ end
 
 function points_bubble_class:drawPointsBubble()
     self:removePointsBubble()
+    self:stopHighlightTiles()
     local board = self.board
     local playMove = board:getCurrentPlayTilesMove()
-    local points = self:computePoints(playMove)
+    local points, highlightTiles = self:computePoints(playMove)
     if points <= 0 then
         return nil
     end
+
+    self:drawHighlightTilesEffect(highlightTiles)
 
     local letters = playMove.letters
     local pxPerSquare = board.width / board.N
@@ -173,6 +188,56 @@ function points_bubble_class:drawPointsBubble()
     end })
 end
 
+function points_bubble_class:drawHighlightTilesEffect(highlightTiles)
+    if type(highlightTiles) ~= "table" then
+        return
+    end
+
+    self.highlightTiles = highlightTiles
+
+    for i = 1, #highlightTiles do
+        local tile = highlightTiles[i]
+        self:highlightTile(tile)
+    end
+
+end
+
+function points_bubble_class:highlightTile(tile)
+    if not common_ui.isValidDisplayObj(tile) then
+        return
+    end
+
+    tile.fill.effect = "filter.bloom"
+    tile.fill.effect.levels.white = 0.7
+    tile.fill.effect.levels.black = 0.5
+    tile.fill.effect.blur.horizontal.blurSize = 10
+    tile.fill.effect.blur.horizontal.sigma = 100
+    tile.fill.effect.blur.vertical.blurSize = 10
+    tile.fill.effect.blur.vertical.sigma = 100
+end
+
+function points_bubble_class:stopHighlightTiles()
+    if type(self.highlightTiles) ~= "table" then
+        return
+    end
+
+    for i = 1, #self.highlightTiles do
+       self:unHighlightTile(self.highlightTiles[i])
+    end
+end
+
+function points_bubble_class:unHighlightTile(tile)
+    if not common_ui.isValidDisplayObj(tile) then
+        return
+    end
+
+    local fill = tile and tile.fill
+
+    if fill then
+        fill.effect = nil
+    end
+end
+
 function points_bubble_class:removeAnyBubble(bubbleDisplayGroup)
     if bubbleDisplayGroup then
         transition.to(bubbleDisplayGroup, {time = 500, xScale = 0.01, yScale = 0.01, onComplete = function()
@@ -190,6 +255,8 @@ function points_bubble_class:destroy()
        transition.cancel(self.bubbleDisplayGroup)
        self.bubbleDisplayGroup:removeSelf()
     end
+
+    self:stopHighlightTiles()
 end
 
 function points_bubble_class:drawBubble(points, x, y, rotateDegrees, textY, flip)
