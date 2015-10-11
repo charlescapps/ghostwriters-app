@@ -126,8 +126,6 @@ function scene:show(event)
 
         OneSignal.RegisterForNotifications()
 
-
-
         -- Called when the scene is now on screen.
         self:showGameInfoModals(true)
 

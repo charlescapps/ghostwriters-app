@@ -8,7 +8,7 @@ local FB_APP_ID = "909490122473535"
 local M = {}
 
 function M.loginToFacebookThenInviteUsers()
-    facebook.login(FB_APP_ID, M.shareFacebookListener, { "user_friends", "email" })
+    facebook.login(FB_APP_ID, M.shareFacebookListener, { })
 end
 
 function M.inviteUsersOnFacebook()
