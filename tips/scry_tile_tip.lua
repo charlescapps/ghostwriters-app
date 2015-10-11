@@ -1,5 +1,6 @@
 local tips_modal = require("tips.tips_modal")
 local tips_persist = require("tips.tips_persist")
+local tips_helpers = require("tips.tips_helpers")
 
 local M = {}
 local meta = { __index = M }
@@ -14,7 +15,7 @@ function M.new(playGameScene)
 end
 
 function M:triggerTipOnCondition()
-    if not self:isSceneValid(self.playGameScene) then
+    if not tips_helpers:isSceneValid(self.playGameScene) then
         print("ERROR - invalid play game scene, cannot trigger scry tile tip.")
         return false
     end
@@ -43,19 +44,5 @@ function M:showTip()
     end
     return false
 end
-
-function M:isSceneValid(playGameScene)
-   return playGameScene and self:isBoardValid(playGameScene.board) and
-          playGameScene.creds and playGameScene.creds.user and playGameScene.creds.user.id and true
-end
-
-function M:isBoardValid(board)
-    return board and board.tileImages and board.tilesGroup and self:isGameModelValid(board.gameModel)
-end
-
-function M:isGameModelValid(gameModel)
-    return gameModel and gameModel.moveNum and gameModel.player1Rack and gameModel.player2Rack and gameModel.player1 and gameModel.player2 and true
-end
-
 
 return M

@@ -19,5 +19,18 @@ function M.drawTipButton(tipText, width, height, onClose)
     }
 end
 
+function M:isSceneValid(playGameScene)
+    return playGameScene and self:isBoardValid(playGameScene.board) and
+            playGameScene.creds and playGameScene.creds.user and playGameScene.creds.user.id and true
+end
+
+function M:isBoardValid(board)
+    return board and board.tileImages and board.tilesGroup and self:isGameModelValid(board.gameModel) and true
+end
+
+function M:isGameModelValid(gameModel)
+    return gameModel and gameModel.moveNum and gameModel.player1Rack and gameModel.player2Rack and gameModel.player1 and gameModel.player2 and true
+end
+
 return M
 

@@ -22,6 +22,7 @@ local scry_tile_tip = require("tips.scry_tile_tip")
 local free_question_tile_tip = require("tips.free_question_tile_tip")
 local question_tile_tip = require("tips.question_tile_tip")
 local zoom_in_tip = require("tips.zoom_in_tip")
+local play_word_tip = require("tips.play_word_tip")
 local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
 local challenged_popup = require("classes.challenged_popup")
 local back_button_setup = require("android.back_button_setup")
@@ -127,34 +128,42 @@ function scene:show(event)
         OneSignal.RegisterForNotifications()
 
         -- Called when the scene is now on screen.
-        self:showGameInfoModals(true)
-
-        self:startPollForGame()
-
-        local didShowModal = self.grabTilesTip:triggerTipOnCondition()
-
-        if not didShowModal then
-            didShowModal = free_question_tile_tip.new(self):triggerTipOnCondition() or didShowModal
-        end
-
-        if not didShowModal then
-           didShowModal = scry_tile_tip.new(self):triggerTipOnCondition() or didShowModal
-        end
-
-        if not didShowModal then
-           didShowModal = question_tile_tip.new(self):triggerTipOnCondition() or didShowModal
-        end
-
-        if not didShowModal then
-            didShowModal = zoom_in_tip.new(current_game.currentGame):triggerTipOnCondition() or didShowModal
-        end
+        local didShowModal = self:showGameInfoModals(true)
 
         if not didShowModal then
             self:showOpponentsLastMoves()
         end
 
+        self:startPollForGame()
+
         back_button_setup.setBackListenerToReturnToTitleScene()
     end
+end
+
+function scene:showTips()
+    local didShowModal = self.grabTilesTip:triggerTipOnCondition()
+
+    if not didShowModal then
+        didShowModal = free_question_tile_tip.new(self):triggerTipOnCondition() or didShowModal
+    end
+
+    if not didShowModal then
+        didShowModal = play_word_tip.new(self):triggerTipOnCondition() or didShowModal
+    end
+
+    if not didShowModal then
+        didShowModal = zoom_in_tip.new(self):triggerTipOnCondition() or didShowModal
+    end
+
+    if not didShowModal then
+        didShowModal = question_tile_tip.new(self):triggerTipOnCondition() or didShowModal
+    end
+
+    if not didShowModal then
+        didShowModal = scry_tile_tip.new(self):triggerTipOnCondition() or didShowModal
+    end
+
+    return didShowModal
 end
 
 function scene:showOpponentsLastMoves()
@@ -166,13 +175,16 @@ end
 
 function scene:showGameInfoModals(didSceneJustLoad)
     local didShowModal = self:showGameOverModal()
-    if didShowModal then
-        return
-    end
 
-    if not didSceneJustLoad then
+    if not didShowModal and not didSceneJustLoad then
         didShowModal = didShowModal or self:showContinueTurnModal()
     end
+
+    if not didShowModal then
+        didShowModal = didShowModal or self:showTips()
+    end
+
+    return didShowModal
 end
 
 function scene:getPollForGameListener()
