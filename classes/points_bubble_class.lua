@@ -207,13 +207,9 @@ function points_bubble_class:highlightTile(tile)
         return
     end
 
-    tile.fill.effect = "filter.bloom"
-    tile.fill.effect.levels.white = 0.7
-    tile.fill.effect.levels.black = 0.5
-    tile.fill.effect.blur.horizontal.blurSize = 10
-    tile.fill.effect.blur.horizontal.sigma = 100
-    tile.fill.effect.blur.vertical.blurSize = 10
-    tile.fill.effect.blur.vertical.sigma = 100
+    tile.fill.effect = "filter.brightness"
+    tile.fill.effect.intensity = 0.4
+
 end
 
 function points_bubble_class:stopHighlightTiles()
@@ -224,6 +220,8 @@ function points_bubble_class:stopHighlightTiles()
     for i = 1, #self.highlightTiles do
        self:unHighlightTile(self.highlightTiles[i])
     end
+
+    self.highlightTiles = nil
 end
 
 function points_bubble_class:unHighlightTile(tile)
