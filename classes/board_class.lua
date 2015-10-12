@@ -5,6 +5,7 @@ local board_helpers = require("common.board_helpers")
 local square = require("common.square")
 local tile = require("common.tile")
 local points_bubble_class = require("classes.points_bubble_class")
+local error_highlighter = require("classes.error_highlighter")
 local math = require("math")
 local display = require("display")
 local common_api = require("common.common_api")
@@ -54,12 +55,17 @@ function board_class.new(gameModel, authUser, startX, startY, width, padding, on
 	newBoard = setmetatable( newBoard, board_class_mt )
 
     newBoard.pointsBubble = points_bubble_class.new(newBoard)
+    newBoard.errorHighlighter = error_highlighter.new(newBoard)
 
     newBoard:createBoardContainer()
     return newBoard
 end
 
 -- Board class Methods --
+
+function board_class:highlightErrorWord(errorWord)
+    self.errorHighlighter:highlightErrorWord(errorWord)
+end
 
 function board_class:getZoomScale()
     return self.N / 5
@@ -68,6 +74,7 @@ end
 function board_class:disableInteraction()
     print("board: disabling interaction")
     self.interactionDisabled = true
+    self.errorHighlighter:unHighlightPrevErrorTiles()
 end
 
 function board_class:enableInteraction()
@@ -522,6 +529,7 @@ function board_class:removeRackTileFromBoard(tileImage)
 	end
 	tileImage.row = nil
     tileImage.col = nil
+    self.errorHighlighter:unHighlightPrevErrorTiles()
 end
 
 function board_class:getCurrentPlayTilesMove()
@@ -724,7 +732,7 @@ function board_class:getOrderedRackTiles()
 	end
 
 	if tileToEast and tileToSouth then
-		return {errorMsg = "You must place tiles in the same row or column with no empty spaces in between"}
+		return {errorMsg = "You must play letters in a line."}
 	end
 
 	-- Build the tiles for the play in order
@@ -758,7 +766,7 @@ function board_class:getOrderedRackTiles()
 	for i = row, N do
 		for j = 1, N do
 			if rackTileImages[i][j] and not lists.indexOf(orderedTiles, rackTileImages[i][j]) then
-				return {errorMsg = "You must place tiles in the same row or column with no empty spaces in between"}
+				return {errorMsg = "You must play letters in a line."}
 			end
 		end
 	end
@@ -857,23 +865,6 @@ function board_class:applyMove(move, rack, isCurrentUser, onComplete)
     end
 end
 
-function board_class:go(r, c, dir, distance)
-    distance = distance or 1
-    if dir == "S" then
-        return r + distance, c
-    elseif dir == "E" then
-        return r, c + distance
-    elseif dir == "N" then
-        return r - distance, c
-    elseif dir == "W" then
-        return r, c - distance
-    end
-
-    print("Error, invalid dir: " .. tostring(dir))
-    return nil, nil
-
-end
-
 function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onComplete)
     local tileIndex = 1
     local r, c = startR, startC
@@ -951,14 +942,14 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
             end
         end
 
-        r, c = self:go(r, c, dir)
+        r, c = board_helpers.go(r, c, dir)
     end
 end
 
 function board_class:applyOpponentGrabTilesMove(letters, startR, startC, dir, onComplete)
     local isFirstTile = true
     for i = 0, letters:len() - 1 do
-       local r, c = self:go(startR, startC, dir, i)
+       local r, c = board_helpers.go(startR, startC, dir, i)
        local tileImg = self.tileImages[r][c]
        self.tileImages[r][c] = nil
        self.tiles[r][c] = tile.emptyTile
@@ -989,7 +980,7 @@ function board_class:applyCurrentUserGrabTilesMove(rack, letters, startR, startC
     local isFirstTile = true
 
     for i = 0, letters:len() - 1 do
-       local r, c = self:go(startR, startC, dir, i)
+       local r, c = board_helpers.go(startR, startC, dir, i)
        if isFirstTile then
            isFirstTile = false
            self:fadeOutGrabbedTile(r, c, rack, onComplete)

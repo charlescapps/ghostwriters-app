@@ -242,7 +242,7 @@ M.createInfoModal = function(titleText, text, onClose, titleFontSize, fontSize, 
     modalText:setFillColor(fontColor[1], fontColor[2], fontColor[3])
 
     local onComplete = function()
-        if onClose and not group.ranOnClose then
+        if type(onClose) == "function" and not group.ranOnClose then
             group.ranOnClose = true
             onClose()
         end

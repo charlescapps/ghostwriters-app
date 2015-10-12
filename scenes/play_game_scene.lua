@@ -713,9 +713,13 @@ end
 
 function scene:getOnSendMoveFail()
     return function(json)
-        if json and json["errorMessage"] then
+        if json and json.errorWord then
+            if self.board then
+                self.board:highlightErrorWord(json.errorWord)
+            end
+        elseif json and json.errorMessage then
             local message
-            local messageFromServer = json["errorMessage"]
+            local messageFromServer = json.errorMessage
             if messageFromServer and messageFromServer:len() > 0 then
                 message = messageFromServer
             else
@@ -803,7 +807,7 @@ function scene:getOnReleasePlayButton()
 
         local move = self.board:getCurrentPlayTilesMove()
         if move["errorMsg"] then
-            native.showAlert("Oops...", move["errorMsg"], { "Try again" })
+            common_ui.createInfoModal("Oops...", move["errorMsg"])
             return
         end
         local gameModel = current_game.currentGame

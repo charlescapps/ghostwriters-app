@@ -67,5 +67,22 @@ function M.isUnitVector(vec)
     return vec[1] * vec[1] + vec[2] * vec[2] == 1
 end
 
+function M.go(r, c, dir, distance)
+    distance = distance or 1
+    if dir == "S" then
+        return r + distance, c
+    elseif dir == "E" then
+        return r, c + distance
+    elseif dir == "N" then
+        return r - distance, c
+    elseif dir == "W" then
+        return r, c - distance
+    end
+
+    print("Error, invalid dir: " .. tostring(dir))
+    return nil, nil
+
+end
+
 return M
 
