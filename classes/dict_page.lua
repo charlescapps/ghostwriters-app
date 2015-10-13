@@ -33,7 +33,7 @@ function M.new(specialDict, words, pageNum, totalPages, numPlayed, totalWords, o
         onReleasePrevPage = onReleasePrevPage
     }
 
-    print("Created DictPage = " .. json.encode(dictPage))
+    --print("Created DictPage = " .. json.encode(dictPage))
 
     return setmetatable(dictPage, meta)
 end

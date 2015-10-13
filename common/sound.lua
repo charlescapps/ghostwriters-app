@@ -39,7 +39,7 @@ function M.playStoneTileSound(opts)
 end
 
 function M.playRavensSound(opts)
-    M.playSound("sounds/ravens.mp3", opts)
+    M.playSound("sounds/crows.mp3", opts)
 end
 
 function M.playJiggerTileSound(opts)
@@ -51,11 +51,11 @@ function M.playPickupPaperTileSound(opts)
 end
 
 function M.playHowlingWindCthulhu(opts)
-    M.playSound("sounds/howling-wind-cthulhu.mp3", opts)
+    M.playSound("sounds/cthulhu_roar.mp3", opts)
 end
 
 function M.playWritingLovecraft(opts)
-    M.playSound("sounds/writing-lovecraft.mp3", opts)
+    M.playSound("sounds/eerie-lovecraft.mp3", opts)
 end
 
 function M.playPageFlip(opts)
