@@ -923,7 +923,7 @@ function board_class:turnPerpTilesToStone(startR, startC, dir)
     -- Traverse to the start of the perp word
     local r, c = board_helpers.go(startR, startC, negDir)
 
-    while self.tiles and self.tiles[r] and self.tiles[r][c] do
+    while self.tiles and self.tiles[r] and self.tiles[r][c] and self.tiles[r][c] ~= tile.emptyTile do
         local x, y = self:computeTileCoords(r, c)
         self:turnTileToStone(r, c, x, y)
         r, c = board_helpers.go(r, c, negDir)
@@ -932,7 +932,7 @@ function board_class:turnPerpTilesToStone(startR, startC, dir)
     -- Traverse to the end of the perp word
     r, c = board_helpers.go(startR, startC, perpDir)
 
-    while self.tiles and self.tiles[r] and self.tiles[r][c] do
+    while self.tiles and self.tiles[r] and self.tiles[r][c] and self.tiles[r][c] ~= tile.emptyTile do
         local x, y = self:computeTileCoords(r, c)
         self:turnTileToStone(r, c, x, y)
         r, c = board_helpers.go(r, c, perpDir)
