@@ -11,11 +11,12 @@ local BOOKMARK_WIDTH = 800
 local BOOKMARK_HEIGHT = 150
 local AUTO_DESTROY_DELAY = 10000
 
-function M.new(text, fontSize, onTouch)
+function M.new(text, fontSize, onTouch, destroyDelay)
     local myToast = {
         text = text,
         fontSize = fontSize or 32,
-        onTouch = onTouch
+        onTouch = onTouch,
+        destroyDelay = destroyDelay
     }
 
     myToast = setmetatable(myToast, meta)
@@ -40,7 +41,7 @@ function M:render()
     self:addTouchListener()
 
     self:show()
-    timer.performWithDelay(AUTO_DESTROY_DELAY, function() self:hideAndDestroy() end)
+    timer.performWithDelay(self.destroyDelay or AUTO_DESTROY_DELAY, function() self:hideAndDestroy() end)
 end
 
 function M:drawBookmark()

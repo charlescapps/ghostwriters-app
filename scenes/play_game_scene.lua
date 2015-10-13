@@ -28,6 +28,7 @@ local challenged_popup = require("classes.challenged_popup")
 local back_button_setup = require("android.back_button_setup")
 local fonts = require("globals.fonts")
 local music = require("common.music")
+local toast = require("classes.toast")
 
 local scene = composer.newScene()
 
@@ -716,6 +717,8 @@ function scene:getOnSendMoveFail()
         if json and json.errorWord then
             if self.board then
                 self.board:highlightErrorWord(json.errorWord)
+
+                toast.new(json.errorMessage or "Word isn't in the dictionary", nil, nil, 2500)
             end
         elseif json and json.errorMessage then
             local message
