@@ -15,6 +15,7 @@ local table = require("table")
 local letter_picker = require("classes.letter_picker")
 local game_helpers = require("common.game_helpers")
 local sound = require("common.sound")
+local geom_helpers = require("common.geom_helpers")
 
 local lists = require("common.lists")
 
@@ -122,7 +123,6 @@ function board_class:createSquaresGroup(width)
     squaresGroup:addEventListener("touch", self:getSquaresGroupTouchListener())
 	return squaresGroup
 end
-
 
 function board_class:computeTileCoords(row, col)
 	local tileWidth = self.tileWidth
@@ -328,6 +328,7 @@ function board_class:tileForCoords(xContent, yContent)
 end
 
 function board_class:squareForCoords(xContent, yContent)
+
     local r, c = self:rowColForCoords(xContent, yContent)
     if r < 1 or r > self.N or c < 1 or c > self.N then
         return nil
@@ -451,6 +452,9 @@ function board_class:cancelGrab()
 end
 
 function board_class:addTileFromRack(contentX, contentY, tileImage, rack)
+    if not geom_helpers.contains(self.boardContainer, tileImage) then
+        return false
+    end
 	local letter = tileImage.letter
 	local squareImage = self:squareForCoords(contentX, contentY)
 	if not squareImage or not letter then
@@ -523,14 +527,11 @@ function board_class:removeRackTileFromBoard(tileImage)
 		self.rackTileImages[row][col] = nil
         if rackTile then
             self.pointsBubble:drawPointsBubble()
-            if rackTile.chosenLetterImage and rackTile.chosenLetterImage.removeSelf then
-                rackTile.chosenLetterImage:removeSelf()
-                rackTile.chosenLetter, rackTile.chosenLetterImage = nil, nil
-            end
+            common_ui.safeRemove(rackTile.chosenLetterImage)
+            rackTile.chosenLetter, rackTile.chosenLetterImage = nil, nil
         end
 	end
-	tileImage.row = nil
-    tileImage.col = nil
+	tileImage.row, tileImage.col = nil, nil
     self.errorHighlighter:unHighlightPrevErrorTiles()
 end
 

@@ -188,7 +188,7 @@ function rack_class:removeTileImage(tileImage, onComplete)
 end
 
 function rack_class:returnTileImage(tileImage, onComplete)
-    if not tileImage then
+    if not common_ui.isValidDisplayObj(tileImage) then
         return
     end
 
@@ -200,12 +200,10 @@ function rack_class:returnTileImage(tileImage, onComplete)
 
     local SPEED = 0.5 -- pixels per millisecond
 
-    local xContent, yContent, rootScale
+    local xContent, yContent = tileImage:localToContent(0, 0)
+    local rootScale
     if tileImage.parent then
         rootScale = common_ui.getScaleFromParent(tileImage)
-        xContent, yContent = tileImage.parent:localToContent(tileImage.x, tileImage.y)
-    else
-        xContent, yContent = tileImage.x, tileImage.y
     end
     local xRack, yRack = self.displayGroup:contentToLocal(xContent, yContent)
     tileImage.x, tileImage.y = xRack, yRack
@@ -220,8 +218,17 @@ function rack_class:returnTileImage(tileImage, onComplete)
 	local x, y = self:computeTileX(index), self:computeTileY(index)
     local dist = math.sqrt((x - xRack)*(x - xRack) + (y - yRack)*(y - yRack))
     local duration = math.floor(dist / SPEED)
-    transition.to(tileImage, {x = x, y = y, width = self.drawTileWidth, height = self.drawTileWidth, xScale = 1, yScale = 1,
-        time = duration, transition = easing.inOutBack, onComplete = onComplete})
+    transition.to(tileImage, {
+        x = x,
+        y = y,
+        width = self.drawTileWidth,
+        height = self.drawTileWidth,
+        xScale = 1,
+        yScale = 1,
+        time = duration,
+        transition = easing.inOutBack,
+        onComplete = onComplete
+    })
 
 	self.board:removeRackTileFromBoard(tileImage)
 
@@ -309,7 +316,7 @@ getTouchListener = function(rack)
         if not rack or rack.interactionDisabled then
             return true
         end
-		if  event.phase == "began"  then
+		if event.phase == "began" then
 			display.getCurrentStage( ):setFocus( event.target )
 			event.target.isFocus = true
 
