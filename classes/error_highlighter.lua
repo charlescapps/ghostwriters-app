@@ -80,6 +80,7 @@ function M:highlightErrorTiles(errorTiles)
 
     for i = 1, #errorTiles do
        self:highlightRed(errorTiles[i])
+       self:highlightRed(errorTiles[i] and errorTiles[i].chosenLetterImage)
     end
 
     self.timerId = timer.performWithDelay(4000, function()
@@ -103,7 +104,7 @@ function M:highlightRed(tile)
         0, 0, 0, 1   --alpha coefficients
     }
 
-    tile.fill.effect.bias = { .6, 0.1, 0.1, 0 }
+    tile.fill.effect.bias = { .8, 0.1, 0.1, 0 }
 end
 
 function M:unHighlightPrevErrorTiles()
@@ -124,6 +125,7 @@ function M:unHighlightErrorTiles(errorTiles)
 
     for i = 1, #errorTiles do
        self:unHighlightTile(errorTiles[i])
+       self:unHighlightTile(errorTiles[i] and errorTiles[i].chosenLetterImage)
     end
 
 end
