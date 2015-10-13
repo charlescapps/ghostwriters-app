@@ -23,6 +23,8 @@ local APPLY_MOVE_TAG = "apply_move_tag"
 local DRAG_BOARD_TAG = "drag_board_tag"
 local TILE_PADDING = 2
 
+local TURN_TO_STONE_DURATION = 2000
+
 -- Pre-declaration of functions
 
 local isConnected
@@ -869,7 +871,8 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
     local tileIndex = 1
     local r, c = startR, startC
     local firstTile = true
-    local hasPlayedSound = false
+
+    sound.playStoneTileSound()
 
     for i = 0, letters:len() - 1 do
         if r < 1 or c < 1 or r > self.N or c > self.N then
@@ -880,69 +883,128 @@ function board_class:applyPlayTilesMove(tiles, letters, startR, startC, dir, onC
         local x, y = self:computeTileCoords(r, c)
 
         if myTile == tile.emptyTile and tileIndex <= tiles:len() then
-           -- Play the sound for the first empty tile that has a letter played upon it.
-           if not hasPlayedSound then
-               hasPlayedSound = true
-               sound.playStoneTileSound()
-           end
+
            local letter = letters:sub(i + 1, i + 1)
 
-           local newTileImg = tile.draw(letter:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
-           newTileImg.alpha = 0;
-           newTileImg.letter = letter
-           self.tilesGroup:insert(newTileImg)
-           self.tiles[r][c] = letter
-           self.tileImages[r][c] = newTileImg
-           if firstTile then
-                firstTile = false
-                transition.fadeIn(newTileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = onComplete })
-           else
-                transition.fadeIn(newTileImg, { tag = APPLY_MOVE_TAG, time = 2000 })
-           end
+           local newTileImg = self:createStoneTile(r, c, x, y, letter)
+
+           local onFadeInComplete = firstTile and onComplete or nil
+           firstTile = false
+
+           transition.fadeIn(newTileImg, {
+               tag = APPLY_MOVE_TAG,
+               time = TURN_TO_STONE_DURATION,
+               onComplete = onFadeInComplete
+           })
+
+           self:removeAndFadeOutRackTile(r, c)
+
+           self:turnPerpTilesToStone(r, c, dir)
+
            tileIndex = tileIndex + 1
-           if self.rackTileImages and self.rackTileImages[r][c] then
-               local rackTile = self.rackTileImages[r][c]
-               self.rackTileImages[r][c] = nil
-               local function onComplete(obj)
-                   if obj and obj.removeSelf then
-                       obj:removeSelf()
-                   end
-               end
 
-               transition.fadeOut(rackTile, {
-                   tag = APPLY_MOVE_TAG,
-                   time = 2500,
-                   onComplete = onComplete,
-                   onCancel = onComplete
-               })
-
-               if rackTile.letter == "*" and rackTile.chosenLetterImage then
-                   transition.fadeOut(rackTile.chosenLetterImage, {
-                       tag = APPLY_MOVE_TAG,
-                       time = 2500,
-                       onComplete = onComplete,
-                       onCancel = onComplete
-                   })
-               end
-           end
         else
-            -- If the existing tile was lowercase, then change the tile to a stone tile
-            if myTile:upper() ~= myTile then
-                local myTileImg = self.tileImages[r][c]
-                local stoneTileImg = tile.draw(myTile:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
-                stoneTileImg.alpha = 0
-                self.tilesGroup:insert(stoneTileImg)
-                self.tileImages[r][c] = stoneTileImg
-                stoneTileImg.replaceTile = myTileImg
-                transition.fadeIn(stoneTileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = function(obj)
-                    if obj.replaceTile then
-                        obj.replaceTile:removeSelf()
-                    end
-                end })
-            end
+            self:turnTileToStone(r, c, x, y)
         end
 
         r, c = board_helpers.go(r, c, dir)
+    end
+end
+
+-- Turn perpendicular words played to stone when animating a move
+function board_class:turnPerpTilesToStone(startR, startC, dir)
+    local perpDir = board_helpers.getPerpDir(dir)
+    local negDir = board_helpers.negateDir(perpDir)
+
+    -- Traverse to the start of the perp word
+    local r, c = board_helpers.go(startR, startC, negDir)
+
+    while self.tiles and self.tiles[r] and self.tiles[r][c] do
+        local x, y = self:computeTileCoords(r, c)
+        self:turnTileToStone(r, c, x, y)
+        r, c = board_helpers.go(r, c, negDir)
+    end
+
+    -- Traverse to the end of the perp word
+    r, c = board_helpers.go(startR, startC, perpDir)
+
+    while self.tiles and self.tiles[r] and self.tiles[r][c] do
+        local x, y = self:computeTileCoords(r, c)
+        self:turnTileToStone(r, c, x, y)
+        r, c = board_helpers.go(r, c, perpDir)
+    end
+
+end
+
+-- Create a stone tile, initially invisible.
+function board_class:createStoneTile(r, c, x, y, letter)
+    local newTileImg = tile.draw(letter:upper(), x, y, self.drawTileWidth, false, self.gameModel.boardSize)
+    newTileImg.alpha = 0;
+    newTileImg.letter = letter
+    self.tilesGroup:insert(newTileImg)
+    self.tiles[r][c] = letter
+    self.tileImages[r][c] = newTileImg
+    return newTileImg
+end
+
+function board_class:turnTileToStone(r, c, x, y)
+    local myTile = self.tiles[r][c]
+    if type(myTile) ~= "string" then
+        return
+    end
+
+    -- If the existing tile was lowercase, then change the tile to a stone tile
+    if myTile:upper() ~= myTile then
+        local myTileImg = self.tileImages[r][c]
+        local stoneTileImg = self:createStoneTile(r, c, x, y, myTile)
+        stoneTileImg.replaceTile = myTileImg
+        transition.fadeIn(stoneTileImg, {
+            tag = APPLY_MOVE_TAG,
+            time = TURN_TO_STONE_DURATION,
+            onComplete = function(obj)
+                if obj then
+                    common_ui.safeRemove(obj.replaceTile)
+                    obj.replaceTile = nil
+                end
+        end })
+    end
+end
+
+function board_class:removeAndFadeOutRackTile(r, c)
+    local rtImages = self.rackTileImages
+    if not rtImages then
+        return
+    end
+
+    local row = rtImages[r]
+    if not row then
+        return
+    end
+
+    local rackTile = row[c]
+    if not common_ui.isValidDisplayObj(rackTile) then
+        return
+    end
+
+    self.rackTileImages[r][c] = nil
+    local function onComplete(obj)
+        common_ui.safeRemove(obj)
+    end
+
+    transition.fadeOut(rackTile, {
+        tag = APPLY_MOVE_TAG,
+        time = TURN_TO_STONE_DURATION,
+        onComplete = onComplete,
+        onCancel = onComplete
+    })
+
+    if rackTile.letter == "*" and common_ui.isValidDisplayObj(rackTile.chosenLetterImage) then
+        transition.fadeOut(rackTile.chosenLetterImage, {
+            tag = APPLY_MOVE_TAG,
+            time = TURN_TO_STONE_DURATION,
+            onComplete = onComplete,
+            onCancel = onComplete
+        })
     end
 end
 

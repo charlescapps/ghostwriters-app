@@ -84,5 +84,29 @@ function M.go(r, c, dir, distance)
 
 end
 
+function M.getPerpDir(dir)
+    if "E" == dir then
+        return "S"
+    elseif "S" == dir then
+        return "E"
+    end
+
+    error("Invalid dir, can only get perp of E or S: " .. tostring(dir))
+end
+
+function M.negateDir(dir)
+    if "E" == dir then
+        return "W"
+    elseif "W" == dir then
+        return "E"
+    elseif "S" == dir then
+        return "N"
+    elseif "N" == dir then
+        return "S"
+    end
+
+    error("Invalid dir to find negation: " .. tostring(dir))
+ end
+
 return M
 
