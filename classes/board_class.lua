@@ -452,7 +452,10 @@ function board_class:cancelGrab()
 end
 
 function board_class:addTileFromRack(contentX, contentY, tileImage, rack)
-    if not geom_helpers.contains(self.boardContainer, tileImage) then
+    if not common_ui.isValidDisplayObj(tileImage) then
+        return false
+    end
+    if not geom_helpers.contains(self.boardContainer, tileImage, tileImage.contentWidth / 2) then
         return false
     end
 	local letter = tileImage.letter

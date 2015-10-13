@@ -59,6 +59,10 @@ function scene:onFetchGameSummarySuccess()
         local numGamesMyTurn = summary.numGamesMyTurn
         local numGamesOffered = summary.numGamesOffered
 
+        if not common_ui.isValidDisplayObj(self.view) then
+            return
+        end
+
         print("Found numGamesMyTurn=" .. tostring(numGamesMyTurn))
         print("Found numGamesOffered=" .. tostring(numGamesOffered))
 

@@ -15,18 +15,20 @@ function M.intersects(obj1, obj2)
     return (left or right) and (up or down)
 end
 
-function M.contains(container, obj)
+function M.contains(container, obj, pad)
     if not common_ui.isValidDisplayObj(container) or not common_ui.isValidDisplayObj(obj) then
         return false
     end
 
+    pad = pad or 0
+
     local cBounds = container.contentBounds
     local oBounds = obj.contentBounds
 
-    return oBounds.xMin >= cBounds.xMin and
-           oBounds.xMax <= cBounds.xMax and
-           oBounds.yMin >= cBounds.yMin and
-           oBounds.yMax <= cBounds.yMax
+    return oBounds.xMin >= cBounds.xMin - pad and
+           oBounds.xMax <= cBounds.xMax + pad and
+           oBounds.yMin >= cBounds.yMin - pad and
+           oBounds.yMax <= cBounds.yMax + pad
 end
 
 return M
