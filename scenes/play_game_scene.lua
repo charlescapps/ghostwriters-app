@@ -612,13 +612,15 @@ end
 
 function scene:showNormalMoveModal(move, game, onModalClose)
     if not self.creds or not self.creds.user then
-        print "Errror - creds not defined in play_game_scene."
+        print "Error - creds not defined in play_game_scene."
         return
     end
     local moveDescr = getMoveDescription(move)
     local moveUsername
     if move.playerId == self.creds.user.id then
-        moveUsername = "You"
+        --moveUsername = "You"
+        onModalClose()
+        return
     elseif move.playerId == game.player1 then
         moveUsername = game.player1Model.username
     else
