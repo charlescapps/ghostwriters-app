@@ -895,13 +895,16 @@ function scene:showGameOverModal()
     local isMyWin = (gameResult == common_api.PLAYER1_WIN or gameResult == common_api.PLAYER2_RESIGN) and authUser.id == gameModel.player1 or
                     (gameResult == common_api.PLAYER2_WIN or gameResult == common_api.PLAYER1_RESIGN) and authUser.id == gameModel.player2
 
-    local modalMessage
+    local modalTitle, modalMessage
     if gameResult == common_api.PLAYER1_WIN then
+        modalTitle = isMyWin and "Congratulations" or "Game Over"
         modalMessage = isMyWin and "You win!" or gameModel.player1Model.username .. " wins!"
     elseif gameResult == common_api.PLAYER2_WIN then
+        modalTitle = isMyWin and "Congratulations" or "Game Over"
         modalMessage = isMyWin and "You win!" or gameModel.player2Model.username .. " wins!"
     elseif gameResult == common_api.TIE then
-        modalMessage = "It's a tie!"
+        modalTitle = "It's a tie!"
+        modalMessage = "Time for a rematch"
     elseif gameResult == common_api.PLAYER1_TIMEOUT then
         modalMessage = (authUser.id == gameModel.player1 and "You" or gameModel.player1Model.username) .. " timed out after 2 weeks of inactivity."
     elseif gameResult == common_api.PLAYER2_TIMEOUT then
@@ -922,7 +925,7 @@ function scene:showGameOverModal()
         self:showRatingChangeModal()
     end
 
-    local modal = common_ui.createInfoModal("Game Over", modalMessage, onClose, nil, 52)
+    local modal = common_ui.createInfoModal(modalTitle or "Game Over", modalMessage, onClose, nil, 52)
     self.view:insert(modal)
     return true
 end
