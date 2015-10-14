@@ -10,6 +10,7 @@ local radio_button_sheet = require("spritesheets.radio_button_sheet")
 local stepper_sheet = require("spritesheets.stepper_sheet")
 local fonts = require("globals.fonts")
 local timer = require("timer")
+local points_ca_ching = require("classes.points_ca_ching")
 
 local TROPHY_SIZE = 70
 local HOURGLASS_SIZE = 70
@@ -21,7 +22,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     centerX = centerX or display.contentWidth / 2
     leftX = leftX or display.contentWidth / 4
     rightX = rightX or 3 * display.contentWidth / 4
-    firstRowY = firstRowY or 100
+    firstRowY = firstRowY or 80
 
     local authUserIsPlayer1 = gameModel.player1 == authUser.id
     local isAuthUserTurn = gameModel.player1Turn and authUserIsPlayer1 or not gameModel.player1Turn and not authUserIsPlayer1
@@ -80,12 +81,12 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     local group = display.newGroup( )
 
     -- The font size should be smaller if the username is over 11 characters
-    local leftFontSize, rightFontSize = 40, 40
+    local leftFontSize, rightFontSize = 44, 44
     if leftUsername:len() > 11 then
-        leftFontSize = 30
+        leftFontSize = 34
     end
     if rightUsername:len() > 11 then
-        rightFontSize = 30
+        rightFontSize = 34
     end
 
     -- Create the username texts
@@ -128,19 +129,10 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     local versusText = display.newText("vs.", centerX, firstRowY, fonts.BOLD_FONT, 50 )
     versusText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
 
-    local pointsY = firstRowY + 50
+    local pointsY = firstRowY + 65
     -- Create point displays
-    local leftPointsText = display.newText( leftPoints .. " points", leftX, pointsY, fonts.BOLD_FONT, 30 )
-    leftPointsText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
-    function leftPointsText:setPoints(points)
-        self.text = points .. " points"
-    end
-
-    local rightPointsText = display.newText( rightPoints .. " points", rightX, pointsY, fonts.BOLD_FONT, 30 )
-    rightPointsText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
-    function rightPointsText:setPoints(points)
-        self.text = points .. " points"
-    end
+    local leftPointsText = points_ca_ching.new { x = leftX, y = pointsY, points = leftPoints }
+    local rightPointsText = points_ca_ching.new { x = rightX, y = pointsY, points = rightPoints }
 
     group.leftPointsText, group.rightPointsText = leftPointsText, rightPointsText
     group.leftPlayerText, group.rightPlayerText = leftPlayerText, rightPlayerText
@@ -148,8 +140,8 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     group:insert(leftPlayerText)
     group:insert(rightPlayerText)
     group:insert(versusText)
-    group:insert(leftPointsText)
-    group:insert(rightPointsText)
+    group:insert(leftPointsText:render())
+    group:insert(rightPointsText:render())
 
     -- If the game is in progress, draw a circle around the current user
     if gameModel.gameResult == common_api.IN_PROGRESS or gameModel.gameResult == common_api.OFFERED then
@@ -178,7 +170,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         -- draw the trophy on the left player
         local trophyImg = display.newImageRect("images/trophy_gold.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
-        trophyImg.x = leftPointsText.x - leftPointsText.contentWidth / 2 - 2
+        trophyImg.x = leftPointsText.view.x - leftPointsText.view.contentWidth / 2 - 2
         trophyImg.y = pointsY
         group:insert(trophyImg)
 
@@ -188,7 +180,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         -- draw the trophy on the right player
         local trophyImg = display.newImageRect("images/trophy_gold.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
-        trophyImg.x = rightPointsText.x - rightPointsText.contentWidth / 2 - 2
+        trophyImg.x = rightPointsText.view.x - rightPointsText.view.contentWidth / 2 - 2
         trophyImg.y = pointsY
         group:insert(trophyImg)
 
@@ -197,7 +189,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         -- draw the trophy on the left player
         local hourglassImg = display.newImageRect("images/timed_out_icon.png", HOURGLASS_SIZE, HOURGLASS_SIZE)
         hourglassImg.anchorX = 1
-        hourglassImg.x = leftPointsText.x - leftPointsText.contentWidth / 2 - 4
+        hourglassImg.x = leftPointsText.view.x - leftPointsText.view.contentWidth / 2 - 4
         hourglassImg.y = pointsY
         group:insert(hourglassImg)
 
@@ -207,7 +199,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         -- draw the trophy on the right player
         local hourglassImg = display.newImageRect("images/timed_out_icon.png", HOURGLASS_SIZE, HOURGLASS_SIZE)
         hourglassImg.anchorX = 1
-        hourglassImg.x = rightPointsText.x - rightPointsText.contentWidth / 2 - 4
+        hourglassImg.x = rightPointsText.view.x - rightPointsText.view.contentWidth / 2 - 4
         hourglassImg.y = pointsY
         group:insert(hourglassImg)
 

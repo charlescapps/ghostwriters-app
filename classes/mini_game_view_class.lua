@@ -133,7 +133,7 @@ end
 
 function mini_game_view_class:renderTitle()
     return game_ui.createVersusDisplayGroup(self.gameModel, self.authUser, self.scene, true,
-        self.width / 4, self.width / 2, 3 * self.width / 4, 0, {1, 1, 1}, 275, true, true)
+        self.width / 4, self.width / 2, 3 * self.width / 4, -10, {1, 1, 1}, 275, true, true)
 end
 
 function mini_game_view_class:renderDateStarted()
