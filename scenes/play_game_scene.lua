@@ -720,7 +720,7 @@ function scene:getOnSendMoveFail()
             if self.board then
                 self.board:highlightErrorWord(json.errorWord)
 
-                toast.new(json.errorMessage or "Word isn't in the dictionary", nil, nil, 2500)
+                toast.new(json.errorMessage or "Word isn't in the dictionary", nil, nil, 3500)
             end
         elseif json and json.errorMessage then
             local message
