@@ -25,7 +25,7 @@ function M.new(opts)
         font = opts.font or fonts.BOLD_FONT,
         fontSize = opts.fontSize or 28,
         width = opts.width or 200,
-        height = opts.height or 45,
+        height = opts.height or 43,
         points = opts.points or 0
     }
 
