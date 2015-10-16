@@ -43,11 +43,11 @@ settings =
 	excludeFiles =
 	{
 		-- Include only the necessary icon files on each platform
-		iphone = { "Icon-*dpi.png", "*.iml" },
+		all = { ".idea", "*.iml", ".git", ".gitignore", ".DS_Store", "README.md" },
+		iphone = { "Icon-*dpi.png" },
 		android = { "Icon.png", "Icon-Small-*.png", "Icon*@2x.png", "Icon-60*.png", "Icon-72.png", "Icon-76.png",
 		            "Default-5*.png", "Default-6*.png", "Default-7*.png",
-		            "Default-Portrait@2x.png",
-		            "*.iml"},
+		            "Default-Portrait@2x.png"},
 	},
 
 	--
