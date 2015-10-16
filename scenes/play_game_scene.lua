@@ -570,6 +570,7 @@ function scene:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
     local firstMove = table.remove(self.movesToDisplay, 1)
     self:showMoveModal(firstMove, current_game.currentGame, function()
         if self.board then
+            self:addToOpponentPoints(firstMove.points)
             self.board:applyMove(firstMove, self.rack, firstMove.playerId == self.creds.user.id, function()
                 self:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
             end)
@@ -585,6 +586,7 @@ function scene:getOnSendMoveSuccess()
             -- if updatedGameModel.myMove is set, then apply my move, before applying opponent's moves (if present)
             print("Applying my move...")
             self:showMoveModal(myMove, updatedGameModel, function()
+                self:addToMyPoints(myMove.points)
                 self.board:applyMove(myMove, self.rack, true, function()
                     local currentScene = composer.getSceneName("current")
                     if currentScene == self.sceneName then
@@ -598,6 +600,42 @@ function scene:getOnSendMoveSuccess()
             self:applyUpdatedGame(updatedGameModel, false)
         end
     end
+end
+
+function scene:addToMyPoints(numPoints)
+    if type(numPoints) ~= "number" or numPoints <= 0 then
+        return
+    end
+
+    local titleAreaDisplayGroup = self.titleAreaDisplayGroup
+    if not common_ui.isValidDisplayObj(titleAreaDisplayGroup) then
+        return
+    end
+
+    local leftPointsText = titleAreaDisplayGroup.leftPointsText
+    if type(leftPointsText) ~= "table" then
+        return
+    end
+
+    leftPointsText:addPoints(numPoints)
+end
+
+function scene:addToOpponentPoints(numPoints)
+    if type(numPoints) ~= "number" or numPoints <= 0 then
+        return
+    end
+
+    local titleAreaDisplayGroup = self.titleAreaDisplayGroup
+    if not common_ui.isValidDisplayObj(titleAreaDisplayGroup) then
+        return
+    end
+
+    local rightPointsText = titleAreaDisplayGroup.rightPointsText
+    if type(rightPointsText) ~= "table" then
+        return
+    end
+
+    rightPointsText:addPoints(numPoints)
 end
 
 function scene:showMoveModal(move, game, onModalClose)

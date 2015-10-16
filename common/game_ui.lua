@@ -129,7 +129,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     local versusText = display.newText("vs.", centerX, firstRowY, fonts.BOLD_FONT, 50 )
     versusText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
 
-    local pointsY = firstRowY + 65
+    local pointsY = firstRowY + 60
     -- Create point displays
     local leftPointsText = points_ca_ching.new { x = leftX, y = pointsY, points = leftPoints }
     local rightPointsText = points_ca_ching.new { x = rightX, y = pointsY, points = rightPoints }
