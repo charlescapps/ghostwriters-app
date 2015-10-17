@@ -29,6 +29,7 @@ local back_button_setup = require("android.back_button_setup")
 local fonts = require("globals.fonts")
 local music = require("common.music")
 local toast = require("classes.toast")
+local network = require("network")
 
 local scene = composer.newScene()
 
@@ -216,6 +217,11 @@ function scene:hide(event)
     if (phase == "will") then
         print("play_game_scene:hide() - phase = will")
         self:cancelPollForGame()
+        local pendingRequest = self.requestId
+        if pendingRequest then
+            network.cancel(pendingRequest)
+            self.requestId = nil
+        end
         transition.cancel()
     elseif (phase == "did") then
         print("play_game_scene:hide() - phase = did")
@@ -731,7 +737,8 @@ function scene:refreshGameFromServer()
 
     self:pausePollForGame()
     self.refreshInProgress = true
-    common_api.getGameById(currentGame.id, true, currentGame.moveNum, self:getOnRefreshGameSuccess(), self:getRefreshGameFail(), self:getRefreshGameFail(), false)
+    self.requestId =
+        common_api.getGameById(currentGame.id, true, currentGame.moveNum, self:getOnRefreshGameSuccess(), self:getRefreshGameFail(), self:getRefreshGameFail(), false)
 end
 
 
@@ -822,7 +829,8 @@ function scene:getOnGrabTiles()
                         self.board:disableInteraction()
                         self.rack:disableInteraction()
                         local moveJson = createGrabMoveJson(tiles)
-                        common_api.sendMove(moveJson, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+                        self.requestId =
+                            common_api.sendMove(moveJson, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
                     elseif i == 2 then
                         self.board:cancelGrab()
                         -- Do nothing, user clicked "Nope"
@@ -866,7 +874,8 @@ function scene:getOnReleasePlayButton()
                 print("Sending move: " .. json.encode(move))
                 self.board:disableInteraction()
                 self.rack:disableInteraction()
-                common_api.sendMove(move, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+                self.requestId =
+                    common_api.sendMove(move, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
             else
                 print("User clicked 'Nope'")
             end
@@ -1034,12 +1043,14 @@ end
 
 function scene:pass()
     local passMove = common_api.getPassMove(current_game.currentGame, self.creds.user.id)
-    common_api.sendMove(passMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+    self.requestId =
+        common_api.sendMove(passMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
 end
 
 function scene:resign()
     local resignMove = common_api.getResignMove(current_game.currentGame, self.creds.user.id)
-    common_api.sendMove(resignMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+    self.requestId =
+        common_api.sendMove(resignMove, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
 end
 
 function scene:showPassModal()

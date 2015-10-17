@@ -405,7 +405,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
 		end
     end
     print("Doing " .. method .. " to " .. url .. " with request body:\n" .. tostring(body))
-    print("Sending Headers: " .. json.encode(headers))
+    --print("Sending Headers: " .. json.encode(headers))
 	return network.request(url, method, listener, params)
 end
 
@@ -414,7 +414,7 @@ M.doGetWithSpinner = function(url, onSuccess, onFail, onNetworkFail, doCreateSpi
     if doCreateSpinner then
         word_spinner_class.start()
     end
-    M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail, doCreateSpinner)
+    return M.doApiRequest(url, "GET", nil, 200, onSuccess, onFail, onNetworkFail, doCreateSpinner)
 end
 
 M.doPostWithSpinner = function(url, jsonTable, expectedStatus, onSuccess, onFail, onNetworkFail, doCreateSpinner)
@@ -459,12 +459,12 @@ M.sendMove = function(moveInput, onSuccess, onFail, onNetworkFail, doMakeSpinner
     if doMakeSpinner then
         word_spinner_class.start()
     end
-	M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, doMakeSpinner)
+	return M.doApiRequest(url, "POST", json.encode(moveInput), 200, onSuccess, onFail, onNetworkFail or M.showNetworkError, doMakeSpinner)
 end
 
 M.getGameById = function(gameId, includeMoves, currentMove, onSuccess, onFail, onNetworkFail, doMakeSpinner)
     local url = urls.gameByIdURL(gameId, includeMoves, currentMove)
-    M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
+    return M.doGetWithSpinner(url, onSuccess, onFail, onNetworkFail, doMakeSpinner)
 end
 
 M.getMyGames = function(count, page, inProgress, includeMoves, onSuccess, onFail, onNetworkFail, doMakeSpinner)
