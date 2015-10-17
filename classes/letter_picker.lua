@@ -4,6 +4,7 @@ local fonts = require("globals.fonts")
 local transition = require("transition")
 local widget = require("widget")
 local sheet_helpers = require("globals.sheet_helpers")
+local letter_grid_chooser = require("classes.letter_grid_chooser")
 
 local M = {}
 local meta = { __index = M }
@@ -23,13 +24,17 @@ function M:render()
     local screen = self:createScreen()
     local background = self:createBackground()
     local title = self:createTitle()
-    self.pickerWheel = self:createPickerWheel()
+    self.letterGridChooser = letter_grid_chooser.new {
+        x = display.contentCenterX + 55,
+        y = display.contentCenterY - 75,
+        padding = 10
+    }
     local doneButton = self:createDoneButton()
 
     self.view:insert(screen)
     self.view:insert(background)
     self.view:insert(title)
-    self.view:insert(self.pickerWheel)
+    self.view:insert(self.letterGridChooser:render())
     self.view:insert(doneButton)
 
     return self.view
@@ -69,7 +74,7 @@ function M:createTitle()
         font = fonts.BOLD_FONT,
         fontSize = 60,
         x = CENTER_X,
-        y = 375,
+        y = 250,
         align = "center",
         width = display.contentWidth
     }
@@ -77,46 +82,11 @@ function M:createTitle()
     return title
 end
 
-function M:createPickerWheel()
-    local col = {
-        labels = self:getArrayOfAllLetters(),
-        startIndex = 1,
-        width = 280
-    }
-
-    local sheetObj = sheet_helpers:getSheetObj("picker_wheel")
-
-    local pickerWheel = widget.newPickerWheel {
-        x = CENTER_X,
-        y = 600,
-        columns = { col },
-        columnColor = {0, 0, 0, 0},
-        font = fonts.BOLD_FONT,
-        fontSize = 26,
-        sheet = sheetObj.imageSheet,
-        backgroundFrame = sheetObj.module:getFrameIndex("picker_wheel_bg"),
-        backgroundFrameWidth = 320,
-        backgroundFrameHeight = 222,
-        overlayFrame = sheetObj.module:getFrameIndex("picker_wheel_overlay"),
-        overlayFrameWidth = 320,
-        overlayFrameHeight = 222
-    }
-
-    return pickerWheel
-end
-
 function M:createDoneButton()
     local function onRelease()
-        local currentLetter
-        if not self.pickerWheel or not self.pickerWheel.getValues then
+        local currentLetter = self.letterGridChooser and self.letterGridChooser.selectedLetter
+        if type(currentLetter) ~= "string" then
            currentLetter = "A"
-        else
-            local values = self.pickerWheel:getValues()
-            if type(values) == "table" and values[1] then
-                currentLetter = values[1].value
-            else
-                currentLetter = "A"
-            end
         end
 
         self:close()
@@ -129,7 +99,7 @@ function M:createDoneButton()
 
     end
 
-    local button = common_ui.createButton("Done", 900, onRelease, nil, nil, nil)
+    local button = common_ui.createButton("Done", 1050, onRelease, nil, nil, nil)
     button.x = CENTER_X
     return button
 end
