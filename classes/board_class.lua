@@ -801,8 +801,14 @@ function board_class:addGrabEffect(tileImage)
 end
 
 function board_class:removeGrabEffect(tileImage)
+    if not common_ui.isValidDisplayObj(tileImage) then
+        return
+    end
     transition.cancel(tileImage)
     local r, c = tileImage.row, tileImage.col
+    if not r or not c then
+        return
+    end
     local x, y = self:computeTileCoords(r, c)
 
     local squareImage = self.squareImages[r][c]

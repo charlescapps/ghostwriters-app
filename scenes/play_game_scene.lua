@@ -237,12 +237,6 @@ end
 
 -- "scene:destroy()"
 function scene:destroy(event)
-    print("play_game_scene:destroy()")
-    -- Set self.view to nil, so that create() will be called each time we load this scene.
-    self.view = nil
-    self.creds = nil
-    self.board, self.rack, self.gameMenu, self.titleAreaDisplayGroup, self.actionButtonsGroup, self.playMoveButton, self.resetButton, self.passButton =
-        nil, nil, nil, nil, nil, nil, nil, nil
 
 end
 
@@ -592,6 +586,8 @@ function scene:getOnSendMoveSuccess()
             -- if updatedGameModel.myMove is set, then apply my move, before applying opponent's moves (if present)
             print("Applying my move...")
             self:showMoveModal(myMove, updatedGameModel, function()
+                -- Disable interaction while displaying move animations.
+                self:disableAllInteraction()
                 self:addToMyPoints(myMove.points)
                 self.board:applyMove(myMove, self.rack, true, function()
                     local currentScene = composer.getSceneName("current")
@@ -761,6 +757,9 @@ end
 
 function scene:getOnSendMoveFail()
     return function(json)
+
+        self:enableAllInteraction()
+
         if json and json.errorWord then
             if self.board then
                 self.board:highlightErrorWord(json.errorWord)
@@ -779,9 +778,27 @@ function scene:getOnSendMoveFail()
         else
             native.showAlert("Network error", "A network error occurred", { "Try again" })
         end
+
+    end
+end
+
+function scene:enableAllInteraction()
+    if self.rack then
         self.rack:enableInteraction()
+    end
+
+    if self.board then
         self.board:enableInteraction()
         self.board:cancelGrab()
+    end
+end
+
+function scene:disableAllInteraction()
+    if self.board then
+        self.board:disableInteraction()
+    end
+    if self.rack then
+        self.rack:disableInteraction()
     end
 end
 
@@ -796,13 +813,9 @@ end
 
 function scene:getOnSendMoveNetworkFail()
     return function(event)
-        native.showAlert("Network Error", "Network error, please try again", { "OK" }, function(event)
-            if event.action == "clicked" then
-                self.rack:enableInteraction()
-                self.board:enableInteraction()
-            end
-        end)
-        self.board:cancelGrab()
+        self:enableAllInteraction()
+
+        common_api.showNetworkError()
     end
 end
 
@@ -826,8 +839,6 @@ function scene:getOnGrabTiles()
                             self.grabTilesTip:stopTip()
                         end
                         self.rack:returnAllTiles()
-                        self.board:disableInteraction()
-                        self.rack:disableInteraction()
                         local moveJson = createGrabMoveJson(tiles)
                         self.requestId =
                             common_api.sendMove(moveJson, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
@@ -872,8 +883,6 @@ function scene:getOnReleasePlayButton()
             if index == 1 then
                 -- Disable interaction until the move is complete
                 print("Sending move: " .. json.encode(move))
-                self.board:disableInteraction()
-                self.rack:disableInteraction()
                 self.requestId =
                     common_api.sendMove(move, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
             else
@@ -1083,6 +1092,7 @@ end
 
 function scene:startPollForGame()
     if current_game.currentGame and current_game.currentGame.gameType == common_api.TWO_PLAYER then
+        self:cancelPollForGame()
         print("Starting poll for gameType=" .. current_game.currentGame.gameType)
         self.pollForGameHandle = timer.performWithDelay(30000, self:getPollForGameListener(), -1)
     end

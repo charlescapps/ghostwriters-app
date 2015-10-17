@@ -163,7 +163,7 @@ M.PLAYER2_RESIGN = "PLAYER2_RESIGN"
 
 -- Predeclared functions
 M.showNetworkError = function()
-    common_ui.createInfoModal( "Network error", "Please try again.", nil, 48 )
+    common_ui.createInfoModal( "Network error", "Check your internet connection and try again.", nil, 48 )
 end
 
 local function getBasicAuthHeader(username, password)
