@@ -169,18 +169,12 @@ function scene:showTips()
 end
 
 function scene:showOpponentsLastMoves()
-    if self.board and self.board.gameModel and self.board.gameModel.lastMoves then
-        self.movesToDisplay = table.copy(self.board.gameModel.lastMoves)
-        self:applyOpponentMoves(nil, true)
-    end
+    local lastMoves = self.board and self.board.gameModel and self.board.gameModel.lastMoves
+    self:applyOpponentMoves(lastMoves, nil, true)
 end
 
 function scene:showGameInfoModals(didSceneJustLoad)
     local didShowModal = self:showGameOverModal()
-
-    if not didShowModal and not didSceneJustLoad then
-        didShowModal = didShowModal or self:showContinueTurnModal()
-    end
 
     if not didShowModal then
         didShowModal = didShowModal or self:showTips()
@@ -550,30 +544,40 @@ function scene:didOpponentPlayMove(lastMoves)
     return lastMoves and #lastMoves > 0 and lastMoves[1].playerId ~= self.creds.user.id
 end
 
-function scene:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
-    if not self:didOpponentPlayMove(self.movesToDisplay) then
-        print("Calling applyOpponentsMove. Creating a new board. Moves: " .. json.encode(self.movesToDisplay))
-        self.movesToDisplay = nil
+function scene:applyOpponentMoves(movesToDisplay, onApplyMovesComplete, skipResetBoard)
+
+    local function afterApplyOpponentMove()
+        print("Finished applying opponent's moves. Resetting board and showing modals.")
         if not skipResetBoard then
             self:fadeToTurn(false)
             self:resetBoardAndShowModals()
         end
-        if onApplyMovesComplete then
+        if type(onApplyMovesComplete) == "function" then
             onApplyMovesComplete()
         end
         self:resumePollForGame()
+    end
+
+    -- Reset the board and execute the callback even if there is no opponent's move
+    if type(movesToDisplay) ~= "table" or #movesToDisplay <= 0 then
+        print("movesToDisplay is empty or nil, so not applying opponent's move")
+        afterApplyOpponentMove()
         return
     end
 
-    print("Calling applyOpponentsMove. Applying the last move: " .. json.encode(self.movesToDisplay))
+    local move = movesToDisplay[1]
+    if type(move) ~= "table" then
+        print("Opponent's move isn't a table, so not applying opponent's move")
+        afterApplyOpponentMove()
+        return
+    end
 
-    local firstMove = table.remove(self.movesToDisplay, 1)
-    self:showMoveModal(firstMove, current_game.currentGame, function()
+    print("Applying opponent's move: " .. json.encode(move))
+
+    self:showMoveModal(move, current_game.currentGame, function()
         if self.board then
-            self:addToOpponentPoints(firstMove.points)
-            self.board:applyMove(firstMove, self.rack, firstMove.playerId == self.creds.user.id, function()
-                self:applyOpponentMoves(onApplyMovesComplete, skipResetBoard)
-            end)
+            self:addToOpponentPoints(move.points)
+            self.board:applyMove(move, self.rack, move.playerId == self.creds.user.id, afterApplyOpponentMove)
         end
     end)
 end
@@ -584,17 +588,16 @@ function scene:getOnSendMoveSuccess()
 
         if myMove then
             -- if updatedGameModel.myMove is set, then apply my move, before applying opponent's moves (if present)
-            print("Applying my move...")
+            print("Showing modal before applying my move...")
             self:showMoveModal(myMove, updatedGameModel, function()
                 -- Disable interaction while displaying move animations.
                 self:disableAllInteraction()
+                print("Adding to my points...")
                 self:addToMyPoints(myMove.points)
+                print("Applying my move...")
                 self.board:applyMove(myMove, self.rack, true, function()
-                    local currentScene = composer.getSceneName("current")
-                    if currentScene == self.sceneName then
-                        print("Finished applying myMove, now applying opponent's move(s)...")
-                        self:applyUpdatedGame(updatedGameModel, true)
-                    end
+                    print("Finished applying myMove, now applying opponent's move(s)...")
+                    self:applyUpdatedGame(updatedGameModel, true)
                 end)
             end)
         else
@@ -714,9 +717,9 @@ function scene:applyUpdatedGame(updatedGameModel, isAfterPlayMove)
         self.rack:returnAllTiles()
     end
 
-    self.movesToDisplay = table.copy(updatedGameModel.lastMoves)
-    print("Applying opponent move(s)")
-    self:applyOpponentMoves()
+    local lastMoves = updatedGameModel and updatedGameModel.lastMoves
+    self:applyOpponentMoves(lastMoves)
+
 end
 
 function scene:refreshGameFromServer()
@@ -758,7 +761,7 @@ end
 function scene:getOnSendMoveFail()
     return function(json)
 
-        self:enableAllInteraction()
+        self:enableAllInteractionAndCancelGrab()
 
         if json and json.errorWord then
             if self.board then
@@ -789,6 +792,16 @@ function scene:enableAllInteraction()
 
     if self.board then
         self.board:enableInteraction()
+    end
+end
+
+function scene:enableAllInteractionAndCancelGrab()
+    if self.rack then
+        self.rack:enableInteraction()
+    end
+
+    if self.board then
+        self.board:enableInteraction()
         self.board:cancelGrab()
     end
 end
@@ -813,7 +826,7 @@ end
 
 function scene:getOnSendMoveNetworkFail()
     return function(event)
-        self:enableAllInteraction()
+        self:enableAllInteractionAndCancelGrab()
 
         common_api.showNetworkError()
     end
@@ -1019,35 +1032,6 @@ function scene:showRatingChangeModal()
 
     local modal = game_ui.createRatingUpModal(self, ratingIncrease, showBackToMainMenuPopup)
     self.view:insert(modal)
-end
-
-function scene:showContinueTurnModal()
-    local gameModel = current_game.currentGame
-    if not gameModel or gameModel.gameResult ~= common_api.IN_PROGRESS then
-        print("Not displaying Continue Turn modal, game result is " .. tostring(gameModel and gameModel.gameResult))
-        return false
-    end
-
-    if not self.creds or not game_helpers.isPlayerTurn(gameModel, self.creds.user) then
-        return false
-    end
-
-    local opponentRack = game_helpers.getNotCurrentPlayerRack(gameModel)
-
-    if opponentRack == nil or opponentRack:len() > 0 then
-        print("Not showing Continue Turn modal since opponent's rack isn't empty or it's nil")
-        return false
-    end
-
-    if gameModel.lastMoves == nil or #gameModel.lastMoves > 0 then
-        print("Not showing Continue Turn modal since opponent's lastMoves == nil or non-empty")
-        return false
-    end
-
-    local modal = common_ui.createInfoModal("Keep playing", "Your opponent is out of tiles!")
-    self.view:insert(modal)
-
-    return true
 end
 
 function scene:pass()

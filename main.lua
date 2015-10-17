@@ -61,6 +61,10 @@ local function onSystemEvent(event)
                end
            end
 
+           if type(currentScene.enableAllInteraction) == "function" then
+               currentScene:enableAllInteraction()
+           end
+
        elseif currentSceneName == "scenes.my_active_games_scene" then
            print("applicationResume - my_active_games_scene")
            local currentScene = composer.getScene(currentSceneName)
@@ -80,10 +84,6 @@ local function onSystemEvent(event)
             local currentScene = composer.getScene(currentSceneName)
             if not currentScene then
                 return
-            end
-
-            if type(currentScene.enableAllInteraction) == "function" then
-                currentScene:enableAllInteraction()
             end
 
             if type(currentScene.cancelPollForGame) == "function" then

@@ -371,6 +371,7 @@ M.doApiRequest = function(url, method, body, expectedCode, onSuccess, onFail, on
                 word_spinner_class.stop()
             end
 			if event.isError or not event.response then
+                print("Network error!")
                 if onNetworkFail then
                     onNetworkFail(event)
                 end
