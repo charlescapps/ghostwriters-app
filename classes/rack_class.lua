@@ -12,6 +12,7 @@ local easing = require("easing")
 local lists = require("common.lists")
 local table = require("table")
 local sound = require("common.sound")
+local widget = require("widget")
 
 local MAX_TILES = 20
 local NUM_ROWS = 3
@@ -23,7 +24,7 @@ local TILE_PADDING = 2
 local RACK_WIDTH = display.contentWidth
 local RACK_HEIGHT = 320
 
-function rack_class.new(parentScene, gameModel, tileWidth, startY, numPerRow, padding, board, authUser)
+function rack_class.new(parentScene, gameModel, tileWidth, startY, numPerRow, padding, board, authUser, onReleaseOptionsButton)
 	local rack = gameModel.player1 == authUser.id and gameModel.player1Rack or gameModel.player2Rack
 	local letters = {}
 
@@ -43,7 +44,8 @@ function rack_class.new(parentScene, gameModel, tileWidth, startY, numPerRow, pa
 		padding = padding,
 		board = board,
         parentScene = parentScene,
-        gameModel = gameModel
+        gameModel = gameModel,
+        onReleaseOptionsButton = onReleaseOptionsButton
     }
 
 	newRack = setmetatable( newRack, rack_class_mt )
@@ -64,9 +66,11 @@ function rack_class:isGameFinished()
 end
 
 function rack_class:createRackDisplayGroup()
-	local group = display.newGroup( )
+	local group = display.newGroup()
     group.y = self.startY
     group.x = self.padding
+
+    local tilesGroup = display.newGroup()
 
 	local letters = self.letters
 	local tileImages = {}
@@ -76,6 +80,9 @@ function rack_class:createRackDisplayGroup()
     rackBackground.x = display.contentWidth / 2 - self.padding
     rackBackground.y = 150
     group:insert(rackBackground)
+
+    self.optionsButton = self:drawOptionsButton()
+    group:insert(self.optionsButton)
 
 	for i = 1, #letters do
 		local letter = letters[i]
@@ -87,10 +94,13 @@ function rack_class:createRackDisplayGroup()
         if not self:isGameFinished() then
 		    img:addEventListener( "touch", getTouchListener(self) )
         end
-		group:insert(img)
+		tilesGroup:insert(img)
     end
 
+    group:insert(tilesGroup)
+
 	self.displayGroup = group
+    self.tilesGroup = tilesGroup
 	self.tileImages = tileImages
 	return group
 end
@@ -113,7 +123,7 @@ function rack_class:addTiles(tilesStr)
 		newTileImg.letter = grabTile
 		self.tileImages[#(self.tileImages) + 1] = newTileImg
 
-		self.displayGroup:insert(newTileImg)
+		self.tilesGroup:insert(newTileImg)
 		newTileImg:addEventListener( "touch", getTouchListener(self) )
     end
 
@@ -133,7 +143,7 @@ function rack_class:computeTileY(i)
 end
 
 function rack_class:computeRowColFromContentCoords(xContent, yContent)
-    local x, y = self.displayGroup:contentToLocal(xContent, yContent)
+    local x, y = self.tilesGroup:contentToLocal(xContent, yContent)
     local width = self.tileWidth
     local r = math.floor( y / width ) + 1
     local c = math.floor( x / width ) + 1
@@ -205,10 +215,10 @@ function rack_class:returnTileImage(tileImage, onComplete)
     if tileImage.parent then
         rootScale = common_ui.getScaleFromParent(tileImage)
     end
-    local xRack, yRack = self.displayGroup:contentToLocal(xContent, yContent)
+    local xRack, yRack = self.tilesGroup:contentToLocal(xContent, yContent)
     tileImage.x, tileImage.y = xRack, yRack
 
-	self.displayGroup:insert(tileImage)
+	self.tilesGroup:insert(tileImage)
 
     -- If the tile image had a scale from a parent display object, then set it to this scale so there's no "jump" in size.
     if type(rootScale) == "number" and rootScale ~= 1 then
@@ -258,10 +268,10 @@ function rack_class:destroy()
         self.floatingTiles:removeSelf()
         self.floatingTiles = nil
     end
-    if self.displayGroup then
-        self.displayGroup:removeSelf()
-    end
+
+    common_ui.safeRemove(self.displayGroup)
     self.displayGroup = nil
+    self.tilesGroup = nil
     self.tileImages = nil
 end
 
@@ -382,6 +392,20 @@ function rack_class:swap(originalIndex, swapIndex)
        end
     end
     self:returnTileImage(originalTile)
+end
+
+function rack_class:drawOptionsButton()
+    local x = self:computeTileX(21) + 2
+    local y = self:computeTileY(21) + 2
+    return widget.newButton({
+        x = x,
+        y = y,
+        width = self.tileWidth,
+        height = self.tileWidth,
+        defaultFile = "images/in_game_menu_default.png",
+        overFile = "images/in_game_menu_over.png",
+        onRelease = self.onReleaseOptionsButton
+    })
 end
 
 return rack_class

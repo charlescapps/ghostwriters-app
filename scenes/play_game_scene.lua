@@ -1,4 +1,5 @@
 local composer = require("composer")
+local display = require("display")
 local widget = require("widget")
 local json = require("json")
 local native = require("native")
@@ -34,7 +35,6 @@ local network = require("network")
 local scene = composer.newScene()
 
 -- Local helpers pre-declaration
-local drawOptionsButton
 local tilesToStr
 local createGrabMoveJson
 local getMoveDescription
@@ -79,18 +79,16 @@ function scene:create(event)
 
     self.actionButtonsGroup = self:createActionButtonsForGameState()
 
-    self.optionsButton = drawOptionsButton(display.contentWidth - 70, display.contentHeight - 55, 100)
-
     sceneGroup:insert(background)
     sceneGroup:insert(self.titleAreaDisplayGroup)
 
-    sceneGroup:insert(self.board.boardContainer)
     if self.actionButtonsGroup then
         sceneGroup:insert(self.actionButtonsGroup)
     end
+
+    sceneGroup:insert(self.board.boardContainer)
     sceneGroup:insert(self.gameMenu.displayGroup)
     sceneGroup:insert(self.rack.displayGroup)
-    sceneGroup:insert(self.optionsButton)
 end
 
 function scene:createBoard(gameModel)
@@ -102,8 +100,7 @@ function scene:createBoard(gameModel)
 end
 
 function scene:createRack(gameModel, board, authUser)
-    local skipHint = gameModel and gameModel.moveNum and gameModel.moveNum > 2
-    return rack_class.new(self, gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser, skipHint)
+    return rack_class.new(self, gameModel, 100, display.contentWidth + 274, 7, 25, board, authUser, self:getOnReleaseOptionsButton())
 end
 
 -- "scene:show()"
@@ -391,19 +388,6 @@ function scene:createActionButtonsForMyTurn(startY, width, height)
     return group
 end
 
-drawOptionsButton = function(x, y, width)
-    return widget.newButton({
-        x = x,
-        y = y,
-        width = width,
-        height = width,
-        defaultFile = "images/in_game_menu_default.png",
-        overFile = "images/in_game_menu_over.png",
-        onPress = nil,
-        onRelease = scene:getOnReleaseOptionsButton()
-    })
-end
-
 function scene:getOnReleaseOptionsButton()
     return function(event)
         print("Options button pressed!")
@@ -483,6 +467,11 @@ function scene:reset()
     self.rack = self:createRack(gameModel, self.board, self.creds.user)
 
     viewGroup:insert(self.titleAreaDisplayGroup)
+
+    if gameModel.gameType == common_api.TWO_PLAYER then
+        self:reDrawActionButtonsGroup()
+    end
+
     viewGroup:insert(self.board.boardContainer)
     viewGroup:insert(self.rack.displayGroup)
 
@@ -490,11 +479,8 @@ function scene:reset()
     oldRack:destroy()
     common_ui.safeRemove(oldTitleArea)
 
-    if gameModel.gameType == common_api.TWO_PLAYER then
-        self:reDrawActionButtonsGroup()
-    end
 
-    self.optionsButton:toFront() -- Put the options button on top of the new rack.
+
     self.gameMenu.displayGroup:toFront() -- Put the game menu in front
 
 end
