@@ -42,13 +42,18 @@ function slidey_bookmark:slideIn()
 end
 
 function slidey_bookmark:drawNumberBubble()
-    return display.newText {
+    local textObj = display.newText {
         text = tostring(self.num),
         x = 20,
         y = 0,
         font = fonts.BOLD_FONT,
         fontSize = 40
     }
+    if type(self.num) == "number" and self.num > 0 then
+        textObj:setFillColor(54/255, 1, 60/255)
+    end
+
+    return textObj
 end
 
 function slidey_bookmark:drawBookmark()
