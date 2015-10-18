@@ -130,6 +130,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
     versusText:setFillColor( fontRgb[1], fontRgb[2], fontRgb[3] )
 
     local pointsY = firstRowY + 60
+    local trophyY = pointsY - 8
     -- Create point displays
     local leftPointsText = points_ca_ching.new { x = leftX, y = pointsY, points = leftPoints }
     local rightPointsText = points_ca_ching.new { x = rightX, y = pointsY, points = rightPoints }
@@ -171,7 +172,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         local trophyImg = display.newImageRect("images/trophy_gold.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
         trophyImg.x = leftPointsText.view.x - leftPointsText.view.contentWidth / 2 - 2
-        trophyImg.y = pointsY
+        trophyImg.y = trophyY
         group:insert(trophyImg)
 
     elseif authUserIsPlayer1 and (gameModel.gameResult == common_api.PLAYER2_WIN or gameModel.gameResult == common_api.PLAYER1_RESIGN) or
@@ -181,7 +182,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         local trophyImg = display.newImageRect("images/trophy_gold.png", TROPHY_SIZE, TROPHY_SIZE)
         trophyImg.anchorX = 1
         trophyImg.x = rightPointsText.view.x - rightPointsText.view.contentWidth / 2 - 2
-        trophyImg.y = pointsY
+        trophyImg.y = trophyY
         group:insert(trophyImg)
 
     elseif authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER1_TIMEOUT or
@@ -190,7 +191,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         local hourglassImg = display.newImageRect("images/timed_out_icon.png", HOURGLASS_SIZE, HOURGLASS_SIZE)
         hourglassImg.anchorX = 1
         hourglassImg.x = leftPointsText.view.x - leftPointsText.view.contentWidth / 2 - 4
-        hourglassImg.y = pointsY
+        hourglassImg.y = trophyY
         group:insert(hourglassImg)
 
     elseif authUserIsPlayer1 and gameModel.gameResult == common_api.PLAYER2_TIMEOUT or
@@ -200,7 +201,7 @@ function M.createVersusDisplayGroup(gameModel, authUser, scene, replaceNameWithM
         local hourglassImg = display.newImageRect("images/timed_out_icon.png", HOURGLASS_SIZE, HOURGLASS_SIZE)
         hourglassImg.anchorX = 1
         hourglassImg.x = rightPointsText.view.x - rightPointsText.view.contentWidth / 2 - 4
-        hourglassImg.y = pointsY
+        hourglassImg.y = trophyY
         group:insert(hourglassImg)
 
     elseif gameModel.gameResult == common_api.TIE then
