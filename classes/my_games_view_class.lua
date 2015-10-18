@@ -17,7 +17,7 @@ local MINI_GAME_WIDTH = display.contentWidth - PAD * 2
 local MINI_GAME_HEIGHT = 600
 local MINI_BOARD_WIDTH = 350
 
-local SPRING_DIST = 125
+local SPRING_DIST = 80
 
 function my_games_view_class.new(authUser, inProgress, scene, refreshFunc)
     local myGamesView = {
@@ -152,8 +152,12 @@ function my_games_view_class:getTableListener()
             self.needToReload = false
         elseif ( event.phase == "moved" ) then
             local pos = event.target.parent.parent:getContentPosition()
-            if ( pos > SPRING_DIST and pos > self.springStart + SPRING_DIST ) then
+            if pos > SPRING_DIST then
                 self.needToReload = true
+                event.target.parent.parent:scrollToY({
+                    y = SPRING_DIST ,
+                    time = 0
+                })
             end
         elseif ( event.limitReached == true and event.phase == nil and event.direction == "down" and self.needToReload == true ) then
             print( "Reloading My Games!" )
