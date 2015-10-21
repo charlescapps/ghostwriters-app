@@ -487,9 +487,15 @@ end
 
 getMoveDescription = function(moveJson)
     if moveJson.moveType == common_api.GRAB_TILES then
-        return "grabbed \"" .. moveJson.letters .. "\"!"
+        local dir = moveJson.dir
+        local lettersInOrder = moveJson.letters or ""
+        if type(dir) == "string" and (dir == "W" or dir == "N") then
+            lettersInOrder = lettersInOrder:reverse()
+        end
+        return "grabbed \"" .. lettersInOrder .. "\"!"
     elseif moveJson.moveType == common_api.PLAY_TILES then
-        return "played \"" .. moveJson.letters .. "\" for " .. moveJson.points .. " points!"
+        return "played \"" .. (moveJson.letters or "") ..
+               "\" for " .. (moveJson.points or "0") .. " points!"
     elseif moveJson.moveType == common_api.PASS then
         return "passed."
     elseif moveJson.moveType == common_api.RESIGN then
