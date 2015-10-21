@@ -16,6 +16,7 @@ local letter_picker = require("classes.letter_picker")
 local game_helpers = require("common.game_helpers")
 local sound = require("common.sound")
 local geom_helpers = require("common.geom_helpers")
+local timer = require("timer")
 
 local lists = require("common.lists")
 
@@ -1028,9 +1029,17 @@ function board_class:applyOpponentGrabTilesMove(letters, startR, startC, dir, on
        if tileImg then
            if isFirstTile then
                isFirstTile = false
-               transition.fadeOut(tileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = onComplete })
+               timer.performWithDelay(200 * i, function()
+                   if common_ui.isValidDisplayObj(tileImg) then
+                       transition.fadeOut(tileImg, { tag = APPLY_MOVE_TAG, time = 2000, onComplete = onComplete })
+                   end
+               end)
            else
-               transition.fadeOut(tileImg, { tag = APPLY_MOVE_TAG, time = 2000 })
+               timer.performWithDelay(200 * i, function()
+                   if common_ui.isValidDisplayObj(tileImg) then
+                       transition.fadeOut(tileImg, { tag = APPLY_MOVE_TAG, time = 2000 })
+                   end
+               end)
            end
        end
     end
