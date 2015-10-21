@@ -257,7 +257,7 @@ function M:drawSetPasswordButton()
         composer.gotoScene("scenes.set_password_scene", "fade")
     end
 
-    return self:drawOptionButton("Set a password", display.contentCenterY + 150, onRelease)
+    return self:drawOptionButton("Set password", display.contentCenterY + 150, onRelease)
 end
 
 function M:drawSetPasswordTipButton()

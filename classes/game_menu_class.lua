@@ -139,10 +139,10 @@ function game_menu_class:createDictionaryButton()
         isEnabled = false
     end
 
-    local dictionaryButton = self:createMenuButton("Dictionary", isEnabled, function()
+    local dictionaryButton = self:createMenuButton("Bonus Words", isEnabled, function()
         local currentGame = current_game.currentGame
         if not currentGame or not currentGame.specialDict then
-           common_ui.createInfoModal("No Special Dictionary", "This game doesn't have a special dictionary.", nil, 52)
+           common_ui.createInfoModal("No Bonus Words", "This game doesn't have bonus words enabled.", nil, 52)
            return
         end
         nav.goToSceneFrom(MY_SCENE, "scenes.dictionary_scene", "fade")
