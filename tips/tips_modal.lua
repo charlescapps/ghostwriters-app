@@ -50,7 +50,7 @@ end
 
 function M:show()
     transition.fadeIn(self.view, {
-        time = 1000
+        time = 500
     })
 end
 
@@ -66,7 +66,7 @@ function M:destroy()
     end
 
     transition.fadeOut(self.view, {
-        time = 1000,
+        time = 500,
         onComplete = onComplete,
         onCancel = onComplete
     })

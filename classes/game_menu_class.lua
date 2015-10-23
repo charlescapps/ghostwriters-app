@@ -65,7 +65,7 @@ function game_menu_class:close()
     end
     transition.cancel(self.displayGroup)
     transition.fadeOut(self.displayGroup, {
-        time = 1000
+        time = 500
     })
 end
 
@@ -75,7 +75,7 @@ function game_menu_class:open()
     end
     transition.cancel(self.displayGroup)
     transition.fadeIn(self.displayGroup, {
-        time = 1000
+        time = 500
     })
 end
 

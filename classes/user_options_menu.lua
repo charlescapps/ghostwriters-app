@@ -60,7 +60,7 @@ function M:show()
         return
     end
 
-    transition.fadeIn(self.view, { time = 1000 })
+    transition.fadeIn(self.view, { time = 500 })
 end
 
 function M:destroy()
@@ -72,7 +72,7 @@ function M:destroy()
         common_ui.safeRemove(self.view)
     end
 
-    transition.fadeOut(self.view, { time = 800, onComplete = onComplete, onCancel = onComplete })
+    transition.fadeOut(self.view, { time = 500, onComplete = onComplete, onCancel = onComplete })
 end
 
 function M:drawScreen()
