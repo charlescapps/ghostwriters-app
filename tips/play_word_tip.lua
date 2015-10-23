@@ -49,8 +49,7 @@ function M:showTip()
         end
         local tipsModal = tips_modal.new(
             "To play a word, drag tiles from your hand to the board.\n\n" ..
-            "Then press the Play button, and reap in the points!\n\n" ..
-            "Try to place high-scoring letters on bonus squares.",
+            "Then press the Play button, and earn points!",
             nil, onClose)
         tipsModal:show()
         return true

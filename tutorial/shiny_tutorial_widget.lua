@@ -20,6 +20,7 @@ function M.new(opts)
     local shiny = {
         sceneView = opts.sceneView,
         focusedDisplayObj = opts.focusedDisplayObj,
+        backButton = opts.backButton,
         tipX = opts.tipX or 0,
         tipY = opts.tipY or 0,
         tipText = opts.tipText or "",
@@ -52,6 +53,10 @@ function M:showTutorial()
 
     self:highlightFocusedDisplayObj()
     self.focusedDisplayObj:toFront()
+
+    if common_ui.isValidDisplayObj(self.backButton) then
+        self.backButton:toFront()
+    end
 
     return true
 

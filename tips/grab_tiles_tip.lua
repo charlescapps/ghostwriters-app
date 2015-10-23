@@ -47,7 +47,7 @@ function M:showTip()
         local function onClose()
             tips_persist.recordViewedTip(TIP_NAME)
         end
-        tips_modal.new("In Ghostwriters, each turn you can grab letters or play words.\n\nOn the first turn, your hand is empty. Swipe words on the board to grab letters.", nil, onClose):show()
+        tips_modal.new("Each turn you can either grab letters or play words.\n\nOn the first turn, your hand is empty. Swipe letters in a line to grab letters.", nil, onClose):show()
     end
 
     self:addAnimationToBoard()

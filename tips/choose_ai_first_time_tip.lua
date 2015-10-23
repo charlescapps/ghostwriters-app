@@ -30,16 +30,17 @@ function M:triggerTipOnCondition()
         return false
     end
 
-    return self:showTip(sceneView, monkeyButton)
+    return self:showTip(sceneView, monkeyButton, self.scene.backButton)
 end
 
-function M:showTip(sceneView, monkeyButton)
+function M:showTip(sceneView, monkeyButton, backButton)
     if not tips_persist.isTipViewed(TIP_NAME) then
 
         local shiny = shiny_tutorial_widget.new {
             tipText = "Choose the\neasy opponent\nfor now.",
             focusedDisplayObj = monkeyButton,
             sceneView = sceneView,
+            backButton = backButton,
             tipX = display.contentWidth / 2 + 75,
             tipY = display.contentHeight / 2 - 50
         }

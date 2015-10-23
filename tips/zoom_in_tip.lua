@@ -41,9 +41,8 @@ function M:showTip()
             tips_persist.recordViewedTip(TIP_NAME)
         end
         local tipsModal = tips_modal.new(
-            "Double-tap an empty square to zoom in!\n\n" ..
-            "When zoomed, You can grab tiles and play words.\n\n" ..
-            "The zoomed area will scroll as you grab tiles.",
+            "Double-tap the board to zoom in!\n\n" ..
+            "Double-tap again to zoom back out.",
             nil, onClose)
         tipsModal:show()
         return true

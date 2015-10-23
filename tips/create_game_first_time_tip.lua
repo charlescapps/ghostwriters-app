@@ -30,16 +30,17 @@ function M:triggerTipOnCondition()
         return false
     end
 
-    return self:showTip(sceneView, createGameButton)
+    return self:showTip(sceneView, createGameButton, self.scene.backButton)
 end
 
-function M:showTip(sceneView, createGameButton)
+function M:showTip(sceneView, createGameButton, backButton)
     if not tips_persist.isTipViewed(TIP_NAME) then
 
         local shiny = shiny_tutorial_widget.new {
             tipText = "Tap to\ncreate a\ndefault game!",
             focusedDisplayObj = createGameButton,
             sceneView = sceneView,
+            backButton = backButton,
             tipX = display.contentWidth / 2 + 75,
             tipY = display.contentHeight / 2 + 100
         }

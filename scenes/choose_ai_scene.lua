@@ -48,6 +48,7 @@ function scene:show( event )
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
         new_game_data.aiType = nil
+
     elseif ( phase == "did" ) then
         scene_helpers.onDidShowScene(self)
 

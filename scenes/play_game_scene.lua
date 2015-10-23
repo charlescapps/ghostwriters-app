@@ -24,6 +24,8 @@ local free_question_tile_tip = require("tips.free_question_tile_tip")
 local question_tile_tip = require("tips.question_tile_tip")
 local zoom_in_tip = require("tips.zoom_in_tip")
 local play_word_tip = require("tips.play_word_tip")
+local end_game_tip = require("tips.end_game_tip")
+local pass_tip = require("tips.pass_tip")
 local back_to_main_menu_popup = require("classes.back_to_main_menu_popup")
 local challenged_popup = require("classes.challenged_popup")
 local back_button_setup = require("android.back_button_setup")
@@ -152,6 +154,14 @@ function scene:showTips()
 
     if not didShowModal then
         didShowModal = zoom_in_tip.new(self):triggerTipOnCondition() or didShowModal
+    end
+
+    if not didShowModal then
+        didShowModal = pass_tip.new():triggerTipOnCondition() or didShowModal
+    end
+
+    if not didShowModal then
+        didShowModal = end_game_tip.new():triggerTipOnCondition() or didShowModal
     end
 
     if not didShowModal then
