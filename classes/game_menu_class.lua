@@ -60,7 +60,7 @@ function game_menu_class:isOpen()
 end
 
 function game_menu_class:close()
-    if not self.displayGroup or not self.displayGroup.removeSelf then
+    if not common_ui.isValidDisplayObj(self.displayGroup) then
         return
     end
     transition.cancel(self.displayGroup)
@@ -70,13 +70,14 @@ function game_menu_class:close()
 end
 
 function game_menu_class:open()
-    if not self.displayGroup or not self.displayGroup.removeSelf then
+    if not common_ui.isValidDisplayObj(self.displayGroup) then
         return
     end
     transition.cancel(self.displayGroup)
     transition.fadeIn(self.displayGroup, {
         time = 500
     })
+    self.displayGroup:toFront()
 end
 
 function game_menu_class:toggle()
@@ -90,7 +91,7 @@ end
 function game_menu_class:createScreen()
     local screen = common_ui.drawScreen()
     self.displayGroup:insert(screen)
-    local x, y = self.displayGroup:contentToLocal(display.contentWidth / 2, display.contentHeight / 2)
+    local x, y = self.displayGroup:contentToLocal(display.contentCenterX, display.contentCenterY)
     screen.x, screen.y = x, y
 
     local gameMenu = self
