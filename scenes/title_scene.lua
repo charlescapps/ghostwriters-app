@@ -15,6 +15,7 @@ local back_button_setup = require("android.back_button_setup")
 local music = require("common.music")
 local sound = require("common.sound")
 local fb = require("social.fb")
+local title_screen_first_time_tip = require("tips.title_screen_first_time_tip")
 
 -- Constants
 local scene = composer.newScene()
@@ -116,7 +117,7 @@ function scene:create(event)
 	local sceneGroup = self.view
 	local background = common_ui.createBackground()
 	local titleImage = self:createTitleImage()
-	local buttonSinglePlayer = common_ui.createButton("Single Player", 350, clickSinglePlayer, BUTTON_W)
+	self.buttonSinglePlayer = common_ui.createButton("Single Player", 350, clickSinglePlayer, BUTTON_W)
 	local buttonPlayOthers = common_ui.createButton("Two Player", 550, clickOneOnOne, BUTTON_W)
     local buttonFacebook = self:createFacebookButton()
 	local buttonMyGames = common_ui.createButton("My Games", 750, clickMyGames, BUTTON_W)
@@ -127,7 +128,7 @@ function scene:create(event)
 
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleImage )
-	sceneGroup:insert( buttonSinglePlayer )
+	sceneGroup:insert( self.buttonSinglePlayer )
 	sceneGroup:insert( buttonPlayOthers )
     sceneGroup:insert(buttonFacebook)
 	sceneGroup:insert( buttonMyGames )
@@ -172,6 +173,8 @@ function scene:show( event )
         app_state:setAppLoaded()
         app_state:callAppLoadedListener()
 
+        title_screen_first_time_tip.new(self):triggerTipOnCondition()
+
     end
 end
 
@@ -195,7 +198,6 @@ end
 -- "scene:destroy()"
 function scene:destroy( event )
 
-    local sceneGroup = self.view
 
 end
 

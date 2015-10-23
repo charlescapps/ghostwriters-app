@@ -5,6 +5,7 @@ local new_game_data = require("globals.new_game_data")
 local nav = require("common.nav")
 local scene_helpers = require("common.scene_helpers")
 local game_helpers = require("common.game_helpers")
+local choose_ai_first_time_tip = require("tips.choose_ai_first_time_tip")
 
 local scene = composer.newScene()
 
@@ -27,15 +28,15 @@ function scene:create(event)
         new_game_data.clearAll()
     end, nil, 2)
 
-    local randomAiGrp = common_ui.createImageButtonWithText("images/monkey_default.png", "images/monkey_over.png", 225, "Monkey", "(Easy opponent)", getOnReleaseListener(common_api.RANDOM_AI), 300)
-    local bookwormAiGrp = common_ui.createImageButtonWithText("images/bookworm_default.png", "images/bookworm_over.png", 650, "Bookworm", "(Medium opponent)", getOnReleaseListener(common_api.BOOKWORM_AI), 300)
-    local professorAiGrp = common_ui.createImageButtonWithText("images/professor_default.png", "images/professor_over.png", 1075, "Professor", "(Difficult opponent)", getOnReleaseListener(common_api.PROFESSOR_AI), 300)
+    self.randomAiGrp = common_ui.createImageButtonWithText("images/monkey_default.png", "images/monkey_over.png", 225, "Monkey", "(Easy opponent)", getOnReleaseListener(common_api.RANDOM_AI), 300)
+    self.bookwormAiGrp = common_ui.createImageButtonWithText("images/bookworm_default.png", "images/bookworm_over.png", 650, "Bookworm", "(Medium opponent)", getOnReleaseListener(common_api.BOOKWORM_AI), 300)
+    self.professorAiGrp = common_ui.createImageButtonWithText("images/professor_default.png", "images/professor_over.png", 1075, "Professor", "(Difficult opponent)", getOnReleaseListener(common_api.PROFESSOR_AI), 300)
 
     sceneGroup:insert(background)
     sceneGroup:insert(self.backButton)
-    sceneGroup:insert(randomAiGrp)
-    sceneGroup:insert(bookwormAiGrp)
-    sceneGroup:insert(professorAiGrp)
+    sceneGroup:insert(self.randomAiGrp)
+    sceneGroup:insert(self.bookwormAiGrp)
+    sceneGroup:insert(self.professorAiGrp)
 end
 
 -- "scene:show()"
@@ -49,9 +50,8 @@ function scene:show( event )
         new_game_data.aiType = nil
     elseif ( phase == "did" ) then
         scene_helpers.onDidShowScene(self)
-        -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+
+        choose_ai_first_time_tip.new(self):triggerTipOnCondition()
     end
 end
 

@@ -17,6 +17,7 @@ local scene_helpers = require("common.scene_helpers")
 local currency_tip = require("tips.currency_tip")
 local fonts = require("globals.fonts")
 local game_helpers = require("common.game_helpers")
+local create_game_first_time_tip = require("tips.create_game_first_time_tip")
 
 local scene = composer.newScene()
 scene.sceneName = "scenes.create_game_scene"
@@ -179,10 +180,19 @@ function scene:show( event )
 
         scene_helpers.onDidShowScene(self)
 
-        currency_tip.new():triggerTipOnCondition()
+        self:showTips()
     end
 end
 
+function scene:showTips()
+    local didShowTip = create_game_first_time_tip.new(self):triggerTipOnCondition()
+
+    if didShowTip then
+        return
+    end
+
+    didShowTip = currency_tip.new():triggerTipOnCondition()
+end
 
 -- "scene:hide()"
 function scene:hide( event )

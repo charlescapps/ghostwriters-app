@@ -14,7 +14,7 @@ end
 
 function M:triggerTipOnCondition()
    -- Trivial condition, always true
-    self:showTip()
+    return self:showTip()
 end
 
 function M:showTip()
@@ -27,8 +27,10 @@ function M:showTip()
             "You get 1 book per hour free, and you can buy extra books by tapping the bookshelf.",
             nil, onClose, "images/currency_tip.jpg", 375, 148, 0, 30)
         tipsModal:show()
+        return true
     end
 
+    return false
 end
 
 function M:isSceneValid(playGameScene)
