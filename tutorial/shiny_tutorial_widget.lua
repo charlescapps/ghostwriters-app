@@ -43,7 +43,7 @@ function M:showTutorial()
 
     self.tipsModal = self:drawTipsModal()
 
-    self.screen = common_ui.drawScreen(0.65)
+    self.screen = self:createScreen()
 
     self.sceneView:insert(self.screen)
     self.screen:toFront()
@@ -60,6 +60,18 @@ function M:showTutorial()
 
     return true
 
+end
+
+function M:createScreen()
+    local screen = common_ui.drawScreen(0.65)
+    screen:addEventListener("touch", function(event)
+        if "ended" == event.phase then
+            self:destroy()
+        end
+        return true
+    end)
+
+    return screen
 end
 
 function M:drawTipsModal()
@@ -100,6 +112,11 @@ function M:highlightFocusedDisplayObj()
         focusObj.fill.effect.seed = 0
     end
 
+end
+
+function M:destroy()
+    common_ui.fadeOutThenRemove(self.screen)
+    common_ui.fadeOutThenRemove(self.tipsModal)
 end
 
 return M

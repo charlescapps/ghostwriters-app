@@ -361,17 +361,12 @@ function M.safeRemove(displayObj)
 end
 
 function M.fadeOutThenRemove(displayObj, opts, afterRemoval)
-    if not displayObj then
-        print("ERROR - nil displayObj provided in fadeOutThenRemove!")
-        return
-    end
-    if not displayObj.removeSelf then
-        print("ERROR - displayObj has no 'removeSelf' method in fadeOutThenRemove")
+    if not M.isValidDisplayObj(displayObj) then
         return
     end
 
     local function onComplete()
-        if displayObj and displayObj.removeSelf then
+        if M.isValidDisplayObj(displayObj) then
             displayObj:removeSelf()
             if afterRemoval then
                 afterRemoval(displayObj)
