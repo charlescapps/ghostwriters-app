@@ -239,7 +239,7 @@ end
 
 function scene.onAcceptGameFail(jsonResp)
     local msg = jsonResp and jsonResp["errorMessage"] or "Network error. Please try again"
-    native.showAlert( "Error creating game", msg, { "OK" } )
+    native.showAlert( "Error joining game", msg, { "OK" } )
 end
 
 

@@ -148,13 +148,21 @@ end
 function my_games_view_class:getTableListener()
     return function(event)
         if ( event.phase == "began" ) then
-            self.springStart = event.target.parent.parent:getContentPosition()
+            local table = event.target and event.target.parent and event.target.parent.parent
+            if not table or type(table.getContentPosition) ~= "function" then
+                return true
+            end
+            self.springStart = table:getContentPosition()
             self.needToReload = false
         elseif ( event.phase == "moved" ) then
-            local pos = event.target.parent.parent:getContentPosition()
+            local table = event.target and event.target.parent and event.target.parent.parent
+            if not table or type(table.getContentPosition) ~= "function" then
+                return true
+            end
+            local pos = table:getContentPosition()
             if pos > SPRING_DIST then
                 self.needToReload = true
-                event.target.parent.parent:scrollToY({
+                table:scrollToY({
                     y = SPRING_DIST ,
                     time = 0
                 })
