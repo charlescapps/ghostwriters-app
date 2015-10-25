@@ -646,7 +646,7 @@ function scene:addToOpponentPoints(numPoints)
 end
 
 function scene:showMoveModal(move, game, onModalClose)
-    if move.dict then
+    if move.dict and move.specialWordsPlayed and #move.specialWordsPlayed > 0 then
         print("Found special dict on move: " .. tostring(move.dict) .. ", showing bonus modal")
         self:showBonusMoveModal(move, onModalClose)
     else
@@ -687,7 +687,7 @@ function scene:showBonusMoveModal(move, onModalClose)
 
     local isCurrentPlayer = move.playerId == self.creds.user.id
 
-    local bonusPopup = bonus_popup.new(dict, move.letters, isCurrentPlayer, onModalClose)
+    local bonusPopup = bonus_popup.new(dict, move.specialWordsPlayed[1], isCurrentPlayer, onModalClose)
     bonusPopup:render()
     self.view:insert(bonusPopup.view)
 
