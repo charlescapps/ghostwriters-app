@@ -4,6 +4,7 @@ local json = require("json")
 local current_game = require("globals.current_game")
 local nav = require("common.nav")
 local common_api = require("common.common_api")
+local common_ui = require("common.common_ui")
 local app_state = require("globals.app_state")
 local toast = require("classes.toast")
 local game_helpers = require("common.game_helpers")
@@ -29,8 +30,19 @@ function M.onReceiveNotification(message, additionalData, isActive)
     local additionalDataStr = json.encode(additionalData)
     print("Received notification, message=" .. message)
     print("additionalData=" .. additionalDataStr)
-    if not additionalData or not additionalData.updatedGameId then
-        print("Received push notification without updatedGameId field: " .. additionalDataStr)
+    if not additionalData or not additionalData.updatedGameId or not additionalData.targetUserId then
+        print("Push notification without updatedGameId, targetUserId fields: " .. additionalDataStr)
+        return
+    end
+
+    local currentUser = login_common.getUser()
+    local currentUserId = currentUser and currentUser.id
+
+    if currentUserId ~= nil and currentUserId ~= tonumber(additionalData.targetUserId) then
+       print("[ERROR] Push notification is for user that isn't logged in. "
+              .. "targetUserId = " .. additionalData.targetUserId .. ", "
+              .. "currentUserId = " .. tostring(currentUserId))
+        M.showModalForWrongUserLoggedIn(additionalData.targetUsername)
         return
     end
     
@@ -45,6 +57,14 @@ function M.onReceiveNotification(message, additionalData, isActive)
         app_state:setAppLoadedListener(function()
             M.handlePushNotification(isActive, additionalData, message)
         end)
+    end
+end
+
+function M.showModalForWrongUserLoggedIn(targetUsername)
+    if type(targetUsername) == "string" then
+        common_ui.createInfoModal("Login as other user", "You must logout, then log back in as user \"" .. targetUsername .. "\"" ..
+                " to view the update for this push notification.",
+            nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 15000)
     end
 end
 
@@ -105,7 +125,7 @@ function M.handleGameOffer(isActive, data, message)
                                              data.specialDict,
                                              data.gameDensity,
                                              data.bonusesType,
-                                             data.player2)
+                                             data.targetUserId)
         end)
     else
     -- If ghostwriters isn't active, this means the user clicked on the push notice, so just accept the offer
@@ -115,7 +135,7 @@ function M.handleGameOffer(isActive, data, message)
             data.specialDict,
             data.gameDensity,
             data.bonusesType,
-            data.player2)
+            data.targetUserId)
     end
 end
 
