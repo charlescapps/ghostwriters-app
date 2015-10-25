@@ -513,19 +513,6 @@ getMoveDescription = function(moveJson)
     end
 end
 
-getBonusMoveDescription = function(move)
-    local dict = move.dict
-    if not dict then
-        return getMoveDescription(move)
-    end
-
-    local dictName = common_api.getDictName(dict)
-    local bonusPoints = common_api.getBonusPoints(dict)
-
-    return "played a bonus word from the " .. dictName .. " dictionary for " .. bonusPoints .. " extra points!\n" ..
-            "Total is " .. move.points .. " points"
-end
-
 function scene:resetBoardAndShowModals()
     self:reset()
     self:showGameInfoModals(false)
@@ -646,9 +633,9 @@ function scene:addToOpponentPoints(numPoints)
 end
 
 function scene:showMoveModal(move, game, onModalClose)
-    if move.dict and move.specialWordsPlayed and #move.specialWordsPlayed > 0 then
-        print("Found special dict on move: " .. tostring(move.dict) .. ", showing bonus modal")
-        self:showBonusMoveModal(move, onModalClose)
+    local specialDict = game and game.specialDict
+    if type(specialDict) == "string" and move.specialWordsPlayed and #move.specialWordsPlayed > 0 then
+        self:showBonusMoveModal(specialDict, move, onModalClose)
     else
         print("Found no special dict on move, showing ordinary modal. Dict was: " .. tostring(move.dict))
         self:showNormalMoveModal(move, game, onModalClose)
@@ -675,19 +662,15 @@ function scene:showNormalMoveModal(move, game, onModalClose)
     common_ui.createInfoModal(moveUsername, moveDescr, onModalClose, nil, 48)
 end
 
-function scene:showBonusMoveModal(move, onModalClose)
+function scene:showBonusMoveModal(specialDict, move, onModalClose)
     if not self.creds or not self.creds.user then
         print "Error - creds not defined in play_game_scene."
-        return
-    end
-    local dict = move.dict
-    if not dict then
         return
     end
 
     local isCurrentPlayer = move.playerId == self.creds.user.id
 
-    local bonusPopup = bonus_popup.new(dict, move.specialWordsPlayed[1], isCurrentPlayer, onModalClose)
+    local bonusPopup = bonus_popup.new(specialDict, move.specialWordsPlayed[1], isCurrentPlayer, onModalClose)
     bonusPopup:render()
     self.view:insert(bonusPopup.view)
 
