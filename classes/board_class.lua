@@ -205,7 +205,13 @@ function board_class:getTilesGroupTouchListener()
             if myTile == nil or
                myTile.tileType ~= tile.ORIGINAL_TILE or
                not game_helpers.isPlayerTurn(self.gameModel, self.authUser) then
-                return true
+
+                if myTile and myTile.tileType == tile.PLAYED_TILE then
+                    -- Allow touch event to fall below stone tiles, so we can still drag the board.
+                    return false
+                else
+                    return true
+                end
             end
             display.getCurrentStage():setFocus(event.target)
             self.isGrabbing = true
