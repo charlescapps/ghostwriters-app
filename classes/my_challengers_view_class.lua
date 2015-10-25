@@ -279,7 +279,8 @@ function my_challengers_view_class:getAcceptGameListener(index)
                                          game.boardSize,
                                          game.specialDict,
                                          game.gameDensity,
-                                         game.bonusesType)
+                                         game.bonusesType,
+                                         game.player2)
     end
 end
 

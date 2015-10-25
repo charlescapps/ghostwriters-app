@@ -7,6 +7,8 @@ local common_api = require("common.common_api")
 local app_state = require("globals.app_state")
 local toast = require("classes.toast")
 local game_helpers = require("common.game_helpers")
+local login_common = require("login.login_common")
+local one_signal_player_id_queue = require("push.one_signal_player_id_queue")
 
 local M = {}
 
@@ -16,6 +18,11 @@ M.ANDROID_PROJECT_NUM = "9329334853"
 function M.initOneSignal()
     OneSignal.DisableAutoRegister()
     OneSignal.Init(M.ONE_SIGNAL_APP_ID, M.ANDROID_PROJECT_NUM, M.onReceiveNotification)
+    M.setIdsAvailableCallback()
+end
+
+function M.setIdsAvailableCallback()
+    OneSignal.IdsAvailableCallback(M.onIdsAvailable)
 end
 
 function M.onReceiveNotification(message, additionalData, isActive)
@@ -97,7 +104,8 @@ function M.handleGameOffer(isActive, data, message)
                                              data.boardSize,
                                              data.specialDict,
                                              data.gameDensity,
-                                             data.bonusesType)
+                                             data.bonusesType,
+                                             data.player2)
         end)
     else
     -- If ghostwriters isn't active, this means the user clicked on the push notice, so just accept the offer
@@ -106,7 +114,8 @@ function M.handleGameOffer(isActive, data, message)
             data.boardSize,
             data.specialDict,
             data.gameDensity,
-            data.bonusesType)
+            data.bonusesType,
+            data.player2)
     end
 end
 
@@ -126,6 +135,71 @@ function M.goToGameByIdFrom(gameId, fromScene)
     end
 
     common_api.getGameById(gameId, true, nil, onSuccessToGetGame, onFailToGetGame, onFailToGetGame, true)
+end
+
+function M.onIdsAvailable(playerId, pushToken)
+    if not playerId or not pushToken then
+        print("[INFO] OneSignal.IdsAvailable() - playerId or pushToken is nil, so not registering with server yet: playerId = " ..
+            tostring(playerId) .. ", pushToken = " .. tostring(pushToken))
+        return
+    end
+
+    local currentUser = login_common.getUser()
+    local userId = currentUser and currentUser.id
+
+    local oneSignalInfo = {
+        userId = userId,
+        oneSignalPlayerId = playerId
+    }
+
+    if not userId then
+        print("[ERROR] currentUser is nil or has no id field from login_common, so cannot update OneSignalId.")
+        one_signal_player_id_queue.saveOneSignalInfo(oneSignalInfo)
+        return
+    end
+
+    local function onSuccess()
+        print("[INFO] SUCCESS - updated player's one signal ID on Ghostwriters server: " .. tostring(oneSignalInfo.oneSignalPlayerId))
+        one_signal_player_id_queue.clearOneSignalInfo()
+    end
+
+    local function onFail()
+        print("[ERROR] - failed to update player's one signal ID! userId = " .. tostring(userId) .. ", playerId = " .. tostring(playerId))
+        one_signal_player_id_queue.saveOneSignalInfo(oneSignalInfo)
+    end
+
+    common_api.updateOneSignalInfo(oneSignalInfo, onSuccess, onFail)
+
+end
+
+function M.updateOneSignalInfoFromQueue()
+    local oneSignalInfo = one_signal_player_id_queue.getOneSignalInfo()
+    if not oneSignalInfo then
+        return
+    end
+
+    -- If there's no userId stored, that means the user wasn't logged in at the time,
+    -- so we must add the user ID and assume it's the currently logged in user.
+    if not oneSignalInfo.userId then
+        local currentUser = login_common.getUser()
+        oneSignalInfo.userId = currentUser and currentUser.id
+        if not oneSignalInfo.userId then
+            print ("[ERROR] No currently logged in user, cannot update one signal info.")
+            return
+        end
+    end
+
+    local function onSuccess()
+        print("[INFO] SUCCESS - updated player's one signal ID on Ghostwriters server: "  .. json.encode(oneSignalInfo))
+        one_signal_player_id_queue.clearOneSignalInfo()
+    end
+
+    local function onFail()
+        print("[ERROR] - failed to update player's one signal ID: " .. json.encode(oneSignalInfo))
+    end
+
+    common_api.updateOneSignalInfo(oneSignalInfo, onSuccess, onFail)
+
 end
 
 return M

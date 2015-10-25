@@ -6,9 +6,7 @@ local common_ui = require("common.common_ui")
 local common_api = require("common.common_api")
 local device_id_backup = require("login.device_id_backup")
 local nav = require("common.nav")
-local system = require("system")
 local text_progress_class = require("classes.text_progress_class")
-local OneSignal = require("plugin.OneSignal")
 local transition = require("transition")
 local custom_text_field = require("classes.custom_text_field")
 local fonts = require("globals.fonts")
@@ -145,8 +143,6 @@ function scene:getOnCreateAccountSuccessListener()
     return function(user)
         self:destroyTextProgress()
         nav.goToSceneFrom(self.sceneName, "scenes.title_scene", "fade")
-        -- Tag the player in Game Thrive (OneSignal) with the user ID.
-        OneSignal.TagPlayer("ghostwriters_id", user.id)
         self.createInProgress = nil
     end
 end

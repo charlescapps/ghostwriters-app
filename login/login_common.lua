@@ -1,7 +1,6 @@
 local loadsave = require("lib.loadsave")
 local composer = require("composer")
 local nav = require("common.nav")
-local json = require("json")
 local system = require("system")
 
 local M = {}

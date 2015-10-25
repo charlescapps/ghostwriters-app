@@ -8,7 +8,7 @@ local scene_helpers = require("common.scene_helpers")
 local fonts = require("globals.fonts")
 local native = require("native")
 local pass_helpers = require("common.pass_helpers")
-local nav = require("common.nav")
+local one_signal_util = require("push.one_signal_util")
 
 local scene = composer.newScene()
 scene.sceneName = "login.login_with_password_scene"
@@ -234,6 +234,11 @@ function scene:submit()
 
     local function onSuccess()
         composer.gotoScene("scenes.title_scene", "fade")
+
+        -- If user logs in as a different user, we need to call this so that
+        -- OneSignal will send us the player_id for the phone, and then we can
+        -- update the Ghostwriters server with the correct one signal ID for this user.
+        one_signal_util.setIdsAvailableCallback()
     end
 
     local function onFail()

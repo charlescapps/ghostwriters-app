@@ -25,6 +25,10 @@ M.getSelfURL = function()
     return SERVER .. "/users/me"
 end
 
+M.getOneSignalURL = function()
+    return SERVER .. "/users/me/oneSignal"
+end
+
 M.nextUsernameURL = function(deviceId)
     local url =  M.usersURL() .. "/nextUsername"
     if deviceId then

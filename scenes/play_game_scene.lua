@@ -33,6 +33,7 @@ local fonts = require("globals.fonts")
 local music = require("common.music")
 local toast = require("classes.toast")
 local network = require("network")
+local one_signal_util = require("push.one_signal_util")
 
 local scene = composer.newScene()
 
@@ -62,6 +63,7 @@ function scene:create(event)
     end
 
     if not game_helpers.doesAuthUserMatchGame(gameModel, self.creds.user) then
+        self.creds = nil
         return
     end
 
@@ -126,7 +128,11 @@ function scene:show(event)
             return
         end
 
+        -- For iOS, ask player if they want push notifications now.
         OneSignal.RegisterForNotifications()
+
+        -- Check if we have any pending attempts to send the player's OneSignal player ID to the Ghostwriters server.
+        one_signal_util.updateOneSignalInfoFromQueue()
 
         -- Called when the scene is now on screen.
         local didShowModal = self:showGameInfoModals(true)
@@ -142,6 +148,10 @@ function scene:show(event)
 end
 
 function scene:showTips()
+    if not self.grabTilesTip then
+        return
+    end
+
     local didShowModal = self.grabTilesTip:triggerTipOnCondition()
 
     if not didShowModal then

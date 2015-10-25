@@ -14,6 +14,7 @@ M.initialBlankTiles = nil
 M.initialScryTiles = nil
 M.isAcceptGame = nil
 M.gameId = nil
+M.player2 = nil
 
 M.getNewGameModel = function(user)
 	if M.gameType == common_api.SINGLE_PLAYER then
@@ -70,6 +71,7 @@ M.clearAll = function()
     M.initialScryTiles = nil
     M.isAcceptGame = nil
     M.gameId = nil
+    M.player2 = nil
 end
 
 function M.getInitialRack()

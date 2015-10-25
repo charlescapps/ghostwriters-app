@@ -564,4 +564,9 @@ M.setUserPassword = function(pass, onSuccess, onFail, doCreateSpinner)
     M.doPostWithSpinner(url, nil, 200, onSuccess, onFail, onFail, doCreateSpinner)
 end
 
+M.updateOneSignalInfo = function(oneSignalInfo, onSuccess, onFail)
+    local url = urls.getOneSignalURL()
+    M.doPostWithSpinner(url, oneSignalInfo, 200, onSuccess, onFail, false)
+end
+
 return M

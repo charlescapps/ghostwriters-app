@@ -29,6 +29,14 @@ function scene:create(event)
         return
     end
 
+    local currentUserId = self.creds and self.creds.user and self.creds.user.id
+    if not currentUserId or currentUserId ~= new_game_data.player2 then
+        print("[ERROR] Current user doesn't match the 'player2' ID for accepting a game.")
+        print("[ERROR] Expected player2 = " .. tostring(new_game_data.player2) .. ", actual current user = " .. tostring(currentUserId))
+        self.creds = nil
+        return
+    end
+
     -- Set the default values for the game density & bonuses layout
     new_game_data.gameDensity = new_game_data.gameDensity or common_api.MEDIUM_DENSITY
     new_game_data.bonusesType = new_game_data.bonusesType or common_api.RANDOM_BONUSES

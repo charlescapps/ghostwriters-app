@@ -1,8 +1,6 @@
 local common_api = require("common.common_api")
 local device_id_backup = require("login.device_id_backup")
-local system = require("system")
 local composer = require("composer")
-local OneSignal = require("plugin.OneSignal")
 local app_state = require("globals.app_state")
 local login_common = require("login.login_common")
 
@@ -59,7 +57,6 @@ end
 
 function M.onLoginSuccess(user)
     composer.gotoScene("scenes.title_scene", "fade")
-    OneSignal.TagPlayer("ghostwriters_id", user.id)
     app_state:callAppLoadedListener()
 end
 

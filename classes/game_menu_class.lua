@@ -163,7 +163,7 @@ function game_menu_class:createResignButton()
     end
 
     local isEnabled = self.isGameOver ~= true
-    local resignButton = self:createMenuButton("Resign match", isEnabled, function()
+    local resignButton = self:createMenuButton("Resign game", isEnabled, function()
         native.showAlert("Resign?", "Are you sure you want to resign?", { "YES", "NO" }, alertListener)
     end)
 
