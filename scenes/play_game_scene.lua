@@ -669,7 +669,14 @@ function scene:showNormalMoveModal(move, game, onModalClose)
         moveUsername = game.player2Model.username
     end
 
-    common_ui.createInfoModal(moveUsername, moveDescr, onModalClose, nil, 48)
+    local modal = common_ui.createInfoModal(moveUsername, moveDescr, onModalClose, nil, 48)
+    self:safeAdd(modal)
+end
+
+function scene:safeAdd(displayObj)
+    if common_ui.isValidDisplayObj(self.view) and common_ui.isValidDisplayObj(displayObj) then
+       self.view:insert(displayObj)
+    end
 end
 
 function scene:showBonusMoveModal(specialDict, move, onModalClose)
@@ -831,7 +838,8 @@ function scene:getOnGrabTiles()
     return function(tiles)
         print("Tiles grabbed!")
         if not current_game.isUsersTurn(self.creds.user) then
-            common_ui.createInfoModal("Oops...", "It's not your turn")
+            local modal = common_ui.createInfoModal("Oops...", "It's not your turn")
+            self:safeAdd(modal)
             self.board:cancelGrab()
             return
         end
@@ -871,13 +879,15 @@ end
 function scene:getOnReleasePlayButton()
     return function(event)
         if not current_game.isUsersTurn(self.creds.user) then
-            common_ui.createInfoModal("Oops...", "It's not your turn")
+            local modal = common_ui.createInfoModal("Oops...", "It's not your turn")
+            self:safeAdd(modal)
             return
         end
 
         local move = self.board:getCurrentPlayTilesMove()
         if move["errorMsg"] then
-            common_ui.createInfoModal("Oops...", move["errorMsg"])
+            local modal = common_ui.createInfoModal("Oops...", move["errorMsg"])
+            self:safeAdd(modal)
             return
         end
         local gameModel = current_game.currentGame
@@ -916,7 +926,8 @@ function scene:getOnReleaseDictionaryButton()
     return function()
         local currentGame = current_game.currentGame
         if not currentGame or not currentGame.specialDict then
-            common_ui.createInfoModal("No Special Dictionary", "This game doesn't have a special dictionary.", nil, 52)
+            local modal = common_ui.createInfoModal("No Special Dictionary", "This game doesn't have a special dictionary.", nil, 52)
+            self:safeAdd(modal)
             return
         end
         local currentSceneName = composer.getSceneName("current")
@@ -990,7 +1001,7 @@ function scene:showGameOverModal()
     end
 
     local modal = common_ui.createInfoModal(modalTitle or "Game Over", modalMessage, onClose, nil, 52)
-    self.view:insert(modal)
+    self:safeAdd(modal)
     return true
 end
 
