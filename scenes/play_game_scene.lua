@@ -903,11 +903,25 @@ function scene:getOnReleasePlayButton()
                 print("Sending move: " .. json.encode(move))
                 self.requestId =
                     common_api.sendMove(move, self:getOnSendMoveSuccess(), self:getOnSendMoveFail(), self:getOnSendMoveNetworkFail(), true)
+                self:safeStopHighlightingTiles()
             else
                 print("User clicked 'Nope'")
             end
         end)
     end
+end
+
+function scene:safeStopHighlightingTiles()
+    if not common_ui.isValidDisplayObj(self.view) then
+        return
+    end
+
+    local pointsBubble = self.board and self.board.pointsBubble
+    if not pointsBubble then
+        return
+    end
+
+    pointsBubble:stopHighlightTiles()
 end
 
 function scene:getOnReleaseResetButton()
