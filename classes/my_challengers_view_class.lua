@@ -264,7 +264,7 @@ end
 
 function my_challengers_view_class:getOnRejectGameSuccessListener(index)
     return function()
-        self.tableView:deleteRows({ index }, { slideLeftTransitionTime = 1000 })
+        self.tableView:deleteRows({ index }, { slideLeftTransitionTime = 0, slideUpTransitionTime = 0 })
     end
 end
 
