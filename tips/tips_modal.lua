@@ -6,7 +6,7 @@ local transition = require("transition")
 local M = {}
 local meta = {__index = M}
 
-function M.new(text, fontSize, onClose, imgFile, imgWidth, imgHeight, imgX, imgY)
+function M.new(text, fontSize, onClose, imgFile, imgWidth, imgHeight, imgX, imgY, onReleaseButton)
     local tipsModal = {
         text = text,
         fontSize = fontSize or 40,
@@ -15,7 +15,8 @@ function M.new(text, fontSize, onClose, imgFile, imgWidth, imgHeight, imgX, imgY
         imgWidth = imgWidth,
         imgHeight = imgHeight,
         imgX = imgX or 0,
-        imgY = imgY or 0
+        imgY = imgY or 0,
+        onReleaseButton = onReleaseButton
     }
 
     tipsModal = setmetatable(tipsModal, meta)
@@ -46,12 +47,15 @@ function M:render()
         self.view:insert(self.tipImage)
     end
 
+    return self.view
+
 end
 
 function M:show()
     transition.fadeIn(self.view, {
         time = 500
     })
+    return self.view
 end
 
 function M:destroy()
@@ -120,6 +124,9 @@ function M:drawButton()
             self.onClose()
         end
         self:destroy()
+        if type(self.onReleaseButton) == 'function' then
+           self.onReleaseButton()
+        end
     end
     local button = common_ui.createButton("Got it!", display.contentCenterY + 175, onRelease, 350, 90)
     return button

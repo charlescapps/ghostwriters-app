@@ -10,6 +10,7 @@ local user_info_popup = require("classes.user_info_popup")
 local prefs = require("prefs.prefs")
 local sheet_helpers = require("globals.sheet_helpers")
 local music = require("common.music")
+local all_tips_widget = require("tips.all_tips.all_tips_widget")
 
 local M = {}
 local meta = { __index = M }
@@ -30,6 +31,7 @@ function M:render()
 
     self.screen = self:drawScreen()
     self.background = self:drawBackground()
+    self.gameTipsButton = self:drawGameTipsButton()
     self.myStatsButton = self:drawMyStatsButton()
     self.musicOptionRow = self:createMusicOptionRow()
     self.soundOptionRow = self:createSoundOptionRow()
@@ -43,6 +45,7 @@ function M:render()
 
     self.view:insert(self.screen)
     self.view:insert(self.background)
+    self.view:insert(self.gameTipsButton)
     self.view:insert(self.myStatsButton)
     self.view:insert(self.musicOptionRow)
     self.view:insert(self.soundOptionRow)
@@ -143,6 +146,19 @@ function M:drawOptionButton(text, y, onRelease)
     return optionButton
 end
 
+function M:drawGameTipsButton()
+    local function onRelease()
+        if not common_ui.isValidDisplayObj(self.view) then
+            return
+        end
+        self.allTipsWidget = all_tips_widget.new()
+        local allTipsView = self.allTipsWidget:render()
+        self.view:insert(allTipsView)
+    end
+
+    return self:drawOptionButton("Game Tips", display.contentCenterY - 350, onRelease)
+end
+
 function M:drawMyStatsButton()
     local function onRelease()
         local user = login_common.getUser()
@@ -151,14 +167,18 @@ function M:drawMyStatsButton()
         end
         local userInfoPopup = user_info_popup.new(user, nil, user, false)
         local view = userInfoPopup:render()
+        if not common_ui.isValidDisplayObj(self.view) then
+            return
+        end
+        self.view:insert(view)
         userInfoPopup:show()
     end
 
-    return self:drawOptionButton("My Record", display.contentCenterY - 300, onRelease)
+    return self:drawOptionButton("My Record", display.contentCenterY - 200, onRelease)
 end
 
 function M:createMusicOptionRow()
-    local Y_POS = display.contentCenterY - 150
+    local Y_POS = display.contentCenterY - 50
     local group = display.newGroup()
     local musicOptionText = display.newEmbossedText {
         text = "Music On",
@@ -206,7 +226,7 @@ function M:createMusicOptionRow()
 end
 
 function M:createSoundOptionRow()
-    local Y_POS = display.contentCenterY
+    local Y_POS = display.contentCenterY + 100
     local group = display.newGroup()
     local soundOptionTextView = display.newEmbossedText {
         text = "Sounds On",
@@ -257,7 +277,7 @@ function M:drawSetPasswordButton()
         composer.gotoScene("scenes.set_password_scene", "fade")
     end
 
-    return self:drawOptionButton("Set password", display.contentCenterY + 150, onRelease)
+    return self:drawOptionButton("Set password", display.contentCenterY + 250, onRelease)
 end
 
 function M:drawSetPasswordTipButton()
@@ -277,7 +297,7 @@ function M:drawLogoutButton()
         login_common.logout()
     end
 
-    return self:drawOptionButton("Logout", display.contentCenterY + 300, onRelease)
+    return self:drawOptionButton("Logout", display.contentCenterY + 400, onRelease)
 end
 
 function M:drawLogoutTipButton()
