@@ -81,6 +81,7 @@ function M:drawTipsModal()
     local text = display.newText {
         text = self.tipText,
         font = fonts.DEFAULT_FONT,
+        fontSize = 35,
         x = 0,
         y = 0,
         width = bubble.contentWidth - BUBBLE_PADDING_X,
