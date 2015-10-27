@@ -6,10 +6,10 @@ local meta = { __index = M }
 
 local TIP_NAME = "choose_bonus_tiles_tip"
 
-function M.new(disableRecordTip, onReleaseButton)
+function M.new(disableRecordTip, onCloseTip)
     local chooseGameSizeTip = {
         disableRecordTip = disableRecordTip,
-        onReleaseButton = onReleaseButton
+        onCloseTip = onCloseTip
     }
     return setmetatable(chooseGameSizeTip, meta)
 end
@@ -31,12 +31,15 @@ function M:renderTip()
         if not self.disableRecordTip then
             tips_persist.recordViewedTip(TIP_NAME)
         end
+        if type(self.onCloseTip) == "function" then
+            self.onCloseTip()
+        end
     end
     self.tipsModal = tips_modal.new(
         "Tap the + buttons to start the game with bonus tiles.",
         nil,
         onClose,
-        "images/choose_bonus_tiles.jpg", 400, 247, 0, -20, self.onReleaseButton)
+        "images/choose_bonus_tiles.jpg", 400, 247, 0, -20)
     return self.tipsModal:show()
 end
 

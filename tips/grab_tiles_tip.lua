@@ -47,7 +47,8 @@ function M:showTip()
         local function onClose()
             tips_persist.recordViewedTip(TIP_NAME)
         end
-        tips_modal.new("Each turn you can either grab letters or play words.\n\nOn the first turn, your hand is empty. Swipe letters in a line to grab letters.", nil, onClose):show()
+        tips_modal.new("Each turn you can either grab letters or play words.\n\nOn the first turn, your hand is empty. Swipe letters in a line to grab letters.",
+            nil, onClose, "images/grab_tiles_tip.jpg", 500, 63, 0, 70):show()
     end
 
     self:addAnimationToBoard()

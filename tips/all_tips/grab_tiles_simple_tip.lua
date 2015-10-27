@@ -15,18 +15,17 @@ local TIP_NAME = "grab_tiles_tip"
 local GRAB_TILES_TIP_TAG = "grab_tiles_anim"
 local MS_PER_TILE = 500
 
-function M.new(disableRecordTip, onReleaseButton)
+function M.new(disableRecordTip, onCloseTip)
     local grabTilesTip = {
         disableRecordTip = disableRecordTip,
-        onReleaseButton = onReleaseButton
+        onCloseTip = onCloseTip
     }
     return setmetatable(grabTilesTip, meta)
 end
 
 function M:renderTip()
-
     self.tipsModal = tips_modal.new("Each turn you can either grab letters or play words.\n\nOn the first turn, your hand is empty. Swipe letters in a line to grab letters.",
-        nil, nil, nil, nil, nil, nil, nil, self.onReleaseButton)
+        nil, self.onCloseTip, "images/grab_tiles_tip.jpg", 500, 63, 0, 70)
     return self.tipsModal:show()
 end
 

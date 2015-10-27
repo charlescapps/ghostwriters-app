@@ -4,27 +4,14 @@ local tips_persist = require("tips.tips_persist")
 local M = {}
 local meta = { __index = M }
 
-local TIP_NAME = "end_game_tip"
+local TIP_NAME = "scry_tile_tip"
 
 function M.new(disableRecordTip, onCloseTip)
-    local endGameTip = {
+    local scryTileTip = {
         disableRecordTip = disableRecordTip,
         onCloseTip = onCloseTip
     }
-    return setmetatable(endGameTip, meta)
-end
-
-function M:triggerTipOnCondition()
-    return self:showTip()
-end
-
-function M:showTip()
-    if not tips_persist.isTipViewed(TIP_NAME) then
-        self:renderTip()
-        return true
-    end
-
-    return false
+    return setmetatable(scryTileTip, meta)
 end
 
 function M:renderTip()
@@ -36,13 +23,10 @@ function M:renderTip()
             self.onCloseTip()
         end
     end
-    self.tipsModal = tips_modal.new(
-        "A game ends when all tiles on the board are stone, and " ..
-                "the turn passes to a player who's out of tiles.\n\n" ..
-                "The player with the most points wins!",
-        nil, onClose)
+    self.tipsModal = tips_modal.new("Drag Oracle tiles from your hand to the board to reveal a powerful word.",
+         nil, onClose,
+        "images/scry_tip.png", 250, 250, 0, 0)
     return self.tipsModal:show()
 end
-
 
 return M

@@ -6,10 +6,10 @@ local meta = { __index = M }
 
 local TIP_NAME = "zoom_in_tip"
 
-function M.new(disableRecordTip, onReleaseButton)
+function M.new(disableRecordTip, onCloseTip)
     local zoomInTip = {
         disableRecordTip = disableRecordTip,
-        onReleaseButton = onReleaseButton
+        onCloseTip = onCloseTip
     }
     return setmetatable(zoomInTip, meta)
 end
@@ -19,11 +19,14 @@ function M:renderTip()
             if not self.disableRecordTip then
                 tips_persist.recordViewedTip(TIP_NAME)
             end
+            if type(self.onCloseTip) == "function" then
+                self.onCloseTip()
+            end
         end
         self.tipsModal = tips_modal.new(
             "Double-tap the board to zoom in!\n\n" ..
             "Double-tap again to zoom back out.",
-            nil, onClose, nil, nil, nil, nil, nil, self.onReleaseButton)
+            nil, onClose)
         return self.tipsModal:show()
 end
 

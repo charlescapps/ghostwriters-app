@@ -4,17 +4,18 @@ local tips_persist = require("tips.tips_persist")
 local M = {}
 local meta = { __index = M }
 
-local TIP_NAME = "end_game_tip"
+local TIP_NAME = "play_word_alone_tip"
 
 function M.new(disableRecordTip, onCloseTip)
-    local endGameTip = {
+    local currencyTip = {
         disableRecordTip = disableRecordTip,
         onCloseTip = onCloseTip
     }
-    return setmetatable(endGameTip, meta)
+    return setmetatable(currencyTip, meta)
 end
 
 function M:triggerTipOnCondition()
+   -- Trivial condition, always true
     return self:showTip()
 end
 
@@ -37,12 +38,9 @@ function M:renderTip()
         end
     end
     self.tipsModal = tips_modal.new(
-        "A game ends when all tiles on the board are stone, and " ..
-                "the turn passes to a player who's out of tiles.\n\n" ..
-                "The player with the most points wins!",
-        nil, onClose)
+        "You can play words anywhere, even if they aren't touching other letters!",
+        nil, onClose, "images/play_word_alone_tip.jpg", 300, 218, 0, 0)
     return self.tipsModal:show()
 end
-
 
 return M

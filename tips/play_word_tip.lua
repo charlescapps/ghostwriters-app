@@ -48,9 +48,9 @@ function M:showTip()
             tips_persist.recordViewedTip(TIP_NAME)
         end
         local tipsModal = tips_modal.new(
-            "To play a word, drag tiles from your hand to the board.\n\n" ..
-            "Then press the Play button, and earn points!",
-            nil, onClose)
+            "To play a word, drag tiles from your hand to the board.\n" ..
+            "Then press the Play button!",
+            nil, onClose, "images/play_tiles_tip.jpg", 380, 245)
         tipsModal:show()
         return true
     end

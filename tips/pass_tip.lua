@@ -6,10 +6,10 @@ local meta = { __index = M }
 
 local TIP_NAME = "pass_tip"
 
-function M.new(disableRecordTip, onReleaseButton)
+function M.new(disableRecordTip, onCloseTip)
     local endGameTip = {
         disableRecordTip = disableRecordTip,
-        onReleaseButton = onReleaseButton
+        onCloseTip = onCloseTip
     }
     return setmetatable(endGameTip, meta)
 end
@@ -32,10 +32,13 @@ function M:renderTip()
         if not self.disableRecordTip then
             tips_persist.recordViewedTip(TIP_NAME)
         end
+        if type(self.onCloseTip) == "function" then
+            self.onCloseTip()
+        end
     end
     self.tipsModal = tips_modal.new(
         "You can pass by tapping the hourglass if you can't find a good move.",
-        nil, onClose, "images/pass_button_default.png", 160, 160, nil, nil, self.onReleaseButton)
+        nil, onClose, "images/pass_button_default.png", 160, 160, nil, nil)
     return self.tipsModal:show()
 end
 

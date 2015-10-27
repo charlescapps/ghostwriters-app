@@ -4,8 +4,14 @@ local choose_bonus_tiles_tip = require("tips.create_game.choose_bonus_tiles_tip"
 local currency_tip = require("tips.currency_tip")
 local grab_tiles_simple_tip = require("tips.all_tips.grab_tiles_simple_tip")
 local play_word_simple_tip = require("tips.all_tips.play_word_simple_tip")
+local game_menu_tip = require("tips.game_menu_tip")
 local zoom_in_simple_tip = require("tips.all_tips.zoom_in_simple_tip")
 local pass_tip = require("tips.pass_tip")
+local end_game_tip = require("tips.end_game_tip")
+local ranking_tip = require("tips.ranking_tip")
+local play_word_alone_tip = require("tips.play_word_alone_tip")
+local question_tile_simple_tip = require("tips.all_tips.question_tile_simple_tip")
+local scry_tile_simple_tip = require("tips.all_tips.scry_tile_simple_tip")
 
 local widget = require("widget")
 local common_ui = require("common.common_ui")
@@ -14,13 +20,19 @@ local M = {}
 local meta = { __index = M }
 
 local ALL_TIPS = {
+    grab_tiles_simple_tip,
+    play_word_simple_tip,
     choose_game_size_and_bonus_words_tip,
     choose_bonus_tiles_tip,
     currency_tip,
-    grab_tiles_simple_tip,
-    play_word_simple_tip,
+    game_menu_tip,
+    question_tile_simple_tip,
+    scry_tile_simple_tip,
     zoom_in_simple_tip,
-    pass_tip
+    pass_tip,
+    end_game_tip,
+    play_word_alone_tip,
+    ranking_tip
 }
 
 function M.new()
@@ -65,7 +77,7 @@ function M:drawArrowControls()
     end
 
     self.rightArrow = widget.newButton {
-        x = display.contentWidth - 60,
+        x = display.contentWidth - 65,
         y = display.contentCenterY,
         defaultFile = "images/right_arrow.png",
         overFile = "images/right_arrow_over.png",
@@ -100,7 +112,7 @@ function M:renderCurrentTip()
     self:removeCurrentTip()
 
     local function onReleaseGotItButton()
-        common_ui.fadeOutThenRemove(self.view)
+        common_ui.fadeOutThenRemove(self.view, { time = 500 })
     end
     self.currentTip = ALL_TIPS[self.index].new(true, onReleaseGotItButton)
     local tipView = self.currentTip:renderTip()
