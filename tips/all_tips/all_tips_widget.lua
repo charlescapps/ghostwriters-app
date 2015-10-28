@@ -63,8 +63,8 @@ function M:drawArrowControls()
     self.leftArrow = widget.newButton {
         x = 50,
         y = display.contentCenterY,
-        defaultFile = "images/left_arrow.png",
-        overFile = "images/left_arrow_over.png",
+        defaultFile = "images/left_tip_arrow_default.png",
+        overFile = "images/left_tip_arrow_over.png",
         width = 100,
         height = 400,
         onRelease = onReleaseLeft
@@ -79,8 +79,8 @@ function M:drawArrowControls()
     self.rightArrow = widget.newButton {
         x = display.contentWidth - 65,
         y = display.contentCenterY,
-        defaultFile = "images/right_arrow.png",
-        overFile = "images/right_arrow_over.png",
+        defaultFile = "images/right_tip_arrow_default.png",
+        overFile = "images/right_tip_arrow_over.png",
         width = 100,
         height = 400,
         onRelease = onReleaseRight

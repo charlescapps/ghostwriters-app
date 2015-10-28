@@ -150,7 +150,7 @@ function game_menu_class:createDictionaryButton()
     end)
 
     self.displayGroup:insert(dictionaryButton)
-    dictionaryButton.x, dictionaryButton.y = 0, -325
+    dictionaryButton.x, dictionaryButton.y = 0, -275
     return dictionaryButton
 end
 
@@ -173,7 +173,7 @@ function game_menu_class:createResignButton()
 
     self.displayGroup:insert(resignButton)
 
-    resignButton.x, resignButton.y = 0, 125
+    resignButton.x, resignButton.y = 0, 175
     return resignButton
 end
 
@@ -183,12 +183,12 @@ function game_menu_class:createBackToMenuButton()
     end)
 
     self.displayGroup:insert(backToMenuButton)
-    backToMenuButton.x, backToMenuButton.y = 0, 275
+    backToMenuButton.x, backToMenuButton.y = 0, 325
     return backToMenuButton
 end
 
 function game_menu_class:createMusicOptionRow()
-    local Y_POS = -175
+    local Y_POS = -125
     local group = display.newGroup()
     local soundOptionText = display.newEmbossedText {
         text = "Music On",
@@ -238,7 +238,7 @@ function game_menu_class:createMusicOptionRow()
 end
 
 function game_menu_class:createSoundOptionRow()
-    local Y_POS = -25
+    local Y_POS = 25
     local group = display.newGroup()
     local soundOptionText = display.newEmbossedText {
         text = "Sounds On",
