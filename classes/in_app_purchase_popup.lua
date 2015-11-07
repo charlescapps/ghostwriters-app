@@ -52,15 +52,18 @@ function M:render()
     end
 
     -- Draw the products
-    self.bookpack1_row = self:drawRow("book_pack_1", "100 books", 450, "images/book_pack1.png", "images/book_pack1_over.png")
-    self.bookpack2_row = self:drawRow("book_pack_2", "225 books", 665, "images/book_pack2.png", "images/book_pack2_over.png")
-    self.bookpack3_row = self:drawRow("book_pack_3", "500 books", 880, "images/book_pack3.png", "images/book_pack3_over.png")
-    self.bookpack4_row = self:drawRow("infinite_books", "Infinite books", 1095, "images/book_pack_infinite.png", "images/book_pack_infinite_over.png")
+    self.bookpack1_row = self:drawRow("book_pack_1", "100 books", 400, "images/book_pack1.png", "images/book_pack1_over.png")
+    self.bookpack2_row = self:drawRow("book_pack_2", "225 books", 615, "images/book_pack2.png", "images/book_pack2_over.png")
+    self.bookpack3_row = self:drawRow("book_pack_3", "500 books", 830, "images/book_pack3.png", "images/book_pack3_over.png")
+    self.bookpack4_row = self:drawRow("infinite_books", "Infinite books", 1045, "images/book_pack_infinite.png", "images/book_pack_infinite_over.png")
+
+    self.restorePurchasesButton = self:drawRestorePurchasesButton(1200)
 
     self.view:insert(self.bookpack1_row)
     self.view:insert(self.bookpack2_row)
     self.view:insert(self.bookpack3_row)
     self.view:insert(self.bookpack4_row)
+    self.view:insert(self.restorePurchasesButton)
 
     return self.view
 end
@@ -79,7 +82,7 @@ function M:drawTitle()
     local textObj = display.newText {
         text = titleText,
         x = display.contentCenterX,
-        y = 225,
+        y = 175,
         align = "center",
         font = fonts.BOLD_FONT,
         fontSize = 48
@@ -95,19 +98,36 @@ function M:drawBookPowerInfo()
         return
     end
 
+    local group = display.newGroup()
+    group.y = 250
+
     local percentBonus = book_power_helpers.getBookPowerBonusFromTokens(numTokens, self.infiniteBooks)
     local color = book_power_helpers.getBookPowerColor(false, numTokens, self.infiniteBooks)
 
-    local text = display.newText {
+    local bookPowerLabel = display.newText {
         x = display.contentCenterX,
-        y = 300,
-        text = "Book power: +" .. tostring(percentBonus) .. "% rating",
+        y = 0,
+        text = "Book power: ",
         font = fonts.BOLD_FONT,
         fontSize = 42
     }
+    bookPowerLabel.anchorX = 1
+    bookPowerLabel:setFillColor(0, 0, 0)
+
+    local text = display.newText {
+        x = bookPowerLabel.x,
+        y = 0,
+        text = "+" .. tostring(percentBonus) .. "% rating",
+        font = fonts.BOLD_FONT,
+        fontSize = 42
+    }
+    text.anchorX = 0
     text:setFillColor(unpack(color))
 
-    return text
+    group:insert(bookPowerLabel)
+    group:insert(text)
+
+    return group
 end
 
 function M:drawBookPowerTipButton()
@@ -133,7 +153,7 @@ function M:drawBookPowerTipButton()
         ,
         100, 100, onCloseFirstTip)
     tipsButton.anchorX = 0
-    tipsButton.x = bookPowerInfo.x + bookPowerInfo.contentWidth / 2
+    tipsButton.x = bookPowerInfo.contentBounds.xMax
     tipsButton.y = bookPowerInfo.y
     return tipsButton
 end
@@ -168,7 +188,7 @@ function M:setNumTokens(numTokens)
 end
 
 function M:drawBackground()
-    local bg = display.newImageRect("images/purchase_modal_bg.png", 750, 1175)
+    local bg = display.newImageRect("images/purchase_modal_bg.png", 750, 1300)
     bg.x = display.contentCenterX
     bg.y = display.contentCenterY
 
@@ -266,6 +286,14 @@ function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)
     group:insert(button)
 
     return group
+end
+
+function M:drawRestorePurchasesButton(yCenter)
+    local function onRelease()
+        print("User tapped Restore Purchases button")
+    end
+    local button = common_ui.createButton("Restore purchases", yCenter, onRelease, 450, 90)
+    return button
 end
 
 function M:show()
