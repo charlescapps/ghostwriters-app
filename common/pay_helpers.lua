@@ -33,6 +33,17 @@ local consumableProductList = {
     BOOK_PACK_3
 }
 
+function M.restorePurchases(onRegisterPurchaseSuccess)
+    if not store then
+        print("[ERROR] No store object defined. Cannot restore purchases.")
+        return
+    end
+
+    M.setOnRegisterPurchaseSuccess(onRegisterPurchaseSuccess)
+
+    store.restore()
+end
+
 function M.transactionListener(event)
     print("Event in transactionListener=" .. json.encode(event))
     if not event then
@@ -71,10 +82,14 @@ function M.transactionListener(event)
         print("Product consumed: " .. tostring(transaction.productIdentifier) )
     elseif (transaction.state == "cancelled") then
         M.setOnRegisterPurchaseSuccess(nil)
+        common_ui.createInfoModal("Purchase canceled", "You canceled the purchase.",
+            nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 5000)
         --handle a cancelled transaction here
 
     elseif (transaction.state == "failed") then
         M.setOnRegisterPurchaseSuccess(nil)
+        common_ui.createInfoModal("Purchase failed", "Purchase failed, or there were no purchases to restore.",
+            nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 5000)
         --handle a failed transaction here
     end
 

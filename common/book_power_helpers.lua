@@ -12,7 +12,7 @@ local COLOR_5_PERCENT_DARK = { 0.06, 0.54, 0.13 }
 local COLOR_10_PERCENT_DARK = { 0.37, 0.23, 0 }
 local COLOR_15_PERCENT_DARK = { 0.06, 0.23, 0.77 }
 local COLOR_20_PERCENT_DARK = { 0.66, 0.23, 0 }
-local COLOR_25_PERCENT_DARK = {133 / 255, 16, 148 / 255} -- dark purple
+local COLOR_25_PERCENT_DARK = {133 / 255, 16 / 255, 148 / 255} -- dark purple
 
 function M.getBookPowerBonusFromUser(userModel)
     if not userModel then
@@ -23,7 +23,7 @@ function M.getBookPowerBonusFromUser(userModel)
 end
 
 function M.getBookPowerBonusFromTokens(numTokens, infiniteBooks)
-    if infiniteBooks then
+    if infiniteBooks or type(numTokens) == "number" and numTokens >= 999999 then
         return 25
     end
 
@@ -45,7 +45,7 @@ function M.getBookPowerBonusFromTokens(numTokens, infiniteBooks)
 end
 
 function M.getBookPowerColor(isLightColor, numTokens, infiniteBooks)
-    if infiniteBooks then
+    if infiniteBooks or type(numTokens) == "number" and numTokens >= 999999 then
         return isLightColor and COLOR_25_PERCENT or COLOR_25_PERCENT_DARK
     end
 

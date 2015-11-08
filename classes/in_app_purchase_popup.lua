@@ -289,8 +289,17 @@ function M:drawRow(productIdentifier, text, y, buttonImgDefault, buttonImgOver)
 end
 
 function M:drawRestorePurchasesButton(yCenter)
+    local function myOnRegisterSuccess()
+        self.onRegisterPurchaseSuccess()
+        local updatedUser = login_common.getUser()
+        if updatedUser and type(updatedUser.tokens) == "number" then
+            self:setNumTokens(updatedUser.tokens)
+        end
+    end
+
     local function onRelease()
         print("User tapped Restore Purchases button")
+        pay_helpers.restorePurchases(myOnRegisterSuccess)
     end
     local button = common_ui.createButton("Restore purchases", yCenter, onRelease, 450, 90)
     return button
