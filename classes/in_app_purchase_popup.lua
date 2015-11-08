@@ -162,7 +162,7 @@ function M:setNumTokens(numTokens)
     if type(numTokens) ~= "number" then
         return
     end
-    if not common_ui.isValidDisplayObj(self.view) then
+    if not common_ui.isValidDisplayObj(self.view) or type(self.view.insert) ~= "function" then
         return
     end
     self.numTokens = numTokens
@@ -170,18 +170,21 @@ function M:setNumTokens(numTokens)
     common_ui.safeRemove(self.bookPowerInfo)
     common_ui.safeRemove(self.bookPowerTipButton)
 
+    if not common_ui.isValidDisplayObj(self.view) or type(self.view.insert) ~= "function" then
+        return
+    end
+
     self.title = self:drawTitle()
-
-
-    self.bookPowerInfo = self:drawBookPowerInfo()
-    self.bookPowerTipButton = self:drawBookPowerTipButton()
-
     if self.title then
         self.view:insert(self.title)
     end
+
+    self.bookPowerInfo = self:drawBookPowerInfo()
     if self.bookPowerInfo then
         self.view:insert(self.bookPowerInfo)
     end
+
+    self.bookPowerTipButton = self:drawBookPowerTipButton()
     if self.bookPowerTipButton then
         self.view:insert(self.bookPowerTipButton)
     end
@@ -311,9 +314,7 @@ end
 
 function M:destroy()
     local function onComplete()
-        if self.view and self.view.removeSelf then
-            self.view:removeSelf()
-        end
+        common_ui.safeRemove(self.view)
     end
 
     transition.fadeOut(self.view, {
