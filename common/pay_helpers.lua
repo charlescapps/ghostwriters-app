@@ -160,7 +160,7 @@ function M.registerAllPurchases()
     if #purchases <= 0 then
         print("No stored purchases. Nothing to register.")
         if googleIAP then
-           print("Consuming all consumable purchases: " .. table.concat(consumableProductList, ","))
+           print("Consuming all consumable purchases")
            store.consumePurchase(consumableProductList, M.transactionListener)
         end
         return
@@ -172,9 +172,9 @@ function M.registerAllPurchases()
         print("Register Purchase SUCCESS - received updated user model from server.")
         login_common.updateStoredUser(updatedUserModel)
         local updatedJSON = purchase_store.removePurchase(firstPurchase)
-        -- Must consume Google purchases
-        if googleIAP then
-            print("Consuming Google Purchase for product: " .. firstPurchase.product)
+        -- Must consume Google purchases, except for Infinite Books.
+        if googleIAP and table.indexOf(consumableProductList, firstPurchase.product) then
+            print("Consuming Google Purchase for product: " .. tostring(firstPurchase.product))
             store.consumePurchase({ firstPurchase.product }, M.transactionListener)
         end
 
