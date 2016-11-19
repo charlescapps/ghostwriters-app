@@ -13,3 +13,5 @@ The game has in-app payments, however players get 1 token per hour for free, and
 I shut down the servers earlier this year, because the backend doesn't run well on Heroku Hobby due to all the Tries in memory for the dictionaries, and it didn't make much money in in-app payments (about $80 total for Android plus iOS).
 
 So unfortunately it's not up and running now, but maybe eventually I'll start a server if I can find cheaper hosting that's sufficiently fast with enough memory, and is easy to maintain like Heroku.
+
+The code is probably sub-par in some ways since I learned Lua for this project and I didn't pull in too many libs. However, at least I arrived at a decent pattern for re-using Lua classes for UI widgets. 
